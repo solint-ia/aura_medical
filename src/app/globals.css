@@ -1,0 +1,201 @@
+@import "tailwindcss";
+
+/* Tailwind v4 has no tailwind.config.ts — the class strategy that `next-themes`
+   drives (attribute="class") is declared here instead of `darkMode: "class"`. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ------------------------------------------------------------------ *
+ * Brand constants — Aura Medical / pbserum Plus
+ * Pixel-sampled from the official product renders. These never change
+ * with the theme: the enzyme colours identify a product.
+ * ------------------------------------------------------------------ */
+@theme {
+  --color-navy: #12283c;
+  --color-navy-deep: #0b1d2c;
+  --color-cream: #f6f3ec;
+  --color-gold: #c9a63e; /* Slim+ */
+  --color-gold-deep: #96781e; /* Slim+ on white (contrast) */
+  --color-mustard: #b8823a; /* Drain+ */
+  --color-bronze: #8c6f4e; /* Smooth+ */
+
+  /* Typography roles: display / body / technical */
+  --font-display: var(--font-sora), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+
+  /* The nav collapses to a hamburger here; the same breakpoint drives the
+     bento grid and the protocol configurator layout. */
+  --breakpoint-wide: 1180px;
+
+  /* Where the hero splits into copy + render side by side. */
+  --breakpoint-hero: 56rem;
+
+  --animate-fade-up: fade-up 0.7s both;
+  --animate-rise-in: rise-in 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(30px) rotate(var(--tilt, 0deg)) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) rotate(var(--tilt, 0deg)) scale(1);
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Semantic surfaces — these are what flip between themes.
+ *
+ * Dark mode inverts the brand logic rather than reaching for black: the
+ * navy that banded the light page becomes the page itself, and the cream
+ * that was the page becomes the type. The banded sections then step UP to
+ * a lighter navy, so the section rhythm survives the inversion instead of
+ * flattening into one slab.
+ * ------------------------------------------------------------------ */
+:root {
+  color-scheme: light;
+
+  --surface-canvas: #f6f3ec; /* page ground */
+  --surface-panel: #12283c; /* banded sections */
+  --surface-card: #ffffff; /* raised cards on the canvas */
+
+  --content-primary: #12283c; /* type and hairlines on canvas/card */
+  --content-on-panel: #f6f3ec; /* type on a banded section */
+
+  --accent-canvas: #b8823a; /* eyebrows and links on the canvas */
+  --accent-panel: #c9a63e; /* eyebrows on a banded section */
+
+  --action-bg: #12283c; /* primary button */
+  --action-fg: #f6f3ec;
+  --action-bg-hover: #0b1d2c;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --surface-canvas: #0a1622;
+  --surface-panel: #112233;
+  --surface-card: #16293b;
+
+  --content-primary: #f7f5f0;
+  --content-on-panel: #f7f5f0;
+
+  /* Mustard falls to ~3.4:1 on the dark ground; gold clears 7:1 and is the
+     same family, so the accent simply stays gold in both themes. */
+  --accent-canvas: #c9a63e;
+  --accent-panel: #c9a63e;
+
+  --action-bg: #f6f3ec;
+  --action-fg: #12283c;
+  --action-bg-hover: #ffffff;
+}
+
+/* `inline` so the utilities emit var(--surface-canvas) directly — without it
+   the .dark overrides never reach the elements. */
+@theme inline {
+  --color-canvas: var(--surface-canvas);
+  --color-panel: var(--surface-panel);
+  --color-card: var(--surface-card);
+  --color-content: var(--content-primary);
+  --color-on-panel: var(--content-on-panel);
+  --color-accent: var(--accent-canvas);
+  --color-accent-panel: var(--accent-panel);
+  --color-action: var(--action-bg);
+  --color-action-fg: var(--action-fg);
+  --color-action-hover: var(--action-bg-hover);
+}
+
+body {
+  background-color: var(--surface-canvas);
+  color: var(--content-primary);
+}
+
+@layer base {
+  /* Carries the theme swap. Utilities (transition-colors, transition-all) sit
+     in a later layer, so any element with its own transition keeps it. */
+  *,
+  *::before,
+  *::after {
+    transition-property: background-color, border-color, color;
+    transition-duration: 300ms;
+    transition-timing-function: ease;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Component rules that cannot be expressed with utilities alone.
+ * ------------------------------------------------------------------ */
+
+/* Swipeable rails — the case carousel and the category filters — keep their
+   scrolling but drop the scrollbar. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* The comparison handle owns horizontal drags; vertical scrolling stays with
+   the browser so the page never feels stuck on touch. */
+.compare-surface {
+  touch-action: pan-y;
+}
+
+/* Indications bento: the description is revealed on hover together with a
+   slow zoom of the photo. On touch devices there is no hover to reveal it,
+   so the description stays visible and the photo stays still. */
+.indication-desc {
+  max-height: 6rem;
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    max-height 0.35s ease,
+    opacity 0.3s ease,
+    transform 0.35s ease;
+}
+.indication-media {
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .indication-desc {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  .indication-card:hover .indication-desc,
+  .indication-card:focus-within .indication-desc {
+    max-height: 6rem;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .indication-card:hover .indication-media,
+  .indication-card:focus-within .indication-media {
+    transform: scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
