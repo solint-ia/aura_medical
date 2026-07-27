@@ -2,15 +2,18 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { ShoppingCart } from "lucide-react";
 
 import { AccreditationButton } from "@/components/accreditation/AccreditationButton";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { useCart } from "@/context/CartContext";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { HEADER_ACCREDITATION_CTA_LABEL, NAV_LINKS } from "@/data/site";
 
 export function SiteHeader() {
   const [isMenuRequested, setIsMenuRequested] = useState(false);
   const isWideViewport = useMediaQuery("(min-width: 1180px)", true);
+  const { totalItems, isHydrated } = useCart();
 
   // The panel is a narrow-viewport affordance: once the full nav takes over it
   // is closed, without needing an effect to reset the flag.
@@ -22,7 +25,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 flex items-center justify-between gap-6 border-b border-content/8 bg-canvas/92 px-[clamp(20px,4vw,56px)] py-[18px] backdrop-blur-[10px]">
       <Link href="/#hero" className="flex flex-wrap items-baseline gap-2.5">
         <span className="font-display text-xl font-bold tracking-[-0.01em] text-content">
-          Aura Regenerative
+          Aura Regenera
         </span>
         <span className="font-mono text-[10.5px] tracking-[0.06em] text-content/80 uppercase">
           Distribuidor Oficial pbserum
@@ -45,12 +48,36 @@ export function SiteHeader() {
         <AccreditationButton className="rounded-[7px] bg-action px-[22px] py-[11px] text-sm font-semibold whitespace-nowrap text-action-fg transition-colors hover:bg-action-hover">
           {HEADER_ACCREDITATION_CTA_LABEL}
         </AccreditationButton>
+        <Link
+          href="/carrinho"
+          aria-label={`Carrinho de compras (${isHydrated ? totalItems : 0} itens)`}
+          className="relative flex h-10 w-10 items-center justify-center rounded-lg border border-content/15 text-content transition-colors hover:border-accent hover:text-accent"
+        >
+          <ShoppingCart className="h-4.5 w-4.5" />
+          {isHydrated && totalItems > 0 ? (
+            <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#C59D3F] font-mono text-[10.5px] font-bold text-[#0D1B2A] shadow-md animate-scale-up">
+              {totalItems}
+            </span>
+          ) : null}
+        </Link>
         <ThemeToggle />
       </nav>
 
       {/* Below the nav breakpoint the toggle stays out on its own, so switching
           theme never costs a trip through the menu. */}
       <div className="flex items-center gap-2 wide:hidden">
+        <Link
+          href="/carrinho"
+          aria-label={`Carrinho de compras (${isHydrated ? totalItems : 0} itens)`}
+          className="relative flex h-11 w-11 items-center justify-center rounded-lg border border-content/15 text-content transition-colors hover:border-accent hover:text-accent"
+        >
+          <ShoppingCart className="h-5 w-5" />
+          {isHydrated && totalItems > 0 ? (
+            <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#C59D3F] font-mono text-[10.5px] font-bold text-[#0D1B2A] shadow-md animate-scale-up">
+              {totalItems}
+            </span>
+          ) : null}
+        </Link>
         <ThemeToggle className="h-11 w-11" />
 
         <button

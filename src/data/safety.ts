@@ -31,7 +31,7 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     question: "Como funciona o processo de credenciamento?",
     answer:
-      "Preencha o formulário de interesse: o time comercial da Aura Regenerative entra em contato para validar o perfil clínico e liberar o acesso à compra dos protocolos pbserum Plus.",
+      "Preencha o formulário de interesse: o time comercial da Aura Regenera entra em contato para validar o perfil clínico e liberar o acesso à compra dos protocolos pbserum Plus.",
   },
   {
     question: "Qual o pedido mínimo por clínica?",
@@ -45,7 +45,7 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     question: "Os produtos têm registro sanitário?",
     answer:
-      "Sim. pbserum Plus é um produto cosmético registrado conforme o Regulamento (CE) 1223/2009. A Aura Regenerative é a distribuidora oficial autorizada no Brasil.",
+      "Sim. pbserum Plus é um produto cosmético registrado conforme o Regulamento (CE) 1223/2009. A Aura Regenera é a distribuidora oficial autorizada no Brasil.",
   },
   {
     question: "Quem pode aplicar os protocolos?",

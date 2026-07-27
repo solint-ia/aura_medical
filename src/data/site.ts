@@ -14,17 +14,14 @@ export interface NavLink {
 // `/protocolos/[slug]` routes too: Next.js goes to the home page first, then
 // scrolls to the section.
 export const NAV_LINKS: NavLink[] = [
-  { href: "/#ciencia", label: "Ciência" },
-  { href: "/#produtos", label: "Produtos" },
-  { href: "/#indicacoes", label: "Indicações" },
-  { href: "/#casos", label: "Casos Clínicos" },
-  { href: "/#artigos", label: "Artigos" },
+  { href: "/", label: "Home" },
   { href: "/#protocolos", label: "Protocolos" },
-  { href: "/#faq", label: "FAQ" },
+  { href: "/#casos", label: "Casos Clínicos" },
+  { href: "/enzimas", label: "Enzimas" },
 ];
 
 export const HEADER_ACCREDITATION_CTA_LABEL = "Torne-se Parceiro";
-export const HERO_ACCREDITATION_CTA_LABEL = "Credencie sua Clínica";
+export const HERO_ACCREDITATION_CTA_LABEL = "Junte-se a nós";
 
 export interface FooterColumn {
   label: string;
@@ -33,7 +30,7 @@ export interface FooterColumn {
 
 export const FOOTER_COLUMNS: FooterColumn[] = [
   {
-    label: "Contato Aura Regenerative",
+    label: "Contato Aura Regenera",
     // Awaiting the commercial WhatsApp and e-mail from the client.
     lines: ["WhatsApp e e-mail comercial: em breve", SITE_DOMAIN],
   },

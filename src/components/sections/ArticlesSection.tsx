@@ -23,22 +23,18 @@ export function ArticlesSection() {
             <li key={article.id} className="border-b border-content/12">
               <a
                 href={article.href}
-                className="group grid grid-cols-[auto_1fr] items-baseline gap-x-5 gap-y-2 py-6 transition-colors sm:grid-cols-[4.5rem_1fr_auto] sm:gap-x-8"
+                className="group flex flex-col items-start justify-between gap-4 py-6 transition-colors sm:flex-row sm:items-center"
               >
-                <span className="font-mono text-[13px] tabular-nums text-content/50">
-                  {article.year}
-                </span>
-
-                <span className="col-span-1">
+                <div className="flex-1">
                   <span className="block font-display text-[17px] leading-snug font-semibold text-content transition-colors group-hover:text-accent sm:text-[19px]">
                     {article.title}
                   </span>
                   <span className="mt-1.5 block font-mono text-[11px] tracking-[0.04em] text-content/45 uppercase">
                     {article.topic}
                   </span>
-                </span>
+                </div>
 
-                <span className="col-start-2 inline-flex items-center gap-1.5 font-mono text-[12px] tracking-[0.04em] text-accent uppercase sm:col-start-3 sm:self-center">
+                <span className="inline-flex items-center gap-1.5 font-mono text-[12px] tracking-[0.04em] text-accent uppercase shrink-0">
                   Ler Estudo
                   <svg
                     aria-hidden="true"

@@ -13,7 +13,7 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-[1280px] grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-8 border-b border-on-panel/12 pb-8">
         <div>
           <p className="mb-2 font-display text-[19px] font-bold tracking-[-0.01em] text-on-panel">
-            Aura Regenerative
+            Aura Regenera
           </p>
           <p className="font-mono text-[10.5px] tracking-[0.06em] text-on-panel/60 uppercase">
             Distribuidor Oficial pbserum · Brasil
@@ -53,7 +53,7 @@ export function SiteFooter() {
       </div>
 
       <p className="mx-auto mt-4 max-w-[1280px] font-mono text-[10.5px] tracking-[0.04em] text-on-panel/45">
-        © 2026 Aura Regenerative, Distribuidor Oficial pbserum no Brasil.
+        © 2026 Aura Regenera, Distribuidor Oficial pbserum no Brasil.
       </p>
     </footer>
   );

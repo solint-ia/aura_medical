@@ -5,13 +5,14 @@ import { notFound } from "next/navigation";
 
 import { AccreditationButton } from "@/components/accreditation/AccreditationButton";
 import { AccreditationProvider } from "@/components/accreditation/AccreditationProvider";
-import { CheckoutDrawer } from "@/components/checkout/CheckoutDrawer";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { BuyNowButton } from "@/components/ui/BuyNowButton";
 import { formatBRL } from "@/lib/format";
 import {
   getProtocolBySlug,
   getProtocolPricing,
+  PROTOCOLS,
   protocolsData,
 } from "@/data/protocols";
 
@@ -33,12 +34,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!protocol) {
     return {
-      title: "Protocolo não encontrado · Aura Regenerative",
+      title: "Protocolo não encontrado · Aura Regenera",
     };
   }
 
   return {
-    title: `Protocolo ${protocol.title} · pbserum Plus | Aura Regenerative`,
+    title: `Protocolo ${protocol.title} · pbserum Plus | Aura Regenera`,
     description: `Detalhamento clínico do protocolo de ${protocol.title}: composição enzimática, reconstituição, frequência de sessões e técnica de aplicação.`,
   };
 }
@@ -166,11 +167,20 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                         </p>
 
                         <div className="mt-4">
-                          <CheckoutDrawer
-                            protocolName={protocol.title}
-                            unitPrice={pricing.totalPrice}
-                            vials={pricing.vials}
-                          />
+                          <BuyNowButton
+                            protocol={
+                              PROTOCOLS.find((p) => p.id === protocol.slug) || {
+                                id: protocol.slug,
+                                name: protocol.title,
+                                composition: [],
+                                sessions: protocol.sessions,
+                                totalPrice: pricing.totalPrice,
+                              }
+                            }
+                            className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#C59D3F] px-6 py-3.5 text-center text-sm font-semibold text-[#0D1B2A] shadow-md transition-all hover:bg-[#d4ac4c] active:scale-[0.99]"
+                          >
+                            Comprar Agora
+                          </BuyNowButton>
                         </div>
                       </div>
                     ) : null}

@@ -97,13 +97,13 @@ export function AccreditationModal({
         ) : (
           <>
             <p className="mb-2.5 font-mono text-[11px] tracking-[0.08em] text-accent uppercase">
-              Credenciamento Aura Regenerative
+              Credenciamento Aura Regenera
             </p>
             <h2
               id={titleId}
               className="mb-2 font-display text-[23px] font-bold text-content"
             >
-              Seja uma clínica credenciada pbserum.
+              Seja um parceiro
             </h2>
 
             {protocolName ? (
@@ -168,7 +168,7 @@ export function AccreditationModal({
             </form>
 
             <p className="mt-[18px] text-center text-[12.5px] text-content/60">
-              Prefere falar direto? WhatsApp e e-mail comercial da Aura Regenerative
+              Prefere falar direto? WhatsApp e e-mail comercial da Aura Regenera
               em breve.
             </p>
           </>

@@ -11,7 +11,7 @@ interface ProductSpec {
 }
 
 const SPEC_LABEL_CLASSES =
-  "mb-1 font-mono text-[10px] tracking-[0.08em] text-content/78 uppercase";
+  "mb-1 font-mono text-[10px] tracking-[0.08em] text-[#F6F3EC]/50 uppercase";
 
 export function ProductCard({ product }: { product: Product }) {
   const enzyme = ENZYMES[product.id];
@@ -27,7 +27,7 @@ export function ProductCard({ product }: { product: Product }) {
   ];
 
   return (
-    <article className="relative flex flex-col overflow-hidden rounded-[14px] border border-content/8 bg-card px-7 py-8 transition duration-250 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(18,40,60,0.12)] dark:hover:shadow-[0_20px_40px_rgba(0,0,0,0.5)]">
+    <article className="relative flex flex-col overflow-hidden rounded-[14px] border border-white/12 bg-[#162A3D] px-7 py-8 transition duration-250 hover:-translate-y-1 hover:border-[#C59D3F]/50 hover:shadow-[0_20px_40px_rgba(0,0,0,0.5)]">
       <div
         aria-hidden="true"
         className={`absolute inset-x-0 top-0 h-1 ${enzyme.barClass}`}
@@ -40,7 +40,7 @@ export function ProductCard({ product }: { product: Product }) {
         width={PRODUCT_IMAGE_SIZE.width}
         height={PRODUCT_IMAGE_SIZE.height}
         sizes="126px"
-        className="pointer-events-none absolute top-5 -right-3.5 h-auto w-[126px] drop-shadow-[0_8px_14px_rgba(18,40,60,0.15)]"
+        className="pointer-events-none absolute top-5 -right-3.5 h-auto w-[126px] drop-shadow-[0_8px_14px_rgba(0,0,0,0.4)]"
       />
 
       <div className="max-w-[65%]">
@@ -49,20 +49,20 @@ export function ProductCard({ product }: { product: Product }) {
         >
           {product.name}
         </h3>
-        <p className="mt-0.5 font-mono text-[10.5px] tracking-[0.08em] text-content/78 uppercase">
-          Professional
+        <p className="mt-0.5 font-mono text-[10.5px] tracking-[0.08em] text-[#F6F3EC]/60 uppercase">
+          Profissional
         </p>
       </div>
 
-      <dl className="mt-7 flex flex-col gap-3.5 border-t border-content/8 pt-5">
+      <dl className="mt-7 flex flex-col gap-3.5 border-t border-white/10 pt-5">
         {specs.map((spec) => (
           <div key={spec.label}>
             <dt className={SPEC_LABEL_CLASSES}>{spec.label}</dt>
             <dd
               className={
                 spec.emphasised
-                  ? "text-[15px] font-semibold text-content"
-                  : "text-[14.5px] text-content/78"
+                  ? "text-[15px] font-semibold text-[#F6F3EC]"
+                  : "text-[14.5px] text-[#F6F3EC]/85"
               }
             >
               {spec.value}
@@ -71,7 +71,7 @@ export function ProductCard({ product }: { product: Product }) {
         ))}
       </dl>
 
-      <p className="mt-5 text-sm leading-[1.65] text-content/72">
+      <p className="mt-5 text-sm leading-[1.65] text-[#F6F3EC]/75">
         {product.mechanism}
       </p>
 
@@ -79,14 +79,14 @@ export function ProductCard({ product }: { product: Product }) {
         {product.indications.map((indication) => (
           <li
             key={indication}
-            className={`rounded-full px-3 py-1.5 font-mono text-[11px] tracking-[0.04em] text-content uppercase ${enzyme.pillClass}`}
+            className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 font-mono text-[11px] tracking-[0.04em] text-[#F6F3EC] uppercase"
           >
             {indication}
           </li>
         ))}
       </ul>
 
-      <p className="mt-5 border-t border-content/6 pt-4 font-mono text-[10.5px] tracking-[0.04em] text-content/78">
+      <p className="mt-5 border-t border-white/10 pt-4 font-mono text-[10.5px] tracking-[0.04em] text-[#F6F3EC]/50">
         {product.packaging}
       </p>
     </article>

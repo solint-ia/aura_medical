@@ -4,6 +4,7 @@ import { JetBrains_Mono, Manrope, Sora } from "next/font/google";
 import { SITE_URL } from "@/data/site";
 
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { CartProvider } from "@/context/CartContext";
 
 import "./globals.css";
 
@@ -29,12 +30,12 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "pbserum Plus · Aura Regenerative · Distribuidor Oficial no Brasil",
+  title: "pbserum Plus · Aura Regenera · Distribuidor Oficial no Brasil",
   description:
     "Distribuição exclusiva de pbserum Plus para médicos, dermatologistas e cirurgiões plásticos. Enzimas recombinantes de 2ª geração com eficácia comprovada.",
   metadataBase: new URL(SITE_URL),
   openGraph: {
-    title: "pbserum Plus · Aura Regenerative",
+    title: "pbserum Plus · Aura Regenera",
     description:
       "Enzimas recombinantes para bioremodelação da matriz extracelular. Protocolos e credenciamento para clínicas no Brasil.",
     locale: "pt_BR",
@@ -56,7 +57,9 @@ export default function RootLayout({
       className={`${sora.variable} ${manrope.variable} ${jetbrainsMono.variable} scroll-smooth antialiased`}
     >
       <body className="font-sans">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <CartProvider>{children}</CartProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
