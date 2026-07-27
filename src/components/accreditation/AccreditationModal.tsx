@@ -97,7 +97,7 @@ export function AccreditationModal({
         ) : (
           <>
             <p className="mb-2.5 font-mono text-[11px] tracking-[0.08em] text-accent uppercase">
-              Credenciamento Aura Medical
+              Credenciamento Aura Regenerative
             </p>
             <h2
               id={titleId}
@@ -114,7 +114,7 @@ export function AccreditationModal({
             ) : null}
 
             <p className="mb-[22px] text-[14.5px] leading-[1.6] text-content/75">
-              Preencha seus dados — nosso time comercial entra em contato para
+              Preencha seus dados: nosso time comercial entra em contato para
               validar o credenciamento.
             </p>
 
@@ -168,7 +168,7 @@ export function AccreditationModal({
             </form>
 
             <p className="mt-[18px] text-center text-[12.5px] text-content/60">
-              Prefere falar direto? WhatsApp e e-mail comercial da Aura Medical
+              Prefere falar direto? WhatsApp e e-mail comercial da Aura Regenerative
               em breve.
             </p>
           </>

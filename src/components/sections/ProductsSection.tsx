@@ -14,7 +14,7 @@ export function ProductsSection() {
           titleId="produtos-title"
           eyebrow="pbserum Plus · Linha Professional"
           title="Três enzimas recombinantes. Um mecanismo específico para cada tecido."
-          lead="Cada bio-remodelador atua sobre um substrato distinto — gordura, colágeno fibrótico ou polissacarídeos da matriz — e pode ser combinado em protocolo conforme a indicação clínica."
+          lead="Cada bio-remodelador atua sobre um substrato distinto (gordura, colágeno fibrótico ou polissacarídeos da matriz) e pode ser combinado em protocolo conforme a indicação clínica."
           className="mb-14"
         />
 

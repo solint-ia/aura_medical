@@ -3,7 +3,7 @@ import type { CSSProperties } from "react";
 
 import { AccreditationButton } from "@/components/accreditation/AccreditationButton";
 import { PRODUCT_IMAGE_SIZE, PRODUCTS } from "@/data/products";
-import { ACCREDITATION_CTA_LABEL } from "@/data/site";
+import { HERO_ACCREDITATION_CTA_LABEL } from "@/data/site";
 
 /** Stacked arrangement of the three boxes, mirroring the printed catalogue. */
 const HERO_STACK = [
@@ -46,18 +46,18 @@ export function HeroSection() {
             id="hero-title"
             className="order-1 mb-[22px] animate-fade-up font-display text-[clamp(34px,4.6vw,58px)] leading-[1.06] font-bold tracking-[-0.015em] text-content [animation-delay:80ms]"
           >
-            Reorganize a arquitetura do tecido — não apenas a superfície da
+            Reorganize a arquitetura do tecido, não apenas a superfície da
             pele.
           </h1>
           <p className="order-3 mb-9 animate-fade-up text-[clamp(16px,1.4vw,18.5px)] leading-[1.6] text-content/72 [animation-delay:160ms]">
             Slim+, Smooth+ e Drain+ são três bio-remodeladores enzimáticos
             recombinantes que atuam na matriz extracelular para tratar flacidez,
-            gordura localizada, celulite, fibrose e cicatrizes — com a segurança
+            gordura localizada, celulite, fibrose e cicatrizes, com a segurança
             e o controle que sua prática clínica exige.
           </p>
           <div className="order-4 mb-8 flex animate-fade-up flex-wrap gap-4 [animation-delay:240ms]">
             <AccreditationButton className="rounded-lg bg-action px-[30px] py-4 text-[15.5px] font-semibold text-action-fg transition-colors hover:bg-action-hover">
-              {ACCREDITATION_CTA_LABEL}
+              {HERO_ACCREDITATION_CTA_LABEL}
             </AccreditationButton>
             <a
               href="#protocolos"

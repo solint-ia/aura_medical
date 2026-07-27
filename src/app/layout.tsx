@@ -29,12 +29,12 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "pbserum Plus · Aura Medical — Distribuidor Oficial no Brasil",
+  title: "pbserum Plus · Aura Regenerative · Distribuidor Oficial no Brasil",
   description:
-    "Slim+, Smooth+ e Drain+: bio-remodeladores enzimáticos recombinantes para flacidez, gordura localizada, celulite, fibrose e cicatrizes. Credenciamento para clínicas e profissionais de saúde.",
+    "Distribuição exclusiva de pbserum Plus para médicos, dermatologistas e cirurgiões plásticos. Enzimas recombinantes de 2ª geração com eficácia comprovada.",
   metadataBase: new URL(SITE_URL),
   openGraph: {
-    title: "pbserum Plus · Aura Medical",
+    title: "pbserum Plus · Aura Regenerative",
     description:
       "Enzimas recombinantes para bioremodelação da matriz extracelular. Protocolos e credenciamento para clínicas no Brasil.",
     locale: "pt_BR",

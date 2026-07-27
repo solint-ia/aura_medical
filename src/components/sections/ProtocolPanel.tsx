@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { CheckoutDrawer } from "@/components/checkout/CheckoutDrawer";
 import { ENZYMES } from "@/data/enzymes";
 import { countVials, PRICE_PER_VIAL, type Protocol } from "@/data/protocols";
 import { formatBRL } from "@/lib/format";
@@ -80,22 +81,31 @@ export function ProtocolPanel({ protocol }: { protocol: Protocol }) {
           </p>
         </div>
 
-        <Link
-          href={`/protocolos/${protocol.id}`}
-          className="group inline-flex items-center justify-center gap-2.5 rounded-[9px] bg-action px-7 py-[17px] text-[15.5px] font-semibold whitespace-nowrap text-action-fg transition-all hover:bg-action-hover shadow-md hover:shadow-lg active:scale-[0.99]"
-        >
-          <span>Ver Protocolo Completo</span>
-          <svg
-            aria-hidden="true"
-            className="h-4 w-4 transition-transform group-hover:translate-x-1"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth="2.5"
+        <div className="flex flex-wrap items-center gap-3">
+          <CheckoutDrawer
+            protocolName={protocol.name}
+            unitPrice={protocol.totalPrice}
+            vials={totalVials}
+            buttonLabel="Comprar Agora"
+            buttonClassName="group inline-flex items-center justify-center gap-2.5 rounded-[9px] bg-[#C59D3F] px-7 py-[17px] text-[15.5px] font-semibold whitespace-nowrap text-[#0D1B2A] shadow-[0_10px_30px_rgba(197,157,63,0.28)] transition-all hover:bg-[#d4ac4c] active:scale-[0.99]"
+          />
+          <Link
+            href={`/protocolos/${protocol.id}`}
+            className="group inline-flex items-center justify-center gap-2.5 rounded-[9px] bg-action px-7 py-[17px] text-[15.5px] font-semibold whitespace-nowrap text-action-fg transition-all hover:bg-action-hover shadow-md hover:shadow-lg active:scale-[0.99]"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-          </svg>
-        </Link>
+            <span>Ver Protocolo Completo</span>
+            <svg
+              aria-hidden="true"
+              className="h-4 w-4 transition-transform group-hover:translate-x-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </Link>
+        </div>
       </div>
     </div>
   );

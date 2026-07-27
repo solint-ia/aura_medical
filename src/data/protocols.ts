@@ -173,5 +173,18 @@ export function getProtocolBySlug(slug: string): ProtocolDetail | undefined {
   return protocolsData.find((p) => p.slug === slug);
 }
 
+/**
+ * Commercial pricing lives on the configurator entries (`PROTOCOLS`), keyed by
+ * the same slug as the detail pages. This bridges the two so the checkout on a
+ * detail page can show the real kit price and vial count.
+ */
+export function getProtocolPricing(
+  slug: string,
+): { totalPrice: number; vials: number } | undefined {
+  const priced = PROTOCOLS.find((p) => p.id === slug);
+  if (!priced) return undefined;
+  return { totalPrice: priced.totalPrice, vials: countVials(priced) };
+}
+
 export { PRICE_PER_VIAL };
 

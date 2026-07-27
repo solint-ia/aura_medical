@@ -5,7 +5,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ------------------------------------------------------------------ *
- * Brand constants — Aura Medical / pbserum Plus
+ * Brand constants — Aura Regenerative / pbserum Plus
  * Pixel-sampled from the official product renders. These never change
  * with the theme: the enzyme colours identify a product.
  * ------------------------------------------------------------------ */

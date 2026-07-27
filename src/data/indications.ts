@@ -69,4 +69,4 @@ export const INDICATIONS: Indication[] = [
 ];
 
 export const SESSION_INTERVAL_NOTE =
-  "Intervalo entre sessões — Flacidez: 4–6 semanas · Adiposidade, celulite, cicatrizes e fibrose: 2–3 semanas.";
+  "Intervalo entre sessões · Flacidez: 4–6 semanas · Adiposidade, celulite, cicatrizes e fibrose: 2–3 semanas.";

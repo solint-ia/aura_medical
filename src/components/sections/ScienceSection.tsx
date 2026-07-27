@@ -24,7 +24,7 @@ export function ScienceSection() {
           titleId="ciencia-title"
           eyebrow="Ciência · Bioremodelação"
           title="Regeneração funcional começa na matriz extracelular."
-          lead="A bioremodelação reorganiza as bases bioquímicas e estruturais do tecido — atuando na matriz extracelular, no compartimento intersticial e nas células residentes (fibroblastos, adipócitos, pericitos e células endoteliais) para reverter o microambiente profibrótico e pró-inflamatório do envelhecimento tecidual."
+          lead="A bioremodelação reorganiza as bases bioquímicas e estruturais do tecido, atuando na matriz extracelular, no compartimento intersticial e nas células residentes (fibroblastos, adipócitos, pericitos e células endoteliais) para reverter o microambiente profibrótico e pró-inflamatório do envelhecimento tecidual."
           className="mb-14"
         />
 

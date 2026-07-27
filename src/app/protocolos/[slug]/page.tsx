@@ -5,9 +5,15 @@ import { notFound } from "next/navigation";
 
 import { AccreditationButton } from "@/components/accreditation/AccreditationButton";
 import { AccreditationProvider } from "@/components/accreditation/AccreditationProvider";
+import { CheckoutDrawer } from "@/components/checkout/CheckoutDrawer";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
-import { getProtocolBySlug, protocolsData } from "@/data/protocols";
+import { formatBRL } from "@/lib/format";
+import {
+  getProtocolBySlug,
+  getProtocolPricing,
+  protocolsData,
+} from "@/data/protocols";
 
 interface PageProps {
   params: Promise<{
@@ -27,12 +33,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!protocol) {
     return {
-      title: "Protocolo não encontrado · Aura Medical",
+      title: "Protocolo não encontrado · Aura Regenerative",
     };
   }
 
   return {
-    title: `Protocolo ${protocol.title} · pbserum Plus | Aura Medical`,
+    title: `Protocolo ${protocol.title} · pbserum Plus | Aura Regenerative`,
     description: `Detalhamento clínico do protocolo de ${protocol.title}: composição enzimática, reconstituição, frequência de sessões e técnica de aplicação.`,
   };
 }
@@ -44,6 +50,8 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
   if (!protocol) {
     notFound();
   }
+
+  const pricing = getProtocolPricing(slug);
 
   return (
     <AccreditationProvider>
@@ -142,6 +150,30 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                         </span>
                       </div>
                     </div>
+
+                    {pricing ? (
+                      <div className="mt-6 border-t border-content/10 pt-5">
+                        <div className="flex items-end justify-between">
+                          <span className="font-mono text-xs tracking-wider text-content/50 uppercase">
+                            Valor do kit
+                          </span>
+                          <span className="font-display text-2xl font-bold text-content">
+                            {formatBRL(pricing.totalPrice)}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-right font-mono text-[11px] text-content/50">
+                          {pricing.vials} frascos por kit
+                        </p>
+
+                        <div className="mt-4">
+                          <CheckoutDrawer
+                            protocolName={protocol.title}
+                            unitPrice={pricing.totalPrice}
+                            vials={pricing.vials}
+                          />
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               </div>
