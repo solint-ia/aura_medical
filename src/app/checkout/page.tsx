@@ -347,9 +347,9 @@ function CheckoutContent() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
+      <div className="flex flex-col gap-8 lg:grid lg:grid-cols-12 lg:gap-12">
         {/* Left Column: Multi-Step Form */}
-        <div className="lg:col-span-7">
+        <div className="order-2 lg:order-1 lg:col-span-7">
           {/* Step Indicator */}
           <div className="mb-8 flex items-center gap-4 border-b border-content/12 pb-5 font-mono text-xs tracking-wider uppercase">
             <button
@@ -385,7 +385,7 @@ function CheckoutContent() {
                   1. Dados de Contato
                 </h2>
                 <p className="text-sm text-content/70">
-                  Informe seus dados para contato comercial e validação médica da compra.
+                  Informe seus dados para contato e confirmação do pedido.
                 </p>
               </div>
 
@@ -396,7 +396,7 @@ function CheckoutContent() {
                   </label>
                   <input
                     type="text"
-                    placeholder="Dr(a). Maria Silva"
+                    placeholder="Maria Silva"
                     value={contact.name}
                     onChange={(e) => setContact({ ...contact, name: e.target.value })}
                     className={inputClass(!!errors.name)}
@@ -406,11 +406,11 @@ function CheckoutContent() {
 
                 <div>
                   <label className="block mb-1.5 font-mono text-xs text-content/75 uppercase tracking-wider">
-                    E-mail Comercial *
+                    E-mail *
                   </label>
                   <input
                     type="email"
-                    placeholder="doutor@clinica.com.br"
+                    placeholder="seuemail@exemplo.com.br"
                     value={contact.email}
                     onChange={(e) => setContact({ ...contact, email: e.target.value })}
                     className={inputClass(!!errors.email)}
@@ -780,7 +780,7 @@ function CheckoutContent() {
         </div>
 
         {/* Right Column: Order Summary Sidebar (Mirroring Cart State) */}
-        <div className="lg:col-span-5">
+        <div className="order-1 lg:order-2 lg:col-span-5">
           <div className="sticky top-28 rounded-2xl border border-content/12 bg-card p-6 shadow-md">
             <h3 className="font-display text-lg font-bold text-content mb-4 border-b border-content/10 pb-3">
               Resumo do Pedido
