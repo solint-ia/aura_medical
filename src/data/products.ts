@@ -66,20 +66,31 @@ export interface EnzymeComparisonRow {
 
 export const ENZYME_COMPARISON: EnzymeComparisonRow[] = [
   {
-    attribute: "Estrutura",
-    recombinant: "Estrutura mais simples",
-    animal: "Mais complexa",
+    attribute: "Pureza & Estabilidade",
+    recombinant:
+      "Alta pureza biotecnológica. Fórmula estéril e liofilizada para máxima preservação dos ativos.",
+    animal:
+      "Maior risco de degradação do ativo, geralmente em soluções líquidas instáveis.",
   },
   {
-    attribute: "Glicosilação",
-    recombinant: "Não-glicosilada",
-    animal: "Glicosilada",
+    attribute: "Ação & Seletividade",
+    recombinant:
+      "Ação inteligente e seletiva. Direcionada exclusivamente aos substratos específicos do tecido (gordura, colágeno, fluidos).",
+    animal:
+      "Ação generalizada ou inespecífica, comparável às moléculas químicas clássicas.",
   },
-  { attribute: "Tamanho molecular", recombinant: "Menor", animal: "Maior" },
-  { attribute: "Imunogenicidade", recombinant: "Menor", animal: "Maior" },
   {
-    attribute: "Segurança",
-    recombinant: "Maior controle clínico",
-    animal: "Menor previsibilidade",
+    attribute: "Origem & Ética",
+    recombinant:
+      "Origem bacteriana recombinante. 100% livre de crueldade (sem testes em animais).",
+    animal:
+      "Frequentemente derivadas de origem animal, com processos de extração mais complexos.",
+  },
+  {
+    attribute: "Eficácia Clínica",
+    recombinant:
+      "Resultados visíveis e prolongados em curto prazo, atuando desde a primeira aplicação.",
+    animal:
+      "Resposta clínica variável, frequentemente exigindo múltiplas sessões para resultados iniciais.",
   },
 ];
