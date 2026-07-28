@@ -102,7 +102,7 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                 {protocol.title}
               </h1>
 
-              {/* Task 1: Render Introduction Text */}
+              {/* Introduction Text */}
               {protocol.introduction ? (
                 <p className="mt-4 text-lg md:text-xl leading-relaxed text-content/80 font-normal">
                   {protocol.introduction}
@@ -118,13 +118,13 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
 
             {/* Main Content Layout Grid */}
             <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 items-start">
-              {/* Left Column: Visual Anchor (The Circle) & Quick Specs */}
+              {/* Left Column: Visual Anchor 1 (Top Hero Circle: imagePath1) & Quick Specs */}
               <div className="lg:col-span-5 flex flex-col items-center">
                 <div className="sticky top-28 w-full flex flex-col items-center">
-                  {/* Circle Image Container */}
+                  {/* Circle Image Container 1 (imagePath1) */}
                   <div className="group relative aspect-square w-64 h-64 sm:w-72 sm:h-72 lg:w-80 lg:h-80 rounded-full overflow-hidden border-[3px] border-[#C59D3F] shadow-[0_20px_50px_rgba(197,157,63,0.18)] ring-8 ring-[#C59D3F]/10 transition-transform duration-500 hover:scale-[1.02]">
                     <Image
-                      src={protocol.imagePath}
+                      src={protocol.imagePath1}
                       alt={`Área de aplicação do protocolo ${protocol.title}`}
                       fill
                       sizes="(max-width: 768px) 280px, 320px"
@@ -198,7 +198,7 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
 
               {/* Right Column: Detailed Clinical Data Cards */}
               <div className="lg:col-span-7 space-y-8">
-                {/* Task 2: Refactored Composição do Kit */}
+                {/* 1. Composição do Kit */}
                 <section className="rounded-2xl border border-content/10 bg-card p-6 sm:p-8 shadow-sm">
                   <div className="flex items-center gap-3 mb-6">
                     <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
@@ -310,6 +310,25 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                   </ul>
                 </section>
 
+                {/* Task 2: Inject Second Circular Image (imagePath2) Between Aplicação and Marcação */}
+                {protocol.imagePath2 ? (
+                  <div className="my-10 flex flex-col items-center justify-center py-4">
+                    <div className="group relative aspect-square w-64 h-64 sm:w-72 sm:h-72 lg:w-80 lg:h-80 rounded-full overflow-hidden border-[3px] border-[#C59D3F] shadow-[0_20px_50px_rgba(197,157,63,0.18)] ring-8 ring-[#C59D3F]/10 transition-transform duration-500 hover:scale-[1.02]">
+                      <Image
+                        src={protocol.imagePath2}
+                        alt={`Mapeamento de marcação do protocolo ${protocol.title}`}
+                        fill
+                        sizes="(max-width: 768px) 280px, 320px"
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 rounded-full ring-1 ring-inset ring-black/10 pointer-events-none" />
+                    </div>
+                    <p className="mt-4 font-mono text-xs tracking-wider text-content/50 uppercase text-center">
+                      Mapeamento de Marcação em Malha
+                    </p>
+                  </div>
+                ) : null}
+
                 {/* 5. Marcação */}
                 <section className="rounded-2xl border border-content/10 bg-card p-6 sm:p-8 shadow-sm">
                   <div className="flex items-center gap-3 mb-6">
@@ -328,7 +347,7 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                   </div>
                 </section>
 
-                {/* Task 3: Resultados Esperados Section */}
+                {/* 6. Resultados Esperados */}
                 {protocol.expectedResults && protocol.expectedResults.length > 0 ? (
                   <section className="rounded-2xl border border-content/10 bg-card p-6 sm:p-8 shadow-sm">
                     <div className="flex items-center gap-3 mb-6">

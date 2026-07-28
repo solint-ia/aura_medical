@@ -86,7 +86,6 @@ export function countVials(protocol: Protocol): number {
   return protocol.composition.reduce((total, item) => total + item.vials, 0);
 }
 
-// NOVO FORMATO DA COMPOSIÇÃO
 export interface ProtocolCompositionDetail {
   name: string;
   description: string;
@@ -95,7 +94,8 @@ export interface ProtocolCompositionDetail {
 export interface ProtocolDetail {
   slug: string;
   title: string;
-  imagePath: string;
+  imagePath1: string; // Foto do topo
+  imagePath2: string; // Foto entre Aplicação e Marcação
   introduction: string;
   note?: string;
   composition: ProtocolCompositionDetail[];
@@ -111,7 +111,8 @@ export const protocolsData: ProtocolDetail[] = [
   {
     slug: "queixo-duplo",
     title: "Queixo Duplo",
-    imagePath: "/images/queixo-duplo.png",
+    imagePath1: "/images/fotos-protocolos/queixoduplo-1.png",
+    imagePath2: "/images/fotos-protocolos/queixoduplo-2.png",
     introduction: "Protocolo indicado para remodelação da gordura submentoniana, promovendo melhora do contorno mandibular por meio da associação das enzimas recombinantes Slim+, Smooth+ e Drain+.",
     composition: [
       { name: "1 Smooth+ (Colagenases)", description: "Remodelação do colágeno" },
@@ -133,7 +134,8 @@ export const protocolsData: ProtocolDetail[] = [
   {
     slug: "perfilamento-facial",
     title: "Perfilamento Facial",
-    imagePath: "/images/perfilamento-facial.png",
+    imagePath1: "/images/fotos-protocolos/perfilamento-1.png",
+    imagePath2: "/images/fotos-protocolos/perfilamento-2.png",
     introduction: "O protocolo de Perfilamento Facial foi desenvolvido para promover a remodelação dos tecidos da face, melhorando a definição do contorno mandibular e proporcionando um perfil facial mais harmônico por meio da ação sinérgica das enzimas recombinantes Slim+, Smooth+ e Drain+.",
     composition: [
       { name: "1 Smooth+ (Colagenases)", description: "Remodelação das fibras de colágeno e melhora da firmeza dos tecidos." },
@@ -157,7 +159,8 @@ export const protocolsData: ProtocolDetail[] = [
   {
     slug: "gordura-localizada",
     title: "Gordura Localizada",
-    imagePath: "/images/gordura-localizada.png",
+    imagePath1: "/images/fotos-protocolos/gorduralocalizada-1.png",
+    imagePath2: "/images/fotos-protocolos/gorduralocalizada-2.png",
     introduction: "O protocolo de Adiposidade Localizada foi desenvolvido para promover a remodelação dos tecidos e auxiliar na redução de depósitos de gordura localizada por meio da ação combinada das enzimas recombinantes Slim+, Smooth+ e Drain+. O tratamento oferece uma abordagem minimamente invasiva para melhorar o contorno corporal de forma progressiva.",
     composition: [
       { name: "1 Smooth+ (Colagenases)", description: "Promove a remodelação das fibras de colágeno, favorecendo uma melhor organização dos tecidos." },
@@ -181,7 +184,8 @@ export const protocolsData: ProtocolDetail[] = [
   {
     slug: "celulite",
     title: "Celulite",
-    imagePath: "/images/celulite.png",
+    imagePath1: "/images/fotos-protocolos/celulite-1.png",
+    imagePath2: "/images/fotos-protocolos/celulite-2.png",
     introduction: "O protocolo para Celulite foi desenvolvido para promover a remodelação dos tecidos acometidos, atuando sobre os septos fibróticos, a gordura localizada e a drenagem do tecido. A combinação das enzimas recombinantes proporciona melhora progressiva da textura da pele e do contorno corporal de forma minimamente invasiva.",
     note: "Tratamento para ambas as pernas",
     composition: [
@@ -193,7 +197,7 @@ export const protocolsData: ProtocolDetail[] = [
     frequency: "A cada 2 semanas",
     reconstitution: ["Adicione 3 ml de solução salina estéril em cada frasco.", "Adicione 1 ml de lidocaína simples a 2%."],
     application: ["Aplicar 1 ml por ponto.", "O protocolo foi desenvolvido para tratamento de ambas as pernas."],
-    marking: "A região tratada deve ser marcada em forma de malha, mantendo espaçamento aproximado de 1 a 1,5 cm entre os pontos de aplicação. O coquetel enzimático deve ser applied no centro de cada quadrado da malha para proporcionar distribuição uniforme em toda a área tratada.",
+    marking: "A região tratada deve ser marcada em forma de malha, mantendo espaçamento aproximado de 1 a 1,5 cm entre os pontos de aplicação. O coquetel enzimático deve ser aplicado no centro de cada quadrado da malha para proporcionar distribuição uniforme em toda a área tratada.",
     expectedResults: [
       "Melhora da aparência da celulite",
       "Remodelação dos septos fibróticos",
@@ -206,8 +210,9 @@ export const protocolsData: ProtocolDetail[] = [
   {
     slug: "cicatrizes",
     title: "Cicatrizes",
-    imagePath: "/images/cicatrizes.png",
-    introduction: "O protocolo para Cicatrizes foi desenvolvido para promover a remodelação dos tecidos cicatriciais por meio da ação das enzimas recombinantes Smooth+ e Drain+. O tratamento auxilia na reorganização das fibras de colágeno, contribuindo para uma aparência mais uniforme da pele e melhor integração da cicatriz aos tecidos adjacentes.",
+    imagePath1: "/images/fotos-protocolos/cicatrizes-1.png",
+    imagePath2: "/images/fotos-protocolos/cicatrizes-2.png",
+    introduction: "O protocolo para Cicatrizes foi desenvolvido para promover a remodelação dos tecidos cicatriciais por meio da ação das enzimas recombinantes Smooth+ and Drain+. O tratamento auxilia na reorganização das fibras de colágeno, contribuindo para uma aparência mais uniforme da pele e melhor integração da cicatriz aos tecidos adjacentes.",
     composition: [
       { name: "3 Smooth+ (Colagenases)", description: "Atuam na remodelação das fibras de colágeno da cicatriz, favorecendo uma reorganização mais uniforme do tecido." },
       { name: "1 Drain+ (Hialuronidase)", description: "Melhora a difusão do coquetel enzimático e auxilia na remodelação do microambiente tecidual." }
@@ -228,7 +233,8 @@ export const protocolsData: ProtocolDetail[] = [
   {
     slug: "fibrose-pos-cirurgica",
     title: "Fibrose Pós-Cirúrgica",
-    imagePath: "/images/fibrose-pos-cirurgica.png",
+    imagePath1: "/images/fotos-protocolos/fibrose-1.png",
+    imagePath2: "/images/fotos-protocolos/fibrose-2.png",
     introduction: "O protocolo para Fibrose foi desenvolvido para auxiliar na remodelação de tecidos fibróticos, aderências e nódulos pós-cirúrgicos por meio da ação combinada das enzimas recombinantes Smooth+, Drain+ e Slim+. O tratamento favorece a reorganização do tecido, contribuindo para uma recuperação mais uniforme e para a melhora da mobilidade e do aspecto da região tratada.",
     composition: [
       { name: "3 Smooth+ (Colagenases)", description: "Atuam na remodelação das fibras de colágeno, auxiliando na reorganização dos tecidos fibróticos e na redução das aderências." },
