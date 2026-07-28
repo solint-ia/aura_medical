@@ -822,15 +822,15 @@ function CheckoutContent() {
               </div>
             </div>
 
-            {/* Clinical B2B Security Badges */}
+            {/* Clinical D2C Security & Trust Badges */}
             <div className="space-y-2.5 rounded-xl bg-canvas p-4 text-[11.5px] text-content/70 font-mono">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-[#C59D3F] shrink-0" />
-                <span>Uso exclusivo para profissionais habilitados</span>
+                <span>Fórmula de Alta Performance e Grau Clínico</span>
               </div>
               <div className="flex items-center gap-2">
                 <Truck className="h-4 w-4 text-[#C59D3F] shrink-0" />
-                <span>Envio rápido com cadeia de frio garantida</span>
+                <span>Entrega Premium com Qualidade Garantida</span>
               </div>
               <div className="flex items-center gap-2">
                 <Lock className="h-4 w-4 text-[#C59D3F] shrink-0" />
