@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 
 interface EnzymeCardData {
   id: string;
@@ -75,30 +74,30 @@ export function EnzymeTriadSection() {
           {ENZYME_TRIAD.map((enzyme) => (
             <article
               key={enzyme.id}
-              className="group relative flex flex-col justify-between rounded-2xl border border-[#0A1622]/10 bg-white/90 p-8 text-center shadow-sm backdrop-blur-sm transition-all duration-500 hover:border-[#C59D3F]/50 hover:shadow-xl"
+              className="group relative flex flex-col items-center rounded-2xl border border-[#0A1622]/10 bg-white/90 p-8 sm:p-9 text-center shadow-sm backdrop-blur-sm transition-all duration-500 hover:border-[#C59D3F]/50 hover:shadow-xl hover:-translate-y-1"
             >
               {/* Radial glow highlight behind vial */}
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 -z-0 rounded-2xl bg-[radial-gradient(circle_at_center_30%,rgba(197,157,63,0.08)_0%,transparent_65%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                className="pointer-events-none absolute inset-0 -z-0 rounded-2xl bg-[radial-gradient(circle_at_center_35%,rgba(197,157,63,0.1)_0%,transparent_65%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
               />
 
-              <div className="relative z-10 flex flex-col items-center">
+              <div className="relative z-10 flex flex-col items-center w-full">
                 {/* Category Tag */}
                 <span className="mb-6 inline-block rounded-full border border-[#C59D3F]/30 bg-[#C59D3F]/10 px-3.5 py-1 font-mono text-[11px] font-semibold text-[#C59D3F] uppercase tracking-wider">
                   {enzyme.tag}
                 </span>
 
-                {/* Vial Image */}
-                <div className="relative mb-6 flex h-52 w-full items-center justify-center">
+                {/* Prominent Vial Image */}
+                <div className="relative mb-6 flex h-60 w-full items-center justify-center py-2">
                   <Image
                     src={enzyme.image}
                     alt={`Frasco ${enzyme.name}`}
-                    width={220}
-                    height={320}
+                    width={260}
+                    height={360}
                     priority
-                    sizes="(max-width: 768px) 80vw, 300px"
-                    className="h-auto w-40 max-h-48 object-contain transition-all duration-500 ease-out group-hover:-translate-y-3 group-hover:scale-105 group-hover:drop-shadow-[0_20px_35px_rgba(197,157,63,0.35)] drop-shadow-xl cursor-pointer"
+                    sizes="(max-width: 768px) 85vw, 340px"
+                    className="h-auto w-48 max-h-56 object-contain transition-all duration-500 ease-out group-hover:-translate-y-3 group-hover:scale-105 group-hover:drop-shadow-[0_22px_40px_rgba(197,157,63,0.4)] drop-shadow-xl cursor-pointer"
                   />
                 </div>
 
@@ -108,33 +107,9 @@ export function EnzymeTriadSection() {
                 </h3>
 
                 {/* Description */}
-                <p className="text-sm leading-relaxed text-[#0A1622]/75">
+                <p className="text-sm leading-relaxed text-[#0A1622]/75 max-w-xs mx-auto">
                   {enzyme.description}
                 </p>
-              </div>
-
-              {/* Action Button */}
-              <div className="relative z-10 mt-8 pt-4 border-t border-[#0A1622]/8">
-                <Link
-                  href={`/enzimas/${enzyme.slug}`}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#C59D3F]/40 bg-transparent px-5 py-3 font-mono text-xs font-bold tracking-wider text-[#0A1622] uppercase transition-all duration-300 hover:border-[#C59D3F] hover:bg-[#C59D3F] hover:text-[#0D1B2A] shadow-xs"
-                >
-                  <span>Explorar {enzyme.name.replace("pbserum ", "")}</span>
-                  <svg
-                    aria-hidden="true"
-                    className="h-3.5 w-3.5 text-[#C59D3F] group-hover:text-[#0D1B2A] transition-colors"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                    />
-                  </svg>
-                </Link>
               </div>
             </article>
           ))}
