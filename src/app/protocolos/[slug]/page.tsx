@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Check } from "lucide-react";
 
 import { AccreditationButton } from "@/components/accreditation/AccreditationButton";
 import { AccreditationProvider } from "@/components/accreditation/AccreditationProvider";
@@ -101,6 +102,13 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                 {protocol.title}
               </h1>
 
+              {/* Task 1: Render Introduction Text */}
+              {protocol.introduction ? (
+                <p className="mt-4 text-lg md:text-xl leading-relaxed text-content/80 font-normal">
+                  {protocol.introduction}
+                </p>
+              ) : null}
+
               {protocol.note ? (
                 <p className="mt-3 inline-block rounded-md border border-content/10 bg-card px-3 py-1.5 font-mono text-xs text-content/75">
                   ℹ️ {protocol.note}
@@ -190,7 +198,7 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
 
               {/* Right Column: Detailed Clinical Data Cards */}
               <div className="lg:col-span-7 space-y-8">
-                {/* 1. Composição do Kit */}
+                {/* Task 2: Refactored Composição do Kit */}
                 <section className="rounded-2xl border border-content/10 bg-card p-6 sm:p-8 shadow-sm">
                   <div className="flex items-center gap-3 mb-6">
                     <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
@@ -201,14 +209,21 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                     </h2>
                   </div>
 
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <ul className="grid grid-cols-1 gap-3.5">
                     {protocol.composition.map((item, index) => (
                       <li
                         key={index}
-                        className="flex items-center gap-3 rounded-xl border border-content/8 bg-canvas p-4 transition-all hover:border-[#C59D3F]/40"
+                        className="flex items-start gap-3.5 rounded-xl border border-content/8 bg-canvas p-4 transition-all hover:border-[#C59D3F]/40"
                       >
-                        <span className="h-2 w-2 rounded-full bg-[#C59D3F]" />
-                        <span className="text-sm font-semibold text-content">{item}</span>
+                        <span className="mt-1.5 h-2.5 w-2.5 flex-none rounded-full bg-[#C59D3F]" />
+                        <div>
+                          <h3 className="text-base font-semibold text-content">{item.name}</h3>
+                          {item.description ? (
+                            <p className="mt-0.5 text-sm text-content/65 leading-normal">
+                              {item.description}
+                            </p>
+                          ) : null}
+                        </div>
                       </li>
                     ))}
                   </ul>
@@ -312,6 +327,34 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                     </p>
                   </div>
                 </section>
+
+                {/* Task 3: Resultados Esperados Section */}
+                {protocol.expectedResults && protocol.expectedResults.length > 0 ? (
+                  <section className="rounded-2xl border border-content/10 bg-card p-6 sm:p-8 shadow-sm">
+                    <div className="flex items-center gap-3 mb-6">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                        06
+                      </span>
+                      <h2 className="font-display text-xl font-bold text-content">
+                        Resultados Esperados
+                      </h2>
+                    </div>
+
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      {protocol.expectedResults.map((result, idx) => (
+                        <li
+                          key={idx}
+                          className="flex items-start gap-3 rounded-xl border border-content/8 bg-canvas p-4 transition-all hover:border-[#C59D3F]/40"
+                        >
+                          <Check className="mt-0.5 h-5 w-5 flex-none text-[#C59D3F]" />
+                          <span className="text-sm font-medium leading-snug text-content/90">
+                            {result}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ) : null}
 
                 {/* Bottom CTA Block */}
                 <div className="rounded-2xl border border-[#C59D3F]/30 bg-panel p-8 text-on-panel shadow-xl">
