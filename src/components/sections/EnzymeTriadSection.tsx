@@ -89,15 +89,15 @@ export function EnzymeTriadSection() {
                 </span>
 
                 {/* Slightly Decreased Hero Vial Image Container */}
-                <div className="relative my-2 flex h-48 sm:h-52 w-full items-center justify-center">
+                <div className="relative my-2 flex h-44 sm:h-48 w-full items-center justify-center">
                   <Image
                     src={enzyme.image}
                     alt={`Frasco ${enzyme.name}`}
-                    width={320}
-                    height={420}
+                    width={300}
+                    height={400}
                     priority
-                    sizes="(max-width: 768px) 85vw, 350px"
-                    className="pointer-events-none absolute -top-2 sm:-top-3 h-[210px] sm:h-[230px] w-auto max-w-none object-contain transition-all duration-500 ease-out group-hover:-translate-y-2.5 group-hover:scale-108 group-hover:drop-shadow-[0_25px_45px_rgba(197,157,63,0.4)] drop-shadow-[0_16px_28px_rgba(0,0,0,0.25)]"
+                    sizes="(max-width: 768px) 85vw, 320px"
+                    className="pointer-events-none absolute -top-1 sm:-top-2 h-[180px] sm:h-[200px] w-auto max-w-none object-contain transition-all duration-500 ease-out group-hover:-translate-y-2 group-hover:scale-105 group-hover:drop-shadow-[0_22px_40px_rgba(197,157,63,0.38)] drop-shadow-[0_14px_24px_rgba(0,0,0,0.22)]"
                   />
                 </div>
 
