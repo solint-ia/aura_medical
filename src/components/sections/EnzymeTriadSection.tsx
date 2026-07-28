@@ -74,35 +74,35 @@ export function EnzymeTriadSection() {
           {ENZYME_TRIAD.map((enzyme) => (
             <article
               key={enzyme.id}
-              className="group relative flex flex-col items-center rounded-2xl border border-[#0A1622]/10 bg-white/90 p-8 sm:p-9 text-center shadow-sm backdrop-blur-sm transition-all duration-500 hover:border-[#C59D3F]/50 hover:shadow-xl hover:-translate-y-1"
+              className="group relative flex flex-col items-center rounded-2xl border border-[#0A1622]/10 bg-white/90 p-7 sm:p-8 md:p-9 text-center shadow-sm backdrop-blur-sm transition-all duration-500 hover:border-[#C59D3F]/50 hover:shadow-xl hover:-translate-y-1"
             >
               {/* Radial glow highlight behind vial */}
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 -z-0 rounded-2xl bg-[radial-gradient(circle_at_center_35%,rgba(197,157,63,0.1)_0%,transparent_65%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                className="pointer-events-none absolute inset-0 -z-0 rounded-2xl bg-[radial-gradient(circle_at_center_35%,rgba(197,157,63,0.12)_0%,transparent_65%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
               />
 
               <div className="relative z-10 flex flex-col items-center w-full">
                 {/* Category Tag */}
-                <span className="mb-6 inline-block rounded-full border border-[#C59D3F]/30 bg-[#C59D3F]/10 px-3.5 py-1 font-mono text-[11px] font-semibold text-[#C59D3F] uppercase tracking-wider">
+                <span className="mb-4 inline-block rounded-full border border-[#C59D3F]/30 bg-[#C59D3F]/10 px-3.5 py-1 font-mono text-[11px] font-semibold text-[#C59D3F] uppercase tracking-wider">
                   {enzyme.tag}
                 </span>
 
-                {/* Prominent Vial Image */}
-                <div className="relative mb-6 flex h-60 w-full items-center justify-center py-2">
+                {/* Drastically Scaled Up Hero Vial Image */}
+                <div className="relative mb-5 flex h-72 sm:h-80 w-full items-center justify-center py-2">
                   <Image
                     src={enzyme.image}
                     alt={`Frasco ${enzyme.name}`}
-                    width={260}
-                    height={360}
+                    width={360}
+                    height={480}
                     priority
-                    sizes="(max-width: 768px) 85vw, 340px"
-                    className="h-auto w-48 max-h-56 object-contain transition-all duration-500 ease-out group-hover:-translate-y-3 group-hover:scale-105 group-hover:drop-shadow-[0_22px_40px_rgba(197,157,63,0.4)] drop-shadow-xl cursor-pointer"
+                    sizes="(max-width: 768px) 90vw, 420px"
+                    className="h-auto w-56 sm:w-64 md:w-72 max-h-72 object-contain transition-all duration-500 ease-out group-hover:-translate-y-4 group-hover:scale-110 group-hover:drop-shadow-[0_28px_50px_rgba(197,157,63,0.45)] drop-shadow-2xl cursor-pointer"
                   />
                 </div>
 
                 {/* Title */}
-                <h3 className="mb-3 font-display text-2xl font-bold text-[#0A1622]">
+                <h3 className="mb-2.5 font-display text-2xl font-bold text-[#0A1622]">
                   {enzyme.name}
                 </h3>
 
