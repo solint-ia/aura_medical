@@ -1,61 +1,72 @@
-export interface Article {
-  id: string;
-  /** Display year of publication. */
-  year: string;
+export interface ScientificArticle {
   title: string;
-  /** Subtle topic tag, drawn from the enzyme or mechanism under study. */
-  topic: string;
-  /**
-   * Link to the full study. Placeholder until the commercial team supplies the
-   * final DOIs / repository URLs — do not present these as live citations yet.
-   */
-  href: string;
+  fileUrl: string;
+  category?: string;
 }
 
-/**
- * Reference index for the science behind pbserum Plus. Titles describe the
- * documented mechanisms of the recombinant enzymes; the destination links are
- * pending from the commercial team (see `href` note above).
- */
-export const ARTICLES: Article[] = [
+export const scientificArticles: ScientificArticle[] = [
   {
-    id: "lipase-pb500-adiposidade",
-    year: "2023",
-    title:
-      "Hidrólise seletiva de triglicerídeos por lipase recombinante PB500 na adiposidade localizada",
-    topic: "Slim+ · Lipase PB500",
-    href: "#",
+    title: "Discussão sobre a Efetividade dos Produtos Enzimáticos na Dermatologia",
+    fileUrl: "/artigos/efetividade-dermatologia.pdf",
+    category: "Dermatologia & Eficácia"
   },
   {
-    id: "colagenases-fibrose",
-    year: "2022",
-    title:
-      "Colagenases recombinantes G&H PB220 na remodelação de septos fibróticos e cicatrizes",
-    topic: "Smooth+ · Colagenases PB220",
-    href: "#",
+    title: "Efetividade da Keratinase Recombinante",
+    fileUrl: "/artigos/efetividade-keratinase.pdf",
+    category: "Enzimas Recombinantes"
   },
   {
-    id: "hialuronidase-edema",
-    year: "2022",
-    title:
-      "Hialuronidase PB3000 e a permeabilidade da matriz extracelular no controle do edema",
-    topic: "Drain+ · Hialuronidase PB3000",
-    href: "#",
+    title: "Tratamento de Firmeza e Flacidez Corporal com Ácido Hialurônico e Enzimas",
+    fileUrl: "/artigos/tratamento-flacidez.pdf",
+    category: "Remodelação Corporal"
   },
   {
-    id: "recombinante-vs-origem-animal",
-    year: "2021",
-    title:
-      "Enzimas recombinantes versus enzimas de origem animal: pureza, imunogenicidade e reprodutibilidade",
-    topic: "Segurança · Bioengenharia",
-    href: "#",
+    title: "Avaliação da Eficácia na Firmeza e Elasticidade da Pele via Peeling Enzimático",
+    fileUrl: "/artigos/firmeza-elasticidade-peeling.pdf",
+    category: "Textura & Elasticidade"
   },
   {
-    id: "bioremodelacao-tecidual",
-    year: "2021",
-    title:
-      "Bioremodelação enzimática: reorganização da matriz extracelular e do compartimento intersticial",
-    topic: "Mecanismo · Bioremodelação",
-    href: "#",
+    title: "Avaliação de Eficácia e Tolerância na Melhoria da Qualidade da Pele",
+    fileUrl: "/artigos/qualidade-pele-smartkare.pdf",
+    category: "Qualidade de Pele"
   },
+  {
+    title: "Fundamentos e Prova de Princípios do Uso de Enzimas na Dermatologia",
+    fileUrl: "/artigos/fundamentos-dermatologia.pdf",
+    category: "Fundamentos Científicos"
+  },
+  {
+    title: "Remodelação Facial com Polipeptídeos Recombinantes",
+    fileUrl: "/artigos/remodelacao-facial.pdf",
+    category: "Remodelação Facial"
+  },
+  {
+    title: "Eficácia e Segurança na Remodelação Corporal",
+    fileUrl: "/artigos/remodelacao-corporal.pdf",
+    category: "Segurança & Eficácia"
+  },
+  {
+    title: "Resolução de Granulomas utilizando Polipeptídeos Recombinantes",
+    fileUrl: "/artigos/resolucao-granulomas.pdf",
+    category: "Casos Clínicos & Resolução"
+  },
+  {
+    title: "Experiência Clínica e Satisfação de Pacientes Tratados",
+    fileUrl: "/artigos/satisfacao-pacientes.pdf",
+    category: "Estudos Clínicos"
+  },
+  {
+    title: "Tratamento de Celulite Corporal com Enzimas Recombinantes",
+    fileUrl: "/artigos/tratamento-celulite.pdf",
+    category: "Tratamento de Celulite"
+  }
 ];
+
+// Compatibility alias for legacy components
+export const ARTICLES = scientificArticles.map((article, idx) => ({
+  id: `article-${idx + 1}`,
+  year: "2024",
+  title: article.title,
+  topic: article.category || "Estudo Científico",
+  href: article.fileUrl,
+}));
