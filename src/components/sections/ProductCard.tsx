@@ -5,13 +5,6 @@ import { ArrowRight } from "lucide-react";
 import { ENZYMES, enzymesData } from "@/data/enzymes";
 import { PRODUCT_IMAGE_SIZE, type Product } from "@/data/products";
 
-interface ProductSpec {
-  label: string;
-  value: string;
-  /** The active ingredient is the headline spec, so it carries more weight. */
-  emphasised?: boolean;
-}
-
 const SPEC_LABEL_CLASSES =
   "mb-1 font-mono text-[10px] tracking-[0.08em] text-[#F6F3EC]/50 uppercase";
 
@@ -19,16 +12,7 @@ export function ProductCard({ product }: { product: Product }) {
   const enzyme = ENZYMES[product.id];
   const slug = `${product.id}-plus`;
   const detail = enzymesData.find((d) => d.slug === slug);
-
-  const specs: ProductSpec[] = [
-    {
-      label: "Ingrediente ativo",
-      value: detail?.activeIngredient || product.activeIngredient,
-      emphasised: true,
-    },
-    { label: "Origem", value: detail?.origin || product.origin },
-    { label: "Substrato-alvo", value: detail?.targetSubstrate || product.substrate },
-  ];
+  const activeIngredient = detail?.activeIngredient || product.activeIngredient;
 
   return (
     <article className="relative flex flex-col overflow-hidden rounded-[14px] border border-white/12 bg-[#162A3D] px-7 py-8 transition duration-250 hover:-translate-y-1 hover:border-[#C59D3F]/50 hover:shadow-[0_20px_40px_rgba(0,0,0,0.5)]">
@@ -58,28 +42,20 @@ export function ProductCard({ product }: { product: Product }) {
         </p>
       </div>
 
-      <dl className="mt-7 flex flex-col gap-3.5 border-t border-white/10 pt-5">
-        {specs.map((spec) => (
-          <div key={spec.label}>
-            <dt className={SPEC_LABEL_CLASSES}>{spec.label}</dt>
-            <dd
-              className={
-                spec.emphasised
-                  ? "text-[15px] font-semibold text-[#F6F3EC]"
-                  : "text-[14.5px] text-[#F6F3EC]/85"
-              }
-            >
-              {spec.value}
-            </dd>
-          </div>
-        ))}
-      </dl>
+      {/* Task 1: Keep ONLY Active Ingredient */}
+      <div className="mt-6 border-t border-white/10 pt-4">
+        <dt className={SPEC_LABEL_CLASSES}>Ingrediente ativo</dt>
+        <dd className="text-[15.5px] font-semibold text-[#F6F3EC]">
+          {activeIngredient}
+        </dd>
+      </div>
 
-      <p className="mt-5 text-sm leading-[1.65] text-[#F6F3EC]/75 flex-1">
+      <p className="mt-4 text-sm leading-[1.65] text-[#F6F3EC]/75 flex-1">
         {detail?.shortDescription || product.mechanism}
       </p>
 
-      <ul className="mt-6 flex flex-wrap gap-2">
+      {/* Indication tags */}
+      <ul className="mt-5 flex flex-wrap gap-2">
         {(detail?.indications || product.indications).map((indication) => (
           <li
             key={indication}
@@ -90,16 +66,18 @@ export function ProductCard({ product }: { product: Product }) {
         ))}
       </ul>
 
-      <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
-        <span className="font-mono text-[10.5px] tracking-[0.04em] text-[#F6F3EC]/50">
-          {detail?.presentation || product.packaging}
-        </span>
+      {/* Task 1: Prominent Full-Width Secondary CTA Button */}
+      <div className="mt-6 border-t border-white/10 pt-4 flex flex-col gap-3">
+        <div className="flex items-center justify-between font-mono text-[11px] text-[#F6F3EC]/50">
+          <span>Apresentação</span>
+          <span>{detail?.presentation || product.packaging}</span>
+        </div>
         <Link
           href={`/enzimas/${slug}`}
-          className="group inline-flex items-center gap-1.5 font-mono text-[11.5px] font-semibold tracking-[0.04em] text-[#C59D3F] transition-colors hover:text-[#d4ac4c]"
+          className="group flex w-full items-center justify-center gap-2 rounded-lg border border-[#C59D3F]/40 bg-[#C59D3F]/10 py-3 px-4 font-mono text-[13px] font-semibold text-[#C59D3F] transition-all hover:bg-[#C59D3F] hover:text-[#0D1B2A] hover:shadow-lg active:scale-[0.99]"
         >
-          <span>Descubra a ciência da {product.name}</span>
-          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+          <span>Explorar {product.name}</span>
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
         </Link>
       </div>
     </article>

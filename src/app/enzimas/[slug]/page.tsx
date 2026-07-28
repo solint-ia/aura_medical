@@ -107,34 +107,37 @@ export default async function EnzymeDetailPage({ params }: EnzymePageProps) {
                 </p>
 
                 <div className="mt-8 flex flex-wrap items-center gap-4">
-                  <a
-                    href="#ciencia"
-                    className="inline-flex items-center justify-center rounded-lg bg-[#C59D3F] px-7 py-3.5 text-sm font-semibold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99]"
-                  >
-                    Ver Especificações Técnicas
-                  </a>
                   <Link
                     href="/#protocolos"
-                    className="inline-flex items-center justify-center rounded-lg border border-white/20 px-7 py-3.5 text-sm font-semibold text-[#F6F3EC] transition-colors hover:bg-white/10"
+                    className="group inline-flex items-center justify-center gap-2.5 rounded-lg bg-[#C59D3F] px-8 py-4 text-base font-semibold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-lg hover:shadow-xl active:scale-[0.99]"
                   >
-                    Explorar Protocolos com {enzyme.name}
+                    <span>Explorar Protocolos com {enzyme.name}</span>
+                    <svg
+                      aria-hidden="true"
+                      className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l7.5-7.5M21 12H3" />
+                    </svg>
                   </Link>
                 </div>
               </div>
 
-              {/* Product Visual Box */}
+              {/* Task 3: Floating 3D Product Image */}
               {matchingProduct ? (
-                <div className="lg:col-span-5 flex justify-center">
-                  <div className="relative aspect-square w-full max-w-[320px] rounded-3xl border border-white/15 bg-white/5 p-8 backdrop-blur-md flex items-center justify-center shadow-2xl">
-                    <Image
-                      src={matchingProduct.imageSrc}
-                      alt={`Embalagem ${enzyme.name}`}
-                      width={280}
-                      height={280}
-                      priority
-                      className="h-auto w-full object-contain drop-shadow-[0_15px_30px_rgba(0,0,0,0.5)]"
-                    />
-                  </div>
+                <div className="lg:col-span-5 flex items-center justify-center py-6">
+                  <Image
+                    src={matchingProduct.imageSrc}
+                    alt={`Embalagem ${enzyme.name}`}
+                    width={480}
+                    height={480}
+                    priority
+                    sizes="(max-width: 768px) 90vw, 480px"
+                    className="h-auto w-full max-w-[320px] sm:max-w-[400px] lg:max-w-[460px] object-contain -rotate-3 lg:-rotate-6 drop-shadow-[0_30px_60px_rgba(0,0,0,0.7)] transition-all duration-500 hover:rotate-0 hover:scale-[1.06]"
+                  />
                 </div>
               ) : null}
             </div>
