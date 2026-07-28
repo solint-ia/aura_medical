@@ -8,11 +8,18 @@ import { PRODUCT_IMAGE_SIZE, type Product } from "@/data/products";
 const SPEC_LABEL_CLASSES =
   "mb-1 font-mono text-[10px] tracking-[0.08em] text-[#F6F3EC]/50 uppercase";
 
+const VIAL_IMAGE_MAP: Record<string, string> = {
+  slim: "/frascos/slim.png",
+  smooth: "/frascos/smooth.png",
+  drain: "/frascos/drain.png",
+};
+
 export function ProductCard({ product }: { product: Product }) {
   const enzyme = ENZYMES[product.id];
   const slug = `${product.id}-plus`;
   const detail = enzymesData.find((d) => d.slug === slug);
   const activeIngredient = detail?.activeIngredient || product.activeIngredient;
+  const vialImage = VIAL_IMAGE_MAP[product.id];
 
   return (
     <article className="relative flex flex-col overflow-hidden rounded-[14px] border border-white/12 bg-[#162A3D] px-7 py-8 transition duration-250 hover:-translate-y-1 hover:border-[#C59D3F]/50 hover:shadow-[0_20px_40px_rgba(0,0,0,0.5)]">
@@ -20,18 +27,31 @@ export function ProductCard({ product }: { product: Product }) {
         aria-hidden="true"
         className={`absolute inset-x-0 top-0 h-1 ${enzyme.barClass}`}
       />
-      {/* The render bleeds past the card edge, as it does on the box mock-ups. */}
-      <Image
-        src={product.imageSrc}
-        alt=""
-        aria-hidden="true"
-        width={PRODUCT_IMAGE_SIZE.width}
-        height={PRODUCT_IMAGE_SIZE.height}
-        sizes="126px"
-        className="pointer-events-none absolute top-5 -right-3.5 h-auto w-[126px] drop-shadow-[0_8px_14px_rgba(0,0,0,0.4)]"
-      />
 
-      <div className="max-w-[65%]">
+      {/* Vial and Box Product Assets Render */}
+      <div className="pointer-events-none absolute top-4 -right-1 flex items-center justify-end">
+        {vialImage ? (
+          <Image
+            src={vialImage}
+            alt={`Frasco ${product.name}`}
+            width={140}
+            height={190}
+            aria-hidden="true"
+            className="h-auto w-[76px] sm:w-[84px] object-contain drop-shadow-[0_12px_22px_rgba(0,0,0,0.55)] z-10"
+          />
+        ) : null}
+        <Image
+          src={product.imageSrc}
+          alt=""
+          aria-hidden="true"
+          width={PRODUCT_IMAGE_SIZE.width}
+          height={PRODUCT_IMAGE_SIZE.height}
+          sizes="105px"
+          className="h-auto w-[105px] -ml-6 drop-shadow-[0_8px_14px_rgba(0,0,0,0.4)] opacity-90"
+        />
+      </div>
+
+      <div className="max-w-[58%]">
         <h3
           className={`font-display text-[26px] font-bold tracking-[-0.01em] ${enzyme.headingClass}`}
         >
@@ -42,7 +62,7 @@ export function ProductCard({ product }: { product: Product }) {
         </p>
       </div>
 
-      {/* Task 1: Keep ONLY Active Ingredient */}
+      {/* Active Ingredient */}
       <div className="mt-6 border-t border-white/10 pt-4">
         <dt className={SPEC_LABEL_CLASSES}>Ingrediente ativo</dt>
         <dd className="text-[15.5px] font-semibold text-[#F6F3EC]">

@@ -20,6 +20,12 @@ interface EnzymePageProps {
   }>;
 }
 
+const VIAL_IMAGE_MAP: Record<string, string> = {
+  slim: "/frascos/slim.png",
+  smooth: "/frascos/smooth.png",
+  drain: "/frascos/drain.png",
+};
+
 export async function generateStaticParams() {
   return enzymesData.map((enzyme) => ({
     slug: enzyme.slug,
@@ -52,15 +58,15 @@ export default async function EnzymeDetailPage({ params }: EnzymePageProps) {
     notFound();
   }
 
-  // Find product packaging image if available
   const baseId = slug.replace("-plus", "");
   const matchingProduct = PRODUCTS.find((p) => p.id === baseId);
+  const vialImage = VIAL_IMAGE_MAP[baseId] || "/frascos/slim.png";
 
   return (
     <AccreditationProvider>
       <SiteHeader />
       <main className="min-h-screen bg-canvas">
-        {/* Task 2.3: Hero Section (Dark Navy) */}
+        {/* Hero Section (Dark Navy) */}
         <section
           id="hero-enzima"
           className="relative overflow-hidden bg-[#0D1B2A] px-[clamp(20px,4vw,56px)] pt-12 pb-16 md:pt-16 md:pb-24 text-[#F6F3EC]"
@@ -68,17 +74,17 @@ export default async function EnzymeDetailPage({ params }: EnzymePageProps) {
           {/* Subtle Ambient Glow */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 left-1/2 -z-0 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(197,157,63,0.15)_0%,transparent_70%)] blur-3xl"
+            className="pointer-events-none absolute top-1/2 left-1/2 -z-0 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(197,157,63,0.18)_0%,transparent_70%)] blur-3xl"
           />
 
           <div className="relative z-10 mx-auto max-w-[1280px]">
             {/* Back Navigation */}
             <Link
-              href="/enzimas"
+              href="/#produtos"
               className="inline-flex items-center gap-2 font-mono text-xs tracking-wider text-[#C59D3F] transition-colors hover:text-[#d4ac4c] mb-8"
             >
               <ArrowLeft className="h-4 w-4" />
-              <span>Voltar para Enzimas</span>
+              <span>Voltar para Linha Profissional</span>
             </Link>
 
             <div className="grid grid-cols-1 gap-10 items-center lg:grid-cols-12">
@@ -120,31 +126,47 @@ export default async function EnzymeDetailPage({ params }: EnzymePageProps) {
                       stroke="currentColor"
                       strokeWidth="2.5"
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l7.5-7.5M21 12H3" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                     </svg>
                   </Link>
                 </div>
               </div>
 
-              {/* Task 3: Floating 3D Product Image */}
-              {matchingProduct ? (
-                <div className="lg:col-span-5 flex items-center justify-center py-4 lg:py-0">
+              {/* Large High-Impact Hero Vial & Packaging Display */}
+              <div className="lg:col-span-5 flex flex-col sm:flex-row items-center justify-center gap-6 py-4 lg:py-0">
+                {/* Hero Vial Image */}
+                <div className="relative flex items-center justify-center">
                   <Image
-                    src={matchingProduct.imageSrc}
-                    alt={`Embalagem ${enzyme.name}`}
-                    width={720}
-                    height={720}
+                    src={vialImage}
+                    alt={`Frasco ${enzyme.name}`}
+                    width={440}
+                    height={600}
                     priority
-                    sizes="(max-width: 768px) 95vw, 720px"
-                    className="h-auto w-full max-w-[490px] sm:max-w-[620px] lg:max-w-[730px] object-contain -rotate-3 lg:-rotate-6 drop-shadow-[0_40px_80px_rgba(0,0,0,0.8)] transition-all duration-500 hover:rotate-0 hover:scale-[1.05]"
+                    sizes="(max-width: 768px) 85vw, 400px"
+                    className="h-auto w-full max-w-[260px] sm:max-w-[300px] lg:max-w-[340px] object-contain drop-shadow-[0_30px_60px_rgba(197,157,63,0.4)] transition-all duration-500 hover:scale-105 mx-auto"
                   />
                 </div>
-              ) : null}
+
+                {/* Box Packaging Mockup Image */}
+                {matchingProduct ? (
+                  <div className="relative hidden sm:block">
+                    <Image
+                      src={matchingProduct.imageSrc}
+                      alt={`Embalagem ${enzyme.name}`}
+                      width={480}
+                      height={480}
+                      priority
+                      sizes="220px"
+                      className="h-auto w-full max-w-[180px] sm:max-w-[210px] object-contain -rotate-3 drop-shadow-[0_20px_40px_rgba(0,0,0,0.75)] opacity-85"
+                    />
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Task 2.4: Science & Mechanism Section (Light Beige) */}
+        {/* Science & Mechanism Section */}
         <section
           id="ciencia"
           aria-labelledby="ciencia-enzima-title"
@@ -223,7 +245,7 @@ export default async function EnzymeDetailPage({ params }: EnzymePageProps) {
           </div>
         </section>
 
-        {/* Task 3: Global Safety Information Section */}
+        {/* Global Safety Information Section */}
         <section
           id="seguranca-uso"
           aria-labelledby="seguranca-title"
