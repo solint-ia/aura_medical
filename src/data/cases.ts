@@ -1,116 +1,94 @@
-export type CaseCategoryId =
-  "flacidez" | "gordura" | "celulite" | "cicatrizes" | "fibrose";
+export interface ClinicalCase {
+  id: string;
+  categoryId: string; // Slug que conecta com o protocolo
+  categoryName: string;
+  beforeImage: string;
+  afterImage: string;
+}
 
 export interface CaseCategory {
-  id: CaseCategoryId;
+  id: string;
   label: string;
 }
 
-export interface CasePhotos {
-  before: string;
-  after: string;
-}
-
-export interface ClinicalCase {
-  id: number;
-  category: CaseCategoryId;
-  doctor: string;
-  /** Country and number of sessions, as documented by the practitioner. */
-  meta: string;
-  note?: string;
-  /** Absent until the before/after photos for the case are supplied. */
-  photos?: CasePhotos;
-}
-
 export const CASE_CATEGORIES: CaseCategory[] = [
-  { id: "flacidez", label: "Flacidez Facial" },
-  { id: "gordura", label: "Gordura Localizada" },
+  { id: "queixo-duplo", label: "Queixo Duplo" },
+  { id: "perfilamento-facial", label: "Perfilamento Facial" },
+  { id: "gordura-localizada", label: "Gordura Localizada" },
   { id: "celulite", label: "Celulite" },
   { id: "cicatrizes", label: "Cicatrizes" },
-  { id: "fibrose", label: "Fibrose Pós-Cirúrgica" },
+  { id: "fibrose-pos-cirurgica", label: "Fibrose Pós-Cirúrgica" },
 ];
 
-export const CLINICAL_CASES: ClinicalCase[] = [
+export const clinicalCasesData: ClinicalCase[] = [
   {
-    id: 1,
-    category: "flacidez",
-    doctor: "Dr. Ramón Alejandro Chapa",
-    meta: "México · 2 sessões",
-    photos: {
-      before: "/images/cases/case-1-before.webp",
-      after: "/images/cases/case-1-after.webp",
-    },
+    id: "celulite-1",
+    categoryId: "celulite",
+    categoryName: "Celulite",
+    beforeImage: "/fotos-antes-depois/celulite1-antes.png",
+    afterImage: "/fotos-antes-depois/celulite1-depois.png",
   },
   {
-    id: 2,
-    category: "gordura",
-    doctor: "Dra. Plakhota A.",
-    meta: "Rússia · 4 sessões",
+    id: "celulite-2",
+    categoryId: "celulite",
+    categoryName: "Celulite",
+    beforeImage: "/fotos-antes-depois/celulite2-antes.png",
+    afterImage: "/fotos-antes-depois/celulite2-depois.png",
   },
   {
-    id: 3,
-    category: "gordura",
-    doctor: "Dra. Olga Gaziullina",
-    meta: "Alemanha · 1 sessão",
+    id: "cicatriz-1",
+    categoryId: "cicatrizes",
+    categoryName: "Cicatrizes",
+    beforeImage: "/fotos-antes-depois/cicatriz1-antes.png",
+    afterImage: "/fotos-antes-depois/cicatriz1-depois.png",
   },
   {
-    id: 4,
-    category: "gordura",
-    doctor: "Dra. Susana Misticone",
-    meta: "Venezuela · 2 sessões",
-    note: "Foco: queixo",
+    id: "cicatriz-2",
+    categoryId: "cicatrizes",
+    categoryName: "Cicatrizes",
+    beforeImage: "/fotos-antes-depois/cicatriz2-antes.png",
+    afterImage: "/fotos-antes-depois/cicatriz2-depois.png",
   },
   {
-    id: 5,
-    category: "gordura",
-    doctor: "Dra. Farah el Chaer",
-    meta: "Líbano · 3 sessões",
-    note: "Foco: queixo",
+    id: "fibrose-1",
+    categoryId: "fibrose-pos-cirurgica",
+    categoryName: "Fibrose Pós-Cirúrgica",
+    beforeImage: "/fotos-antes-depois/fibrose1-antes.png",
+    afterImage: "/fotos-antes-depois/fibrose1-depois.png",
   },
   {
-    id: 6,
-    category: "gordura",
-    doctor: "Dra. Sevinj Rustamzade",
-    meta: "Azerbaijão · 2 sessões",
+    id: "gordura-1",
+    categoryId: "gordura-localizada",
+    categoryName: "Gordura Localizada",
+    beforeImage: "/fotos-antes-depois/gorduralocal1-antes.png",
+    afterImage: "/fotos-antes-depois/gorduralocal1-depois.png",
   },
   {
-    id: 7,
-    category: "celulite",
-    doctor: "Dra. Evelin Veras",
-    meta: "México · 6 sessões",
+    id: "gordura-2",
+    categoryId: "gordura-localizada",
+    categoryName: "Gordura Localizada",
+    beforeImage: "/fotos-antes-depois/gorduralocal2-depois.png",
+    afterImage: "/fotos-antes-depois/gorduralocal2-depois.png",
   },
   {
-    id: 8,
-    category: "celulite",
-    doctor: "Dra. Desirée Castelanich",
-    meta: "Argentina · 6 sessões",
+    id: "perfilamento-1",
+    categoryId: "perfilamento-facial",
+    categoryName: "Perfilamento Facial",
+    beforeImage: "/fotos-antes-depois/perfilamentofacial1-antes.png",
+    afterImage: "/fotos-antes-depois/perfilamentofacial1-depois.png",
   },
   {
-    id: 9,
-    category: "cicatrizes",
-    doctor: "Dra. Maira González",
-    meta: "3 sessões",
+    id: "queixo-1",
+    categoryId: "queixo-duplo",
+    categoryName: "Queixo Duplo",
+    beforeImage: "/fotos-antes-depois/queixoduplo1-antes.png",
+    afterImage: "/fotos-antes-depois/queixoduplo1-depois.png",
   },
   {
-    id: 10,
-    category: "fibrose",
-    doctor: "Dr. Andrés Cabrera",
-    meta: "Espanha · 4 sessões",
-    note: "Pós-lipolaser",
-  },
-  {
-    id: 11,
-    category: "fibrose",
-    doctor: "Dr. Andrés Cabrera",
-    meta: "Espanha · 3 sessões",
-    note: "Pós-cirúrgica (HA High)",
+    id: "queixo-2",
+    categoryId: "queixo-duplo",
+    categoryName: "Queixo Duplo",
+    beforeImage: "/fotos-antes-depois/queixoduplo2-antes.png",
+    afterImage: "/fotos-antes-depois/queixoduplo2-depois.png",
   },
 ];
-
-export function countCasesInCategory(category: CaseCategoryId): number {
-  return CLINICAL_CASES.filter((item) => item.category === category).length;
-}
-
-export function getCasesInCategory(category: CaseCategoryId): ClinicalCase[] {
-  return CLINICAL_CASES.filter((item) => item.category === category);
-}
