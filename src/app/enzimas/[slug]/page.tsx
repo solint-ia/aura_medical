@@ -87,9 +87,11 @@ export default async function EnzymeDetailPage({ params }: EnzymePageProps) {
               <span>Voltar para Linha Profissional</span>
             </Link>
 
-            <div className="grid grid-cols-1 gap-10 items-center lg:grid-cols-12">
-              <div className="lg:col-span-7">
-                <div className="flex items-center gap-3 mb-4">
+            {/* Strict 2-Column Grid (Span 7 Left, Span 5 Right) */}
+            <div className="grid grid-cols-1 gap-10 lg:gap-12 items-center lg:grid-cols-12 max-w-7xl mx-auto">
+              {/* Left Column: Text & Actions (Span 7) */}
+              <div className="lg:col-span-7 space-y-6">
+                <div className="flex flex-wrap items-center gap-3">
                   <span className="font-mono text-xs font-semibold tracking-[0.18em] text-[#C59D3F] uppercase">
                     Bioremodelador Enzimático Recombinante
                   </span>
@@ -104,18 +106,18 @@ export default async function EnzymeDetailPage({ params }: EnzymePageProps) {
                   {enzyme.name}
                 </h1>
 
-                <p className="mt-3 font-mono text-lg text-[#C59D3F]">
+                <p className="font-mono text-lg text-[#C59D3F]">
                   Ingrediente Ativo: <strong className="text-[#F6F3EC] font-semibold">{enzyme.activeIngredient}</strong>
                 </p>
 
-                <p className="mt-6 text-lg text-[#F6F3EC]/80 leading-relaxed max-w-2xl">
+                <p className="text-base sm:text-lg text-[#F6F3EC]/80 leading-relaxed max-w-2xl">
                   {enzyme.shortDescription}
                 </p>
 
-                <div className="mt-8 flex flex-wrap items-center gap-4">
+                <div className="pt-2 flex flex-wrap items-center gap-4">
                   <Link
                     href="/#protocolos"
-                    className="group inline-flex items-center justify-center gap-2.5 rounded-lg bg-[#C59D3F] px-8 py-4 text-base font-semibold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-lg hover:shadow-xl active:scale-[0.99]"
+                    className="group inline-flex items-center justify-center gap-2.5 rounded-xl bg-[#C59D3F] px-8 py-4 text-base font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-lg hover:shadow-xl active:scale-[0.99]"
                   >
                     <span>Explorar Protocolos com {enzyme.name}</span>
                     <svg
@@ -132,35 +134,40 @@ export default async function EnzymeDetailPage({ params }: EnzymePageProps) {
                 </div>
               </div>
 
-              {/* Large High-Impact Hero Vial & Packaging Display */}
-              <div className="lg:col-span-5 flex flex-col sm:flex-row items-center justify-center gap-6 py-4 lg:py-0">
-                {/* Hero Vial Image */}
-                <div className="relative flex items-center justify-center">
+              {/* Right Column: Product Showcase Box (Span 5) */}
+              <div className="lg:col-span-5 relative flex items-center justify-center p-6 sm:p-8 rounded-3xl border border-[#C59D3F]/25 bg-[#122436]/70 backdrop-blur-md shadow-2xl overflow-hidden group">
+                {/* Radial Glow Anchor Background */}
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 -z-0 bg-[radial-gradient(circle_at_center,rgba(197,157,63,0.22)_0%,transparent_70%)]"
+                />
+
+                {/* Composition of Vial & Box */}
+                <div className="relative z-10 flex items-center justify-center py-2 sm:py-4">
+                  {/* Hero Vial Image */}
                   <Image
                     src={vialImage}
                     alt={`Frasco ${enzyme.name}`}
-                    width={440}
-                    height={600}
+                    width={420}
+                    height={580}
                     priority
-                    sizes="(max-width: 768px) 85vw, 400px"
-                    className="h-auto w-full max-w-[260px] sm:max-w-[300px] lg:max-w-[340px] object-contain drop-shadow-[0_30px_60px_rgba(197,157,63,0.4)] transition-all duration-500 hover:scale-105 mx-auto"
+                    sizes="(max-width: 768px) 80vw, 360px"
+                    className="h-auto w-full max-w-[220px] sm:max-w-[260px] lg:max-w-[290px] object-contain drop-shadow-[0_25px_50px_rgba(197,157,63,0.45)] transition-all duration-700 group-hover:scale-105"
                   />
-                </div>
 
-                {/* Box Packaging Mockup Image */}
-                {matchingProduct ? (
-                  <div className="relative hidden sm:block">
+                  {/* Overlapping Box Packaging */}
+                  {matchingProduct ? (
                     <Image
                       src={matchingProduct.imageSrc}
                       alt={`Embalagem ${enzyme.name}`}
-                      width={480}
-                      height={480}
+                      width={440}
+                      height={440}
                       priority
                       sizes="220px"
-                      className="h-auto w-full max-w-[180px] sm:max-w-[210px] object-contain -rotate-3 drop-shadow-[0_20px_40px_rgba(0,0,0,0.75)] opacity-85"
+                      className="h-auto w-full max-w-[150px] sm:max-w-[190px] object-contain -ml-10 sm:-ml-14 -rotate-6 drop-shadow-[0_20px_40px_rgba(0,0,0,0.85)] opacity-90 transition-all duration-500 group-hover:rotate-0"
                     />
-                  </div>
-                ) : null}
+                  ) : null}
+                </div>
               </div>
             </div>
           </div>
