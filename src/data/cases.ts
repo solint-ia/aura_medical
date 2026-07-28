@@ -53,8 +53,8 @@ export const clinicalCasesData: ClinicalCase[] = [
     id: "fibrose-1",
     categoryId: "fibrose-pos-cirurgica",
     categoryName: "Fibrose Pós-Cirúrgica",
-    beforeImage: "/fotos-antes-depois/fibrose1-antes.png",
-    afterImage: "/fotos-antes-depois/fibrose1-depois.png",
+    beforeImage: "/fotos-antes-depois/fibrose1-depois.png",
+    afterImage: "/fotos-antes-depois/fibrose1-antes.png",
   },
   {
     id: "gordura-1",
