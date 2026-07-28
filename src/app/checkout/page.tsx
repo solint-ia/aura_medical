@@ -357,25 +357,96 @@ function CheckoutContent() {
 
   return (
     <div className="mx-auto max-w-5xl px-[clamp(20px,4vw,56px)] py-10">
-      {/* Back button */}
-      <div className="mb-8 flex items-center justify-between">
+      {/* Top Actions Bar (Back Link & Cart Counter) */}
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 sm:mb-8">
         <button
           type="button"
           onClick={() => router.push("/carrinho")}
-          className="inline-flex items-center gap-2 font-mono text-xs text-content/60 hover:text-accent uppercase tracking-wider transition-colors"
+          className="inline-flex items-center gap-2 font-mono text-xs font-medium text-content/60 hover:text-accent uppercase tracking-wider transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Voltar ao Carrinho
+          <span>Voltar ao Carrinho</span>
         </button>
 
         {/* Compact Cart Item Count Badge */}
-        <span className="rounded-full border border-content/15 bg-card px-3 py-1 font-mono text-xs text-content/75">
+        <span className="rounded-full border border-content/15 bg-card px-3.5 py-1 font-mono text-xs text-content/75 shadow-xs">
           {items.reduce((s, i) => s + i.quantity, 0)} item(ns) no carrinho
         </span>
       </div>
 
-      {/* 3-Step Indicator Bar */}
-      <div className="mb-10 flex items-center justify-between border-b border-content/12 pb-5 font-mono text-xs tracking-wider uppercase">
+      {/* Mobile Stepper Header & Progress Indicator (Visible only on Mobile) */}
+      <div className="mb-8 space-y-3 rounded-2xl border border-content/12 bg-card p-4.5 shadow-xs md:hidden">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#C59D3F] font-mono text-[11px] font-bold text-[#0D1B2A]">
+              {step}
+            </span>
+            <span className="font-mono text-xs font-bold text-content uppercase tracking-wider">
+              Passo {step} de 3:{" "}
+              {step === 1
+                ? "Dados & Entrega"
+                : step === 2
+                ? "Pagamento"
+                : "Revisão do Pedido"}
+            </span>
+          </div>
+          <span className="font-mono text-xs font-bold text-[#C59D3F]">
+            {step === 1 ? "33%" : step === 2 ? "66%" : "100%"}
+          </span>
+        </div>
+
+        {/* Visual Progress Bar */}
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-content/10">
+          <div
+            className="h-full bg-[#C59D3F] transition-all duration-300 ease-out"
+            style={{ width: step === 1 ? "33.33%" : step === 2 ? "66.66%" : "100%" }}
+          />
+        </div>
+
+        {/* Quick Number Switcher Buttons for Mobile */}
+        <div className="flex items-center justify-between pt-1 font-mono text-[11px]">
+          <button
+            type="button"
+            onClick={() => setStep(1)}
+            className={`flex items-center gap-1 font-semibold ${
+              step === 1 ? "text-[#C59D3F]" : "text-content/60"
+            }`}
+          >
+            <span>1. Dados</span>
+          </button>
+
+          <span className="text-content/20">|</span>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (validateStep1()) setStep(2);
+            }}
+            className={`flex items-center gap-1 font-semibold ${
+              step === 2 ? "text-[#C59D3F]" : step > 2 ? "text-content/60" : "text-content/30"
+            }`}
+          >
+            <span>2. Pagamento</span>
+          </button>
+
+          <span className="text-content/20">|</span>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (validateStep1() && validateStep2()) setStep(3);
+            }}
+            className={`flex items-center gap-1 font-semibold ${
+              step === 3 ? "text-[#C59D3F]" : "text-content/30"
+            }`}
+          >
+            <span>3. Revisão</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Desktop 3-Step Tracker (Hidden on Mobile) */}
+      <div className="mb-10 hidden items-center justify-between border-b border-content/12 pb-5 font-mono text-xs tracking-wider uppercase md:flex">
         <button
           type="button"
           onClick={() => setStep(1)}
