@@ -1,6 +1,8 @@
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
-import { ENZYMES } from "@/data/enzymes";
+import { ENZYMES, enzymesData } from "@/data/enzymes";
 import { PRODUCT_IMAGE_SIZE, type Product } from "@/data/products";
 
 interface ProductSpec {
@@ -15,15 +17,17 @@ const SPEC_LABEL_CLASSES =
 
 export function ProductCard({ product }: { product: Product }) {
   const enzyme = ENZYMES[product.id];
+  const slug = `${product.id}-plus`;
+  const detail = enzymesData.find((d) => d.slug === slug);
 
   const specs: ProductSpec[] = [
     {
       label: "Ingrediente ativo",
-      value: product.activeIngredient,
+      value: detail?.activeIngredient || product.activeIngredient,
       emphasised: true,
     },
-    { label: "Origem", value: product.origin },
-    { label: "Substrato-alvo", value: product.substrate },
+    { label: "Origem", value: detail?.origin || product.origin },
+    { label: "Substrato-alvo", value: detail?.targetSubstrate || product.substrate },
   ];
 
   return (
@@ -50,7 +54,7 @@ export function ProductCard({ product }: { product: Product }) {
           {product.name}
         </h3>
         <p className="mt-0.5 font-mono text-[10.5px] tracking-[0.08em] text-[#F6F3EC]/60 uppercase">
-          Profissional
+          Alta Performance
         </p>
       </div>
 
@@ -71,12 +75,12 @@ export function ProductCard({ product }: { product: Product }) {
         ))}
       </dl>
 
-      <p className="mt-5 text-sm leading-[1.65] text-[#F6F3EC]/75">
-        {product.mechanism}
+      <p className="mt-5 text-sm leading-[1.65] text-[#F6F3EC]/75 flex-1">
+        {detail?.shortDescription || product.mechanism}
       </p>
 
       <ul className="mt-6 flex flex-wrap gap-2">
-        {product.indications.map((indication) => (
+        {(detail?.indications || product.indications).map((indication) => (
           <li
             key={indication}
             className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 font-mono text-[11px] tracking-[0.04em] text-[#F6F3EC] uppercase"
@@ -86,9 +90,18 @@ export function ProductCard({ product }: { product: Product }) {
         ))}
       </ul>
 
-      <p className="mt-5 border-t border-white/10 pt-4 font-mono text-[10.5px] tracking-[0.04em] text-[#F6F3EC]/50">
-        {product.packaging}
-      </p>
+      <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
+        <span className="font-mono text-[10.5px] tracking-[0.04em] text-[#F6F3EC]/50">
+          {detail?.presentation || product.packaging}
+        </span>
+        <Link
+          href={`/enzimas/${slug}`}
+          className="group inline-flex items-center gap-1.5 font-mono text-[11.5px] font-semibold tracking-[0.04em] text-[#C59D3F] transition-colors hover:text-[#d4ac4c]"
+        >
+          <span>Descubra a ciência da {product.name}</span>
+          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+        </Link>
+      </div>
     </article>
   );
 }
