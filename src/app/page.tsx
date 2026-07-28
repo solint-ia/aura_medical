@@ -2,6 +2,7 @@ import { AccreditationProvider } from "@/components/accreditation/AccreditationP
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { ClinicalCasesSection } from "@/components/sections/ClinicalCasesSection";
+import { ClinicalMappingSection } from "@/components/sections/ClinicalMappingSection";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { MosaicSection } from "@/components/sections/MosaicSection";
 import { PartnershipCtaSection } from "@/components/sections/PartnershipCtaSection";
@@ -18,6 +19,7 @@ export default function LandingPage() {
         <MosaicSection />
         <ProductsSection />
         <ClinicalCasesSection />
+        <ClinicalMappingSection />
         <ProtocolsSection />
         <SafetyFaqSection />
         <PartnershipCtaSection />
