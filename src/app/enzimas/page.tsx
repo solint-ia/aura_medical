@@ -4,12 +4,13 @@ import { AccreditationProvider } from "@/components/accreditation/AccreditationP
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { ArticlesSection } from "@/components/sections/ArticlesSection";
+import { ProductsSection } from "@/components/sections/ProductsSection";
 import { ScienceSection } from "@/components/sections/ScienceSection";
 
 export const metadata: Metadata = {
   title: "Enzimas & Bioremodelação pbserum · Aura Regenera",
   description:
-    "Detalhamento científico das enzimas recombinantes de 2ª geração pbserum. Mecanismos de ação na matriz extracelular para bioremodelação tecidual.",
+    "Linha profissional pbserum Plus e detalhamento científico das enzimas recombinantes de 2ª geração para bioremodelação tecidual.",
 };
 
 export default function EnzimasPage() {
@@ -17,6 +18,7 @@ export default function EnzimasPage() {
     <AccreditationProvider>
       <SiteHeader />
       <main>
+        <ProductsSection />
         <ScienceSection />
         <ArticlesSection />
       </main>
