@@ -134,41 +134,20 @@ export default async function EnzymeDetailPage({ params }: EnzymePageProps) {
                 </div>
               </div>
 
-              {/* Right Column: Product Showcase Box (Span 5) */}
-              <div className="lg:col-span-5 relative flex items-center justify-center p-6 sm:p-8 rounded-3xl border border-[#C59D3F]/25 bg-[#122436]/70 backdrop-blur-md shadow-2xl overflow-hidden group">
-                {/* Radial Glow Anchor Background */}
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 -z-0 bg-[radial-gradient(circle_at_center,rgba(197,157,63,0.22)_0%,transparent_70%)]"
-                />
-
-                {/* Composition of Vial & Box */}
-                <div className="relative z-10 flex items-center justify-center py-2 sm:py-4">
-                  {/* Hero Vial Image */}
+              {/* Right Column: Floating 3D Box Packaging Image (Original Main Display) */}
+              {matchingProduct ? (
+                <div className="lg:col-span-5 flex items-center justify-center py-4 lg:py-0">
                   <Image
-                    src={vialImage}
-                    alt={`Frasco ${enzyme.name}`}
-                    width={420}
-                    height={580}
+                    src={matchingProduct.imageSrc}
+                    alt={`Embalagem ${enzyme.name}`}
+                    width={720}
+                    height={720}
                     priority
-                    sizes="(max-width: 768px) 80vw, 360px"
-                    className="h-auto w-full max-w-[220px] sm:max-w-[260px] lg:max-w-[290px] object-contain drop-shadow-[0_25px_50px_rgba(197,157,63,0.45)] transition-all duration-700 group-hover:scale-105"
+                    sizes="(max-width: 768px) 95vw, 720px"
+                    className="h-auto w-full max-w-[440px] sm:max-w-[540px] lg:max-w-[620px] object-contain -rotate-3 lg:-rotate-6 drop-shadow-[0_40px_80px_rgba(0,0,0,0.8)] transition-all duration-500 hover:rotate-0 hover:scale-[1.05]"
                   />
-
-                  {/* Overlapping Box Packaging */}
-                  {matchingProduct ? (
-                    <Image
-                      src={matchingProduct.imageSrc}
-                      alt={`Embalagem ${enzyme.name}`}
-                      width={440}
-                      height={440}
-                      priority
-                      sizes="220px"
-                      className="h-auto w-full max-w-[150px] sm:max-w-[190px] object-contain -ml-10 sm:-ml-14 -rotate-6 drop-shadow-[0_20px_40px_rgba(0,0,0,0.85)] opacity-90 transition-all duration-500 group-hover:rotate-0"
-                    />
-                  ) : null}
                 </div>
-              </div>
+              ) : null}
             </div>
           </div>
         </section>
