@@ -128,15 +128,15 @@ export default async function EnzymeDetailPage({ params }: EnzymePageProps) {
 
               {/* Task 3: Floating 3D Product Image */}
               {matchingProduct ? (
-                <div className="lg:col-span-5 flex items-center justify-center py-6">
+                <div className="lg:col-span-5 flex items-center justify-center py-4 lg:py-0">
                   <Image
                     src={matchingProduct.imageSrc}
                     alt={`Embalagem ${enzyme.name}`}
-                    width={480}
-                    height={480}
+                    width={720}
+                    height={720}
                     priority
-                    sizes="(max-width: 768px) 90vw, 480px"
-                    className="h-auto w-full max-w-[320px] sm:max-w-[400px] lg:max-w-[460px] object-contain -rotate-3 lg:-rotate-6 drop-shadow-[0_30px_60px_rgba(0,0,0,0.7)] transition-all duration-500 hover:rotate-0 hover:scale-[1.06]"
+                    sizes="(max-width: 768px) 95vw, 720px"
+                    className="h-auto w-full max-w-[490px] sm:max-w-[620px] lg:max-w-[730px] object-contain -rotate-3 lg:-rotate-6 drop-shadow-[0_40px_80px_rgba(0,0,0,0.8)] transition-all duration-500 hover:rotate-0 hover:scale-[1.05]"
                   />
                 </div>
               ) : null}
