@@ -33,20 +33,25 @@ export function ClinicalCasesSection() {
     <section
       id="casos"
       aria-labelledby="casos-title"
-      className="relative overflow-hidden bg-canvas px-[clamp(20px,4vw,56px)] py-[clamp(64px,8vw,104px)]"
+      className="relative overflow-hidden bg-[#0D1B2A] px-[clamp(20px,4vw,56px)] py-[clamp(64px,8vw,104px)] text-[#F6F3EC]"
     >
       {/* Background ambient ring */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -bottom-60 -left-45 h-[560px] w-[560px] rounded-full border border-content/6"
+        className="pointer-events-none absolute -bottom-60 -left-45 h-[560px] w-[560px] rounded-full border border-white/8"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute top-1/2 left-1/2 -z-0 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(197,157,63,0.14)_0%,transparent_70%)] blur-3xl"
       />
 
-      <div className="relative mx-auto max-w-[1280px]">
+      <div className="relative z-10 mx-auto max-w-[1280px]">
         <SectionIntro
           titleId="casos-title"
           eyebrow="Casos Clínicos · Evidência Real"
           title="Resultados comprovados em fotos de antes e depois."
           lead="Explore os resultados reais obtidos com o uso de enzimas recombinantes pbserum Plus em diferentes indicações estéticas e dermatológicas."
+          tone="dark"
           className="mb-9"
         />
 
@@ -64,8 +69,8 @@ export function ClinicalCasesSection() {
               onClick={() => selectFilter(ALL_FILTER_ID)}
               className={`flex-none rounded-full border px-[18px] py-2.5 font-mono text-[11.5px] tracking-[0.06em] whitespace-nowrap uppercase transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold ${
                 activeFilter === ALL_FILTER_ID
-                  ? "border-[#C59D3F] bg-[#C59D3F] text-[#0D1B2A] font-bold shadow-sm"
-                  : "border-content/24 text-content/78 hover:border-content/50 hover:text-content"
+                  ? "border-[#C59D3F] bg-[#C59D3F] text-[#0D1B2A] font-bold shadow-md"
+                  : "border-white/18 text-[#F6F3EC]/75 hover:border-[#C59D3F]/50 hover:text-[#F6F3EC] hover:bg-white/5"
               }`}
             >
               Todos ({clinicalCasesData.length})
@@ -86,8 +91,8 @@ export function ClinicalCasesSection() {
                   onClick={() => selectFilter(category.id)}
                   className={`flex-none rounded-full border px-[18px] py-2.5 font-mono text-[11.5px] tracking-[0.06em] whitespace-nowrap uppercase transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold ${
                     isActive
-                      ? "border-[#C59D3F] bg-[#C59D3F] text-[#0D1B2A] font-bold shadow-sm"
-                      : "border-content/24 text-content/78 hover:border-content/50 hover:text-content"
+                      ? "border-[#C59D3F] bg-[#C59D3F] text-[#0D1B2A] font-bold shadow-md"
+                      : "border-white/18 text-[#F6F3EC]/75 hover:border-[#C59D3F]/50 hover:text-[#F6F3EC] hover:bg-white/5"
                   }`}
                 >
                   {category.label} ({count})
@@ -113,12 +118,12 @@ export function ClinicalCasesSection() {
             <button
               type="button"
               onClick={() => setVisibleCount((prev) => prev + 3)}
-              className="inline-flex items-center gap-2.5 rounded-full border border-[#C59D3F]/40 bg-transparent px-8 py-3.5 font-mono text-xs tracking-widest text-content uppercase transition-all hover:border-[#C59D3F] hover:bg-[#C59D3F]/10 hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold shadow-xs"
+              className="inline-flex items-center gap-2.5 rounded-full border border-[#C59D3F]/50 bg-transparent px-8 py-3.5 font-mono text-xs tracking-widest text-[#F6F3EC] uppercase transition-all hover:border-[#C59D3F] hover:bg-[#C59D3F] hover:text-[#0D1B2A] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold shadow-md"
             >
               <span>Ver mais casos</span>
               <svg
                 aria-hidden="true"
-                className="h-4 w-4 text-[#C59D3F]"
+                className="h-4 w-4 text-[#C59D3F] group-hover:text-[#0D1B2A] transition-colors"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
