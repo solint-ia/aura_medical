@@ -32,7 +32,7 @@ export function HeroSection() {
     <section
       id="hero"
       aria-labelledby="hero-title"
-      className="relative overflow-hidden bg-canvas px-[clamp(20px,4vw,56px)] pt-[clamp(56px,8vw,96px)] pb-[clamp(64px,8vw,120px)]"
+      className="relative overflow-hidden bg-canvas px-[clamp(20px,4vw,56px)] pt-[clamp(56px,8vw,96px)] pb-[clamp(28px,3vw,48px)]"
     >
       <div className="mx-auto grid max-w-[1280px] grid-cols-1 items-center gap-0 hero:grid-cols-2 hero:gap-[clamp(40px,6vw,72px)]">
         {/* Below `hero` the wrapper dissolves into the grid, so the render can
