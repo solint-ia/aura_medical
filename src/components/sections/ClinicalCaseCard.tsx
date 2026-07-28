@@ -54,6 +54,21 @@ export function ClinicalCaseCard({ clinicalCase }: ClinicalCaseCardProps) {
           </figcaption>
         </figure>
       </div>
+
+      {/* Medical Chart Footer Details (Doctor, Country & Sessions) */}
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-content/10 pt-4 text-xs">
+        <div className="flex items-center gap-1.5 font-medium text-content/85">
+          <span>{clinicalCase.doctor}</span>
+          {clinicalCase.country && (
+            <span className="text-content/55 font-normal">
+              · {clinicalCase.country}
+            </span>
+          )}
+        </div>
+        <div className="rounded-full border border-[#C59D3F]/35 bg-[#C59D3F]/12 px-3 py-1 font-mono text-[11px] font-semibold text-[#C59D3F]">
+          {clinicalCase.sessions} {clinicalCase.sessions === 1 ? "sessão" : "sessões"}
+        </div>
+      </div>
     </article>
   );
 }
