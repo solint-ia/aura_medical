@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Check, CreditCard, Lock, QrCode, ShieldCheck, ShoppingBag, Truck } from "lucide-react";
+import { ArrowLeft, Check, CreditCard, Lock, QrCode, ShieldCheck, ShoppingBag, Sparkles, Truck } from "lucide-react";
 
 import { AccreditationProvider } from "@/components/accreditation/AccreditationProvider";
 import { SiteFooter } from "@/components/layout/SiteFooter";
@@ -825,12 +825,12 @@ function CheckoutContent() {
             {/* Clinical D2C Security & Trust Badges */}
             <div className="space-y-2.5 rounded-xl bg-canvas p-4 text-[11.5px] text-content/70 font-mono">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-[#C59D3F] shrink-0" />
-                <span>Fórmula de Alta Performance e Grau Clínico</span>
+                <Sparkles className="h-4 w-4 text-[#C59D3F] shrink-0" />
+                <span>Biotecnologia de Alta Performance</span>
               </div>
               <div className="flex items-center gap-2">
                 <Truck className="h-4 w-4 text-[#C59D3F] shrink-0" />
-                <span>Entrega Premium com Qualidade Garantida</span>
+                <span>Entrega Rápida e Segura</span>
               </div>
               <div className="flex items-center gap-2">
                 <Lock className="h-4 w-4 text-[#C59D3F] shrink-0" />
