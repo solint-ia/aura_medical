@@ -73,16 +73,16 @@ export function ClinicalMappingSection() {
           </div>
         </div>
 
-        {/* Task 1: Fix Mobile Text Collision (Técnica de Aplicação) */}
-        <div className="w-full max-w-6xl lg:max-w-7xl mx-auto mt-14 md:mt-20 text-center">
+        {/* 3rd Image Block (Técnica de Aplicação) */}
+        <div className="w-full max-w-6xl lg:max-w-7xl mx-auto mt-12 md:mt-16 text-center">
           <span className="font-mono text-xs font-semibold tracking-[0.18em] text-[#C59D3F] uppercase md:text-sm">
             Técnica de Aplicação
           </span>
-          <h3 className="mt-2 mb-4 md:mb-6 font-display text-2xl md:text-3xl font-bold leading-tight text-[#0A1622]">
+          <h3 className="mt-1.5 font-display text-2xl md:text-3xl font-bold leading-tight text-[#0A1622]">
             Esquema Técnico & Malha de Aplicação
           </h3>
 
-          <div className="w-full mt-3 md:mt-6 flex justify-center">
+          <div className="w-full mt-3 md:mt-4 flex justify-center">
             <Image
               src="/mapeamento-clinico/tecnica-aplicação.png"
               alt="Técnica de Aplicação das Enzimas Recombinantes"
