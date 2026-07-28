@@ -59,12 +59,6 @@ export function HeroSection() {
             <AccreditationButton className="rounded-lg bg-action px-[30px] py-4 text-[15.5px] font-semibold text-action-fg transition-colors hover:bg-action-hover">
               {HERO_ACCREDITATION_CTA_LABEL}
             </AccreditationButton>
-            <a
-              href="#protocolos"
-              className="flex items-center gap-2 px-1.5 py-4 text-[15.5px] font-semibold text-content transition-colors hover:text-accent"
-            >
-              Ver protocolos e preços ↓
-            </a>
           </div>
           <p className="order-5 flex animate-fade-up flex-wrap gap-x-5 gap-y-2.5 font-mono text-[11px] tracking-[0.04em] text-content/80 uppercase [animation-delay:320ms]">
             <span>Uso exclusivo para profissionais de saúde</span>
