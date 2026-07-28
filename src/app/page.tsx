@@ -3,6 +3,7 @@ import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { ClinicalCasesSection } from "@/components/sections/ClinicalCasesSection";
 import { ClinicalMappingSection } from "@/components/sections/ClinicalMappingSection";
+import { EnzymeTriadSection } from "@/components/sections/EnzymeTriadSection";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { MosaicSection } from "@/components/sections/MosaicSection";
 import { PartnershipCtaSection } from "@/components/sections/PartnershipCtaSection";
@@ -17,6 +18,7 @@ export default function LandingPage() {
       <main>
         <HeroSection />
         <MosaicSection />
+        <EnzymeTriadSection />
         <ProductsSection />
         <ClinicalCasesSection />
         <ClinicalMappingSection />
