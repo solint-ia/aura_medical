@@ -36,29 +36,6 @@ export function MosaicSection() {
           className="mx-auto h-auto w-full object-contain drop-shadow-[0_20px_40px_rgba(10,22,34,0.16)] transition-transform duration-700 hover:scale-[1.008] dark:drop-shadow-[0_25px_50px_rgba(0,0,0,0.45)]"
         />
       </div>
-
-      {/* Task 2: Section Transition CTA Block */}
-      <div className="mt-14 md:mt-16 text-center">
-        <p className="font-display text-lg sm:text-xl font-light text-content/90 mb-5">
-          Pronto para transformar sua prática clínica?
-        </p>
-        <a
-          href="#protocolos"
-          className="group inline-flex items-center justify-center gap-2.5 rounded-lg bg-action px-8 py-4 text-[15.5px] font-semibold text-action-fg transition-all hover:bg-action-hover shadow-md hover:shadow-lg active:scale-[0.99]"
-        >
-          <span>Explorar Protocolos e Preços</span>
-          <svg
-            aria-hidden="true"
-            className="h-4 w-4 transition-transform group-hover:translate-x-1"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth="2.5"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l7.5-7.5M21 12H3" />
-          </svg>
-        </a>
-      </div>
     </section>
   );
 }

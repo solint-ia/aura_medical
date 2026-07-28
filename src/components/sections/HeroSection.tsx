@@ -1,9 +1,7 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
 
-import { AccreditationButton } from "@/components/accreditation/AccreditationButton";
 import { PRODUCT_IMAGE_SIZE, PRODUCTS } from "@/data/products";
-import { HERO_ACCREDITATION_CTA_LABEL } from "@/data/site";
 
 /** Stacked arrangement of the three boxes, mirroring the printed catalogue. */
 const HERO_STACK = [
@@ -56,9 +54,22 @@ export function HeroSection() {
             e o controle que sua prática clínica exige.
           </p>
           <div className="order-4 mb-8 flex animate-fade-up flex-wrap gap-4 [animation-delay:240ms]">
-            <AccreditationButton className="rounded-lg bg-action px-[30px] py-4 text-[15.5px] font-semibold text-action-fg transition-colors hover:bg-action-hover">
-              {HERO_ACCREDITATION_CTA_LABEL}
-            </AccreditationButton>
+            <a
+              href="#protocolos"
+              className="group inline-flex items-center gap-2.5 rounded-lg bg-action px-8 py-4 text-[15.5px] font-semibold text-action-fg transition-all hover:bg-action-hover shadow-md hover:shadow-lg active:scale-[0.99]"
+            >
+              <span>Ver protocolos e preços</span>
+              <svg
+                aria-hidden="true"
+                className="h-4 w-4 transition-transform group-hover:translate-y-0.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" />
+              </svg>
+            </a>
           </div>
           <p className="order-5 flex animate-fade-up flex-wrap gap-x-5 gap-y-2.5 font-mono text-[11px] tracking-[0.04em] text-content/80 uppercase [animation-delay:320ms]">
             <span>Uso exclusivo para profissionais de saúde</span>

@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { ClinicalCasesSection } from "@/components/sections/ClinicalCasesSection";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { MosaicSection } from "@/components/sections/MosaicSection";
+import { PartnershipCtaSection } from "@/components/sections/PartnershipCtaSection";
 import { ProductsSection } from "@/components/sections/ProductsSection";
 import { ProtocolsSection } from "@/components/sections/ProtocolsSection";
 import { SafetyFaqSection } from "@/components/sections/SafetyFaqSection";
@@ -19,6 +20,7 @@ export default function LandingPage() {
         <ClinicalCasesSection />
         <ProtocolsSection />
         <SafetyFaqSection />
+        <PartnershipCtaSection />
       </main>
       <SiteFooter />
     </AccreditationProvider>
