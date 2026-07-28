@@ -67,7 +67,7 @@ export const clinicalCasesData: ClinicalCase[] = [
     id: "gordura-2",
     categoryId: "gordura-localizada",
     categoryName: "Gordura Localizada",
-    beforeImage: "/fotos-antes-depois/gorduralocal2-depois.png",
+    beforeImage: "/fotos-antes-depois/gorduralocal2-antes.png",
     afterImage: "/fotos-antes-depois/gorduralocal2-depois.png",
   },
   {
