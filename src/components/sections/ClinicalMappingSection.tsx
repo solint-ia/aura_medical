@@ -82,7 +82,7 @@ export function ClinicalMappingSection() {
             Esquema Técnico & Malha de Aplicação
           </h3>
 
-          <div className="w-full [perspective:1200px] mt-4 md:mt-6 flex justify-center">
+          <div className="w-full -mt-4 sm:-mt-8 md:-mt-12 flex justify-center">
             <Image
               src="/mapeamento-clinico/tecnica-aplicação.png"
               alt="Técnica de Aplicação das Enzimas Recombinantes"
@@ -90,7 +90,7 @@ export function ClinicalMappingSection() {
               height={800}
               priority
               sizes="(max-width: 1280px) 100vw, 1300px"
-              className="h-auto w-full object-contain transform transition-all duration-700 ease-out [transform-style:preserve-3d] [transform:rotateX(8deg)] hover:[transform:rotateX(0deg)] hover:scale-[1.02] drop-shadow-xl hover:drop-shadow-2xl rounded-xl cursor-pointer"
+              className="h-auto w-full object-contain transform transition-all duration-500 ease-out hover:scale-[1.01] drop-shadow-xl hover:drop-shadow-2xl rounded-xl cursor-pointer"
             />
           </div>
         </div>
