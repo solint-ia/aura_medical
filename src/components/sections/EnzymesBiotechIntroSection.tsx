@@ -40,7 +40,7 @@ const BIOTECH_CHAPTERS: BiotechChapter[] = [
     id: "conceito",
     stepNumber: "01",
     navTitle: "O Conceito",
-    subtitleTag: "Fundamentos Moleculares",
+    subtitleTag: "Fundamentos",
     title: "O que são Enzimas Recombinantes?",
     body1:
       "As enzimas são proteínas que atuam como catalisadores biológicos, acelerando reações químicas essenciais sem serem consumidas.",
@@ -119,10 +119,10 @@ export function EnzymesBiotechIntroSection() {
         <div className="mb-12 max-w-3xl">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#C59D3F]/40 bg-[#C59D3F]/12 px-4 py-1.5 font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#C59D3F]">
             <Sparkles className="h-3.5 w-3.5" />
-            <span>A CIÊNCIA POR TRÁS DA BIOTECNOLOGIA</span>
+            <span>BIOTECNOLOGIA EXCLUSIVA</span>
           </div>
           <h2 className="font-display text-[clamp(28px,4vw,48px)] font-bold leading-[1.15] tracking-[-0.01em] text-[#F6F3EC]">
-            Engenharia Molecular Aplicada à Regeneração Tecidual
+            Biotecnologia Avançada para Resultados Visíveis
           </h2>
         </div>
 
@@ -141,26 +141,23 @@ export function EnzymesBiotechIntroSection() {
                   key={item.id}
                   type="button"
                   onClick={() => setActiveStep(index)}
-                  className={`group relative flex items-center gap-5 rounded-2xl border p-5 text-left transition-all duration-300 ${
-                    isActive
+                  className={`group relative flex items-center gap-5 rounded-2xl border p-5 text-left transition-all duration-300 ${isActive
                       ? "border-[#C59D3F] bg-[#122436] shadow-[0_10px_30px_rgba(197,157,63,0.2)]"
                       : "border-white/10 bg-white/4 hover:border-white/25 hover:bg-white/7"
-                  }`}
+                    }`}
                 >
                   {/* Left Active Pillar Line */}
                   <div
-                    className={`absolute left-0 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full transition-all duration-300 ${
-                      isActive ? "bg-[#C59D3F]" : "bg-transparent group-hover:bg-white/30"
-                    }`}
+                    className={`absolute left-0 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full transition-all duration-300 ${isActive ? "bg-[#C59D3F]" : "bg-transparent group-hover:bg-white/30"
+                      }`}
                   />
 
                   {/* Step Number Circle */}
                   <div
-                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl font-mono text-sm font-bold transition-all duration-300 ${
-                      isActive
+                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl font-mono text-sm font-bold transition-all duration-300 ${isActive
                         ? "bg-[#C59D3F] text-[#0D1B2A] shadow-md"
                         : "border border-white/15 bg-white/5 text-[#F6F3EC]/60 group-hover:text-[#F6F3EC]"
-                    }`}
+                      }`}
                   >
                     {item.stepNumber}
                   </div>
@@ -171,9 +168,8 @@ export function EnzymesBiotechIntroSection() {
                       {item.subtitleTag}
                     </span>
                     <span
-                      className={`block font-display text-lg font-bold transition-colors ${
-                        isActive ? "text-[#F6F3EC]" : "text-[#F6F3EC]/70 group-hover:text-[#F6F3EC]"
-                      }`}
+                      className={`block font-display text-lg font-bold transition-colors ${isActive ? "text-[#F6F3EC]" : "text-[#F6F3EC]/70 group-hover:text-[#F6F3EC]"
+                        }`}
                     >
                       {item.navTitle}
                     </span>
