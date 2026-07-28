@@ -73,23 +73,23 @@ export function ClinicalMappingSection() {
           </div>
         </div>
 
-        {/* 3rd Image Block (Técnica de Aplicação) */}
-        <div className="w-full max-w-6xl lg:max-w-7xl mx-auto mt-12 md:mt-16 text-center">
+        {/* Task 1 & 2: Scale Down Container & Reset Vertical Margins */}
+        <div className="w-full max-w-4xl lg:max-w-5xl mx-auto mt-12 md:mt-16 text-center">
           <span className="font-mono text-xs font-semibold tracking-[0.18em] text-[#C59D3F] uppercase md:text-sm">
             Técnica de Aplicação
           </span>
-          <h3 className="mt-1.5 font-display text-2xl md:text-3xl font-bold leading-tight text-[#0A1622]">
+          <h3 className="mt-2 font-display text-2xl md:text-3xl font-bold leading-tight text-[#0A1622]">
             Esquema Técnico & Malha de Aplicação
           </h3>
 
-          <div className="w-full mt-3 md:mt-4 flex justify-center">
+          <div className="w-full mt-6 md:mt-8 flex justify-center">
             <Image
-              src="/mapeamento-clinico/tecnica-aplicação.png"
+              src="/mapeamento-clinico/tecnica-aplicacao.png"
               alt="Técnica de Aplicação das Enzimas Recombinantes"
-              width={1400}
-              height={800}
+              width={1100}
+              height={650}
               priority
-              sizes="(max-width: 1280px) 100vw, 1300px"
+              sizes="(max-width: 1024px) 95vw, 1000px"
               className="h-auto w-full object-contain transform transition-all duration-500 ease-out hover:scale-[1.01] drop-shadow-xl hover:drop-shadow-2xl rounded-xl cursor-pointer"
             />
           </div>
