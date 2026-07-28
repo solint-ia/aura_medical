@@ -66,10 +66,19 @@ export function ProductCard({ product }: { product: Product }) {
         ))}
       </ul>
 
-      {/* Presentation Info */}
-      <div className="mt-6 border-t border-white/10 pt-4 flex items-center justify-between font-mono text-[11px] text-[#F6F3EC]/60">
-        <span>Apresentação</span>
-        <span className="font-semibold text-[#F6F3EC]/85">{detail?.presentation || product.packaging}</span>
+      {/* Presentation Info & Link to Individual Enzyme Page */}
+      <div className="mt-6 border-t border-white/10 pt-4 flex flex-col gap-3">
+        <div className="flex items-center justify-between font-mono text-[11px] text-[#F6F3EC]/60">
+          <span>Apresentação</span>
+          <span className="font-semibold text-[#F6F3EC]/85">{detail?.presentation || product.packaging}</span>
+        </div>
+        <Link
+          href={`/enzimas/${slug}`}
+          className="group flex w-full items-center justify-center gap-2 rounded-lg border border-[#C59D3F]/40 bg-[#C59D3F]/10 py-3 px-4 font-mono text-[13px] font-semibold text-[#C59D3F] transition-all hover:bg-[#C59D3F] hover:text-[#0D1B2A] hover:shadow-lg active:scale-[0.99]"
+        >
+          <span>Explorar {product.name}</span>
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+        </Link>
       </div>
     </article>
   );

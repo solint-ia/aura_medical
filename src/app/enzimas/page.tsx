@@ -4,7 +4,6 @@ import { AccreditationProvider } from "@/components/accreditation/AccreditationP
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { ArticlesSection } from "@/components/sections/ArticlesSection";
-import { EnzymeTriadSection } from "@/components/sections/EnzymeTriadSection";
 import { ScienceSection } from "@/components/sections/ScienceSection";
 
 export const metadata: Metadata = {
@@ -18,7 +17,6 @@ export default function EnzimasPage() {
     <AccreditationProvider>
       <SiteHeader />
       <main>
-        <EnzymeTriadSection />
         <ScienceSection />
         <ArticlesSection />
       </main>
