@@ -10,49 +10,45 @@ export interface FaqItem {
 
 export const SAFETY_NOTES: SafetyNote[] = [
   {
-    label: "Efeitos adversos esperados",
-    body: "Eritema transitório (<72h), inflamação ou mal-estar local (4–72h) e hematomas. Menos frequente: náuseas, vômitos ou sintomas gripais. Muito raro: anafilaxia (~0,1%).",
+    label: "Efeitos transitórios esperados",
+    body: "Eritema leve ou sensibilidade local transitória (<72h). Hidratação e cuidados básicos pós-uso ajudam na rápida recuperação.",
   },
   {
-    label: "Contraindicações",
-    body: "Gravidez e amamentação, doença ativa de pele, alergia a ácido hialurônico ou enzimas, alergia a picada de inseto.",
+    label: "Precauções gerais",
+    body: "Gravidez, amamentação ou alergia conhecida a componentes enzimáticos. Em caso de dúvidas, consulte nosso suporte especializado.",
   },
   {
-    label: "Precauções",
-    body: "Doenças autoimunes, atopia ou asma, distúrbios vasculares ou de coagulação, doença oncológica ativa.",
-  },
-  {
-    label: "Pós-tratamento",
-    body: "Hidratação adequada, evitar sudorese excessiva, uso de FPS 50 e adiamento de outros procedimentos estéticos na área tratada.",
+    label: "Cuidados pós-uso",
+    body: "Hidratação adequada da pele, uso diário de protetor solar FPS 50 e higiene cuidadosa da área tratada.",
   },
 ];
 
 export const FAQ_ITEMS: FaqItem[] = [
   {
-    question: "Como funciona o processo de credenciamento?",
+    question: "Como funciona o processo de compra?",
     answer:
-      "Preencha o formulário de interesse: o time comercial da Aura Regenera entra em contato para validar o perfil clínico e liberar o acesso à compra dos protocolos pbserum Plus.",
+      "A compra é direta e descomplicada. Você pode escolher seu protocolo ideal em nosso site, adicionar ao carrinho e finalizar o pedido com entrega rápida em todo o Brasil.",
   },
   {
-    question: "Qual o pedido mínimo por clínica?",
+    question: "Existe pedido mínimo?",
     answer:
-      "Consulte o time comercial: o pedido mínimo varia conforme a região e o protocolo escolhido.",
+      "Não há valor mínimo de pedido. Você pode adquirir desde kits individuais até múltiplos tratamentos com condições especiais.",
   },
   {
     question: "Quais os prazos de entrega?",
-    answer: "Consulte o time comercial para os prazos vigentes na sua região.",
+    answer: "Os prazos de entrega variam conforme o CEP informado no checkout, com rastreamento completo até a entrega.",
   },
   {
-    question: "Os produtos têm registro sanitário?",
+    question: "Os produtos possuem registro e comprovação?",
     answer:
-      "Sim. pbserum Plus é um produto cosmético registrado conforme o Regulamento (CE) 1223/2009. A Aura Regenera é a distribuidora oficial autorizada no Brasil.",
+      "Sim. pbserum Plus é formulado sob rigorosos padrões internacionais de qualidade, com registro cosmético conforme o Regulamento (CE) 1223/2009.",
   },
   {
-    question: "Quem pode aplicar os protocolos?",
+    question: "Como utilizar os produtos?",
     answer:
-      "Uso exclusivo para profissionais de saúde habilitados: médicos, dermatologistas e cirurgiões credenciados.",
+      "Cada protocolo acompanha instruções detalhadas de uso e reconstituição. Nossas fórmulas recombinantes possuem alta tecnologia para máxima eficiência.",
   },
 ];
 
 export const REGULATORY_DISCLAIMER =
-  "Uso exclusivo para profissionais de saúde. Produto cosmético registrado conforme o Regulamento (CE) 1223/2009. pbserum Plus não trata, diagnostica ou cura doenças; resultados individuais podem variar.";
+  "Fórmula profissional de alta performance. Produto cosmético registrado conforme o Regulamento (CE) 1223/2009. pbserum Plus não trata ou cura doenças; resultados individuais podem variar.";

@@ -20,8 +20,8 @@ export const NAV_LINKS: NavLink[] = [
   { href: "/enzimas", label: "Enzimas" },
 ];
 
-export const HEADER_ACCREDITATION_CTA_LABEL = "Torne-se Parceiro";
-export const HERO_ACCREDITATION_CTA_LABEL = "Junte-se a nós";
+export const HEADER_ACCREDITATION_CTA_LABEL = "Fale Conosco";
+export const HERO_ACCREDITATION_CTA_LABEL = "Fale Conosco";
 
 export interface FooterColumn {
   label: string;
@@ -31,8 +31,7 @@ export interface FooterColumn {
 export const FOOTER_COLUMNS: FooterColumn[] = [
   {
     label: "Contato Aura Regenera",
-    // Awaiting the commercial WhatsApp and e-mail from the client.
-    lines: ["WhatsApp e e-mail comercial: em breve", SITE_DOMAIN],
+    lines: ["WhatsApp e e-mail de atendimento", SITE_DOMAIN],
   },
   {
     label: "pbserum · Proteos Biotech S.L.",
@@ -46,6 +45,6 @@ export const ADVERSE_EVENT_CONTACT = {
 };
 
 export const MEDICAL_INFO_CONTACT = {
-  label: "Dúvidas médicas",
+  label: "Dúvidas técnicas e de produtos",
   email: "medinfo@proteosbiotech.com",
 };

@@ -378,17 +378,17 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                 {/* Bottom CTA Block */}
                 <div className="rounded-2xl border border-[#C59D3F]/30 bg-panel p-8 text-on-panel shadow-xl">
                   <h3 className="font-display text-2xl font-bold text-on-panel mb-2">
-                    Solicite este Protocolo para sua Clínica
+                    Adquira este Protocolo de Alta Performance
                   </h3>
                   <p className="text-sm text-on-panel/75 mb-6 max-w-xl">
-                    Tenha acesso direto aos insumos enzimáticos recombinantes pbserum Plus com credenciamento exclusivo e suporte técnico-científico.
+                    Tenha acesso direto aos bio-remodeladores enzimáticos recombinantes pbserum Plus com suporte técnico especializado.
                   </p>
                   <div className="flex flex-wrap items-center gap-4">
                     <AccreditationButton
                       protocolName={protocol.title}
                       className="rounded-lg bg-action px-6 py-3.5 text-sm font-semibold text-action-fg transition-all hover:bg-action-hover shadow-md active:scale-[0.99]"
                     >
-                      Solicitar Credenciamento
+                      Falar com Especialista
                     </AccreditationButton>
                     <Link
                       href="/#protocolos"

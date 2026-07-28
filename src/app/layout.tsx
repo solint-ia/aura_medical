@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { JetBrains_Mono, Manrope, Sora } from "next/font/google";
 
 import { SITE_URL } from "@/data/site";
-
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { CartProvider } from "@/context/CartContext";
 
@@ -30,14 +29,14 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "pbserum Plus · Aura Regenera · Distribuidor Oficial no Brasil",
+  title: "pbserum Plus · Aura Regenera — Tecnologia Enzimática Avançada",
   description:
-    "Distribuição exclusiva de pbserum Plus para médicos, dermatologistas e cirurgiões plásticos. Enzimas recombinantes de 2ª geração com eficácia comprovada.",
+    "Slim+, Smooth+ e Drain+: bio-remodeladores enzimáticos recombinantes de alta performance para flacidez, gordura localizada, celulite, fibrose e cicatrizes. Resultados comprovados para a sua pele.",
   metadataBase: new URL(SITE_URL),
   openGraph: {
     title: "pbserum Plus · Aura Regenera",
     description:
-      "Enzimas recombinantes para bioremodelação da matriz extracelular. Protocolos e credenciamento para clínicas no Brasil.",
+      "Enzimas recombinantes para bioremodelação da matriz extracelular. Tecnologia avançada de alta performance no Brasil.",
     locale: "pt_BR",
     type: "website",
   },
@@ -58,7 +57,9 @@ export default function RootLayout({
     >
       <body className="font-sans">
         <ThemeProvider>
-          <CartProvider>{children}</CartProvider>
+          <CartProvider>
+            {children}
+          </CartProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -72,7 +72,7 @@ export function HeroSection() {
             </a>
           </div>
           <p className="order-5 flex animate-fade-up flex-wrap gap-x-5 gap-y-2.5 font-mono text-[11px] tracking-[0.04em] text-content/80 uppercase [animation-delay:320ms]">
-            <span>Uso exclusivo para profissionais de saúde</span>
+            <span>Fórmula Profissional de Alta Performance</span>
             <span aria-hidden="true">·</span>
             <span>PB500 · PB220 · PB3000</span>
           </p>

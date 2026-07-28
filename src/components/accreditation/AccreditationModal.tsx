@@ -9,19 +9,18 @@ interface AccreditationModalProps {
 
 interface LeadForm {
   name: string;
-  clinic: string;
   email: string;
   phone: string;
+  message: string;
 }
 
-const EMPTY_FORM: LeadForm = { name: "", clinic: "", email: "", phone: "" };
+const EMPTY_FORM: LeadForm = { name: "", email: "", phone: "", message: "" };
 
 const FIELD_CLASSES =
   "rounded-lg border border-content/18 bg-card dark:bg-canvas px-4 py-[13px] text-[14.5px] text-content placeholder:text-content/45 focus:border-accent focus:outline-2 focus:outline-offset-2 focus:outline-accent";
 
 /**
- * Mounted only while the dialog is open, so every request starts from a clean
- * form without an effect resetting state.
+ * Contact Modal ("Fale com um Especialista") for user inquiries.
  */
 export function AccreditationModal({
   protocolName,
@@ -54,7 +53,6 @@ export function AccreditationModal({
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // No endpoint yet — the commercial team's intake destination is pending.
     setIsSubmitted(true);
   };
 
@@ -87,35 +85,33 @@ export function AccreditationModal({
               id={titleId}
               className="mb-3 font-display text-[22px] font-bold text-content"
             >
-              Recebemos seu interesse.
+              Mensagem Enviada!
             </h2>
             <p className="text-[15px] leading-[1.6] text-content/72">
-              Nosso time comercial entrará em contato em breve para dar
-              sequência ao credenciamento da sua clínica.
+              Agradecemos seu contato. Nosso time de especialistas entrará em contato em breve para atender sua solicitação.
             </p>
           </div>
         ) : (
           <>
             <p className="mb-2.5 font-mono text-[11px] tracking-[0.08em] text-accent uppercase">
-              Credenciamento Aura Regenera
+              Atendimento Aura Regenera
             </p>
             <h2
               id={titleId}
               className="mb-2 font-display text-[23px] font-bold text-content"
             >
-              Seja um parceiro
+              Fale com um Especialista
             </h2>
 
             {protocolName ? (
               <p className="mb-[18px] text-[13.5px] text-content/70">
-                Protocolo de interesse:{" "}
+                Assunto de interesse:{" "}
                 <strong className="text-content">{protocolName}</strong>
               </p>
             ) : null}
 
             <p className="mb-[22px] text-[14.5px] leading-[1.6] text-content/75">
-              Preencha seus dados: nosso time comercial entra em contato para
-              validar o credenciamento.
+              Preencha seus dados para tirar dúvidas sobre nossos produtos ou receber suporte especializado.
             </p>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
@@ -130,21 +126,11 @@ export function AccreditationModal({
                 className={FIELD_CLASSES}
               />
               <input
-                type="text"
-                required
-                autoComplete="organization"
-                placeholder="Clínica / consultório"
-                aria-label="Clínica ou consultório"
-                value={form.clinic}
-                onChange={(event) => updateField("clinic")(event.target.value)}
-                className={FIELD_CLASSES}
-              />
-              <input
                 type="email"
                 required
                 autoComplete="email"
-                placeholder="E-mail profissional"
-                aria-label="E-mail profissional"
+                placeholder="Seu e-mail"
+                aria-label="Seu e-mail"
                 value={form.email}
                 onChange={(event) => updateField("email")(event.target.value)}
                 className={FIELD_CLASSES}
@@ -159,17 +145,24 @@ export function AccreditationModal({
                 onChange={(event) => updateField("phone")(event.target.value)}
                 className={FIELD_CLASSES}
               />
+              <textarea
+                rows={3}
+                placeholder="Como podemos te ajudar? (Opcional)"
+                aria-label="Como podemos te ajudar?"
+                value={form.message}
+                onChange={(event) => updateField("message")(event.target.value)}
+                className={FIELD_CLASSES}
+              />
               <button
                 type="submit"
                 className="mt-1.5 rounded-lg bg-action px-5 py-[15px] text-[15px] font-semibold text-action-fg transition-colors hover:bg-action-hover"
               >
-                Solicitar credenciamento
+                Enviar Mensagem
               </button>
             </form>
 
             <p className="mt-[18px] text-center text-[12.5px] text-content/60">
-              Prefere falar direto? WhatsApp e e-mail comercial da Aura Regenera
-              em breve.
+              Atendimento rápido via WhatsApp e e-mail comercial.
             </p>
           </>
         )}

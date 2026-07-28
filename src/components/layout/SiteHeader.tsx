@@ -28,7 +28,7 @@ export function SiteHeader() {
           Aura Regenera
         </span>
         <span className="font-mono text-[10.5px] tracking-[0.06em] text-content/80 uppercase">
-          Distribuidor Oficial pbserum
+          Tecnologia Avançada pbserum
         </span>
       </Link>
 

@@ -16,7 +16,7 @@ export function SiteFooter() {
             Aura Regenera
           </p>
           <p className="font-mono text-[10.5px] tracking-[0.06em] text-on-panel/60 uppercase">
-            Distribuidor Oficial pbserum · Brasil
+            Tecnologia Avançada pbserum · Brasil
           </p>
         </div>
 
@@ -53,7 +53,7 @@ export function SiteFooter() {
       </div>
 
       <p className="mx-auto mt-4 max-w-[1280px] font-mono text-[10.5px] tracking-[0.04em] text-on-panel/45">
-        © 2026 Aura Regenera, Distribuidor Oficial pbserum no Brasil.
+        © 2026 Aura Regenera — Tecnologia Avançada pbserum no Brasil.
       </p>
     </footer>
   );

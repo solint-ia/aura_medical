@@ -190,7 +190,7 @@ function CartContent() {
             </Link>
 
             <p className="mt-4 text-center font-mono text-[11px] text-content/55">
-              🔒 Compra segura · Uso exclusivo para profissionais de saúde
+              🔒 Compra 100% segura · Tecnologia Avançada pbserum
             </p>
           </div>
         </div>
