@@ -200,7 +200,7 @@ function CheckoutContent() {
     const newErrors: FormErrors = {};
 
     if (!contact.name.trim()) newErrors.name = "Nome completo é obrigatório.";
-    
+
     if (!contact.email.trim()) {
       newErrors.email = "E-mail é obrigatório.";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email)) {
@@ -243,7 +243,7 @@ function CheckoutContent() {
       newErrors.paymentMethod = "Selecione uma forma de pagamento (PIX ou Cartão).";
     } else if (paymentMethod === "card") {
       if (!card.name.trim()) newErrors.cardName = "Nome no cartão é obrigatório.";
-      
+
       const cardDigits = card.number.replace(/\D/g, "");
       if (!card.number.trim()) newErrors.cardNumber = "Número do cartão é obrigatório.";
       else if (cardDigits.length !== 16) newErrors.cardNumber = "Cartão deve ter 16 dígitos.";
@@ -286,10 +286,9 @@ function CheckoutContent() {
   };
 
   const inputClass = (hasError?: boolean) =>
-    `w-full rounded-lg border px-3.5 py-3 text-sm transition-colors outline-none ${
-      hasError
-        ? "border-red-500 bg-red-500/5 text-red-900 dark:text-red-200 focus:border-red-600"
-        : "border-content/18 bg-canvas dark:bg-card text-content focus:border-[#C59D3F]"
+    `w-full rounded-lg border px-3.5 py-3 text-sm transition-colors outline-none ${hasError
+      ? "border-red-500 bg-red-500/5 text-red-900 dark:text-red-200 focus:border-red-600"
+      : "border-content/18 bg-canvas dark:bg-card text-content focus:border-[#C59D3F]"
     }`;
 
   if (!isHydrated) {
@@ -328,7 +327,7 @@ function CheckoutContent() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <Image
-          src="/logos/logo-vertical.png"
+          src="/logos/logo-vertical-2.png"
           alt="Aura Regenera"
           width={120}
           height={120}
@@ -394,8 +393,8 @@ function CheckoutContent() {
               {step === 1
                 ? "Dados & Entrega"
                 : step === 2
-                ? "Pagamento"
-                : "Revisão do Pedido"}
+                  ? "Pagamento"
+                  : "Revisão do Pedido"}
             </span>
           </div>
           <span className="font-mono text-xs font-bold text-[#C59D3F]">
@@ -416,9 +415,8 @@ function CheckoutContent() {
           <button
             type="button"
             onClick={() => setStep(1)}
-            className={`flex items-center gap-1 font-semibold ${
-              step === 1 ? "text-[#C59D3F]" : "text-content/60"
-            }`}
+            className={`flex items-center gap-1 font-semibold ${step === 1 ? "text-[#C59D3F]" : "text-content/60"
+              }`}
           >
             <span>1. Dados</span>
           </button>
@@ -430,9 +428,8 @@ function CheckoutContent() {
             onClick={() => {
               if (validateStep1()) setStep(2);
             }}
-            className={`flex items-center gap-1 font-semibold ${
-              step === 2 ? "text-[#C59D3F]" : step > 2 ? "text-content/60" : "text-content/30"
-            }`}
+            className={`flex items-center gap-1 font-semibold ${step === 2 ? "text-[#C59D3F]" : step > 2 ? "text-content/60" : "text-content/30"
+              }`}
           >
             <span>2. Pagamento</span>
           </button>
@@ -444,9 +441,8 @@ function CheckoutContent() {
             onClick={() => {
               if (validateStep1() && validateStep2()) setStep(3);
             }}
-            className={`flex items-center gap-1 font-semibold ${
-              step === 3 ? "text-[#C59D3F]" : "text-content/30"
-            }`}
+            className={`flex items-center gap-1 font-semibold ${step === 3 ? "text-[#C59D3F]" : "text-content/30"
+              }`}
           >
             <span>3. Revisão</span>
           </button>
@@ -458,16 +454,14 @@ function CheckoutContent() {
         <button
           type="button"
           onClick={() => setStep(1)}
-          className={`flex items-center gap-2 font-semibold transition-colors ${
-            step === 1 ? "text-[#C59D3F]" : "text-content/70 hover:text-content"
-          }`}
+          className={`flex items-center gap-2 font-semibold transition-colors ${step === 1 ? "text-[#C59D3F]" : "text-content/70 hover:text-content"
+            }`}
         >
           <span
-            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${
-              step === 1
+            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${step === 1
                 ? "bg-[#C59D3F] text-[#0D1B2A]"
                 : "bg-[#C59D3F]/20 text-[#C59D3F]"
-            }`}
+              }`}
           >
             1
           </span>
@@ -481,22 +475,20 @@ function CheckoutContent() {
           onClick={() => {
             if (validateStep1()) setStep(2);
           }}
-          className={`flex items-center gap-2 font-semibold transition-colors ${
-            step === 2
+          className={`flex items-center gap-2 font-semibold transition-colors ${step === 2
               ? "text-[#C59D3F]"
               : step > 2
-              ? "text-content/70 hover:text-content"
-              : "text-content/40"
-          }`}
+                ? "text-content/70 hover:text-content"
+                : "text-content/40"
+            }`}
         >
           <span
-            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${
-              step === 2
+            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${step === 2
                 ? "bg-[#C59D3F] text-[#0D1B2A]"
                 : step > 2
-                ? "bg-[#C59D3F]/20 text-[#C59D3F]"
-                : "bg-content/10 text-content/50"
-            }`}
+                  ? "bg-[#C59D3F]/20 text-[#C59D3F]"
+                  : "bg-content/10 text-content/50"
+              }`}
           >
             2
           </span>
@@ -510,16 +502,14 @@ function CheckoutContent() {
           onClick={() => {
             if (validateStep1() && validateStep2()) setStep(3);
           }}
-          className={`flex items-center gap-2 font-semibold transition-colors ${
-            step === 3 ? "text-[#C59D3F]" : "text-content/40"
-          }`}
+          className={`flex items-center gap-2 font-semibold transition-colors ${step === 3 ? "text-[#C59D3F]" : "text-content/40"
+            }`}
         >
           <span
-            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${
-              step === 3
+            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${step === 3
                 ? "bg-[#C59D3F] text-[#0D1B2A]"
                 : "bg-content/10 text-content/50"
-            }`}
+              }`}
           >
             3
           </span>
@@ -544,7 +534,7 @@ function CheckoutContent() {
             <h3 className="font-mono text-xs font-bold text-[#C59D3F] uppercase tracking-wider">
               Informações de Contato
             </h3>
-            
+
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <label className="block mb-1.5 font-mono text-xs text-content/75 uppercase tracking-wider">
@@ -698,11 +688,10 @@ function CheckoutContent() {
             </h3>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <label
-                className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all ${
-                  shippingMethod === "sedex"
+                className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all ${shippingMethod === "sedex"
                     ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content"
                     : "border-content/15 bg-canvas hover:border-content/30"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <input
@@ -721,11 +710,10 @@ function CheckoutContent() {
               </label>
 
               <label
-                className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all ${
-                  shippingMethod === "pac"
+                className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all ${shippingMethod === "pac"
                     ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content"
                     : "border-content/15 bg-canvas hover:border-content/30"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <input
@@ -796,11 +784,10 @@ function CheckoutContent() {
                   setPaymentMethod("pix");
                   setErrors((prev) => ({ ...prev, paymentMethod: undefined }));
                 }}
-                className={`flex flex-col items-center justify-center rounded-xl border p-5 transition-all text-center ${
-                  paymentMethod === "pix"
+                className={`flex flex-col items-center justify-center rounded-xl border p-5 transition-all text-center ${paymentMethod === "pix"
                     ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content shadow-sm"
                     : "border-content/15 bg-canvas hover:border-content/30 text-content/80"
-                }`}
+                  }`}
               >
                 <QrCode className="h-8 w-8 text-[#C59D3F] mb-2" />
                 <span className="font-bold text-sm">PIX à Vista</span>
@@ -815,11 +802,10 @@ function CheckoutContent() {
                   setPaymentMethod("card");
                   setErrors((prev) => ({ ...prev, paymentMethod: undefined }));
                 }}
-                className={`flex flex-col items-center justify-center rounded-xl border p-5 transition-all text-center ${
-                  paymentMethod === "card"
+                className={`flex flex-col items-center justify-center rounded-xl border p-5 transition-all text-center ${paymentMethod === "card"
                     ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content shadow-sm"
                     : "border-content/15 bg-canvas hover:border-content/30 text-content/80"
-                }`}
+                  }`}
               >
                 <CreditCard className="h-8 w-8 text-[#C59D3F] mb-2" />
                 <span className="font-bold text-sm">Cartão de Crédito</span>

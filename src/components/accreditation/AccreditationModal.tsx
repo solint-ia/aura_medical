@@ -100,7 +100,7 @@ export function AccreditationModal({
               id={titleId}
               className="mb-2 font-display text-[23px] font-bold text-content"
             >
-              Fale com um Especialista
+              Fale Conosco
             </h2>
 
             {protocolName ? (

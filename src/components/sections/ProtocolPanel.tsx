@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
@@ -9,6 +10,12 @@ import { formatBRL } from "@/lib/format";
 
 const BLOCK_LABEL_CLASSES =
   "font-mono text-[11px] tracking-[0.08em] text-content/55 uppercase";
+
+const VIAL_IMAGE_MAP: Record<string, string> = {
+  slim: "/frascos/slim.png",
+  smooth: "/frascos/smooth.png",
+  drain: "/frascos/drain.png",
+};
 
 export function ProtocolPanel({ protocol }: { protocol: Protocol }) {
   const router = useRouter();
@@ -26,12 +33,27 @@ export function ProtocolPanel({ protocol }: { protocol: Protocol }) {
       key={protocol.id}
       className="flex animate-fade-up flex-col gap-7 rounded-[20px] bg-canvas dark:bg-card p-[clamp(32px,4vw,48px)] shadow-[0_30px_80px_rgba(4,12,20,0.4)] [animation-duration:280ms]"
     >
-      <div>
-        <p className={`mb-2.5 ${BLOCK_LABEL_CLASSES}`}>Protocolo Selecionado</p>
-        <h3 className="mb-2 font-display text-[clamp(26px,2.6vw,34px)] font-bold tracking-[-0.01em] text-content">
-          {protocol.name}
-        </h3>
-        <p className="text-[15px] text-content/70">{protocol.sessions}</p>
+      <div className="flex items-center gap-4.5 sm:gap-5">
+        {protocol.image ? (
+          <div className="relative h-16 w-16 md:h-20 md:w-20 shrink-0 overflow-hidden rounded-full border-2 border-[#C59D3F]/40 shadow-md ring-4 ring-[#C59D3F]/10 transition-transform duration-300">
+            <Image
+              src={protocol.image}
+              alt={`Ilustração do protocolo ${protocol.name}`}
+              fill
+              sizes="(max-width: 768px) 64px, 80px"
+              priority
+              className="object-cover"
+            />
+          </div>
+        ) : null}
+
+        <div className="flex flex-col">
+          <p className={`mb-1 ${BLOCK_LABEL_CLASSES}`}>Protocolo Selecionado</p>
+          <h3 className="font-display text-[clamp(24px,2.4vw,32px)] font-bold tracking-[-0.01em] text-content leading-tight">
+            {protocol.name}
+          </h3>
+          <p className="mt-1 text-[14.5px] text-content/70 font-medium">{protocol.sessions}</p>
+        </div>
       </div>
 
       <hr className="border-content/10" />
@@ -39,34 +61,36 @@ export function ProtocolPanel({ protocol }: { protocol: Protocol }) {
       <div>
         <p className={`mb-3.5 ${BLOCK_LABEL_CLASSES}`}>Composição do Kit</p>
 
-        <div
-          aria-hidden="true"
-          className="mb-4 flex h-1.5 overflow-hidden rounded"
-        >
-          {protocol.composition.map((item) => (
-            <div
-              key={item.enzyme}
-              style={{ flexGrow: item.vials }}
-              className={`basis-0 ${ENZYMES[item.enzyme].barClass}`}
-            />
-          ))}
-        </div>
-
-        <ul className="flex flex-wrap gap-2.5">
+        <ul className="flex flex-wrap gap-3">
           {protocol.composition.map((item) => {
             const enzyme = ENZYMES[item.enzyme];
+            const vialImg = VIAL_IMAGE_MAP[item.enzyme];
 
             return (
               <li
                 key={item.enzyme}
-                className="flex items-center gap-2 rounded-full border border-content/8 bg-card dark:bg-canvas px-4 py-[9px] text-[13.5px] text-content"
+                className="flex items-center gap-3 rounded-2xl border border-content/10 bg-card dark:bg-canvas px-4 py-2.5 text-[14px] text-content shadow-xs"
               >
-                <span
-                  aria-hidden="true"
-                  className={`inline-block h-[9px] w-[9px] rounded-full ${enzyme.dotClass}`}
-                />
-                <span className="font-semibold">{enzyme.label}</span>
-                <span className="text-content/55">× {item.vials}</span>
+                {vialImg ? (
+                  <Image
+                    src={vialImg}
+                    alt={`Frasco ${enzyme.label}`}
+                    width={50}
+                    height={70}
+                    className="h-12 w-auto object-contain shrink-0 drop-shadow-sm"
+                  />
+                ) : (
+                  <span
+                    aria-hidden="true"
+                    className={`inline-block h-[9px] w-[9px] rounded-full ${enzyme.dotClass}`}
+                  />
+                )}
+                <div className="flex flex-col">
+                  <span className="font-bold text-content">{enzyme.label}</span>
+                  <span className="font-mono text-xs font-bold text-[#C59D3F]">
+                    {item.vials}x frasco{item.vials > 1 ? "s" : ""}
+                  </span>
+                </div>
               </li>
             );
           })}

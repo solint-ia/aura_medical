@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { AccreditationButton } from "@/components/accreditation/AccreditationButton";
 import {
   ADVERSE_EVENT_CONTACT,
   FOOTER_COLUMNS,
@@ -14,11 +15,11 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-[1280px] grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-8 border-b border-on-panel/12 pb-8">
         <div>
           <Image
-            src="/logos/logo-vertical.png"
+            src="/logos/logo-vertical-2.png"
             alt="Aura Regenera"
             width={160}
             height={160}
-            className="h-24 w-auto object-contain mb-6 drop-shadow-md"
+            className="h-24 w-auto object-contain mb-4 drop-shadow-md"
           />
           <p className="font-mono text-[10.5px] tracking-[0.06em] text-on-panel/60 uppercase">
             Tecnologia Avançada pbserum · Brasil

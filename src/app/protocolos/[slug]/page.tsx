@@ -209,23 +209,55 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                     </h2>
                   </div>
 
-                  <ul className="grid grid-cols-1 gap-3.5">
-                    {protocol.composition.map((item, index) => (
-                      <li
-                        key={index}
-                        className="flex items-start gap-3.5 rounded-xl border border-content/8 bg-canvas p-4 transition-all hover:border-[#C59D3F]/40"
-                      >
-                        <span className="mt-1.5 h-2.5 w-2.5 flex-none rounded-full bg-[#C59D3F]" />
-                        <div>
-                          <h3 className="text-base font-semibold text-content">{item.name}</h3>
-                          {item.description ? (
-                            <p className="mt-0.5 text-sm text-content/65 leading-normal">
-                              {item.description}
-                            </p>
-                          ) : null}
-                        </div>
-                      </li>
-                    ))}
+                  <ul className="grid grid-cols-1 gap-4">
+                    {protocol.composition.map((item, index) => {
+                      const lowerName = item.name.toLowerCase();
+                      const vialImg = lowerName.includes("slim")
+                        ? "/frascos/slim.png"
+                        : lowerName.includes("smooth")
+                        ? "/frascos/smooth.png"
+                        : lowerName.includes("drain")
+                        ? "/frascos/drain.png"
+                        : null;
+
+                      // Extract quantity if starting with digit e.g. "2 Slim+" -> "2x"
+                      const matchQty = item.name.match(/^(\d+)/);
+                      const qtyBadge = matchQty ? `${matchQty[1]}x` : null;
+
+                      return (
+                        <li
+                          key={index}
+                          className="flex items-center gap-4 rounded-xl border border-content/10 bg-canvas p-4 transition-all hover:border-[#C59D3F]/40 shadow-xs"
+                        >
+                          {vialImg ? (
+                            <Image
+                              src={vialImg}
+                              alt={`Frasco ${item.name}`}
+                              width={50}
+                              height={70}
+                              className="h-12 w-auto object-contain shrink-0 drop-shadow-sm"
+                            />
+                          ) : (
+                            <span className="h-2.5 w-2.5 flex-none rounded-full bg-[#C59D3F]" />
+                          )}
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <h3 className="text-base font-bold text-content">{item.name}</h3>
+                              {qtyBadge ? (
+                                <span className="inline-flex items-center rounded-full bg-[#C59D3F]/15 px-2.5 py-0.5 font-mono text-xs font-bold text-[#C59D3F]">
+                                  {qtyBadge}
+                                </span>
+                              ) : null}
+                            </div>
+                            {item.description ? (
+                              <p className="mt-0.5 text-xs leading-relaxed text-content/70 font-medium">
+                                {item.description}
+                              </p>
+                            ) : null}
+                          </div>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </section>
 

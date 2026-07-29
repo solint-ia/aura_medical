@@ -119,7 +119,7 @@ export function EnzymesBiotechIntroSection() {
         {/* Prominent Vertical Brand Centerpiece Logo */}
         <div className="flex justify-center mb-6">
           <Image
-            src="/logos/logo-vertical.png"
+            src="/logos/logo-vertical-2.png"
             alt="Aura Regenera"
             width={220}
             height={220}
@@ -155,8 +155,8 @@ export function EnzymesBiotechIntroSection() {
                   type="button"
                   onClick={() => setActiveStep(index)}
                   className={`group relative flex items-center gap-5 rounded-2xl border p-5 text-left transition-all duration-300 ${isActive
-                      ? "border-[#C59D3F] bg-[#122436] shadow-[0_10px_30px_rgba(197,157,63,0.2)]"
-                      : "border-white/10 bg-white/4 hover:border-white/25 hover:bg-white/7"
+                    ? "border-[#C59D3F] bg-[#122436] shadow-[0_10px_30px_rgba(197,157,63,0.2)]"
+                    : "border-white/10 bg-white/4 hover:border-white/25 hover:bg-white/7"
                     }`}
                 >
                   {/* Left Active Pillar Line */}
@@ -168,8 +168,8 @@ export function EnzymesBiotechIntroSection() {
                   {/* Step Number Circle */}
                   <div
                     className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl font-mono text-sm font-bold transition-all duration-300 ${isActive
-                        ? "bg-[#C59D3F] text-[#0D1B2A] shadow-md"
-                        : "border border-white/15 bg-white/5 text-[#F6F3EC]/60 group-hover:text-[#F6F3EC]"
+                      ? "bg-[#C59D3F] text-[#0D1B2A] shadow-md"
+                      : "border border-white/15 bg-white/5 text-[#F6F3EC]/60 group-hover:text-[#F6F3EC]"
                       }`}
                   >
                     {item.stepNumber}

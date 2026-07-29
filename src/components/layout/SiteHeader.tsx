@@ -68,7 +68,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 flex items-center justify-between gap-6 border-b border-content/8 bg-canvas/92 px-[clamp(20px,4vw,56px)] py-4 backdrop-blur-[10px]">
       <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-90">
         <Image
-          src="/logos/logo-horizontal.png"
+          src="/logos/logo-horizontal-2.png"
           alt="Aura Regenera"
           width={200}
           height={50}
@@ -87,11 +87,10 @@ export function SiteHeader() {
             <Link
               key={link.href}
               href={link.href}
-              className={`text-[14.5px] whitespace-nowrap transition-colors ${
-                active
-                  ? "font-bold text-[#C59D3F] border-b-2 border-[#C59D3F] pb-0.5"
-                  : "font-medium text-content hover:text-[#C59D3F]"
-              }`}
+              className={`text-[14.5px] whitespace-nowrap transition-colors ${active
+                ? "font-bold text-[#C59D3F] border-b-2 border-[#C59D3F] pb-0.5"
+                : "font-medium text-content hover:text-[#C59D3F]"
+                }`}
             >
               {link.label}
             </Link>
@@ -166,9 +165,8 @@ export function SiteHeader() {
                 key={link.href}
                 href={link.href}
                 onClick={closeMenu}
-                className={`text-base transition-colors ${
-                  active ? "font-bold text-[#C59D3F]" : "font-medium text-content"
-                }`}
+                className={`text-base transition-colors ${active ? "font-bold text-[#C59D3F]" : "font-medium text-content"
+                  }`}
               >
                 {link.label}
               </Link>

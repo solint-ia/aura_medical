@@ -77,10 +77,10 @@ export function ProtocolsSection() {
                   type="button"
                   aria-pressed={isSelected}
                   onClick={() => setSelectedId(protocol.id)}
-                  className={`flex w-full items-center justify-between gap-3.5 rounded-r-xl border-l-[3px] px-[22px] py-[19px] text-left transition-colors ${
+                  className={`flex w-full items-center justify-between gap-3.5 rounded-xl px-[22px] py-[19px] text-left transition-all ${
                     isSelected
-                      ? "border-l-gold bg-on-panel/7"
-                      : "border-l-transparent hover:bg-on-panel/5"
+                      ? "bg-on-panel/12 shadow-sm font-semibold"
+                      : "hover:bg-on-panel/5 opacity-75 hover:opacity-100"
                   }`}
                 >
                   <span className="flex min-w-0 items-center gap-3.5">

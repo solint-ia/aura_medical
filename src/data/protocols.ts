@@ -8,6 +8,7 @@ export interface ProtocolComponent {
 export interface Protocol {
   id: string;
   name: string;
+  image?: string;
   composition: ProtocolComponent[];
   sessions: string;
   /** Kit price in BRL, already agreed with the commercial team. */
@@ -18,6 +19,7 @@ export const PROTOCOLS: Protocol[] = [
   {
     id: "queixo-duplo",
     name: "Queixo Duplo",
+    image: "/images/fotos-protocolos/queixoduplo-2.png",
     composition: [
       { enzyme: "slim", vials: 2 },
       { enzyme: "smooth", vials: 1 },
@@ -29,6 +31,7 @@ export const PROTOCOLS: Protocol[] = [
   {
     id: "perfilamento-facial",
     name: "Perfilamento Facial",
+    image: "/images/fotos-protocolos/perfilamento-2.png",
     composition: [
       { enzyme: "slim", vials: 2 },
       { enzyme: "smooth", vials: 1 },
@@ -40,6 +43,7 @@ export const PROTOCOLS: Protocol[] = [
   {
     id: "gordura-localizada",
     name: "Gordura Localizada",
+    image: "/images/fotos-protocolos/gorduralocalizada-2.png",
     composition: [
       { enzyme: "slim", vials: 2 },
       { enzyme: "smooth", vials: 1 },
@@ -51,6 +55,7 @@ export const PROTOCOLS: Protocol[] = [
   {
     id: "celulite",
     name: "Celulite",
+    image: "/images/fotos-protocolos/celulite-2.png",
     composition: [
       { enzyme: "slim", vials: 4 },
       { enzyme: "smooth", vials: 4 },
@@ -62,6 +67,7 @@ export const PROTOCOLS: Protocol[] = [
   {
     id: "cicatrizes",
     name: "Cicatrizes",
+    image: "/images/fotos-protocolos/cicatrizes-2.png",
     composition: [
       { enzyme: "smooth", vials: 3 },
       { enzyme: "drain", vials: 1 },
@@ -72,6 +78,7 @@ export const PROTOCOLS: Protocol[] = [
   {
     id: "fibrose-pos-cirurgica",
     name: "Fibrose Pós-Cirúrgica",
+    image: "/images/fotos-protocolos/fibrose-2.png",
     composition: [
       { enzyme: "slim", vials: 1 },
       { enzyme: "smooth", vials: 3 },

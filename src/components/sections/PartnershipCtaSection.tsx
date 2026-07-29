@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AccreditationButton } from "@/components/accreditation/AccreditationButton";
 
 export function PartnershipCtaSection() {
   return (
@@ -27,11 +27,8 @@ export function PartnershipCtaSection() {
         </p>
 
         <div className="mt-8 md:mt-10 flex items-center justify-center gap-4 flex-wrap">
-          <a
-            href="#protocolos"
-            className="group inline-flex items-center justify-center gap-2.5 rounded-lg bg-[#C59D3F] px-8 py-4 text-base font-semibold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-lg hover:shadow-xl active:scale-[0.99]"
-          >
-            <span>Explorar Protocolos</span>
+          <AccreditationButton className="group inline-flex items-center justify-center gap-2.5 rounded-lg bg-[#C59D3F] px-8 py-4 text-base font-semibold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-lg hover:shadow-xl active:scale-[0.99]">
+            <span>Fale Conosco</span>
             <svg
               aria-hidden="true"
               className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
@@ -42,7 +39,7 @@ export function PartnershipCtaSection() {
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l7.5-7.5M21 12H3" />
             </svg>
-          </a>
+          </AccreditationButton>
         </div>
       </div>
     </section>
