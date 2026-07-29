@@ -29,7 +29,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "pbserum Plus · Aura Regenera — Tecnologia Enzimática Avançada",
+  title: "Aura Regenera",
   description:
     "Slim+, Smooth+ e Drain+: bio-remodeladores enzimáticos recombinantes de alta performance para flacidez, gordura localizada, celulite, fibrose e cicatrizes. Resultados comprovados para a sua pele.",
   metadataBase: new URL(SITE_URL),
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     apple: "/Favicon-Aura.ico",
   },
   openGraph: {
-    title: "pbserum Plus · Aura Regenera",
+    title: "Aura Regenera",
     description:
       "Enzimas recombinantes para bioremodelação da matriz extracelular. Tecnologia avançada de alta performance no Brasil.",
     locale: "pt_BR",
