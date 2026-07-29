@@ -215,10 +215,10 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                       const vialImg = lowerName.includes("slim")
                         ? "/frascos/slim.png"
                         : lowerName.includes("smooth")
-                        ? "/frascos/smooth.png"
-                        : lowerName.includes("drain")
-                        ? "/frascos/drain.png"
-                        : null;
+                          ? "/frascos/smooth.png"
+                          : lowerName.includes("drain")
+                            ? "/frascos/drain.png"
+                            : null;
 
                       // Extract quantity if starting with digit e.g. "2 Slim+" -> "2x"
                       const matchQty = item.name.match(/^(\d+)/);
@@ -420,7 +420,7 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                       protocolName={protocol.title}
                       className="rounded-lg bg-action px-6 py-3.5 text-sm font-semibold text-action-fg transition-all hover:bg-action-hover shadow-md active:scale-[0.99]"
                     >
-                      Falar com Especialista
+                      Falar com nossa equipe
                     </AccreditationButton>
                     <Link
                       href="/#protocolos"
