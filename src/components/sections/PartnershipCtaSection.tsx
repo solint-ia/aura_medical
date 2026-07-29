@@ -5,7 +5,7 @@ export function PartnershipCtaSection() {
     <section
       id="atendimento-tecnologia"
       aria-label="Experimente a eficácia da Aura Regenera"
-      className="relative overflow-hidden bg-panel px-[clamp(20px,4vw,56px)] py-16 md:py-24 text-on-panel"
+      className="relative overflow-hidden bg-panel px-[clamp(20px,4vw,56px)] pt-12 md:pt-16 pb-8 md:pb-10 text-on-panel"
     >
       {/* Background ambient accents */}
       <div
@@ -26,7 +26,7 @@ export function PartnershipCtaSection() {
           Resultados comprovados e tecnologia enzimática avançada para a sua pele.
         </p>
 
-        <div className="mt-8 md:mt-10 flex items-center justify-center gap-4 flex-wrap">
+        <div className="mt-6 md:mt-7 flex items-center justify-center gap-4 flex-wrap">
           <AccreditationButton className="group inline-flex items-center justify-center gap-2.5 rounded-lg bg-[#C59D3F] px-8 py-4 text-base font-semibold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-lg hover:shadow-xl active:scale-[0.99]">
             <span>Fale Conosco</span>
             <svg

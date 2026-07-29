@@ -52,7 +52,6 @@ export function ProtocolPanel({ protocol }: { protocol: Protocol }) {
           <h3 className="font-display text-[clamp(26px,2.6vw,36px)] font-bold tracking-[-0.01em] text-content leading-tight">
             {protocol.name}
           </h3>
-          <p className="mt-1 text-[15px] text-content/75 font-medium">{protocol.sessions}</p>
         </div>
       </div>
 
