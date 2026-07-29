@@ -70,9 +70,9 @@ export function SiteHeader() {
         <Image
           src="/logos/logo-horizontal-2.png"
           alt="Aura Regenera"
-          width={200}
-          height={50}
-          className="h-9 w-auto object-contain"
+          width={280}
+          height={70}
+          className="h-11 sm:h-12 md:h-14 w-auto object-contain"
           priority
         />
       </Link>

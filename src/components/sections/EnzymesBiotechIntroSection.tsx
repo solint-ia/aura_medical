@@ -103,7 +103,7 @@ export function EnzymesBiotechIntroSection() {
   return (
     <section
       aria-label="Introdução Conceitual e Biotecnologia"
-      className="relative overflow-hidden bg-[#0A1622] px-[clamp(20px,4vw,56px)] py-[clamp(64px,8vw,104px)] text-[#F6F3EC]"
+      className="relative overflow-hidden bg-[#0A1622] px-[clamp(20px,4vw,56px)] pt-4 sm:pt-6 md:pt-8 pb-[clamp(64px,8vw,104px)] text-[#F6F3EC]"
     >
       {/* Background ambient radial glows */}
       <div
@@ -117,13 +117,13 @@ export function EnzymesBiotechIntroSection() {
 
       <div className="relative z-10 mx-auto max-w-[1240px]">
         {/* Prominent Vertical Brand Centerpiece Logo */}
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-4 sm:mb-6">
           <Image
             src="/logos/logo-vertical-2.png"
             alt="Aura Regenera"
-            width={220}
-            height={220}
-            className="h-32 md:h-40 w-auto object-contain drop-shadow-md"
+            width={340}
+            height={340}
+            className="h-48 sm:h-56 md:h-64 lg:h-72 w-auto object-contain drop-shadow-xl"
             priority
           />
         </div>

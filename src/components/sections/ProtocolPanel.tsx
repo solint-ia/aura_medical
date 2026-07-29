@@ -33,14 +33,14 @@ export function ProtocolPanel({ protocol }: { protocol: Protocol }) {
       key={protocol.id}
       className="flex animate-fade-up flex-col gap-7 rounded-[20px] bg-canvas dark:bg-card p-[clamp(32px,4vw,48px)] shadow-[0_30px_80px_rgba(4,12,20,0.4)] [animation-duration:280ms]"
     >
-      <div className="flex items-center gap-4.5 sm:gap-5">
+      <div className="flex items-center gap-5 sm:gap-6">
         {protocol.image ? (
-          <div className="relative h-16 w-16 md:h-20 md:w-20 shrink-0 overflow-hidden rounded-full border-2 border-[#C59D3F]/40 shadow-md ring-4 ring-[#C59D3F]/10 transition-transform duration-300">
+          <div className="relative h-20 w-20 sm:h-24 sm:w-24 md:h-28 md:w-28 shrink-0 overflow-hidden rounded-full border-[3px] border-[#C59D3F]/50 shadow-lg ring-4 ring-[#C59D3F]/15 transition-transform duration-300">
             <Image
               src={protocol.image}
               alt={`Ilustração do protocolo ${protocol.name}`}
               fill
-              sizes="(max-width: 768px) 64px, 80px"
+              sizes="(max-width: 768px) 96px, 112px"
               priority
               className="object-cover"
             />
@@ -49,10 +49,10 @@ export function ProtocolPanel({ protocol }: { protocol: Protocol }) {
 
         <div className="flex flex-col">
           <p className={`mb-1 ${BLOCK_LABEL_CLASSES}`}>Protocolo Selecionado</p>
-          <h3 className="font-display text-[clamp(24px,2.4vw,32px)] font-bold tracking-[-0.01em] text-content leading-tight">
+          <h3 className="font-display text-[clamp(26px,2.6vw,36px)] font-bold tracking-[-0.01em] text-content leading-tight">
             {protocol.name}
           </h3>
-          <p className="mt-1 text-[14.5px] text-content/70 font-medium">{protocol.sessions}</p>
+          <p className="mt-1 text-[15px] text-content/75 font-medium">{protocol.sessions}</p>
         </div>
       </div>
 

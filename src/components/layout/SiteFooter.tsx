@@ -17,9 +17,9 @@ export function SiteFooter() {
           <Image
             src="/logos/logo-vertical-2.png"
             alt="Aura Regenera"
-            width={160}
-            height={160}
-            className="h-24 w-auto object-contain mb-4 drop-shadow-md"
+            width={260}
+            height={260}
+            className="h-32 sm:h-36 md:h-40 w-auto object-contain mb-4 drop-shadow-md"
           />
           <p className="font-mono text-[10.5px] tracking-[0.06em] text-on-panel/60 uppercase">
             Tecnologia Avançada pbserum · Brasil
