@@ -35,6 +35,15 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const LOCAL_STORAGE_KEY = "aura_cart_v1";
 
+const PROTOCOL_IMAGE_MAP: Record<string, string> = {
+  "queixo-duplo": "/images/fotos-protocolos/queixoduplo-2.png",
+  "perfilamento-facial": "/images/fotos-protocolos/perfilamento-2.png",
+  "gordura-localizada": "/images/fotos-protocolos/gorduralocalizada-2.png",
+  celulite: "/images/fotos-protocolos/celulite-2.png",
+  cicatrizes: "/images/fotos-protocolos/cicatrizes-2.png",
+  "fibrose-pos-cirurgica": "/images/fotos-protocolos/fibrose-2.png",
+};
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -75,7 +84,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return updated;
       }
 
-      const imagePath = `/images/${protocol.id}.png`;
+      const imagePath =
+        ("image" in protocol && protocol.image)
+          ? protocol.image
+          : ("imagePath" in protocol && protocol.imagePath && !protocol.imagePath.startsWith("/images/queixo"))
+          ? protocol.imagePath
+          : PROTOCOL_IMAGE_MAP[protocol.id] || `/images/fotos-protocolos/${protocol.id.replace(/-/g, "")}-2.png`;
 
       const newItem: CartItem = {
         id: protocol.id,

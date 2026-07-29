@@ -10,6 +10,15 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { useCart } from "@/context/CartContext";
 import { formatBRL } from "@/lib/format";
 
+const PROTOCOL_IMAGE_MAP: Record<string, string> = {
+  "queixo-duplo": "/images/fotos-protocolos/queixoduplo-2.png",
+  "perfilamento-facial": "/images/fotos-protocolos/perfilamento-2.png",
+  "gordura-localizada": "/images/fotos-protocolos/gorduralocalizada-2.png",
+  celulite: "/images/fotos-protocolos/celulite-2.png",
+  cicatrizes: "/images/fotos-protocolos/cicatrizes-2.png",
+  "fibrose-pos-cirurgica": "/images/fotos-protocolos/fibrose-2.png",
+};
+
 function CartContent() {
   const { items, updateQuantity, removeFromCart, subtotal, isHydrated } = useCart();
 
@@ -71,28 +80,34 @@ function CartContent() {
         {/* Left Column: Cart Items List */}
         <div className="lg:col-span-8">
           <div className="divide-y divide-content/12 rounded-2xl border border-content/12 bg-card shadow-xs">
-            {items.map((item) => (
-              <div
-                key={item.id}
-                className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6"
-              >
-                {/* Product Info */}
-                <div className="flex items-center gap-4">
-                  <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-content/15 bg-navy-deep/20 text-[#C59D3F]">
-                    {item.imagePath ? (
-                      <Image
-                        src={item.imagePath}
-                        alt={item.name}
-                        fill
-                        sizes="64px"
-                        className="object-cover"
-                      />
-                    ) : (
-                      <span className="font-display text-xl font-bold">
-                        {item.name.charAt(0)}
-                      </span>
-                    )}
-                  </div>
+            {items.map((item) => {
+              const displayImg =
+                (item.imagePath && item.imagePath.includes("/fotos-protocolos/") ? item.imagePath : null) ||
+                PROTOCOL_IMAGE_MAP[item.id] ||
+                `/images/fotos-protocolos/${item.id.replace(/-/g, "")}-2.png`;
+
+              return (
+                <div
+                  key={item.id}
+                  className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6"
+                >
+                  {/* Product Info */}
+                  <div className="flex items-center gap-4">
+                    <div className="relative flex h-16 w-16 sm:h-18 sm:w-18 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#C59D3F]/40 shadow-sm ring-2 ring-[#C59D3F]/10">
+                      {displayImg ? (
+                        <Image
+                          src={displayImg}
+                          alt={item.name}
+                          fill
+                          sizes="72px"
+                          className="object-cover"
+                        />
+                      ) : (
+                        <span className="font-display text-xl font-bold text-[#C59D3F]">
+                          {item.name.charAt(0)}
+                        </span>
+                      )}
+                    </div>
 
                   <div>
                     <h3 className="font-display text-lg font-bold text-content">
@@ -153,7 +168,8 @@ function CartContent() {
                   </button>
                 </div>
               </div>
-            ))}
+            );
+          })}
           </div>
         </div>
 

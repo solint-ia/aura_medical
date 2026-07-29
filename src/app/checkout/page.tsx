@@ -327,7 +327,7 @@ function CheckoutContent() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <Image
-          src="/logos/logo-vertical-2.png"
+          src="/logos/logo-vertical-3.png"
           alt="Aura Regenera"
           width={260}
           height={260}
@@ -459,8 +459,8 @@ function CheckoutContent() {
         >
           <span
             className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${step === 1
-                ? "bg-[#C59D3F] text-[#0D1B2A]"
-                : "bg-[#C59D3F]/20 text-[#C59D3F]"
+              ? "bg-[#C59D3F] text-[#0D1B2A]"
+              : "bg-[#C59D3F]/20 text-[#C59D3F]"
               }`}
           >
             1
@@ -476,18 +476,18 @@ function CheckoutContent() {
             if (validateStep1()) setStep(2);
           }}
           className={`flex items-center gap-2 font-semibold transition-colors ${step === 2
-              ? "text-[#C59D3F]"
-              : step > 2
-                ? "text-content/70 hover:text-content"
-                : "text-content/40"
+            ? "text-[#C59D3F]"
+            : step > 2
+              ? "text-content/70 hover:text-content"
+              : "text-content/40"
             }`}
         >
           <span
             className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${step === 2
-                ? "bg-[#C59D3F] text-[#0D1B2A]"
-                : step > 2
-                  ? "bg-[#C59D3F]/20 text-[#C59D3F]"
-                  : "bg-content/10 text-content/50"
+              ? "bg-[#C59D3F] text-[#0D1B2A]"
+              : step > 2
+                ? "bg-[#C59D3F]/20 text-[#C59D3F]"
+                : "bg-content/10 text-content/50"
               }`}
           >
             2
@@ -507,8 +507,8 @@ function CheckoutContent() {
         >
           <span
             className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${step === 3
-                ? "bg-[#C59D3F] text-[#0D1B2A]"
-                : "bg-content/10 text-content/50"
+              ? "bg-[#C59D3F] text-[#0D1B2A]"
+              : "bg-content/10 text-content/50"
               }`}
           >
             3
@@ -689,8 +689,8 @@ function CheckoutContent() {
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <label
                 className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all ${shippingMethod === "sedex"
-                    ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content"
-                    : "border-content/15 bg-canvas hover:border-content/30"
+                  ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content"
+                  : "border-content/15 bg-canvas hover:border-content/30"
                   }`}
               >
                 <div className="flex items-center gap-3">
@@ -711,8 +711,8 @@ function CheckoutContent() {
 
               <label
                 className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all ${shippingMethod === "pac"
-                    ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content"
-                    : "border-content/15 bg-canvas hover:border-content/30"
+                  ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content"
+                  : "border-content/15 bg-canvas hover:border-content/30"
                   }`}
               >
                 <div className="flex items-center gap-3">
@@ -785,8 +785,8 @@ function CheckoutContent() {
                   setErrors((prev) => ({ ...prev, paymentMethod: undefined }));
                 }}
                 className={`flex flex-col items-center justify-center rounded-xl border p-5 transition-all text-center ${paymentMethod === "pix"
-                    ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content shadow-sm"
-                    : "border-content/15 bg-canvas hover:border-content/30 text-content/80"
+                  ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content shadow-sm"
+                  : "border-content/15 bg-canvas hover:border-content/30 text-content/80"
                   }`}
               >
                 <QrCode className="h-8 w-8 text-[#C59D3F] mb-2" />
@@ -803,8 +803,8 @@ function CheckoutContent() {
                   setErrors((prev) => ({ ...prev, paymentMethod: undefined }));
                 }}
                 className={`flex flex-col items-center justify-center rounded-xl border p-5 transition-all text-center ${paymentMethod === "card"
-                    ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content shadow-sm"
-                    : "border-content/15 bg-canvas hover:border-content/30 text-content/80"
+                  ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content shadow-sm"
+                  : "border-content/15 bg-canvas hover:border-content/30 text-content/80"
                   }`}
               >
                 <CreditCard className="h-8 w-8 text-[#C59D3F] mb-2" />

@@ -15,7 +15,7 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-[1280px] grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-8 border-b border-on-panel/12 pb-8">
         <div>
           <Image
-            src="/logos/logo-vertical-2.png"
+            src="/logos/logo-vertical-3.png"
             alt="Aura Regenera"
             width={260}
             height={260}

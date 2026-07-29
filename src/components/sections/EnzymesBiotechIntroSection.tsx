@@ -119,7 +119,7 @@ export function EnzymesBiotechIntroSection() {
         {/* Prominent Vertical Brand Centerpiece Logo */}
         <div className="flex justify-center mb-4 sm:mb-6">
           <Image
-            src="/logos/logo-vertical-2.png"
+            src="/logos/logo-vertical-3.png"
             alt="Aura Regenera"
             width={340}
             height={340}
