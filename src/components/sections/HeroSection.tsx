@@ -44,7 +44,7 @@ export function HeroSection() {
             id="hero-title"
             className="order-1 mb-[22px] animate-fade-up font-display text-[clamp(34px,4.6vw,58px)] leading-[1.06] font-bold tracking-[-0.015em] text-content [animation-delay:80ms]"
           >
-            Reorganize a arquitetura do tecido, não apenas a superfície da
+            Regenere a arquitetura do tecido, não apenas a superfície da
             pele.
           </h1>
           <p className="order-3 mb-9 animate-fade-up text-[clamp(16px,1.4vw,18.5px)] leading-[1.6] text-content/72 [animation-delay:160ms]">
