@@ -890,6 +890,13 @@ function CheckoutContent() {
                   />
                   {errors.cardCpf && <p className="mt-1 text-xs text-red-500">{errors.cardCpf}</p>}
                 </div>
+
+                <div className="mt-4 rounded-xl border border-content/10 bg-canvas p-3.5 text-xs text-content/75 leading-relaxed flex items-start gap-2.5">
+                  <ShieldCheck className="h-4 w-4 text-[#C59D3F] shrink-0 mt-0.5" />
+                  <p>
+                    <strong className="text-content font-bold">Não Armazenamento de Dados:</strong> Os dados do seu cartão de crédito (número, validade e CVV) são transmitidos diretamente para a credenciadora. A Aura Regenera não armazena nem tem acesso aos dados completos do seu cartão.
+                  </p>
+                </div>
               </div>
             )}
           </div>
@@ -1035,19 +1042,25 @@ function CheckoutContent() {
               </div>
             </div>
 
-            {/* Trust Badges */}
-            <div className="space-y-2.5 rounded-xl bg-canvas p-4 text-[11.5px] text-content/70 font-mono mb-6">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-[#C59D3F] shrink-0" />
-                <span>Biotecnologia de Alta Performance</span>
+            {/* Trust Badges & Terms Reassurance Block */}
+            <div className="space-y-3 rounded-xl border border-content/10 bg-canvas p-4 text-xs text-content/75 mb-6">
+              <div className="flex items-start gap-2.5">
+                <ShieldCheck className="h-4 w-4 text-[#C59D3F] shrink-0 mt-0.5" />
+                <p>
+                  <strong className="text-content font-bold">Não Armazenamento de Cartão:</strong> Os dados do seu cartão de crédito (número, validade e CVV) são transmitidos diretamente para a credenciadora. A Aura Regenera não armazena nem tem acesso aos dados completos do seu cartão.
+                </p>
               </div>
-              <div className="flex items-center gap-2">
-                <Truck className="h-4 w-4 text-[#C59D3F] shrink-0" />
-                <span>Entrega Rápida e Segura</span>
+              <div className="flex items-start gap-2.5">
+                <Sparkles className="h-4 w-4 text-[#C59D3F] shrink-0 mt-0.5" />
+                <p>
+                  <strong className="text-content font-bold">Responsabilidade Profissional:</strong> O comprador assume integral responsabilidade pela correta reconstituição, técnica de manipulação e aplicação clínica dos protocolos adquiridos.
+                </p>
               </div>
-              <div className="flex items-center gap-2">
-                <Lock className="h-4 w-4 text-[#C59D3F] shrink-0" />
-                <span>Pagamento 100% seguro e criptografado</span>
+              <div className="flex items-start gap-2.5">
+                <Lock className="h-4 w-4 text-[#C59D3F] shrink-0 mt-0.5" />
+                <p>
+                  <strong className="text-content font-bold">Privacidade & LGPD:</strong> Os dados pessoais coletados (Nome, CPF/CNPJ, Endereço, E-mail e Telefone) são utilizados estritamente para faturamento, emissão de Nota Fiscal Eletrônica (NF-e), logística de transporte e suporte técnico pós-venda.
+                </p>
               </div>
             </div>
 
