@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import {
   Dna,
   Snowflake,
@@ -115,8 +116,20 @@ export function EnzymesBiotechIntroSection() {
       />
 
       <div className="relative z-10 mx-auto max-w-[1240px]">
+        {/* Prominent Vertical Brand Centerpiece Logo */}
+        <div className="flex justify-center mb-6">
+          <Image
+            src="/logos/logo-vertical.png"
+            alt="Aura Regenera"
+            width={220}
+            height={220}
+            className="h-32 md:h-40 w-auto object-contain drop-shadow-md"
+            priority
+          />
+        </div>
+
         {/* Section Header */}
-        <div className="mb-12 max-w-3xl">
+        <div className="mb-12 max-w-3xl mx-auto text-center">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#C59D3F]/40 bg-[#C59D3F]/12 px-4 py-1.5 font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#C59D3F]">
             <Sparkles className="h-3.5 w-3.5" />
             <span>BIOTECNOLOGIA EXCLUSIVA</span>

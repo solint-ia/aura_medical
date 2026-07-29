@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -326,6 +327,13 @@ function CheckoutContent() {
   if (isSubmitted) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
+        <Image
+          src="/logos/logo-vertical.png"
+          alt="Aura Regenera"
+          width={120}
+          height={120}
+          className="h-20 w-auto object-contain mx-auto mb-4"
+        />
         <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#C59D3F]/20 text-[#C59D3F]">
           <Check className="h-10 w-10" />
         </div>

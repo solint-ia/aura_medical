@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -64,14 +65,16 @@ export function SiteHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-50 flex items-center justify-between gap-6 border-b border-content/8 bg-canvas/92 px-[clamp(20px,4vw,56px)] py-[18px] backdrop-blur-[10px]">
-      <Link href="/#hero" className="flex flex-wrap items-baseline gap-2.5">
-        <span className="font-display text-xl font-bold tracking-[-0.01em] text-content">
-          Aura Regenera
-        </span>
-        <span className="font-mono text-[10.5px] tracking-[0.06em] text-content/80 uppercase">
-          Tecnologia Avançada pbserum
-        </span>
+    <header className="sticky top-0 z-50 flex items-center justify-between gap-6 border-b border-content/8 bg-canvas/92 px-[clamp(20px,4vw,56px)] py-4 backdrop-blur-[10px]">
+      <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-90">
+        <Image
+          src="/logos/logo-horizontal.png"
+          alt="Aura Regenera"
+          width={200}
+          height={50}
+          className="h-9 w-auto object-contain"
+          priority
+        />
       </Link>
 
       <nav

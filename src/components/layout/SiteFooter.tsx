@@ -1,3 +1,4 @@
+import Image from "next/image";
 import {
   ADVERSE_EVENT_CONTACT,
   FOOTER_COLUMNS,
@@ -12,9 +13,13 @@ export function SiteFooter() {
     <footer className="bg-panel px-[clamp(20px,4vw,56px)] pt-12 pb-8">
       <div className="mx-auto grid max-w-[1280px] grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-8 border-b border-on-panel/12 pb-8">
         <div>
-          <p className="mb-2 font-display text-[19px] font-bold tracking-[-0.01em] text-on-panel">
-            Aura Regenera
-          </p>
+          <Image
+            src="/logos/logo-vertical.png"
+            alt="Aura Regenera"
+            width={160}
+            height={160}
+            className="h-24 w-auto object-contain mb-6 drop-shadow-md"
+          />
           <p className="font-mono text-[10.5px] tracking-[0.06em] text-on-panel/60 uppercase">
             Tecnologia Avançada pbserum · Brasil
           </p>
