@@ -33,6 +33,17 @@ export const metadata: Metadata = {
   description:
     "Slim+, Smooth+ e Drain+: bio-remodeladores enzimáticos recombinantes de alta performance para flacidez, gordura localizada, celulite, fibrose e cicatrizes. Resultados comprovados para a sua pele.",
   metadataBase: new URL(SITE_URL),
+  icons: {
+    icon: [
+      { url: "/favicon_io/favicon.ico" },
+      { url: "/favicon_io/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon_io/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: [
+      { url: "/favicon_io/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  manifest: "/favicon_io/site.webmanifest",
   openGraph: {
     title: "pbserum Plus · Aura Regenera",
     description:
