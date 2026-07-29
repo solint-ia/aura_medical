@@ -329,9 +329,9 @@ function CheckoutContent() {
         <Image
           src="/logos/logo-vertical-2.png"
           alt="Aura Regenera"
-          width={120}
-          height={120}
-          className="h-20 w-auto object-contain mx-auto mb-4"
+          width={260}
+          height={260}
+          className="h-32 sm:h-36 md:h-40 w-auto object-contain mx-auto mb-4 drop-shadow-md"
         />
         <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#C59D3F]/20 text-[#C59D3F]">
           <Check className="h-10 w-10" />

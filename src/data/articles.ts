@@ -6,60 +6,60 @@ export interface ScientificArticle {
 
 export const scientificArticles: ScientificArticle[] = [
   {
-    title: "Discussão sobre a Efetividade dos Produtos Enzimáticos na Dermatologia",
+    title: "Produtos Recombinantes Enzimáticos na Dermatologia",
     fileUrl: "/artigos/efetividade-dermatologia.pdf",
-    category: "Dermatologia & Eficácia"
+    category: "Dermatologia & Eficácia",
   },
   {
-    title: "Efetividade da Keratinase Recombinante",
+    title: "Avaliação da Deposição e Permeabilidade da Queratinase na Pele",
     fileUrl: "/artigos/efetividade-keratinase.pdf",
-    category: "Enzimas Recombinantes"
+    category: "Enzimas Recombinantes",
   },
   {
-    title: "Tratamento de Firmeza e Flacidez Corporal com Ácido Hialurônico e Enzimas",
+    title: "Ácido Hialurônico e Enzimas Recombinantes Pbserum Low para o Tratamento da Flacidez Corporal",
     fileUrl: "/artigos/tratamento-flacidez.pdf",
-    category: "Remodelação Corporal"
+    category: "Remodelação Corporal",
   },
   {
-    title: "Avaliação da Eficácia na Firmeza e Elasticidade da Pele via Peeling Enzimático",
+    title: "Avaliação da Eficácia do pbserum Extreme Firmness na Firmeza e Elasticidade da Pele",
     fileUrl: "/artigos/firmeza-elasticidade-peeling.pdf",
-    category: "Textura & Elasticidade"
+    category: "Textura & Elasticidade",
   },
   {
-    title: "Avaliação de Eficácia e Tolerância na Melhoria da Qualidade da Pele",
+    title: "Avaliação da Eficácia e Tolerância do pbserum smartker Equilibrium Professional",
     fileUrl: "/artigos/qualidade-pele-smartkare.pdf",
-    category: "Qualidade de Pele"
+    category: "Qualidade de Pele",
   },
   {
-    title: "Fundamentos e Prova de Princípios do Uso de Enzimas na Dermatologia",
+    title: "Fundamentos do Uso de Enzimas Recombinantes na Dermatologia",
     fileUrl: "/artigos/fundamentos-dermatologia.pdf",
-    category: "Fundamentos Científicos"
+    category: "Fundamentos Científicos",
   },
   {
-    title: "Remodelação Facial com Polipeptídeos Recombinantes",
+    title: "Enzimas Recombinantes: Um Novo Caminho para a Remodelação Facial e Rejuvenescimento da Pele",
     fileUrl: "/artigos/remodelacao-facial.pdf",
-    category: "Remodelação Facial"
+    category: "Remodelação Facial",
   },
   {
-    title: "Eficácia e Segurança na Remodelação Corporal",
+    title: "Eficácia e Segurança da Mistura Enzimática: Lipase, Colagenase e Hialuronidase",
     fileUrl: "/artigos/remodelacao-corporal.pdf",
-    category: "Segurança & Eficácia"
+    category: "Segurança & Eficácia",
   },
   {
-    title: "Resolução de Granulomas utilizando Polipeptídeos Recombinantes",
+    title: "Tratamento de Granulomas de Corpo Estranho com Terapia Enzimática Combinada",
     fileUrl: "/artigos/resolucao-granulomas.pdf",
-    category: "Casos Clínicos & Resolução"
+    category: "Casos Clínicos & Resolução",
   },
   {
-    title: "Experiência Clínica e Satisfação de Pacientes Tratados",
+    title: "Grau de Satisfação de Pacientes Tratados Esteticamente com Enzimas Recombinantes: Experiência Clínica",
     fileUrl: "/artigos/satisfacao-pacientes.pdf",
-    category: "Estudos Clínicos"
+    category: "Estudos Clínicos",
   },
   {
-    title: "Tratamento de Celulite Corporal com Enzimas Recombinantes",
+    title: "Eficácia do Tratamento da Celulite com Terapia Enzimática Combinada",
     fileUrl: "/artigos/tratamento-celulite.pdf",
-    category: "Tratamento de Celulite"
-  }
+    category: "Tratamento de Celulite",
+  },
 ];
 
 // Compatibility alias for legacy components
