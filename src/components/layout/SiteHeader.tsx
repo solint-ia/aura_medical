@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { LogOut, MapPin, PackageCheck, ShieldCheck, ShoppingCart, User } from "lucide-react";
 
 import { AccreditationButton } from "@/components/accreditation/AccreditationButton";
-import { AuthModal } from "@/components/auth/AuthModal";
+
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
@@ -284,9 +284,6 @@ export function SiteHeader() {
           </div>
         ) : null}
       </header>
-
-      {/* Auth Modal Triggered from Profile Icon */}
-      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
     </>
   );
 }

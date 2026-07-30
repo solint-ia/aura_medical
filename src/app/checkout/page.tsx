@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 import { AccreditationProvider } from "@/components/accreditation/AccreditationProvider";
-import { AuthModal } from "@/components/auth/AuthModal";
+
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { UserAddress, useAuth } from "@/context/AuthContext";
@@ -73,7 +73,6 @@ function CheckoutContent() {
   const { user, addresses, selectedAddress, setSelectedAddress, createOrder } = useAuth();
 
   const [step, setStep] = useState<Step>(1);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const [card, setCard] = useState<CardForm>({
     name: "",

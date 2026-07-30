@@ -27,7 +27,6 @@ import {
 } from "lucide-react";
 
 import { AccreditationProvider } from "@/components/accreditation/AccreditationProvider";
-import { AuthModal } from "@/components/auth/AuthModal";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Order, UserAddress, useAuth } from "@/context/AuthContext";
@@ -55,7 +54,6 @@ function CustomerPortalContent() {
   const { items: cartItems, addToCart, clearCart } = useCart();
 
   const [activeTab, setActiveTab] = useState<TabType>("pedidos");
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // Re-order modal state
   const [reorderOrder, setReorderOrder] = useState<Order | null>(null);
@@ -104,16 +102,13 @@ function CustomerPortalContent() {
           Faça login ou cadastre-se para acessar seus pedidos anteriores, acompanhar entregas e gerenciar seus endereços.
         </p>
         <div className="flex justify-center gap-4">
-          <button
-            type="button"
-            onClick={() => setIsAuthModalOpen(true)}
-            className="rounded-lg bg-[#C59D3F] px-8 py-3.5 font-semibold text-[#0D1B2A] transition-colors hover:bg-[#d4ac4c] shadow-md"
+          <Link
+            href="/entrar"
+            className="rounded-xl bg-[#C59D3F] px-8 py-3.5 font-bold text-xs text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99]"
           >
-            Entrar / Cadastrar
-          </button>
+            Entrar na Conta ou Criar Cadastro →
+          </Link>
         </div>
-
-        <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       </div>
     );
   }
