@@ -114,7 +114,7 @@ function CartContent() {
                       Protocolo {item.name}
                     </h3>
                     <p className="text-xs text-content/65 font-mono">
-                      {item.vials} ampola(s)
+                      {item.vials} ampola{item.vials > 1 ? "s" : ""}
                     </p>
                     <p className="mt-1 font-mono text-sm font-semibold text-[#C59D3F]">
                       {formatBRL(item.unitPrice)}
