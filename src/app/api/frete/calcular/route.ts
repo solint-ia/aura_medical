@@ -251,12 +251,12 @@ export async function POST(req: Request) {
 
     const regionalFallbackOptions = getRegionalShippingQuotes(cleanDestinationCep);
 
-    // Standard packaging dimensions for enzymatic kits if items not specified
+    // Standard packaging dimensions for enzymatic kits from volume specifications
     const productsPayload: ShippingCalculateItem[] = (items && items.length > 0)
       ? items.map((item: { id?: string; quantity?: number; price?: number }) => ({
           id: item.id || "pbserum-kit",
-          width: 15,
-          height: 10,
+          height: 15,
+          width: 10,
           length: 20,
           weight: 0.5,
           insurance_value: item.price || 500,
@@ -265,8 +265,8 @@ export async function POST(req: Request) {
       : [
           {
             id: "pbserum-kit",
-            width: 15,
-            height: 10,
+            height: 15,
+            width: 10,
             length: 20,
             weight: 0.5,
             insurance_value: 500,
