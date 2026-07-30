@@ -89,10 +89,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // 2. Hash Password with BCrypt (Salt rounds = 10)
+    // 2. Hash Password with BCrypt
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // 3. Create User Profile & Address via Prisma ORM Transaction
+    // 3. Create User Profile & Address
     const createdProfile = await prisma.userProfile.create({
       data: {
         cpfCnpj: cleanCpfCnpj,
@@ -168,12 +168,24 @@ export async function POST(req: Request) {
           isDefault: true,
         };
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       token,
       user,
       address: addressRes,
     });
+
+    // Set JWT Token in Cookies (Visible in DevTools Application -> Cookies)
+    response.cookies.set({
+      name: "aura_token",
+      value: token,
+      httpOnly: false,
+      path: "/",
+      maxAge: 30 * 24 * 60 * 60,
+      sameSite: "lax",
+    });
+
+    return response;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Erro ao cadastrar usuário.";
     console.error("Erro no registro Prisma ORM:", err);

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Lock, User, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { formatCpfOrCnpj, validateCpf, validateCnpj } from "@/lib/validators";
+import { formatCep, formatCpfOrCnpj, formatPhone, validateCpf, validateCnpj } from "@/lib/validators";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -470,7 +470,7 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                         placeholder="(11) 99999-9999"
                         value={regPhone}
                         onChange={(e) => {
-                          setRegPhone(e.target.value);
+                          setRegPhone(formatPhone(e.target.value));
                           setFieldErrors((prev) => ({ ...prev, phone: "" }));
                         }}
                         className={inputClass(!!fieldErrors.phone)}
@@ -562,8 +562,9 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                         maxLength={9}
                         value={regCep}
                         onChange={(e) => {
-                          setRegCep(e.target.value);
-                          handleViaCep(e.target.value);
+                          const formatted = formatCep(e.target.value);
+                          setRegCep(formatted);
+                          handleViaCep(formatted);
                           setFieldErrors((prev) => ({ ...prev, cep: "" }));
                         }}
                         className={inputClass(!!fieldErrors.cep)}

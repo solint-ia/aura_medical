@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     const cleanInput = emailOrCpf.replace(/\D/g, "");
     const trimmedInput = emailOrCpf.toLowerCase().trim();
 
-    // 1. Fetch user profile from database using Prisma ORM
+    // 1. Fetch user profile from database
     const dbUser = await prisma.userProfile.findFirst({
       where: {
         OR: [
@@ -92,12 +92,24 @@ export async function POST(req: Request) {
       phone: dbUser.phone,
     };
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       token,
       user,
       addresses,
     });
+
+    // Set JWT Token in Cookies (Visible in DevTools Application -> Cookies)
+    response.cookies.set({
+      name: "aura_token",
+      value: token,
+      httpOnly: false,
+      path: "/",
+      maxAge: 30 * 24 * 60 * 60,
+      sameSite: "lax",
+    });
+
+    return response;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Erro ao realizar login.";
     console.error("Erro no login Prisma ORM:", err);
