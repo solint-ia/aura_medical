@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Lock, User, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { formatCep, formatCpf, formatCnpj, formatCpfOrCnpj, formatPhone, validateCpf, validateCnpj } from "@/lib/validators";
@@ -226,11 +227,15 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
 
         {/* Modal Header */}
         <div className="mb-3 text-center shrink-0">
-          <div className="mx-auto mb-1.5 flex h-9 w-9 items-center justify-center rounded-full bg-[#C59D3F]/15 text-[#C59D3F]">
-            <User className="h-4.5 w-4.5" />
-          </div>
+          <Image
+            src="/logos/logo-vertical-3.png"
+            alt="Aura Regenera"
+            width={260}
+            height={260}
+            className="h-24 sm:h-28 w-auto object-contain mx-auto mb-2 drop-shadow-md"
+          />
           <h2 className="font-display text-xl font-bold text-content">
-            Área do Cliente
+            Minha Área
           </h2>
           <p className="text-[11px] text-content/70 font-mono">
             Acesse seus pedidos, acompanhe entregas e gerencie seus dados.

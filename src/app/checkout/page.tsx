@@ -204,15 +204,14 @@ function CheckoutContent() {
   };
 
   const inputClass = (hasError?: boolean) =>
-    `w-full rounded-lg border px-3.5 py-3 text-sm transition-colors outline-none ${
-      hasError
-        ? "border-red-500 bg-red-500/5 text-red-900 dark:text-red-200 focus:border-red-600"
-        : "border-content/18 bg-canvas dark:bg-card text-content focus:border-[#C59D3F]"
+    `w-full rounded-lg border px-3.5 py-3 text-sm transition-colors outline-none ${hasError
+      ? "border-red-500 bg-red-500/5 text-red-900 dark:text-red-200 focus:border-red-600"
+      : "border-content/18 bg-canvas dark:bg-card text-content focus:border-[#C59D3F]"
     }`;
 
   if (!isHydrated) {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-20 text-center font-mono text-sm text-content/60">
+      <div className="mx-auto flex min-h-[75vh] max-w-4xl flex-col items-center justify-center px-4 text-center font-mono text-sm text-content/60">
         Carregando informações do checkout...
       </div>
     );
@@ -221,7 +220,7 @@ function CheckoutContent() {
   // 1. RULE: USER MUST BE LOGGED IN TO COMPLIANT WITH CHECKOUT
   if (!user) {
     return (
-      <div className="mx-auto max-w-xl px-4 py-8 sm:py-12 text-center">
+      <div className="mx-auto flex min-h-[75vh] max-w-xl flex-col items-center justify-center px-4 text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#C59D3F]/15 text-[#C59D3F]">
           <User className="h-8 w-8" />
         </div>
@@ -246,7 +245,7 @@ function CheckoutContent() {
   // REDIRECT IF CART IS EMPTY (AND NOT YET SUBMITTED)
   if (items.length === 0 && !isSubmitted) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-20 text-center">
+      <div className="mx-auto flex min-h-[75vh] max-w-2xl flex-col items-center justify-center px-4 text-center">
         <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#C59D3F]/15 text-[#C59D3F]">
           <ShoppingBag className="h-10 w-10" />
         </div>
@@ -273,15 +272,9 @@ function CheckoutContent() {
       : "Frete Padrão";
 
     return (
-      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <Image
-          src="/logos/logo-vertical-3.png"
-          alt="Aura Regenera"
-          width={260}
-          height={260}
-          className="h-32 sm:h-36 md:h-40 w-auto object-contain mx-auto mb-4 drop-shadow-md"
-        />
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#C59D3F]/20 text-[#C59D3F]">
+      <div className="mx-auto flex min-h-[75vh] max-w-2xl flex-col items-center justify-center px-4 py-8 text-center">
+
+        <div className="mx-auto mt-6 mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#C59D3F]/20 text-[#C59D3F]">
           <Check className="h-10 w-10" />
         </div>
         <h1 className="font-display text-3xl font-bold text-content mb-1">
@@ -346,14 +339,12 @@ function CheckoutContent() {
         <button
           type="button"
           onClick={() => setStep(1)}
-          className={`flex items-center gap-2 font-bold transition-colors ${
-            step === 1 ? "text-[#C59D3F]" : "text-content/60 hover:text-content"
-          }`}
+          className={`flex items-center gap-2 font-bold transition-colors ${step === 1 ? "text-[#C59D3F]" : "text-content/60 hover:text-content"
+            }`}
         >
           <span
-            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${
-              step === 1 ? "bg-[#C59D3F] text-[#0D1B2A]" : "bg-[#C59D3F]/20 text-[#C59D3F]"
-            }`}
+            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${step === 1 ? "bg-[#C59D3F] text-[#0D1B2A]" : "bg-[#C59D3F]/20 text-[#C59D3F]"
+              }`}
           >
             1
           </span>
@@ -367,14 +358,12 @@ function CheckoutContent() {
           onClick={() => {
             if (selectedAddress) setStep(2);
           }}
-          className={`flex items-center gap-2 font-bold transition-colors ${
-            step === 2 ? "text-[#C59D3F]" : "text-content/40"
-          }`}
+          className={`flex items-center gap-2 font-bold transition-colors ${step === 2 ? "text-[#C59D3F]" : "text-content/40"
+            }`}
         >
           <span
-            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${
-              step === 2 ? "bg-[#C59D3F] text-[#0D1B2A]" : "bg-content/10 text-content/50"
-            }`}
+            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${step === 2 ? "bg-[#C59D3F] text-[#0D1B2A]" : "bg-content/10 text-content/50"
+              }`}
           >
             2
           </span>
@@ -442,11 +431,10 @@ function CheckoutContent() {
                     <div
                       key={addr.id}
                       onClick={() => setSelectedAddress(addr)}
-                      className={`flex cursor-pointer flex-col justify-between rounded-xl border p-4 transition-all ${
-                        isSelected
+                      className={`flex cursor-pointer flex-col justify-between rounded-xl border p-4 transition-all ${isSelected
                           ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content shadow-sm ring-1 ring-[#C59D3F]"
                           : "border-content/15 bg-canvas hover:border-content/30"
-                      }`}
+                        }`}
                     >
                       <div>
                         <p className="font-bold text-sm text-content">
@@ -489,11 +477,10 @@ function CheckoutContent() {
                       <div
                         key={opt.id}
                         onClick={() => setSelectedShippingOption(opt)}
-                        className={`flex cursor-pointer items-center justify-between rounded-xl border p-3.5 transition-all ${
-                          isSelected
+                        className={`flex cursor-pointer items-center justify-between rounded-xl border p-3.5 transition-all ${isSelected
                             ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content shadow-sm"
                             : "border-content/15 bg-canvas hover:border-content/30"
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center gap-3">
                           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-card font-mono text-xs font-bold text-[#C59D3F] border border-content/10">
@@ -583,11 +570,10 @@ function CheckoutContent() {
                   setPaymentMethod("pix");
                   setErrors((prev) => ({ ...prev, paymentMethod: "" }));
                 }}
-                className={`flex cursor-pointer items-start gap-4.5 rounded-xl border p-5 transition-all ${
-                  paymentMethod === "pix"
+                className={`flex cursor-pointer items-start gap-4.5 rounded-xl border p-5 transition-all ${paymentMethod === "pix"
                     ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content shadow-sm ring-1 ring-[#C59D3F]"
                     : "border-content/15 bg-canvas hover:border-content/30"
-                }`}
+                  }`}
               >
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
                   <QrCode className="h-6 w-6" />
@@ -611,11 +597,10 @@ function CheckoutContent() {
                   setPaymentMethod("card");
                   setErrors((prev) => ({ ...prev, paymentMethod: "" }));
                 }}
-                className={`flex cursor-pointer items-start gap-4.5 rounded-xl border p-5 transition-all ${
-                  paymentMethod === "card"
+                className={`flex cursor-pointer items-start gap-4.5 rounded-xl border p-5 transition-all ${paymentMethod === "card"
                     ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content shadow-sm ring-1 ring-[#C59D3F]"
                     : "border-content/15 bg-canvas hover:border-content/30"
-                }`}
+                  }`}
               >
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#C59D3F]/15 text-[#C59D3F]">
                   <CreditCard className="h-6 w-6" />
@@ -727,7 +712,7 @@ export default function CheckoutPage() {
   return (
     <AccreditationProvider>
       <SiteHeader />
-      <main className="bg-canvas min-h-screen">
+      <main className="bg-canvas">
         <CheckoutContent />
       </main>
       <SiteFooter />

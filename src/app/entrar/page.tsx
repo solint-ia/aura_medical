@@ -260,9 +260,9 @@ function AuthPageContent() {
           <Image
             src="/logos/logo-vertical-3.png"
             alt="Aura Regenera"
-            width={120}
-            height={120}
-            className="h-16 w-auto object-contain mx-auto mb-2"
+            width={260}
+            height={260}
+            className="h-28 sm:h-32 md:h-36 w-auto object-contain mx-auto mb-3 drop-shadow-md"
           />
           <h1 className="font-display text-2xl font-bold text-content">
             Minha Área
