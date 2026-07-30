@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Lock, User, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { formatCpfOrCnpj, validateCpfOrCnpj } from "@/lib/validators";
+import { formatCpfOrCnpj, validateCpf, validateCnpj } from "@/lib/validators";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -16,6 +16,7 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
   const { login, register } = useAuth();
   const [tab, setTab] = useState<"login" | "register">(initialTab);
   const [regStep, setRegStep] = useState<1 | 2>(1);
+  const [docType, setDocType] = useState<"cpf" | "cnpj">("cpf");
   const [generalError, setGeneralError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -105,10 +106,13 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
     if (!regFirstName.trim()) newErrors.firstName = "Nome é obrigatório.";
     if (!regLastName.trim()) newErrors.lastName = "Sobrenome é obrigatório.";
 
-    if (!regCpfCnpj.trim()) {
-      newErrors.cpfCnpj = "CPF ou CNPJ é obrigatório.";
-    } else if (!validateCpfOrCnpj(regCpfCnpj)) {
-      newErrors.cpfCnpj = "CPF ou CNPJ com formato inválido.";
+    const cleanDoc = regCpfCnpj.replace(/\D/g, "");
+    if (!cleanDoc) {
+      newErrors.cpfCnpj = docType === "cpf" ? "CPF é obrigatório." : "CNPJ é obrigatório.";
+    } else if (docType === "cpf" && !validateCpf(cleanDoc)) {
+      newErrors.cpfCnpj = "CPF inválido. Digite um CPF com formato correto.";
+    } else if (docType === "cnpj" && !validateCnpj(cleanDoc)) {
+      newErrors.cpfCnpj = "CNPJ inválido. Digite um CNPJ com formato correto.";
     }
 
     if (!regEmail.trim()) {
@@ -194,7 +198,7 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
     } else if (result.errors) {
       setFieldErrors(result.errors);
       if (result.errors.email || result.errors.cpfCnpj || result.errors.password) {
-        setRegStep(1); // Retornar ao passo 1 se erro de perfil/senha
+        setRegStep(1);
       }
     } else {
       setGeneralError(result.error || "Erro ao realizar cadastro.");
@@ -347,10 +351,10 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                 </span>
               </div>
 
-              {/* STEP 1: PERSONAL DATA & PASSWORD (Nome e Sobrenome NO INÍCIO) */}
+              {/* STEP 1: PERSONAL DATA & PASSWORD */}
               {regStep === 1 && (
                 <form onSubmit={handleNextToAddressStep} className="space-y-2.5">
-                  {/* NOME E SOBRENOME NO INÍCIO COMO SOLICITADO */}
+                  {/* NOME E SOBRENOME NO INÍCIO */}
                   <div className="grid grid-cols-2 gap-2.5">
                     <div>
                       <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
@@ -390,13 +394,49 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                     </div>
                   </div>
 
+                  {/* SELETOR CPF OU CNPJ */}
                   <div>
-                    <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
-                      CPF ou CNPJ *
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block font-mono text-[10px] uppercase text-content/70">
+                        Tipo de Documento *
+                      </label>
+                      <div className="flex gap-1 font-mono text-[10px]">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDocType("cpf");
+                            setRegCpfCnpj("");
+                            setFieldErrors((prev) => ({ ...prev, cpfCnpj: "" }));
+                          }}
+                          className={`px-2 py-0.5 rounded font-bold transition-colors ${
+                            docType === "cpf"
+                              ? "bg-[#C59D3F] text-[#0D1B2A]"
+                              : "bg-content/10 text-content/60 hover:text-content"
+                          }`}
+                        >
+                          CPF (Pessoa Física)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDocType("cnpj");
+                            setRegCpfCnpj("");
+                            setFieldErrors((prev) => ({ ...prev, cpfCnpj: "" }));
+                          }}
+                          className={`px-2 py-0.5 rounded font-bold transition-colors ${
+                            docType === "cnpj"
+                              ? "bg-[#C59D3F] text-[#0D1B2A]"
+                              : "bg-content/10 text-content/60 hover:text-content"
+                          }`}
+                        >
+                          CNPJ (Empresa)
+                        </button>
+                      </div>
+                    </div>
+
                     <input
                       type="text"
-                      placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                      placeholder={docType === "cpf" ? "000.000.000-00" : "00.000.000/0000-00"}
                       value={regCpfCnpj}
                       onChange={(e) => {
                         setRegCpfCnpj(formatCpfOrCnpj(e.target.value));

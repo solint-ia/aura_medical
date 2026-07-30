@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { supabase } from "@/lib/supabase";
+import { prisma } from "@/lib/prisma";
 import { validateCpfOrCnpj } from "@/lib/validators";
 
 const JWT_SECRET = process.env.SUPABASE_SERVICE_ROLE_KEY || "aura-jwt-secret-key-2026-secure";
@@ -64,61 +64,46 @@ export async function POST(req: Request) {
       return NextResponse.json({ errors }, { status: 400 });
     }
 
-    // 1. Check for Duplicate E-mail or CPF/CNPJ in Supabase DB
-    try {
-      const { data: existingUser } = await supabase
-        .from("user_profiles")
-        .select("id, email, cpf_cnpj")
-        .or(`email.eq.${cleanEmail},cpf_cnpj.eq.${cleanCpfCnpj}`)
-        .maybeSingle();
+    // 1. Check for Duplicate E-mail or CPF/CNPJ using Prisma ORM
+    const existingEmail = await prisma.userProfile.findUnique({
+      where: { email: cleanEmail },
+      select: { id: true },
+    });
 
-      if (existingUser) {
-        if (existingUser.email?.toLowerCase() === cleanEmail) {
-          return NextResponse.json(
-            { errors: { email: "Este e-mail já está cadastrado no sistema. Clique em Entrar." } },
-            { status: 400 }
-          );
-        }
-        if (existingUser.cpf_cnpj?.replace(/\D/g, "") === cleanCpfCnpj) {
-          return NextResponse.json(
-            { errors: { cpfCnpj: "Este CPF/CNPJ já está cadastrado no sistema." } },
-            { status: 400 }
-          );
-        }
-      }
-    } catch (err) {
-      console.warn("Aviso ao verificar duplicidade no Supabase:", err);
+    if (existingEmail) {
+      return NextResponse.json(
+        { errors: { email: "Este e-mail já está cadastrado no sistema. Clique em Entrar." } },
+        { status: 400 }
+      );
     }
 
-    // 2. Secure Password Hashing with BCrypt (Salt rounds = 10)
+    const existingCpf = await prisma.userProfile.findUnique({
+      where: { cpfCnpj: cleanCpfCnpj },
+      select: { id: true },
+    });
+
+    if (existingCpf) {
+      return NextResponse.json(
+        { errors: { cpfCnpj: "Este CPF/CNPJ já está cadastrado no sistema." } },
+        { status: 400 }
+      );
+    }
+
+    // 2. Hash Password with BCrypt (Salt rounds = 10)
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // 3. Insert User Profile into Supabase
-    let createdProfileId = `user-${Date.now()}`;
-    try {
-      const { data: insertedProfile, error: profileErr } = await supabase
-        .from("user_profiles")
-        .insert([
-          {
-            cpf_cnpj: cleanCpfCnpj,
-            first_name: firstName.trim(),
-            last_name: lastName.trim(),
-            birth_date: birthDate || null,
-            email: cleanEmail,
-            phone: cleanPhone,
-            password_hash: passwordHash,
-          },
-        ])
-        .select()
-        .single();
-
-      if (insertedProfile && !profileErr) {
-        createdProfileId = insertedProfile.id;
-
-        // Insert Address
-        await supabase.from("user_addresses").insert([
-          {
-            user_id: insertedProfile.id,
+    // 3. Create User Profile & Address via Prisma ORM Transaction
+    const createdProfile = await prisma.userProfile.create({
+      data: {
+        cpfCnpj: cleanCpfCnpj,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        birthDate: birthDate ? new Date(birthDate) : null,
+        email: cleanEmail,
+        phone: cleanPhone,
+        passwordHash,
+        addresses: {
+          create: {
             cep: cleanCep,
             street: street.trim(),
             number: number.trim(),
@@ -126,56 +111,72 @@ export async function POST(req: Request) {
             neighborhood: neighborhood.trim(),
             city: city.trim(),
             uf: uf?.trim() || "SE",
-            is_default: true,
+            isDefault: true,
           },
-        ]);
-      }
-    } catch (err) {
-      console.warn("Persistência local fallback ativa:", err);
-    }
+        },
+      },
+      include: {
+        addresses: true,
+      },
+    });
 
-    // 4. Generate JWT Authentication Token (Valid for 30 Days)
+    const primaryAddress = createdProfile.addresses[0];
+
+    // 4. Generate JWT Token
     const token = jwt.sign(
       {
-        userId: createdProfileId,
-        email: cleanEmail,
-        cpfCnpj: cleanCpfCnpj,
-        name: `${firstName} ${lastName}`,
+        userId: createdProfile.id,
+        email: createdProfile.email,
+        cpfCnpj: createdProfile.cpfCnpj,
+        name: `${createdProfile.firstName} ${createdProfile.lastName}`,
       },
       JWT_SECRET,
       { expiresIn: "30d" }
     );
 
-    const createdUser = {
-      id: createdProfileId,
-      cpfCnpj: cleanCpfCnpj,
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      birthDate: birthDate || "",
-      email: cleanEmail,
-      phone: cleanPhone,
+    const user = {
+      id: createdProfile.id,
+      cpfCnpj: createdProfile.cpfCnpj,
+      firstName: createdProfile.firstName,
+      lastName: createdProfile.lastName,
+      birthDate: createdProfile.birthDate ? createdProfile.birthDate.toISOString().split("T")[0] : "",
+      email: createdProfile.email,
+      phone: createdProfile.phone,
     };
 
-    const createdAddress = {
-      id: `addr-${Date.now()}`,
-      cep: cleanCep,
-      street: street.trim(),
-      number: number.trim(),
-      complement: complement?.trim() || "",
-      neighborhood: neighborhood.trim(),
-      city: city.trim(),
-      uf: uf?.trim() || "SE",
-      isDefault: true,
-    };
+    const addressRes = primaryAddress
+      ? {
+          id: primaryAddress.id,
+          cep: primaryAddress.cep,
+          street: primaryAddress.street,
+          number: primaryAddress.number,
+          complement: primaryAddress.complement || "",
+          neighborhood: primaryAddress.neighborhood,
+          city: primaryAddress.city,
+          uf: primaryAddress.uf,
+          isDefault: primaryAddress.isDefault || true,
+        }
+      : {
+          id: `addr-${Date.now()}`,
+          cep: cleanCep,
+          street: street.trim(),
+          number: number.trim(),
+          complement: complement?.trim() || "",
+          neighborhood: neighborhood.trim(),
+          city: city.trim(),
+          uf: uf?.trim() || "SE",
+          isDefault: true,
+        };
 
     return NextResponse.json({
       success: true,
       token,
-      user: createdUser,
-      address: createdAddress,
+      user,
+      address: addressRes,
     });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Erro no cadastro.";
+    const message = err instanceof Error ? err.message : "Erro ao cadastrar usuário.";
+    console.error("Erro no registro Prisma ORM:", err);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

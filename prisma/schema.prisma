@@ -1,0 +1,82 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model UserProfile {
+  id           String        @id @default(uuid()) @map("id") @db.Uuid
+  userId       String?       @unique @map("user_id") @db.Uuid
+  cpfCnpj      String        @unique @map("cpf_cnpj") @db.VarChar(20)
+  firstName    String        @map("first_name") @db.VarChar(100)
+  lastName     String        @map("last_name") @db.VarChar(100)
+  birthDate    DateTime?     @map("birth_date") @db.Date
+  email        String        @unique @map("email") @db.VarChar(255)
+  phone        String        @map("phone") @db.VarChar(20)
+  passwordHash String?       @map("password_hash") @db.Text
+  createdAt    DateTime?     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime?     @default(now()) @map("updated_at") @db.Timestamptz
+  addresses    UserAddress[]
+  orders       Order[]
+
+  @@map("user_profiles")
+}
+
+model UserAddress {
+  id            String       @id @default(uuid()) @map("id") @db.Uuid
+  userId        String?      @map("user_id") @db.Uuid
+  user          UserProfile? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipientName String?      @map("recipient_name") @db.VarChar(150)
+  cep           String       @map("cep") @db.VarChar(10)
+  street        String       @map("street") @db.VarChar(255)
+  number        String       @map("number") @db.VarChar(20)
+  complement    String?      @map("complement") @db.VarChar(100)
+  neighborhood  String       @map("neighborhood") @db.VarChar(100)
+  city          String       @map("city") @db.VarChar(100)
+  uf            String       @map("uf") @db.VarChar(2)
+  isDefault     Boolean?     @default(false) @map("is_default")
+  createdAt     DateTime?    @default(now()) @map("created_at") @db.Timestamptz
+  orders        Order[]
+
+  @@map("user_addresses")
+}
+
+model Order {
+  id             String       @id @default(uuid()) @map("id") @db.Uuid
+  orderNumber    String       @unique @map("order_number") @db.VarChar(20)
+  userId         String?      @map("user_id") @db.Uuid
+  user           UserProfile? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  addressId      String?      @map("address_id") @db.Uuid
+  address        UserAddress? @relation(fields: [addressId], references: [id])
+  shippingMethod String       @map("shipping_method") @db.VarChar(50)
+  shippingCost   Decimal      @map("shipping_cost") @db.Decimal(10, 2)
+  subtotal       Decimal      @map("subtotal") @db.Decimal(10, 2)
+  totalPrice     Decimal      @map("total_price") @db.Decimal(10, 2)
+  paymentMethod  String       @map("payment_method") @db.VarChar(30)
+  status         String       @default("pendente") @map("status") @db.VarChar(30)
+  trackingCode   String?      @map("tracking_code") @db.VarChar(100)
+  invoiceUrl     String?      @map("invoice_url") @db.VarChar(500)
+  notes          String?      @map("notes") @db.Text
+  createdAt      DateTime?    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime?    @default(now()) @map("updated_at") @db.Timestamptz
+  items          OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String   @id @default(uuid()) @map("id") @db.Uuid
+  orderId     String?  @map("order_id") @db.Uuid
+  order       Order?   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String   @map("product_id") @db.VarChar(100)
+  productName String   @map("product_name") @db.VarChar(255)
+  quantity    Int      @map("quantity")
+  unitPrice   Decimal  @map("unit_price") @db.Decimal(10, 2)
+  totalPrice  Decimal  @map("total_price") @db.Decimal(10, 2)
+  imagePath   String?  @map("image_path") @db.VarChar(500)
+
+  @@map("order_items")
+}
