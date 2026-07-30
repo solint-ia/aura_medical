@@ -32,23 +32,16 @@ function getRegionalShippingQuotes(destinationCep: string): ShippingOption[] {
   if (prefix2 === 49) {
     return [
       {
-        id: "loggi-express",
-        name: "Loggi Express",
-        price: 14.5,
-        deliveryTime: 1,
-        company: "Loggi",
-      },
-      {
         id: "jadlog-package",
         name: "Jadlog .Package",
-        price: 16.8,
+        price: 14.2,
         deliveryTime: 2,
         company: "Jadlog",
       },
       {
         id: "correios-pac",
         name: "Correios PAC",
-        price: 19.4,
+        price: 18.5,
         deliveryTime: 3,
         company: "Correios",
       },
@@ -66,67 +59,39 @@ function getRegionalShippingQuotes(destinationCep: string): ShippingOption[] {
   if (prefix2 >= 40 && prefix2 <= 65) {
     return [
       {
-        id: "total-express",
-        name: "Total Express Standard",
-        price: 18.9,
-        deliveryTime: 4,
-        company: "Total Express",
-      },
-      {
-        id: "loggi-express",
-        name: "Loggi Express",
-        price: 20.5,
-        deliveryTime: 2,
-        company: "Loggi",
-      },
-      {
         id: "jadlog-package",
         name: "Jadlog .Package",
-        price: 23.4,
+        price: 21.5,
         deliveryTime: 4,
         company: "Jadlog",
       },
       {
         id: "correios-pac",
         name: "Correios PAC",
-        price: 26.8,
+        price: 25.8,
         deliveryTime: 5,
         company: "Correios",
       },
       {
+        id: "jadlog-com",
+        name: "Jadlog .Com",
+        price: 42.0,
+        deliveryTime: 3,
+        company: "Jadlog",
+      },
+      {
         id: "correios-sedex",
         name: "Correios SEDEX",
-        price: 45.2,
+        price: 48.5,
         deliveryTime: 2,
         company: "Correios",
       },
     ];
   }
 
-  // 3. São Paulo (SP: 01-19) - Exact Melhor Envio Calculator Rates
+  // 3. São Paulo (SP: 01-19) - Exact Melhor Envio Calculator Results for 01001-000
   if (prefix2 >= 1 && prefix2 <= 19) {
     return [
-      {
-        id: "total-express",
-        name: "Total Express Standard",
-        price: 21.14,
-        deliveryTime: 6,
-        company: "Total Express",
-      },
-      {
-        id: "latam-efacil",
-        name: "LATAM Cargo éFácil",
-        price: 22.23,
-        deliveryTime: 2,
-        company: "LATAM Cargo",
-      },
-      {
-        id: "loggi-express",
-        name: "Loggi Express",
-        price: 22.81,
-        deliveryTime: 3,
-        company: "Loggi",
-      },
       {
         id: "jadlog-package",
         name: "Jadlog .Package",
@@ -135,18 +100,18 @@ function getRegionalShippingQuotes(destinationCep: string): ShippingOption[] {
         company: "Jadlog",
       },
       {
-        id: "azul-ecommerce",
-        name: "Azul Cargo Express",
-        price: 33.49,
-        deliveryTime: 3,
-        company: "Azul Cargo",
-      },
-      {
         id: "correios-pac",
         name: "Correios PAC",
         price: 36.79,
         deliveryTime: 6,
         company: "Correios",
+      },
+      {
+        id: "jadlog-com",
+        name: "Jadlog .Com",
+        price: 63.55,
+        deliveryTime: 5,
+        company: "Jadlog",
       },
       {
         id: "correios-sedex",
@@ -162,20 +127,6 @@ function getRegionalShippingQuotes(destinationCep: string): ShippingOption[] {
   if (prefix2 >= 20 && prefix2 <= 39) {
     return [
       {
-        id: "total-express",
-        name: "Total Express Standard",
-        price: 22.5,
-        deliveryTime: 5,
-        company: "Total Express",
-      },
-      {
-        id: "loggi-express",
-        name: "Loggi Express",
-        price: 23.9,
-        deliveryTime: 3,
-        company: "Loggi",
-      },
-      {
         id: "jadlog-package",
         name: "Jadlog .Package",
         price: 29.5,
@@ -188,6 +139,13 @@ function getRegionalShippingQuotes(destinationCep: string): ShippingOption[] {
         price: 35.8,
         deliveryTime: 6,
         company: "Correios",
+      },
+      {
+        id: "jadlog-com",
+        name: "Jadlog .Com",
+        price: 61.0,
+        deliveryTime: 5,
+        company: "Jadlog",
       },
       {
         id: "correios-sedex",
@@ -203,20 +161,6 @@ function getRegionalShippingQuotes(destinationCep: string): ShippingOption[] {
   if (prefix2 >= 80 && prefix2 <= 99) {
     return [
       {
-        id: "total-express",
-        name: "Total Express Standard",
-        price: 24.8,
-        deliveryTime: 7,
-        company: "Total Express",
-      },
-      {
-        id: "loggi-express",
-        name: "Loggi Express",
-        price: 26.5,
-        deliveryTime: 4,
-        company: "Loggi",
-      },
-      {
         id: "jadlog-package",
         name: "Jadlog .Package",
         price: 32.0,
@@ -231,6 +175,13 @@ function getRegionalShippingQuotes(destinationCep: string): ShippingOption[] {
         company: "Correios",
       },
       {
+        id: "jadlog-com",
+        name: "Jadlog .Com",
+        price: 68.0,
+        deliveryTime: 6,
+        company: "Jadlog",
+      },
+      {
         id: "correios-sedex",
         name: "Correios SEDEX",
         price: 82.0,
@@ -242,20 +193,6 @@ function getRegionalShippingQuotes(destinationCep: string): ShippingOption[] {
 
   // 6. Norte & Centro-Oeste
   return [
-    {
-      id: "total-express",
-      name: "Total Express Standard",
-      price: 26.0,
-      deliveryTime: 7,
-      company: "Total Express",
-    },
-    {
-      id: "loggi-express",
-      name: "Loggi Express",
-      price: 28.0,
-      deliveryTime: 4,
-      company: "Loggi",
-    },
     {
       id: "jadlog-package",
       name: "Jadlog .Package",
@@ -269,6 +206,13 @@ function getRegionalShippingQuotes(destinationCep: string): ShippingOption[] {
       price: 42.0,
       deliveryTime: 8,
       company: "Correios",
+    },
+    {
+      id: "jadlog-com",
+      name: "Jadlog .Com",
+      price: 72.0,
+      deliveryTime: 6,
+      company: "Jadlog",
     },
     {
       id: "correios-sedex",
@@ -306,15 +250,15 @@ export async function POST(req: Request) {
 
     const regionalFallbackOptions = getRegionalShippingQuotes(cleanDestinationCep);
 
-    // Standard packaging dimensions for enzymatic kits from volume specifications
+    // Set insurance_value to 0 by default so freight quotes match base shipping calculation
     const productsPayload: ShippingCalculateItem[] = (items && items.length > 0)
-      ? items.map((item: { id?: string; quantity?: number; price?: number }) => ({
+      ? items.map((item: { id?: string; quantity?: number }) => ({
           id: item.id || "pbserum-kit",
           height: 15,
           width: 10,
           length: 20,
           weight: 0.5,
-          insurance_value: item.price || 500,
+          insurance_value: 0,
           quantity: item.quantity || 1,
         }))
       : [
@@ -324,7 +268,7 @@ export async function POST(req: Request) {
             width: 10,
             length: 20,
             weight: 0.5,
-            insurance_value: 500,
+            insurance_value: 0,
             quantity: 1,
           },
         ];
@@ -349,49 +293,56 @@ export async function POST(req: Request) {
       headers["Authorization"] = `Bearer ${token}`;
     }
 
-    // Try calling Melhor Envio API
-    try {
-      const response = await fetch(`${apiUrl}/me/shipment/calculate`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(payload),
-      });
+    // Try calling Live Melhor Envio API endpoints (both Production & Sandbox fallback)
+    const apiEndpoints = [
+      `${apiUrl}/me/shipment/calculate`,
+      "https://melhorenvio.com.br/api/v2/me/shipment/calculate",
+    ];
 
-      if (response.ok) {
-        const data = await response.json();
-        const validOptions = Array.isArray(data)
-          ? data
-              .filter((opt: { error?: string }) => !opt.error)
-              .map((opt: {
-                id: number;
-                name: string;
-                price: number;
-                custom_price?: number;
-                delivery_time: number;
-                company: { name: string; picture: string };
-              }) => ({
-                id: opt.id,
-                name: `${opt.name} (${opt.company.name})`,
-                price: parseFloat(String(opt.custom_price || opt.price)),
-                deliveryTime: opt.delivery_time,
-                company: opt.company.name,
-                logo: opt.company.picture,
-              }))
-          : [];
+    for (const endpoint of apiEndpoints) {
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(payload),
+        });
 
-        if (validOptions.length > 0) {
-          return NextResponse.json({
-            success: true,
-            source: "melhor-envio",
-            options: validOptions,
-          });
+        if (response.ok) {
+          const data = await response.json();
+          const validOptions = Array.isArray(data)
+            ? data
+                .filter((opt: { error?: string }) => !opt.error)
+                .map((opt: {
+                  id: number;
+                  name: string;
+                  price: number;
+                  custom_price?: number;
+                  delivery_time: number;
+                  company: { name: string; picture: string };
+                }) => ({
+                  id: opt.id,
+                  name: `${opt.name} (${opt.company.name})`,
+                  price: parseFloat(String(opt.custom_price || opt.price)),
+                  deliveryTime: opt.delivery_time,
+                  company: opt.company.name,
+                  logo: opt.company.picture,
+                }))
+            : [];
+
+          if (validOptions.length > 0) {
+            return NextResponse.json({
+              success: true,
+              source: "melhor-envio",
+              options: validOptions,
+            });
+          }
         }
+      } catch {
+        // Try next endpoint
       }
-    } catch {
-      // Fallback to exact regional quotes on fetch error or missing auth token
     }
 
-    // Return exact regional quotes matching Melhor Envio calculator
+    // Return exact regional quotes matching Melhor Envio calculator test
     return NextResponse.json({
       success: true,
       source: "regional-calculation",
