@@ -280,32 +280,86 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     paymentMethod: string;
     items: Array<{ id: string; name: string; quantity: number; unitPrice: number; imagePath?: string }>;
   }) => {
-    const orderNumber = `AUR-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-    const newOrder: Order = {
-      id: `ord-${Date.now()}`,
-      orderNumber,
-      userId: user?.id || "guest",
-      addressId: orderPayload.address.id,
-      addressSummary: `${orderPayload.address.street}, ${orderPayload.address.number} - ${orderPayload.address.city}`,
-      shippingMethod: orderPayload.shippingMethod,
-      shippingCost: orderPayload.shippingCost,
-      subtotal: orderPayload.subtotal,
-      totalPrice: orderPayload.totalPrice,
-      paymentMethod: orderPayload.paymentMethod,
-      status: "pago",
-      trackingCode: `ME-${Math.floor(100000000 + Math.random() * 900000000)}BR`,
-      invoiceUrl: "#nfe-preview",
-      createdAt: new Date().toISOString(),
-      items: orderPayload.items.map((i) => ({
-        id: `item-${Date.now()}-${i.id}`,
-        productId: i.id,
-        productName: i.name,
-        quantity: i.quantity,
-        unitPrice: i.unitPrice,
-        totalPrice: i.unitPrice * i.quantity,
-        imagePath: i.imagePath,
-      })),
-    };
+    const addressSummary = `${orderPayload.address.street}, ${orderPayload.address.number} ${orderPayload.address.complement || ""} - ${orderPayload.address.neighborhood}, ${orderPayload.address.city} (${orderPayload.address.uf}) CEP: ${orderPayload.address.cep}`;
+
+    let newOrder: Order;
+
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user?.id || null,
+          addressId: orderPayload.address.id || null,
+          addressSummary,
+          shippingMethod: orderPayload.shippingMethod,
+          shippingCost: orderPayload.shippingCost,
+          subtotal: orderPayload.subtotal,
+          totalPrice: orderPayload.totalPrice,
+          paymentMethod: orderPayload.paymentMethod,
+          items: orderPayload.items,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.order) {
+        newOrder = {
+          id: data.order.id,
+          orderNumber: data.order.orderNumber || data.order.order_number,
+          userId: user?.id || "guest",
+          addressId: orderPayload.address.id,
+          addressSummary,
+          shippingMethod: orderPayload.shippingMethod,
+          shippingCost: orderPayload.shippingCost,
+          subtotal: orderPayload.subtotal,
+          totalPrice: orderPayload.totalPrice,
+          paymentMethod: orderPayload.paymentMethod,
+          status: "pago",
+          trackingCode: data.order.trackingCode || data.order.tracking_code || "",
+          invoiceUrl: "#nfe-preview",
+          createdAt: data.order.createdAt || new Date().toISOString(),
+          items: orderPayload.items.map((i) => ({
+            id: `item-${Date.now()}-${i.id}`,
+            productId: i.id,
+            productName: i.name,
+            quantity: i.quantity,
+            unitPrice: i.unitPrice,
+            totalPrice: i.unitPrice * i.quantity,
+            imagePath: i.imagePath,
+          })),
+        };
+      } else {
+        throw new Error(data.error || "Erro ao salvar pedido no servidor.");
+      }
+    } catch (err) {
+      console.warn("Erro ao salvar pedido via API, utilizando fallback local:", err);
+      const orderNumber = `AUR-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+      newOrder = {
+        id: `ord-${Date.now()}`,
+        orderNumber,
+        userId: user?.id || "guest",
+        addressId: orderPayload.address.id,
+        addressSummary,
+        shippingMethod: orderPayload.shippingMethod,
+        shippingCost: orderPayload.shippingCost,
+        subtotal: orderPayload.subtotal,
+        totalPrice: orderPayload.totalPrice,
+        paymentMethod: orderPayload.paymentMethod,
+        status: "pago",
+        trackingCode: `ME-${Math.floor(100000000 + Math.random() * 900000000)}BR`,
+        invoiceUrl: "#nfe-preview",
+        createdAt: new Date().toISOString(),
+        items: orderPayload.items.map((i) => ({
+          id: `item-${Date.now()}-${i.id}`,
+          productId: i.id,
+          productName: i.name,
+          quantity: i.quantity,
+          unitPrice: i.unitPrice,
+          totalPrice: i.unitPrice * i.quantity,
+          imagePath: i.imagePath,
+        })),
+      };
+    }
 
     const updatedOrders = [newOrder, ...orders];
     setOrders(updatedOrders);
