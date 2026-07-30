@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 
 export interface UserProfile {
   id?: string;
@@ -12,7 +11,6 @@ export interface UserProfile {
   birthDate: string;
   email: string;
   phone: string;
-  password?: string;
 }
 
 export interface UserAddress {
@@ -59,17 +57,18 @@ export interface Order {
 
 interface AuthContextType {
   user: UserProfile | null;
+  authToken: string | null;
   addresses: UserAddress[];
   selectedAddress: UserAddress | null;
   setSelectedAddress: (addr: UserAddress | null) => void;
   orders: Order[];
   isHydrated: boolean;
-  login: (emailOrCpf: string, passwordInput: string) => Promise<{ success: boolean; error?: string }>;
+  login: (emailOrCpf: string, passwordInput: string) => Promise<{ success: boolean; errors?: Record<string, string>; error?: string }>;
   register: (
     profileData: Omit<UserProfile, "id">,
     addressData: Omit<UserAddress, "id">,
     passwordInput: string
-  ) => Promise<{ success: boolean; error?: string }>;
+  ) => Promise<{ success: boolean; errors?: Record<string, string>; error?: string }>;
   addAddress: (addressData: Omit<UserAddress, "id">) => Promise<UserAddress>;
   createOrder: (orderPayload: {
     address: UserAddress;
@@ -85,49 +84,52 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_USER_KEY = "aura_user_profile_v2";
-const LOCAL_STORAGE_ADDRESSES_KEY = "aura_user_addresses_v2";
-const LOCAL_STORAGE_ORDERS_KEY = "aura_user_orders_v2";
+const LOCAL_STORAGE_USER_KEY = "aura_user_profile_v3";
+const LOCAL_STORAGE_TOKEN_KEY = "aura_auth_token_v3";
+const LOCAL_STORAGE_ADDRESSES_KEY = "aura_user_addresses_v3";
+const LOCAL_STORAGE_ORDERS_KEY = "aura_user_orders_v3";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [authToken, setAuthToken] = useState<string | null>(null);
   const [addresses, setAddresses] = useState<UserAddress[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<UserAddress | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Load initial session state from localStorage
+  // Hydrate auth session state
   useEffect(() => {
     try {
       const savedUser = localStorage.getItem(LOCAL_STORAGE_USER_KEY);
+      const savedToken = localStorage.getItem(LOCAL_STORAGE_TOKEN_KEY);
       const savedAddresses = localStorage.getItem(LOCAL_STORAGE_ADDRESSES_KEY);
       const savedOrders = localStorage.getItem(LOCAL_STORAGE_ORDERS_KEY);
 
-      if (savedUser) {
-        const parsedUser = JSON.parse(savedUser);
-        setUser(parsedUser);
-      }
+      if (savedUser) setUser(JSON.parse(savedUser));
+      if (savedToken) setAuthToken(savedToken);
 
       if (savedAddresses) {
         const parsedAddresses = JSON.parse(savedAddresses);
         setAddresses(parsedAddresses);
-        if (parsedAddresses.length > 0) {
-          setSelectedAddress(parsedAddresses[0]);
-        }
+        if (parsedAddresses.length > 0) setSelectedAddress(parsedAddresses[0]);
       }
 
-      if (savedOrders) {
-        setOrders(JSON.parse(savedOrders));
-      }
+      if (savedOrders) setOrders(JSON.parse(savedOrders));
     } catch (err) {
-      console.error("Erro ao carregar estado de autenticação:", err);
+      console.error("Erro ao carregar sessão de autenticação:", err);
     } finally {
       setIsHydrated(true);
     }
   }, []);
 
-  const syncState = (newUser: UserProfile | null, newAddresses: UserAddress[], newOrders: Order[]) => {
+  const syncState = (
+    newUser: UserProfile | null,
+    newToken: string | null,
+    newAddresses: UserAddress[],
+    newOrders: Order[]
+  ) => {
     setUser(newUser);
+    setAuthToken(newToken);
     setAddresses(newAddresses);
     setOrders(newOrders);
 
@@ -137,84 +139,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem(LOCAL_STORAGE_USER_KEY);
     }
 
+    if (newToken) {
+      localStorage.setItem(LOCAL_STORAGE_TOKEN_KEY, newToken);
+    } else {
+      localStorage.removeItem(LOCAL_STORAGE_TOKEN_KEY);
+    }
+
     localStorage.setItem(LOCAL_STORAGE_ADDRESSES_KEY, JSON.stringify(newAddresses));
     localStorage.setItem(LOCAL_STORAGE_ORDERS_KEY, JSON.stringify(newOrders));
   };
 
   const login = async (emailOrCpf: string, passwordInput: string) => {
-    const cleanInput = emailOrCpf.replace(/\D/g, "");
-    const trimmedInput = emailOrCpf.toLowerCase().trim();
-
-    // 1. Try Supabase Auth or DB Lookup
     try {
-      const { data, error } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .or(`email.eq.${trimmedInput},cpf_cnpj.eq.${cleanInput}`)
-        .single();
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emailOrCpf, password: passwordInput }),
+      });
 
-      if (data && !error) {
-        // Validate password if stored
-        if (data.password && data.password !== passwordInput) {
-          return { success: false, error: "Senha incorreta. Verifique e tente novamente." };
-        }
+      const data = await res.json();
 
-        const profile: UserProfile = {
-          id: data.id,
-          userId: data.user_id,
-          cpfCnpj: data.cpf_cnpj,
-          firstName: data.first_name,
-          lastName: data.last_name,
-          birthDate: data.birth_date,
-          email: data.email,
-          phone: data.phone,
-        };
-
-        const { data: addrData } = await supabase
-          .from("user_addresses")
-          .select("*")
-          .eq("user_id", data.user_id || data.id);
-
-        const loadedAddresses: UserAddress[] = (addrData || []).map((a) => ({
-          id: a.id,
-          userId: a.user_id,
-          recipientName: a.recipient_name,
-          cep: a.cep,
-          street: a.street,
-          number: a.number,
-          complement: a.complement,
-          neighborhood: a.neighborhood,
-          city: a.city,
-          uf: a.uf,
-          isDefault: a.is_default,
-        }));
-
-        syncState(profile, loadedAddresses, orders);
-        if (loadedAddresses.length > 0) setSelectedAddress(loadedAddresses[0]);
-        return { success: true };
+      if (!res.ok) {
+        return { success: false, error: data.error || "Credenciais inválidas." };
       }
-    } catch {
-      // Local fallback
-    }
 
-    // 2. Local Storage Fallback
-    const savedUser = localStorage.getItem(LOCAL_STORAGE_USER_KEY);
-    if (savedUser) {
-      const parsed: UserProfile = JSON.parse(savedUser);
-      const isMatchingEmailOrCpf =
-        parsed.email.toLowerCase() === trimmedInput ||
-        parsed.cpfCnpj.replace(/\D/g, "") === cleanInput;
-
-      if (isMatchingEmailOrCpf) {
-        if (parsed.password && parsed.password !== passwordInput) {
-          return { success: false, error: "Senha incorreta. Verifique e tente novamente." };
-        }
-        setUser(parsed);
-        return { success: true };
+      syncState(data.user, data.token, data.addresses || [], orders);
+      if (data.addresses && data.addresses.length > 0) {
+        setSelectedAddress(data.addresses[0]);
       }
-    }
 
-    return { success: false, error: "Usuário não encontrado. Verifique seu e-mail/CPF ou cadastre-se." };
+      return { success: true };
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : "Erro ao realizar login.";
+      return { success: false, error: errorMsg };
+    }
   };
 
   const register = async (
@@ -222,55 +180,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     addressData: Omit<UserAddress, "id">,
     passwordInput: string
   ) => {
-    const newProfileId = `user-${Date.now()}`;
-    const newProfile: UserProfile = {
-      ...profileData,
-      id: newProfileId,
-      password: passwordInput,
-    };
-
-    const newAddressId = `addr-${Date.now()}`;
-    const newAddress: UserAddress = {
-      ...addressData,
-      id: newAddressId,
-      isDefault: true,
-    };
-
-    const updatedAddresses = [newAddress, ...addresses];
-    syncState(newProfile, updatedAddresses, orders);
-    setSelectedAddress(newAddress);
-
-    // Persist to Supabase
     try {
-      await supabase.from("user_profiles").insert([
-        {
-          cpf_cnpj: profileData.cpfCnpj,
-          first_name: profileData.firstName,
-          last_name: profileData.lastName,
-          birth_date: profileData.birthDate,
-          email: profileData.email,
-          phone: profileData.phone,
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          profile: profileData,
+          address: addressData,
           password: passwordInput,
-        },
-      ]);
+        }),
+      });
 
-      await supabase.from("user_addresses").insert([
-        {
-          cep: addressData.cep,
-          street: addressData.street,
-          number: addressData.number,
-          complement: addressData.complement,
-          neighborhood: addressData.neighborhood,
-          city: addressData.city,
-          uf: addressData.uf,
-          is_default: true,
-        },
-      ]);
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data.errors) {
+          return { success: false, errors: data.errors };
+        }
+        return { success: false, error: data.error || "Erro ao realizar cadastro." };
+      }
+
+      const updatedAddresses = [data.address, ...addresses];
+      syncState(data.user, data.token, updatedAddresses, orders);
+      setSelectedAddress(data.address);
+
+      return { success: true };
     } catch (err) {
-      console.warn("Aviso Supabase (fallback local ativo):", err);
+      const errorMsg = err instanceof Error ? err.message : "Erro no servidor ao cadastrar.";
+      return { success: false, error: errorMsg };
     }
-
-    return { success: true };
   };
 
   const addAddress = async (addressData: Omit<UserAddress, "id">) => {
@@ -283,23 +221,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAddresses(updatedAddresses);
     localStorage.setItem(LOCAL_STORAGE_ADDRESSES_KEY, JSON.stringify(updatedAddresses));
     setSelectedAddress(newAddress);
-
-    try {
-      await supabase.from("user_addresses").insert([
-        {
-          cep: addressData.cep,
-          street: addressData.street,
-          number: addressData.number,
-          complement: addressData.complement,
-          neighborhood: addressData.neighborhood,
-          city: addressData.city,
-          uf: addressData.uf,
-        },
-      ]);
-    } catch {
-      // Fallback
-    }
-
     return newAddress;
   };
 
@@ -347,7 +268,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
-    syncState(null, [], orders);
+    syncState(null, null, [], orders);
     setSelectedAddress(null);
   };
 
@@ -355,6 +276,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        authToken,
         addresses,
         selectedAddress,
         setSelectedAddress,

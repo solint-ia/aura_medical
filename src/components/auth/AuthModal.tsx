@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, Lock, Mail, MapPin, User, X } from "lucide-react";
+import { Lock, Mail, MapPin, User, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { formatCpfOrCnpj, validateCpfOrCnpj } from "@/lib/validators";
 
@@ -16,7 +16,8 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
   const { login, register } = useAuth();
   const [tab, setTab] = useState<"login" | "register">(initialTab);
   const [regStep, setRegStep] = useState<1 | 2>(1);
-  const [errorMsg, setErrorMsg] = useState("");
+  const [generalError, setGeneralError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
   // Login form state
@@ -56,6 +57,7 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
         setRegStreet(data.logradouro || "");
         setRegNeighborhood(data.bairro || "");
         setRegCity(data.localidade ? `${data.localidade} - ${data.uf}` : "");
+        setFieldErrors((prev) => ({ ...prev, cep: "", street: "", neighborhood: "", city: "" }));
       }
     } catch {
       // Ignorar erro
@@ -66,15 +68,19 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMsg("");
+    setGeneralError("");
+    const newErrors: Record<string, string> = {};
 
     if (!loginEmailOrCpf.trim()) {
-      setErrorMsg("Informe seu E-mail ou CPF/CNPJ.");
-      return;
+      newErrors.loginEmailOrCpf = "Informe seu E-mail ou CPF/CNPJ.";
     }
 
     if (!loginPassword) {
-      setErrorMsg("Informe sua senha para entrar.");
+      newErrors.loginPassword = "Informe sua senha para entrar.";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setFieldErrors(newErrors);
       return;
     }
 
@@ -86,44 +92,76 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
       onClose();
       if (onSuccess) onSuccess();
     } else {
-      setErrorMsg(result.error || "Credenciais inválidas.");
+      setGeneralError(result.error || "Credenciais inválidas.");
     }
   };
 
-  // Validate Step 1 before proceeding to Step 2
+  // Step 1 Validation before proceeding to Step 2
   const handleNextToAddressStep = (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMsg("");
+    setGeneralError("");
+    const newErrors: Record<string, string> = {};
 
-    if (!regCpfCnpj || !regFirstName || !regLastName || !regEmail || !regPhone || !regPassword) {
-      setErrorMsg("Preencha todos os campos obrigatórios (*).");
-      return;
+    if (!regCpfCnpj.trim()) {
+      newErrors.cpfCnpj = "CPF ou CNPJ é obrigatório.";
+    } else if (!validateCpfOrCnpj(regCpfCnpj)) {
+      newErrors.cpfCnpj = "CPF ou CNPJ com formato inválido.";
     }
 
-    if (!validateCpfOrCnpj(regCpfCnpj)) {
-      setErrorMsg("CPF ou CNPJ inválido. Digite um documento válido.");
-      return;
+    if (!regFirstName.trim()) newErrors.firstName = "Nome é obrigatório.";
+    if (!regLastName.trim()) newErrors.lastName = "Sobrenome é obrigatório.";
+
+    if (!regEmail.trim()) {
+      newErrors.email = "E-mail é obrigatório.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(regEmail)) {
+      newErrors.email = "E-mail com formato inválido.";
     }
 
-    if (regPassword.length < 6) {
-      setErrorMsg("A senha deve conter no mínimo 6 caracteres.");
-      return;
+    const phoneDigits = regPhone.replace(/\D/g, "");
+    if (!regPhone.trim()) {
+      newErrors.phone = "Telefone / WhatsApp é obrigatório.";
+    } else if (phoneDigits.length < 10) {
+      newErrors.phone = "Telefone deve conter no mínimo 10 dígitos com DDD.";
     }
 
-    if (regPassword !== regConfirmPassword) {
-      setErrorMsg("As senhas não coincidem. Digite novamente.");
-      return;
+    if (!regPassword) {
+      newErrors.password = "Senha é obrigatória.";
+    } else if (regPassword.length < 6) {
+      newErrors.password = "A senha deve ter no mínimo 6 caracteres.";
     }
 
-    setRegStep(2);
+    if (!regConfirmPassword) {
+      newErrors.confirmPassword = "Confirmação de senha é obrigatória.";
+    } else if (regPassword !== regConfirmPassword) {
+      newErrors.confirmPassword = "As senhas não coincidem.";
+    }
+
+    setFieldErrors(newErrors);
+    if (Object.keys(newErrors).length === 0) {
+      setRegStep(2);
+    }
   };
 
+  // Step 2 Submission (Address + Full Registration)
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMsg("");
+    setGeneralError("");
+    const newErrors: Record<string, string> = {};
 
-    if (!regCep || !regStreet || !regNumber || !regNeighborhood || !regCity) {
-      setErrorMsg("Preencha o endereço completo para entrega.");
+    const cepDigits = regCep.replace(/\D/g, "");
+    if (!regCep.trim()) {
+      newErrors.cep = "CEP é obrigatório.";
+    } else if (cepDigits.length !== 8) {
+      newErrors.cep = "CEP deve possuir 8 dígitos.";
+    }
+
+    if (!regStreet.trim()) newErrors.street = "Logradouro / Rua é obrigatório.";
+    if (!regNumber.trim()) newErrors.number = "Número é obrigatório.";
+    if (!regNeighborhood.trim()) newErrors.neighborhood = "Bairro é obrigatório.";
+    if (!regCity.trim()) newErrors.city = "Cidade e UF são obrigatórias.";
+
+    if (Object.keys(newErrors).length > 0) {
+      setFieldErrors(newErrors);
       return;
     }
 
@@ -153,12 +191,22 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
     if (result.success) {
       onClose();
       if (onSuccess) onSuccess();
+    } else if (result.errors) {
+      setFieldErrors(result.errors);
+      if (result.errors.email || result.errors.cpfCnpj || result.errors.password) {
+        setRegStep(1); // Return to Step 1 if profile duplicate or password error
+      }
     } else {
-      setErrorMsg(result.error || "Erro ao realizar cadastro.");
+      setGeneralError(result.error || "Erro ao realizar cadastro.");
     }
   };
 
-  const inputClass = "w-full rounded-lg border border-content/18 bg-canvas dark:bg-card px-3.5 py-2.5 text-sm text-content outline-none focus:border-[#C59D3F]";
+  const inputClass = (hasError?: boolean) =>
+    `w-full rounded-lg border px-3.5 py-2.5 text-sm transition-colors outline-none ${
+      hasError
+        ? "border-red-500 bg-red-500/5 text-red-900 dark:text-red-200 focus:border-red-600"
+        : "border-content/18 bg-canvas dark:bg-card text-content focus:border-[#C59D3F]"
+    }`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
@@ -191,7 +239,8 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
             type="button"
             onClick={() => {
               setTab("login");
-              setErrorMsg("");
+              setGeneralError("");
+              setFieldErrors({});
             }}
             className={`flex-1 py-2.5 font-bold uppercase transition-colors border-b-2 ${
               tab === "login"
@@ -206,7 +255,8 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
             onClick={() => {
               setTab("register");
               setRegStep(1);
-              setErrorMsg("");
+              setGeneralError("");
+              setFieldErrors({});
             }}
             className={`flex-1 py-2.5 font-bold uppercase transition-colors border-b-2 ${
               tab === "register"
@@ -218,9 +268,9 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
           </button>
         </div>
 
-        {errorMsg && (
+        {generalError && (
           <div className="mb-4 rounded-lg bg-red-500/10 p-3 font-mono text-xs font-semibold text-red-500 border border-red-500/20">
-            ⚠️ {errorMsg}
+            ⚠️ {generalError}
           </div>
         )}
 
@@ -236,11 +286,17 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                   type="text"
                   placeholder="seuemail@exemplo.com ou 000.000.000-00"
                   value={loginEmailOrCpf}
-                  onChange={(e) => setLoginEmailOrCpf(e.target.value)}
-                  className={inputClass}
+                  onChange={(e) => {
+                    setLoginEmailOrCpf(e.target.value);
+                    setFieldErrors((prev) => ({ ...prev, loginEmailOrCpf: "" }));
+                  }}
+                  className={inputClass(!!fieldErrors.loginEmailOrCpf)}
                 />
                 <User className="absolute right-3 top-3 h-4 w-4 text-content/40" />
               </div>
+              {fieldErrors.loginEmailOrCpf && (
+                <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.loginEmailOrCpf}</p>
+              )}
             </div>
 
             <div>
@@ -252,11 +308,17 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                   type="password"
                   placeholder="••••••••"
                   value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                  className={inputClass}
+                  onChange={(e) => {
+                    setLoginPassword(e.target.value);
+                    setFieldErrors((prev) => ({ ...prev, loginPassword: "" }));
+                  }}
+                  className={inputClass(!!fieldErrors.loginPassword)}
                 />
                 <Lock className="absolute right-3 top-3 h-4 w-4 text-content/40" />
               </div>
+              {fieldErrors.loginPassword && (
+                <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.loginPassword}</p>
+              )}
             </div>
 
             <button
@@ -294,9 +356,15 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                     type="text"
                     placeholder="000.000.000-00 ou 00.000.000/0000-00"
                     value={regCpfCnpj}
-                    onChange={(e) => setRegCpfCnpj(formatCpfOrCnpj(e.target.value))}
-                    className={inputClass}
+                    onChange={(e) => {
+                      setRegCpfCnpj(formatCpfOrCnpj(e.target.value));
+                      setFieldErrors((prev) => ({ ...prev, cpfCnpj: "" }));
+                    }}
+                    className={inputClass(!!fieldErrors.cpfCnpj)}
                   />
+                  {fieldErrors.cpfCnpj && (
+                    <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.cpfCnpj}</p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -308,9 +376,15 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                       type="text"
                       placeholder="Maria"
                       value={regFirstName}
-                      onChange={(e) => setRegFirstName(e.target.value)}
-                      className={inputClass}
+                      onChange={(e) => {
+                        setRegFirstName(e.target.value);
+                        setFieldErrors((prev) => ({ ...prev, firstName: "" }));
+                      }}
+                      className={inputClass(!!fieldErrors.firstName)}
                     />
+                    {fieldErrors.firstName && (
+                      <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.firstName}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">
@@ -320,9 +394,15 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                       type="text"
                       placeholder="Silva"
                       value={regLastName}
-                      onChange={(e) => setRegLastName(e.target.value)}
-                      className={inputClass}
+                      onChange={(e) => {
+                        setRegLastName(e.target.value);
+                        setFieldErrors((prev) => ({ ...prev, lastName: "" }));
+                      }}
+                      className={inputClass(!!fieldErrors.lastName)}
                     />
+                    {fieldErrors.lastName && (
+                      <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.lastName}</p>
+                    )}
                   </div>
                 </div>
 
@@ -335,7 +415,7 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                       type="date"
                       value={regBirthDate}
                       onChange={(e) => setRegBirthDate(e.target.value)}
-                      className={inputClass}
+                      className={inputClass()}
                     />
                   </div>
                   <div>
@@ -346,9 +426,15 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                       type="tel"
                       placeholder="(11) 99999-9999"
                       value={regPhone}
-                      onChange={(e) => setRegPhone(e.target.value)}
-                      className={inputClass}
+                      onChange={(e) => {
+                        setRegPhone(e.target.value);
+                        setFieldErrors((prev) => ({ ...prev, phone: "" }));
+                      }}
+                      className={inputClass(!!fieldErrors.phone)}
                     />
+                    {fieldErrors.phone && (
+                      <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.phone}</p>
+                    )}
                   </div>
                 </div>
 
@@ -360,9 +446,15 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                     type="email"
                     placeholder="seuemail@exemplo.com"
                     value={regEmail}
-                    onChange={(e) => setRegEmail(e.target.value)}
-                    className={inputClass}
+                    onChange={(e) => {
+                      setRegEmail(e.target.value);
+                      setFieldErrors((prev) => ({ ...prev, email: "" }));
+                    }}
+                    className={inputClass(!!fieldErrors.email)}
                   />
+                  {fieldErrors.email && (
+                    <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.email}</p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -374,9 +466,15 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                       type="password"
                       placeholder="••••••••"
                       value={regPassword}
-                      onChange={(e) => setRegPassword(e.target.value)}
-                      className={inputClass}
+                      onChange={(e) => {
+                        setRegPassword(e.target.value);
+                        setFieldErrors((prev) => ({ ...prev, password: "" }));
+                      }}
+                      className={inputClass(!!fieldErrors.password)}
                     />
+                    {fieldErrors.password && (
+                      <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.password}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">
@@ -386,9 +484,15 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                       type="password"
                       placeholder="••••••••"
                       value={regConfirmPassword}
-                      onChange={(e) => setRegConfirmPassword(e.target.value)}
-                      className={inputClass}
+                      onChange={(e) => {
+                        setRegConfirmPassword(e.target.value);
+                        setFieldErrors((prev) => ({ ...prev, confirmPassword: "" }));
+                      }}
+                      className={inputClass(!!fieldErrors.confirmPassword)}
                     />
+                    {fieldErrors.confirmPassword && (
+                      <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.confirmPassword}</p>
+                    )}
                   </div>
                 </div>
 
@@ -417,10 +521,14 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                       onChange={(e) => {
                         setRegCep(e.target.value);
                         handleViaCep(e.target.value);
+                        setFieldErrors((prev) => ({ ...prev, cep: "" }));
                       }}
-                      className={inputClass}
+                      className={inputClass(!!fieldErrors.cep)}
                     />
                     {cepLoading && <span className="font-mono text-[10px] text-[#C59D3F]">Buscando CEP...</span>}
+                    {fieldErrors.cep && (
+                      <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.cep}</p>
+                    )}
                   </div>
 
                   <div>
@@ -431,9 +539,15 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                       type="text"
                       placeholder="1000"
                       value={regNumber}
-                      onChange={(e) => setRegNumber(e.target.value)}
-                      className={inputClass}
+                      onChange={(e) => {
+                        setRegNumber(e.target.value);
+                        setFieldErrors((prev) => ({ ...prev, number: "" }));
+                      }}
+                      className={inputClass(!!fieldErrors.number)}
                     />
+                    {fieldErrors.number && (
+                      <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.number}</p>
+                    )}
                   </div>
                 </div>
 
@@ -445,9 +559,15 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                     type="text"
                     placeholder="Av. Paulista"
                     value={regStreet}
-                    onChange={(e) => setRegStreet(e.target.value)}
-                    className={inputClass}
+                    onChange={(e) => {
+                      setRegStreet(e.target.value);
+                      setFieldErrors((prev) => ({ ...prev, street: "" }));
+                    }}
+                    className={inputClass(!!fieldErrors.street)}
                   />
+                  {fieldErrors.street && (
+                    <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.street}</p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -460,7 +580,7 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                       placeholder="Apto 42"
                       value={regComplement}
                       onChange={(e) => setRegComplement(e.target.value)}
-                      className={inputClass}
+                      className={inputClass()}
                     />
                   </div>
                   <div>
@@ -471,9 +591,15 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                       type="text"
                       placeholder="Bela Vista"
                       value={regNeighborhood}
-                      onChange={(e) => setRegNeighborhood(e.target.value)}
-                      className={inputClass}
+                      onChange={(e) => {
+                        setRegNeighborhood(e.target.value);
+                        setFieldErrors((prev) => ({ ...prev, neighborhood: "" }));
+                      }}
+                      className={inputClass(!!fieldErrors.neighborhood)}
                     />
+                    {fieldErrors.neighborhood && (
+                      <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.neighborhood}</p>
+                    )}
                   </div>
                 </div>
 
@@ -485,9 +611,15 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                     type="text"
                     placeholder="São Paulo - SP"
                     value={regCity}
-                    onChange={(e) => setRegCity(e.target.value)}
-                    className={inputClass}
+                    onChange={(e) => {
+                      setRegCity(e.target.value);
+                      setFieldErrors((prev) => ({ ...prev, city: "" }));
+                    }}
+                    className={inputClass(!!fieldErrors.city)}
                   />
+                  {fieldErrors.city && (
+                    <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.city}</p>
+                  )}
                 </div>
 
                 <div className="flex gap-3 pt-2">

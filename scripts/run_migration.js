@@ -10,22 +10,25 @@ const client = new Client({
 });
 
 const sql = `
--- 1. Tabela de Perfil de Clientes
+-- 1. Tabela de Perfil de Clientes com Criptografia de Senha
 CREATE TABLE IF NOT EXISTS public.user_profiles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID UNIQUE,
-  cpf_cnpj VARCHAR(20) NOT NULL,
+  cpf_cnpj VARCHAR(20) NOT NULL UNIQUE,
   first_name VARCHAR(100) NOT NULL,
   last_name VARCHAR(100) NOT NULL,
   birth_date DATE,
   email VARCHAR(255) NOT NULL UNIQUE,
   phone VARCHAR(20) NOT NULL,
-  password VARCHAR(255),
+  password_hash TEXT NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 2. Tabela de Endereços do Cliente (Múltiplos Endereços)
+-- Garantir coluna password_hash se a tabela já existir
+ALTER TABLE public.user_profiles ADD COLUMN IF NOT EXISTS password_hash TEXT;
+
+-- 2. Tabela de Endereços do Cliente
 CREATE TABLE IF NOT EXISTS public.user_addresses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES public.user_profiles(id) ON DELETE CASCADE,
@@ -72,7 +75,7 @@ CREATE TABLE IF NOT EXISTS public.order_items (
   image_path VARCHAR(500)
 );
 
--- Habilitar RLS nas tabelas
+-- Habilitar RLS
 ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_addresses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
@@ -83,14 +86,11 @@ async function run() {
   try {
     console.log("Conectando ao banco PostgreSQL do Supabase...");
     await client.connect();
-    console.log("Conectado com sucesso! Executando SQL DDL de criação de tabelas...");
+    console.log("Executando migration de segurança (password_hash)...");
     await client.query(sql);
-    console.log("=================================================");
-    console.log("✅ MIGRATIONS EXECUTADAS COM SUCESSO NO SUPABASE!");
-    console.log("Tabelas criadas: user_profiles, user_addresses, orders, order_items");
-    console.log("=================================================");
+    console.log("✅ TABELAS E SCHEMAS DE SEGURANÇA ATUALIZADOS NO SUPABASE!");
   } catch (err) {
-    console.error("❌ Erro ao executar migrations no Supabase:", err);
+    console.error("❌ Erro ao rodar migration:", err);
   } finally {
     await client.end();
   }
