@@ -179,7 +179,7 @@ function CustomerPortalContent() {
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-content/12 pb-6">
         <div>
           <span className="font-mono text-xs font-semibold text-[#C59D3F] uppercase tracking-wider">
-            Painel do Profissional
+            Área do Cliente
           </span>
           <h1 className="font-display text-3xl font-bold text-content mt-1">
             Olá, {user.firstName} {user.lastName}

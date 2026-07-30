@@ -12,6 +12,7 @@ export interface UserProfile {
   birthDate: string;
   email: string;
   phone: string;
+  password?: string;
 }
 
 export interface UserAddress {
@@ -63,10 +64,11 @@ interface AuthContextType {
   setSelectedAddress: (addr: UserAddress | null) => void;
   orders: Order[];
   isHydrated: boolean;
-  login: (email: string, cpfCnpj: string) => Promise<{ success: boolean; error?: string }>;
+  login: (emailOrCpf: string, passwordInput: string) => Promise<{ success: boolean; error?: string }>;
   register: (
     profileData: Omit<UserProfile, "id">,
-    addressData: Omit<UserAddress, "id">
+    addressData: Omit<UserAddress, "id">,
+    passwordInput: string
   ) => Promise<{ success: boolean; error?: string }>;
   addAddress: (addressData: Omit<UserAddress, "id">) => Promise<UserAddress>;
   createOrder: (orderPayload: {
@@ -83,9 +85,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_USER_KEY = "aura_user_profile";
-const LOCAL_STORAGE_ADDRESSES_KEY = "aura_user_addresses";
-const LOCAL_STORAGE_ORDERS_KEY = "aura_user_orders";
+const LOCAL_STORAGE_USER_KEY = "aura_user_profile_v2";
+const LOCAL_STORAGE_ADDRESSES_KEY = "aura_user_addresses_v2";
+const LOCAL_STORAGE_ORDERS_KEY = "aura_user_orders_v2";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -94,7 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Load initial session state from localStorage or Supabase
+  // Load initial session state from localStorage
   useEffect(() => {
     try {
       const savedUser = localStorage.getItem(LOCAL_STORAGE_USER_KEY);
@@ -124,7 +126,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Sync to localStorage
   const syncState = (newUser: UserProfile | null, newAddresses: UserAddress[], newOrders: Order[]) => {
     setUser(newUser);
     setAddresses(newAddresses);
@@ -140,18 +141,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(LOCAL_STORAGE_ORDERS_KEY, JSON.stringify(newOrders));
   };
 
-  const login = async (email: string, cpfCnpj: string) => {
-    const cleanCpfCnpj = cpfCnpj.replace(/\D/g, "");
+  const login = async (emailOrCpf: string, passwordInput: string) => {
+    const cleanInput = emailOrCpf.replace(/\D/g, "");
+    const trimmedInput = emailOrCpf.toLowerCase().trim();
 
-    // Try fetching profile from Supabase first
+    // 1. Try Supabase Auth or DB Lookup
     try {
       const { data, error } = await supabase
         .from("user_profiles")
         .select("*")
-        .eq("email", email.toLowerCase().trim())
+        .or(`email.eq.${trimmedInput},cpf_cnpj.eq.${cleanInput}`)
         .single();
 
       if (data && !error) {
+        // Validate password if stored
+        if (data.password && data.password !== passwordInput) {
+          return { success: false, error: "Senha incorreta. Verifique e tente novamente." };
+        }
+
         const profile: UserProfile = {
           id: data.id,
           userId: data.user_id,
@@ -163,7 +170,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           phone: data.phone,
         };
 
-        // Fetch addresses
         const { data: addrData } = await supabase
           .from("user_addresses")
           .select("*")
@@ -188,33 +194,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: true };
       }
     } catch {
-      // Fallback local lookup
+      // Local fallback
     }
 
-    // Local state fallback login lookup
+    // 2. Local Storage Fallback
     const savedUser = localStorage.getItem(LOCAL_STORAGE_USER_KEY);
     if (savedUser) {
       const parsed: UserProfile = JSON.parse(savedUser);
-      if (
-        parsed.email.toLowerCase() === email.toLowerCase().trim() ||
-        parsed.cpfCnpj.replace(/\D/g, "") === cleanCpfCnpj
-      ) {
+      const isMatchingEmailOrCpf =
+        parsed.email.toLowerCase() === trimmedInput ||
+        parsed.cpfCnpj.replace(/\D/g, "") === cleanInput;
+
+      if (isMatchingEmailOrCpf) {
+        if (parsed.password && parsed.password !== passwordInput) {
+          return { success: false, error: "Senha incorreta. Verifique e tente novamente." };
+        }
         setUser(parsed);
         return { success: true };
       }
     }
 
-    return { success: false, error: "Usuário não encontrado com estes dados." };
+    return { success: false, error: "Usuário não encontrado. Verifique seu e-mail/CPF ou cadastre-se." };
   };
 
   const register = async (
     profileData: Omit<UserProfile, "id">,
-    addressData: Omit<UserAddress, "id">
+    addressData: Omit<UserAddress, "id">,
+    passwordInput: string
   ) => {
-    const newProfileId = `prof-${Date.now()}`;
+    const newProfileId = `user-${Date.now()}`;
     const newProfile: UserProfile = {
       ...profileData,
       id: newProfileId,
+      password: passwordInput,
     };
 
     const newAddressId = `addr-${Date.now()}`;
@@ -228,7 +240,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     syncState(newProfile, updatedAddresses, orders);
     setSelectedAddress(newAddress);
 
-    // Persist to Supabase if configured
+    // Persist to Supabase
     try {
       await supabase.from("user_profiles").insert([
         {
@@ -238,6 +250,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           birth_date: profileData.birthDate,
           email: profileData.email,
           phone: profileData.phone,
+          password: passwordInput,
         },
       ]);
 
@@ -254,7 +267,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         },
       ]);
     } catch (err) {
-      console.warn("Aviso ao salvar no Supabase (usando fallback local):", err);
+      console.warn("Aviso Supabase (fallback local ativo):", err);
     }
 
     return { success: true };
@@ -284,7 +297,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         },
       ]);
     } catch {
-      // Local fallback
+      // Fallback
     }
 
     return newAddress;

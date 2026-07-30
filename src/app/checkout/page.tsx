@@ -667,7 +667,7 @@ function CheckoutContent() {
         <form onSubmit={handleContinueToStep2} className="space-y-8 max-w-3xl mx-auto">
           <div>
             <h2 className="font-display text-2xl font-bold text-content mb-1">
-              1. Identificação do Profissional
+              1. Identificação do Cliente
             </h2>
             <p className="text-sm text-content/70">
               Informe seus dados pessoais ou faça login na sua conta para carregar seus endereços salvos.
