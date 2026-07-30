@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LogOut, MapPin, PackageCheck, ShoppingCart, User } from "lucide-react";
+import { LogOut, MapPin, PackageCheck, ShieldCheck, ShoppingCart, User } from "lucide-react";
 
 import { AccreditationButton } from "@/components/accreditation/AccreditationButton";
 import { AuthModal } from "@/components/auth/AuthModal";
@@ -147,14 +147,25 @@ export function SiteHeader() {
                   <p className="text-[11px] text-white/60 truncate">{user.email}</p>
                 </div>
                 <div className="py-1">
-                  <Link
-                    href="/minha-conta"
-                    onClick={() => setIsProfileDropdownOpen(false)}
-                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-white/90 hover:bg-[#C59D3F]/15 hover:text-[#C59D3F]"
-                  >
-                    <PackageCheck className="h-4 w-4" />
-                    <span>Minha Área</span>
-                  </Link>
+                  {user.role === "ADMIN" || user.email.toLowerCase() === "contato@auraregenera.com" ? (
+                    <Link
+                      href="/admin"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                      className="flex items-center gap-2 rounded-lg px-3 py-2 font-bold text-[#C59D3F] hover:bg-[#C59D3F]/20"
+                    >
+                      <ShieldCheck className="h-4 w-4 text-[#C59D3F]" />
+                      <span>Painel Admin 👑</span>
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/minha-conta"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-white/90 hover:bg-[#C59D3F]/15 hover:text-[#C59D3F]"
+                    >
+                      <PackageCheck className="h-4 w-4" />
+                      <span>Minha Área</span>
+                    </Link>
+                  )}
                   <button
                     type="button"
                     onClick={() => {

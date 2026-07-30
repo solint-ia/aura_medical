@@ -1,0 +1,153 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { dbPool } from "@/lib/db";
+
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const query = (searchParams.get("query") || "").toLowerCase().trim();
+
+    let users = [];
+
+    try {
+      const dbUsers = await prisma.userProfile.findMany({
+        where: query
+          ? {
+              OR: [
+                { firstName: { contains: query, mode: "insensitive" } },
+                { lastName: { contains: query, mode: "insensitive" } },
+                { email: { contains: query, mode: "insensitive" } },
+                { cpfCnpj: { contains: query } },
+              ],
+            }
+          : undefined,
+        include: {
+          orders: {
+            select: { id: true, totalPrice: true },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+
+      users = dbUsers.map((u) => ({
+        id: u.id,
+        cpfCnpj: u.cpfCnpj,
+        firstName: u.firstName,
+        lastName: u.lastName,
+        birthDate: u.birthDate ? u.birthDate.toISOString().split("T")[0] : "",
+        email: u.email,
+        phone: u.phone,
+        role: (u as any).role || "USER",
+        createdAt: u.createdAt,
+        totalOrders: u.orders.length,
+        totalSpent: u.orders.reduce((sum, o) => sum + Number(o.totalPrice), 0),
+      }));
+    } catch (prismaErr) {
+      console.warn("Prisma users list fallback dbPool:", prismaErr);
+
+      const sqlRes = await dbPool.query(`
+        SELECT u.*, 
+               COUNT(o.id) as orders_count,
+               COALESCE(SUM(o.total_price), 0) as total_spent
+        FROM public.user_profiles u
+        LEFT JOIN public.orders o ON u.id = o.user_id
+        WHERE ($1 = '' OR LOWER(u.first_name) LIKE $2 OR LOWER(u.last_name) LIKE $2 OR LOWER(u.email) LIKE $2 OR u.cpf_cnpj LIKE $2)
+        GROUP BY u.id
+        ORDER BY u.created_at DESC
+      `, [query, `%${query}%`]);
+
+      users = sqlRes.rows.map((u) => ({
+        id: u.id,
+        cpfCnpj: u.cpf_cnpj,
+        firstName: u.first_name,
+        lastName: u.last_name,
+        birthDate: u.birth_date ? String(u.birth_date).split("T")[0] : "",
+        email: u.email,
+        phone: u.phone,
+        role: u.role || "USER",
+        createdAt: u.created_at,
+        totalOrders: parseInt(u.orders_count || "0"),
+        totalSpent: Number(u.total_spent || 0),
+      }));
+    }
+
+    return NextResponse.json({ users });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Erro ao listar usuários.";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
+export async function PUT(req: Request) {
+  try {
+    const body = await req.json();
+    const { id, firstName, lastName, phone, email, cpfCnpj, role } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: "ID do usuário é obrigatório." }, { status: 400 });
+    }
+
+    try {
+      const updated = await prisma.userProfile.update({
+        where: { id },
+        data: {
+          firstName: firstName?.trim(),
+          lastName: lastName?.trim(),
+          phone: phone ? phone.replace(/\D/g, "") : undefined,
+          email: email ? email.toLowerCase().trim() : undefined,
+          cpfCnpj: cpfCnpj ? cpfCnpj.replace(/\D/g, "") : undefined,
+          ...(role ? { role: role as any } : {}),
+        },
+      });
+
+      return NextResponse.json({ success: true, user: updated });
+    } catch (prismaErr) {
+      console.warn("Prisma user update fallback dbPool:", prismaErr);
+
+      await dbPool.query(
+        `UPDATE public.user_profiles 
+         SET first_name = $1, last_name = $2, phone = $3, email = $4, cpf_cnpj = $5, role = $6, updated_at = NOW()
+         WHERE id = $7`,
+        [
+          firstName?.trim(),
+          lastName?.trim(),
+          phone?.replace(/\D/g, ""),
+          email?.toLowerCase().trim(),
+          cpfCnpj?.replace(/\D/g, ""),
+          role || "USER",
+          id,
+        ]
+      );
+
+      return NextResponse.json({ success: true });
+    }
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Erro ao atualizar usuário.";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "ID do usuário é obrigatório." }, { status: 400 });
+    }
+
+    try {
+      await prisma.userProfile.delete({
+        where: { id },
+      });
+    } catch (prismaErr) {
+      console.warn("Prisma user delete fallback dbPool:", prismaErr);
+      await dbPool.query("DELETE FROM public.user_profiles WHERE id = $1", [id]);
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Erro ao excluir usuário.";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}

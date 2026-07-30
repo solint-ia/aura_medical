@@ -11,6 +11,7 @@ export interface UserProfile {
   birthDate: string;
   email: string;
   phone: string;
+  role?: "USER" | "ADMIN";
 }
 
 export interface UserAddress {

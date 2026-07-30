@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { dbPool } from "@/lib/db";
 
 const JWT_SECRET = process.env.SUPABASE_SERVICE_ROLE_KEY || "aura-jwt-secret-key-2026-secure";
+const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "contato@auraregenera.com").toLowerCase().trim();
 
 export async function POST(req: Request) {
   try {
@@ -30,6 +31,7 @@ export async function POST(req: Request) {
       email: string;
       phone: string;
       passwordHash: string | null;
+      role: "USER" | "ADMIN";
       addresses: Array<{
         id: string;
         userId?: string | null;
@@ -62,6 +64,11 @@ export async function POST(req: Request) {
       });
 
       if (found) {
+        const isAdmin =
+          (found as any).role === "ADMIN" ||
+          found.email.toLowerCase() === ADMIN_EMAIL ||
+          found.email.toLowerCase() === "contato@auraregenera.com";
+
         dbUser = {
           id: found.id,
           cpfCnpj: found.cpfCnpj,
@@ -71,6 +78,7 @@ export async function POST(req: Request) {
           email: found.email,
           phone: found.phone,
           passwordHash: found.passwordHash,
+          role: isAdmin ? "ADMIN" : "USER",
           addresses: found.addresses,
         };
       }
@@ -92,6 +100,11 @@ export async function POST(req: Request) {
           [u.id]
         );
 
+        const isAdmin =
+          u.role === "ADMIN" ||
+          u.email.toLowerCase() === ADMIN_EMAIL ||
+          u.email.toLowerCase() === "contato@auraregenera.com";
+
         dbUser = {
           id: u.id,
           cpfCnpj: u.cpf_cnpj,
@@ -101,6 +114,7 @@ export async function POST(req: Request) {
           email: u.email,
           phone: u.phone,
           passwordHash: u.password_hash,
+          role: isAdmin ? "ADMIN" : "USER",
           addresses: addrRes.rows.map((a) => ({
             id: a.id,
             userId: a.user_id,
@@ -160,6 +174,7 @@ export async function POST(req: Request) {
         email: dbUser.email,
         cpfCnpj: dbUser.cpfCnpj,
         name: `${dbUser.firstName} ${dbUser.lastName}`,
+        role: dbUser.role,
       },
       JWT_SECRET,
       { expiresIn: "30d" }
@@ -173,6 +188,7 @@ export async function POST(req: Request) {
       birthDate: dbUser.birthDate ? String(dbUser.birthDate).split("T")[0] : "",
       email: dbUser.email,
       phone: dbUser.phone,
+      role: dbUser.role,
     };
 
     const response = NextResponse.json({
