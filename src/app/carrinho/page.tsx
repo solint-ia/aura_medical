@@ -114,10 +114,10 @@ function CartContent() {
                       Protocolo {item.name}
                     </h3>
                     <p className="text-xs text-content/65 font-mono">
-                      {item.sessions} · {item.vials} frascos por kit
+                      {item.vials} ampola(s)
                     </p>
                     <p className="mt-1 font-mono text-sm font-semibold text-[#C59D3F]">
-                      {formatBRL(item.unitPrice)} / kit
+                      {formatBRL(item.unitPrice)}
                     </p>
                   </div>
                 </div>
@@ -182,7 +182,7 @@ function CartContent() {
 
             <div className="space-y-3 text-sm text-content/75 mb-6">
               <div className="flex justify-between">
-                <span>Subtotal ({items.reduce((s, i) => s + i.quantity, 0)} kits)</span>
+                <span>Subtotal ({items.reduce((s, i) => s + i.quantity, 0)} item(ns))</span>
                 <span className="font-mono font-semibold text-content">
                   {formatBRL(subtotal)}
                 </span>
@@ -206,7 +206,7 @@ function CartContent() {
             </Link>
 
             <p className="mt-4 text-center font-mono text-[11px] text-content/55">
-              🔒 Compra 100% segura · Tecnologia Avançada pbserum
+              🔒 Compra 100% Segura & Criptografada
             </p>
           </div>
         </div>
