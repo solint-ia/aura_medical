@@ -69,7 +69,10 @@ interface AuthContextType {
     addressData: Omit<UserAddress, "id">,
     passwordInput: string
   ) => Promise<{ success: boolean; errors?: Record<string, string>; error?: string }>;
+  updateProfile: (data: { firstName: string; lastName: string; phone: string; birthDate: string }) => Promise<boolean>;
   addAddress: (addressData: Omit<UserAddress, "id">) => Promise<UserAddress>;
+  updateAddress: (addressId: string, addressData: Omit<UserAddress, "id">) => Promise<boolean>;
+  deleteAddress: (addressId: string) => Promise<boolean>;
   createOrder: (orderPayload: {
     address: UserAddress;
     shippingMethod: string;
@@ -211,6 +214,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updateProfile = async (data: { firstName: string; lastName: string; phone: string; birthDate: string }) => {
+    if (!user) return false;
+
+    const updatedUser: UserProfile = {
+      ...user,
+      firstName: data.firstName.trim(),
+      lastName: data.lastName.trim(),
+      phone: data.phone.trim(),
+      birthDate: data.birthDate,
+    };
+
+    setUser(updatedUser);
+    localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(updatedUser));
+    return true;
+  };
+
   const addAddress = async (addressData: Omit<UserAddress, "id">) => {
     const newAddress: UserAddress = {
       ...addressData,
@@ -222,6 +241,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(LOCAL_STORAGE_ADDRESSES_KEY, JSON.stringify(updatedAddresses));
     setSelectedAddress(newAddress);
     return newAddress;
+  };
+
+  const updateAddress = async (addressId: string, addressData: Omit<UserAddress, "id">) => {
+    const updatedAddresses = addresses.map((addr) =>
+      addr.id === addressId ? { ...addressData, id: addressId } : addr
+    );
+
+    setAddresses(updatedAddresses);
+    localStorage.setItem(LOCAL_STORAGE_ADDRESSES_KEY, JSON.stringify(updatedAddresses));
+
+    if (selectedAddress?.id === addressId) {
+      setSelectedAddress({ ...addressData, id: addressId });
+    }
+
+    return true;
+  };
+
+  const deleteAddress = async (addressId: string) => {
+    const updatedAddresses = addresses.filter((addr) => addr.id !== addressId);
+    setAddresses(updatedAddresses);
+    localStorage.setItem(LOCAL_STORAGE_ADDRESSES_KEY, JSON.stringify(updatedAddresses));
+
+    if (selectedAddress?.id === addressId) {
+      setSelectedAddress(updatedAddresses.length > 0 ? updatedAddresses[0] : null);
+    }
+
+    return true;
   };
 
   const createOrder = async (orderPayload: {
@@ -284,7 +330,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isHydrated,
         login,
         register,
+        updateProfile,
         addAddress,
+        updateAddress,
+        deleteAddress,
         createOrder,
         logout,
       }}
