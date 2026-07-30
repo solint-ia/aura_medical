@@ -3,6 +3,7 @@ import { JetBrains_Mono, Manrope, Sora } from "next/font/google";
 
 import { SITE_URL } from "@/data/site";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 
 import "./globals.css";
@@ -53,8 +54,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // next-themes writes the theme class onto <html> before React hydrates,
-    // so the server markup is expected to differ here.
     <html
       lang="pt-BR"
       suppressHydrationWarning
@@ -62,9 +61,11 @@ export default function RootLayout({
     >
       <body className="font-sans">
         <ThemeProvider>
-          <CartProvider>
-            {children}
-          </CartProvider>
+          <AuthProvider>
+            <CartProvider>
+              {children}
+            </CartProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -10,22 +10,29 @@ import {
   CreditCard,
   Edit2,
   Lock,
+  MapPin,
+  Plus,
   QrCode,
   ShieldCheck,
   ShoppingBag,
   Sparkles,
+  User,
 } from "lucide-react";
 
 import { AccreditationProvider } from "@/components/accreditation/AccreditationProvider";
+import { AuthModal } from "@/components/auth/AuthModal";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { UserAddress, useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { formatBRL } from "@/lib/format";
+import { formatCpfOrCnpj, validateCpfOrCnpj } from "@/lib/validators";
 
 type Step = 1 | 2 | 3 | 4;
 type PaymentMethod = "card" | "pix" | null;
 
 interface ContactForm {
+  cpfCnpj: string;
   name: string;
   email: string;
   phone: string;
@@ -50,6 +57,7 @@ interface CardForm {
 }
 
 interface FormErrors {
+  cpfCnpj?: string;
   name?: string;
   email?: string;
   phone?: string;
@@ -102,22 +110,16 @@ function formatExpiry(value: string) {
   return `${digits.slice(0, 2)}/${digits.slice(2)}`;
 }
 
-function formatCpf(value: string) {
-  const digits = value.replace(/\D/g, "").slice(0, 11);
-  if (digits.length <= 3) return digits;
-  if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
-  if (digits.length <= 9)
-    return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
-  return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
-}
-
 function CheckoutContent() {
   const router = useRouter();
   const { items, subtotal, clearCart, isHydrated } = useCart();
+  const { user, addresses, selectedAddress, setSelectedAddress, createOrder } = useAuth();
 
   const [step, setStep] = useState<Step>(1);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const [contact, setContact] = useState<ContactForm>({
+    cpfCnpj: "",
     name: "",
     email: "",
     phone: "",
@@ -152,10 +154,36 @@ function CheckoutContent() {
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submittedOrderNumber, setSubmittedOrderNumber] = useState("");
   const [submittedOrderSummary, setSubmittedOrderSummary] = useState<{
     total: number;
     itemsCount: number;
   }>({ total: 0, itemsCount: 0 });
+
+  // Auto-fill logged in user profile & address
+  useEffect(() => {
+    if (user) {
+      setContact((prev) => ({
+        ...prev,
+        cpfCnpj: user.cpfCnpj || prev.cpfCnpj,
+        name: `${user.firstName} ${user.lastName}` || prev.name,
+        email: user.email || prev.email,
+        phone: user.phone || prev.phone,
+      }));
+    }
+
+    if (selectedAddress) {
+      setAddress({
+        cep: selectedAddress.cep,
+        street: selectedAddress.street,
+        number: selectedAddress.number,
+        complement: selectedAddress.complement || "",
+        neighborhood: selectedAddress.neighborhood,
+        city: selectedAddress.city,
+        uf: selectedAddress.uf,
+      });
+    }
+  }, [user, selectedAddress]);
 
   // Shipping Fee & Total Calculation
   const shippingCost = items.length === 0
@@ -250,9 +278,15 @@ function CheckoutContent() {
     }
   }, [address.cep, items, shippingOptions.length, fetchShippingRates]);
 
-  // Step 1 Validation (Personal Data ONLY)
+  // Step 1 Validation (Personal Data & CPF/CNPJ)
   const validateStep1 = (): boolean => {
     const newErrors: FormErrors = {};
+
+    if (!contact.cpfCnpj.trim()) {
+      newErrors.cpfCnpj = "CPF ou CNPJ é obrigatório.";
+    } else if (!validateCpfOrCnpj(contact.cpfCnpj)) {
+      newErrors.cpfCnpj = "CPF ou CNPJ com formato inválido.";
+    }
 
     if (!contact.name.trim()) newErrors.name = "Nome completo é obrigatório.";
 
@@ -342,10 +376,36 @@ function CheckoutContent() {
     }
   };
 
-  // Step 4 Final Submission (Review & Submit)
-  const handleFinalizeOrder = (e: React.FormEvent) => {
+  // Step 4 Final Submission (Review & Submit Order to Account)
+  const handleFinalizeOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateStep1() && validateStep2() && validateStep3()) {
+      const created = await createOrder({
+        address: {
+          id: `addr-${Date.now()}`,
+          cep: address.cep,
+          street: address.street,
+          number: address.number,
+          complement: address.complement,
+          neighborhood: address.neighborhood,
+          city: address.city,
+          uf: address.uf,
+        },
+        shippingMethod: selectedShippingOption ? selectedShippingOption.name : shippingMethod.toUpperCase(),
+        shippingCost,
+        subtotal,
+        totalPrice,
+        paymentMethod: paymentMethod === "pix" ? "pix" : "card",
+        items: items.map((i) => ({
+          id: i.id,
+          name: i.name,
+          quantity: i.quantity,
+          unitPrice: i.unitPrice,
+          imagePath: i.imagePath,
+        })),
+      });
+
+      setSubmittedOrderNumber(created.orderNumber);
       setSubmittedOrderSummary({
         total: totalPrice,
         itemsCount: items.reduce((s, i) => s + i.quantity, 0),
@@ -412,9 +472,12 @@ function CheckoutContent() {
         <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#C59D3F]/20 text-[#C59D3F]">
           <Check className="h-10 w-10" />
         </div>
-        <h1 className="font-display text-3xl font-bold text-content mb-3">
+        <h1 className="font-display text-3xl font-bold text-content mb-1">
           Pedido Confirmado com Sucesso!
         </h1>
+        <p className="font-mono text-sm font-bold text-[#C59D3F] mb-4">
+          Código do Pedido: {submittedOrderNumber}
+        </p>
         <p className="text-base text-content/75 mb-6">
           Obrigado, <strong className="text-content">{contact.name}</strong>. Seu pedido de{" "}
           <strong className="text-[#C59D3F]">{submittedOrderSummary.itemsCount} kit(s)</strong> foi registrado em nosso sistema.
@@ -428,12 +491,20 @@ function CheckoutContent() {
         <p className="text-sm text-content/60 mb-8">
           Nosso time comercial entrará em contato via WhatsApp ({contact.phone}) para confirmação de entrega e emissão de nota fiscal.
         </p>
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 rounded-lg bg-[#C59D3F] px-8 py-3.5 font-semibold text-[#0D1B2A] transition-colors hover:bg-[#d4ac4c]"
-        >
-          Voltar à Página Principal
-        </Link>
+        <div className="flex flex-col sm:flex-row justify-center gap-4">
+          <Link
+            href="/minha-conta"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#C59D3F] px-8 py-3.5 font-semibold text-[#0D1B2A] transition-colors hover:bg-[#d4ac4c] shadow-md"
+          >
+            Ver Pedido na Minha Conta →
+          </Link>
+          <Link
+            href="/"
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-content/20 bg-canvas px-6 py-3.5 font-semibold text-content hover:bg-content/5"
+          >
+            Voltar à Página Principal
+          </Link>
+        </div>
       </div>
     );
   }
@@ -457,7 +528,7 @@ function CheckoutContent() {
         </span>
       </div>
 
-      {/* Mobile Stepper Header & Progress Indicator (Visible only on Mobile) */}
+      {/* Mobile Stepper Header */}
       <div className="mb-8 space-y-3 rounded-2xl border border-content/12 bg-card p-4.5 shadow-xs md:hidden">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -480,67 +551,11 @@ function CheckoutContent() {
           </span>
         </div>
 
-        {/* Visual Progress Bar */}
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-content/10">
           <div
             className="h-full bg-[#C59D3F] transition-all duration-300 ease-out"
             style={{ width: step === 1 ? "25%" : step === 2 ? "50%" : step === 3 ? "75%" : "100%" }}
           />
-        </div>
-
-        {/* Quick Number Switcher Buttons for Mobile */}
-        <div className="flex items-center justify-between pt-1 font-mono text-[10.5px]">
-          <button
-            type="button"
-            onClick={() => setStep(1)}
-            className={`flex items-center gap-1 font-semibold ${
-              step === 1 ? "text-[#C59D3F]" : "text-content/60"
-            }`}
-          >
-            <span>1. Dados</span>
-          </button>
-
-          <span className="text-content/20">|</span>
-
-          <button
-            type="button"
-            onClick={() => {
-              if (validateStep1()) setStep(2);
-            }}
-            className={`flex items-center gap-1 font-semibold ${
-              step === 2 ? "text-[#C59D3F]" : step > 2 ? "text-content/60" : "text-content/30"
-            }`}
-          >
-            <span>2. Entrega</span>
-          </button>
-
-          <span className="text-content/20">|</span>
-
-          <button
-            type="button"
-            onClick={() => {
-              if (validateStep1() && validateStep2()) setStep(3);
-            }}
-            className={`flex items-center gap-1 font-semibold ${
-              step === 3 ? "text-[#C59D3F]" : step > 3 ? "text-content/60" : "text-content/30"
-            }`}
-          >
-            <span>3. Pagamento</span>
-          </button>
-
-          <span className="text-content/20">|</span>
-
-          <button
-            type="button"
-            onClick={() => {
-              if (validateStep1() && validateStep2() && validateStep3()) setStep(4);
-            }}
-            className={`flex items-center gap-1 font-semibold ${
-              step === 4 ? "text-[#C59D3F]" : "text-content/30"
-            }`}
-          >
-            <span>4. Revisão</span>
-          </button>
         </div>
       </div>
 
@@ -652,19 +667,49 @@ function CheckoutContent() {
         <form onSubmit={handleContinueToStep2} className="space-y-8 max-w-3xl mx-auto">
           <div>
             <h2 className="font-display text-2xl font-bold text-content mb-1">
-              1. Dados Pessoais
+              1. Identificação do Profissional
             </h2>
             <p className="text-sm text-content/70">
-              Informe seus dados de identificação e contato para acompanhamento do pedido.
+              Informe seus dados pessoais ou faça login na sua conta para carregar seus endereços salvos.
             </p>
           </div>
 
+          {!user && (
+            <div className="rounded-xl border border-[#C59D3F]/30 bg-[#C59D3F]/10 p-4 text-xs font-mono flex items-center justify-between">
+              <div className="flex items-center gap-2 text-[#C59D3F]">
+                <User className="h-4 w-4 shrink-0" />
+                <span>Já possui conta cadastrada?</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAuthModalOpen(true)}
+                className="rounded-lg bg-[#C59D3F] px-4 py-1.5 font-bold text-[#0D1B2A] hover:bg-[#d4ac4c]"
+              >
+                Entrar / Cadastrar →
+              </button>
+            </div>
+          )}
+
           <div className="rounded-2xl border border-content/12 bg-card p-6 space-y-4">
             <h3 className="font-mono text-xs font-bold text-[#C59D3F] uppercase tracking-wider">
-              Informações de Contato
+              Informações Pessoais & Faturamento
             </h3>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <label className="block mb-1.5 font-mono text-xs text-content/75 uppercase tracking-wider">
+                  CPF ou CNPJ *
+                </label>
+                <input
+                  type="text"
+                  placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                  value={contact.cpfCnpj}
+                  onChange={(e) => setContact({ ...contact, cpfCnpj: formatCpfOrCnpj(e.target.value) })}
+                  className={inputClass(!!errors.cpfCnpj)}
+                />
+                {errors.cpfCnpj && <p className="mt-1 text-xs text-red-500">{errors.cpfCnpj}</p>}
+              </div>
+
               <div className="sm:col-span-2">
                 <label className="block mb-1.5 font-mono text-xs text-content/75 uppercase tracking-wider">
                   Nome Completo *
@@ -726,7 +771,7 @@ function CheckoutContent() {
               2. Endereço de Entrega & Frete
             </h2>
             <p className="text-sm text-content/70">
-              Informe o endereço onde deseja receber seus produtos.
+              Selecione um dos seus endereços salvos ou informe um novo endereço para entrega.
             </p>
           </div>
 
@@ -745,10 +790,61 @@ function CheckoutContent() {
             </button>
           </div>
 
+          {/* Multi-Address Selector if user has saved addresses */}
+          {addresses.length > 0 && (
+            <div className="rounded-2xl border border-content/12 bg-card p-6 space-y-4">
+              <h3 className="font-mono text-xs font-bold text-[#C59D3F] uppercase tracking-wider">
+                Seus Endereços Cadastrados
+              </h3>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {addresses.map((addr) => {
+                  const isSelected = address.cep.replace(/\D/g, "") === addr.cep.replace(/\D/g, "") && address.number === addr.number;
+                  return (
+                    <div
+                      key={addr.id}
+                      onClick={() => {
+                        setSelectedAddress(addr);
+                        setAddress({
+                          cep: addr.cep,
+                          street: addr.street,
+                          number: addr.number,
+                          complement: addr.complement || "",
+                          neighborhood: addr.neighborhood,
+                          city: addr.city,
+                          uf: addr.uf,
+                        });
+                        const digits = addr.cep.replace(/\D/g, "");
+                        fetchShippingRates(digits, items);
+                      }}
+                      className={`flex cursor-pointer flex-col justify-between rounded-xl border p-4 transition-all ${
+                        isSelected
+                          ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content shadow-sm ring-1 ring-[#C59D3F]"
+                          : "border-content/15 bg-canvas hover:border-content/30"
+                      }`}
+                    >
+                      <div>
+                        <p className="font-bold text-sm text-content">
+                          {addr.street}, {addr.number}
+                        </p>
+                        <p className="text-xs text-content/70 font-mono mt-0.5">
+                          {addr.neighborhood} · {addr.city}
+                        </p>
+                      </div>
+                      <span className="font-mono text-[11px] font-bold text-[#C59D3F] pt-2">
+                        {isSelected ? "✓ Selecionado" : "Usar este endereço"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Address Section */}
           <div className="rounded-2xl border border-content/12 bg-card p-6 space-y-4">
             <h3 className="font-mono text-xs font-bold text-[#C59D3F] uppercase tracking-wider">
-              Endereço de Entrega
+              {addresses.length > 0 ? "Ou Informe um Novo Endereço" : "Endereço de Entrega"}
             </h3>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -846,15 +942,15 @@ function CheckoutContent() {
             </div>
           </div>
 
-          {/* Dynamic Shipping Choice (Calculated via Melhor Envio) */}
+          {/* Dynamic Shipping Choice */}
           <div className="rounded-2xl border border-content/12 bg-card p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-mono text-xs font-bold text-[#C59D3F] uppercase tracking-wider">
-                Opções de Envio (Calculado em Tempo Real)
+                Opções de Envio (Calculado em Tempo Real via Melhor Envio)
               </h3>
               {shippingLoading && (
                 <span className="font-mono text-xs font-semibold text-[#C59D3F] animate-pulse">
-                  Calculando frete com CEP...
+                  Calculando frete...
                 </span>
               )}
             </div>
@@ -1078,7 +1174,7 @@ function CheckoutContent() {
                     type="text"
                     placeholder="000.000.000-00"
                     value={card.cpf}
-                    onChange={(e) => setCard({ ...card, cpf: formatCpf(e.target.value) })}
+                    onChange={(e) => setCard({ ...card, cpf: formatCpfOrCnpj(e.target.value) })}
                     className={inputClass(!!errors.cardCpf)}
                   />
                   {errors.cardCpf && <p className="mt-1 text-xs text-red-500">{errors.cardCpf}</p>}
@@ -1142,8 +1238,8 @@ function CheckoutContent() {
                 </button>
               </div>
               <p className="text-xs font-bold text-content">{contact.name}</p>
+              <p className="text-[11px] text-content/75 font-mono">CPF/CNPJ: {contact.cpfCnpj}</p>
               <p className="text-[11px] text-content/75 font-mono">{contact.email}</p>
-              <p className="text-[11px] text-content/75 font-mono">{contact.phone}</p>
             </div>
 
             {/* Step 2: Address Card */}
@@ -1253,28 +1349,6 @@ function CheckoutContent() {
               </div>
             </div>
 
-            {/* Trust Badges & Terms Reassurance Block */}
-            <div className="space-y-3 rounded-xl border border-content/10 bg-canvas p-4 text-xs text-content/75 mb-6">
-              <div className="flex items-start gap-2.5">
-                <ShieldCheck className="h-4 w-4 text-[#C59D3F] shrink-0 mt-0.5" />
-                <p>
-                  <strong className="text-content font-bold">Não Armazenamento de Cartão:</strong> Os dados do seu cartão de crédito (número, validade e CVV) são transmitidos diretamente para a credenciadora. A Aura Regenera não armazena nem tem acesso aos dados completos do seu cartão.
-                </p>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <Sparkles className="h-4 w-4 text-[#C59D3F] shrink-0 mt-0.5" />
-                <p>
-                  <strong className="text-content font-bold">Responsabilidade Profissional:</strong> O comprador assume integral responsabilidade pela correta reconstituição, técnica de manipulação e aplicação clínica dos protocolos adquiridos.
-                </p>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <Lock className="h-4 w-4 text-[#C59D3F] shrink-0 mt-0.5" />
-                <p>
-                  <strong className="text-content font-bold">Privacidade & LGPD:</strong> Os dados pessoais coletados (Nome, CPF/CNPJ, Endereço, E-mail e Telefone) são utilizados estritamente para faturamento, emissão de Nota Fiscal Eletrônica (NF-e), logística de transporte e suporte técnico pós-venda.
-                </p>
-              </div>
-            </div>
-
             <div className="flex gap-4">
               <button
                 type="button"
@@ -1294,6 +1368,9 @@ function CheckoutContent() {
           </div>
         </form>
       )}
+
+      {/* Auth Modal Trigger */}
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
     </div>
   );
 }
