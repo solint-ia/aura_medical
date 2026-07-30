@@ -550,7 +550,7 @@ function AdminDashboardContent() {
 
           {/* Metric Overview Cards */}
           {stats && (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-3">
               <div className="rounded-2xl border border-[#C59D3F]/30 bg-card p-6 space-y-1 shadow-xs">
                 <span className="font-mono text-xs font-bold text-[#C59D3F] uppercase tracking-wider">
                   Faturamento Total
@@ -573,16 +573,6 @@ function AdminDashboardContent() {
                 <p className="font-mono text-[11px] text-content/60">
                   Hoje: {stats.ordersTodayCount} · Mês: {stats.ordersMonthCount}
                 </p>
-              </div>
-
-              <div className="rounded-2xl border border-content/12 bg-card p-6 space-y-1 shadow-xs">
-                <span className="font-mono text-xs font-bold text-content/60 uppercase tracking-wider">
-                  Clientes Cadastrados
-                </span>
-                <p className="font-display text-3xl font-bold text-content">
-                  {stats.totalUsersCount}
-                </p>
-                <p className="font-mono text-[11px] text-content/60">Total na plataforma</p>
               </div>
 
               <div className="rounded-2xl border border-content/12 bg-card p-6 space-y-1 shadow-xs">
