@@ -698,12 +698,14 @@ function CustomerPortalContent() {
                   <span className="text-content/50">Telefone / WhatsApp:</span>
                   <strong className="text-content">{formatPhone(user.phone)}</strong>
                 </div>
-                <div className="flex justify-between border-b border-content/10 pb-2">
-                  <span className="text-content/50">Data de Nascimento:</span>
-                  <strong className="text-content">
-                    {user.birthDate ? formatDateBR(user.birthDate) : "Não informada"}
-                  </strong>
-                </div>
+                {user.cpfCnpj?.replace(/\D/g, "").length !== 14 && user.birthDate ? (
+                  <div className="flex justify-between border-b border-content/10 pb-2">
+                    <span className="text-content/50">Data de Nascimento:</span>
+                    <strong className="text-content">
+                      {formatDateBR(user.birthDate)}
+                    </strong>
+                  </div>
+                ) : null}
               </div>
             </div>
           ) : (
@@ -741,15 +743,17 @@ function CustomerPortalContent() {
                 />
               </div>
 
-              <div>
-                <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">Data de Nascimento</label>
-                <input
-                  type="date"
-                  value={editBirthDate ? editBirthDate.split("T")[0] : ""}
-                  onChange={(e) => setEditBirthDate(e.target.value)}
-                  className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-[#C59D3F]"
-                />
-              </div>
+              {user.cpfCnpj?.replace(/\D/g, "").length !== 14 && (
+                <div>
+                  <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">Data de Nascimento</label>
+                  <input
+                    type="date"
+                    value={editBirthDate ? editBirthDate.split("T")[0] : ""}
+                    onChange={(e) => setEditBirthDate(e.target.value)}
+                    className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-[#C59D3F]"
+                  />
+                </div>
+              )}
 
               <div className="flex gap-3 pt-2">
                 <button

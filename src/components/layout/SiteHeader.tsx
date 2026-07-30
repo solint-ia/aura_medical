@@ -130,14 +130,13 @@ export function SiteHeader() {
                 {userInitials}
               </button>
             ) : (
-              <button
-                type="button"
-                onClick={() => setIsAuthOpen(true)}
+              <Link
+                href="/entrar"
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-white transition-colors hover:border-[#C59D3F] hover:text-[#C59D3F]"
-                title="Entrar / Cadastrar"
+                title="Entrar na Conta / Cadastrar"
               >
                 <User className="h-4.5 w-4.5" />
-              </button>
+              </Link>
             )}
 
             {/* Profile Dropdown Menu */}
@@ -154,7 +153,7 @@ export function SiteHeader() {
                     className="flex items-center gap-2 rounded-lg px-3 py-2 text-white/90 hover:bg-[#C59D3F]/15 hover:text-[#C59D3F]"
                   >
                     <PackageCheck className="h-4 w-4" />
-                    <span>Minhas Compras</span>
+                    <span>Minha Área</span>
                   </Link>
                   <button
                     type="button"
@@ -190,21 +189,22 @@ export function SiteHeader() {
         {/* Mobile nav toggle */}
         <div className="flex items-center gap-2 wide:hidden">
           {/* Mobile Profile Icon */}
-          {user ? (
+          {user && (
             <Link
               href="/minha-conta"
               className="flex h-11 w-11 items-center justify-center rounded-full bg-[#C59D3F] font-mono text-xs font-bold text-[#0D1B2A]"
             >
               {userInitials}
             </Link>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setIsAuthOpen(true)}
+          )}
+          {!user && (
+            <Link
+              href="/entrar"
               className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-white"
+              title="Entrar na Conta / Cadastrar"
             >
               <User className="h-5 w-5" />
-            </button>
+            </Link>
           )}
 
           <Link

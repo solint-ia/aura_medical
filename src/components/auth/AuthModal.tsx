@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Lock, User, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { formatCep, formatCpfOrCnpj, formatPhone, validateCpf, validateCnpj } from "@/lib/validators";
+import { formatCep, formatCpf, formatCnpj, formatCpfOrCnpj, formatPhone, validateCpf, validateCnpj } from "@/lib/validators";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -437,9 +437,11 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                     <input
                       type="text"
                       placeholder={docType === "cpf" ? "000.000.000-00" : "00.000.000/0000-00"}
+                      maxLength={docType === "cpf" ? 14 : 18}
                       value={regCpfCnpj}
                       onChange={(e) => {
-                        setRegCpfCnpj(formatCpfOrCnpj(e.target.value));
+                        const formatted = docType === "cpf" ? formatCpf(e.target.value) : formatCnpj(e.target.value);
+                        setRegCpfCnpj(formatted);
                         setFieldErrors((prev) => ({ ...prev, cpfCnpj: "" }));
                       }}
                       className={inputClass(!!fieldErrors.cpfCnpj)}
@@ -449,18 +451,20 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                     )}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2.5">
-                    <div>
-                      <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
-                        Data de Nascimento
-                      </label>
-                      <input
-                        type="date"
-                        value={regBirthDate}
-                        onChange={(e) => setRegBirthDate(e.target.value)}
-                        className={inputClass()}
-                      />
-                    </div>
+                  <div className={`grid ${docType === "cpf" ? "grid-cols-2" : "grid-cols-1"} gap-2.5`}>
+                    {docType === "cpf" && (
+                      <div>
+                        <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
+                          Data de Nascimento
+                        </label>
+                        <input
+                          type="date"
+                          value={regBirthDate}
+                          onChange={(e) => setRegBirthDate(e.target.value)}
+                          className={inputClass()}
+                        />
+                      </div>
+                    )}
                     <div>
                       <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
                         Telefone / WhatsApp *

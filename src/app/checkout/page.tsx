@@ -221,27 +221,24 @@ function CheckoutContent() {
   // 1. RULE: USER MUST BE LOGGED IN TO COMPLIANT WITH CHECKOUT
   if (!user) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#C59D3F]/15 text-[#C59D3F]">
-          <User className="h-10 w-10" />
+      <div className="mx-auto max-w-xl px-4 py-8 sm:py-12 text-center">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#C59D3F]/15 text-[#C59D3F]">
+          <User className="h-8 w-8" />
         </div>
-        <h1 className="font-display text-3xl font-bold text-content mb-3">
+        <h1 className="font-display text-2xl font-bold text-content mb-2">
           Login Necessário para Finalizar a Compra
         </h1>
-        <p className="text-base text-content/75 mb-8 max-w-md mx-auto">
+        <p className="text-sm text-content/75 mb-6 max-w-md mx-auto">
           Para garantir a entrega correta e emitir sua nota fiscal, entre na sua conta ou crie um cadastro rápido antes de acessar o checkout.
         </p>
         <div className="flex justify-center gap-4">
-          <button
-            type="button"
-            onClick={() => setIsAuthModalOpen(true)}
-            className="rounded-xl bg-[#C59D3F] px-8 py-3.5 font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99]"
+          <Link
+            href="/entrar"
+            className="rounded-xl bg-[#C59D3F] px-8 py-3.5 font-bold text-xs text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99]"
           >
             Entrar na Conta ou Criar Cadastro →
-          </button>
+          </Link>
         </div>
-
-        <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       </div>
     );
   }
