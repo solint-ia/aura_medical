@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -64,6 +64,15 @@ interface FormErrors {
   cardExpiry?: string;
   cardCvv?: string;
   cardCpf?: string;
+}
+
+interface ShippingOption {
+  id: number | string;
+  name: string;
+  price: number;
+  deliveryTime: number;
+  company: string;
+  logo?: string;
 }
 
 // Format Helpers
@@ -134,6 +143,10 @@ function CheckoutContent() {
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(null);
   const [shippingMethod, setShippingMethod] = useState<"pac" | "sedex">("sedex");
+  const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
+  const [selectedShippingOption, setSelectedShippingOption] = useState<ShippingOption | null>(null);
+  const [shippingLoading, setShippingLoading] = useState(false);
+
   const [cepLoading, setCepLoading] = useState(false);
   const [cepError, setCepError] = useState("");
 
@@ -144,11 +157,45 @@ function CheckoutContent() {
     itemsCount: number;
   }>({ total: 0, itemsCount: 0 });
 
-  // Shipping Fee & Total
-  const shippingCost = items.length === 0 ? 0 : shippingMethod === "sedex" ? 45 : 25;
+  // Shipping Fee & Total Calculation
+  const shippingCost = items.length === 0
+    ? 0
+    : selectedShippingOption
+      ? selectedShippingOption.price
+      : shippingMethod === "sedex"
+        ? 45
+        : 25;
+
   const totalPrice = subtotal + shippingCost;
 
-  // Auto-fill address via ViaCEP API
+  // Dynamic Shipping Calculation via /api/frete/calcular
+  const fetchShippingRates = useCallback(async (cleanCep: string, currentItems: typeof items) => {
+    if (cleanCep.length !== 8) return;
+    setShippingLoading(true);
+
+    try {
+      const res = await fetch("/api/frete/calcular", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          destinationCep: cleanCep,
+          items: currentItems.map((i) => ({ id: i.id, quantity: i.quantity, price: i.unitPrice })),
+        }),
+      });
+
+      const data = await res.json();
+      if (data.options && Array.isArray(data.options) && data.options.length > 0) {
+        setShippingOptions(data.options);
+        setSelectedShippingOption(data.options[0]);
+      }
+    } catch (err) {
+      console.error("Erro ao calcular frete dinâmico:", err);
+    } finally {
+      setShippingLoading(false);
+    }
+  }, []);
+
+  // Auto-fill address via ViaCEP API & Fetch Dynamic Shipping Rates
   const fetchAddressByCep = useCallback(async (rawCep: string) => {
     const digits = rawCep.replace(/\D/g, "");
     if (digits.length !== 8) return;
@@ -191,8 +238,17 @@ function CheckoutContent() {
     const digits = formatted.replace(/\D/g, "");
     if (digits.length === 8) {
       fetchAddressByCep(digits);
+      fetchShippingRates(digits, items);
     }
   };
+
+  // Trigger initial shipping calculation if 8-digit CEP is already present
+  useEffect(() => {
+    const digits = address.cep.replace(/\D/g, "");
+    if (digits.length === 8 && shippingOptions.length === 0) {
+      fetchShippingRates(digits, items);
+    }
+  }, [address.cep, items, shippingOptions.length, fetchShippingRates]);
 
   // Step 1 Validation (Personal Data ONLY)
   const validateStep1 = (): boolean => {
@@ -340,6 +396,10 @@ function CheckoutContent() {
 
   // ORDER CONFIRMED STATE
   if (isSubmitted) {
+    const shippingName = selectedShippingOption
+      ? selectedShippingOption.name
+      : shippingMethod.toUpperCase();
+
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <Image
@@ -361,7 +421,7 @@ function CheckoutContent() {
         </p>
         <div className="rounded-xl border border-content/12 bg-card p-6 text-left mb-8 space-y-2 font-mono text-sm text-content/80">
           <p>📍 <strong className="text-content">Entrega:</strong> {address.street}, {address.number} {address.complement} - {address.city}</p>
-          <p>🚚 <strong className="text-content">Frete:</strong> {shippingMethod.toUpperCase()} ({formatBRL(shippingCost)})</p>
+          <p>🚚 <strong className="text-content">Frete:</strong> {shippingName} ({formatBRL(shippingCost)})</p>
           <p>💳 <strong className="text-content">Pagamento:</strong> {paymentMethod === "pix" ? "PIX à vista" : "Cartão de Crédito"}</p>
           <p>💰 <strong className="text-content">Valor Total:</strong> {formatBRL(submittedOrderSummary.total)}</p>
         </div>
@@ -705,7 +765,7 @@ function CheckoutContent() {
                     onChange={handleCepChange}
                     className={inputClass(!!errors.cep || !!cepError)}
                   />
-                  {cepLoading && (
+                  {(cepLoading || shippingLoading) && (
                     <span className="absolute right-3 top-3.5 font-mono text-xs text-[#C59D3F]">
                       Buscando...
                     </span>
@@ -786,58 +846,114 @@ function CheckoutContent() {
             </div>
           </div>
 
-          {/* Shipping Choice */}
+          {/* Dynamic Shipping Choice (Calculated via Melhor Envio) */}
           <div className="rounded-2xl border border-content/12 bg-card p-6 space-y-4">
-            <h3 className="font-mono text-xs font-bold text-[#C59D3F] uppercase tracking-wider">
-              Opção de Envio
-            </h3>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <label
-                className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all ${
-                  shippingMethod === "sedex"
-                    ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content"
-                    : "border-content/15 bg-canvas hover:border-content/30"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <input
-                    type="radio"
-                    name="shipping"
-                    checked={shippingMethod === "sedex"}
-                    onChange={() => setShippingMethod("sedex")}
-                    className="accent-[#C59D3F]"
-                  />
-                  <div>
-                    <div className="font-bold text-sm">SEDEX Expresso</div>
-                    <div className="text-xs text-content/65">Entrega em 1 a 3 dias úteis</div>
-                  </div>
-                </div>
-                <span className="font-mono font-bold text-sm text-[#C59D3F]">R$ 45,00</span>
-              </label>
-
-              <label
-                className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all ${
-                  shippingMethod === "pac"
-                    ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content"
-                    : "border-content/15 bg-canvas hover:border-content/30"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <input
-                    type="radio"
-                    name="shipping"
-                    checked={shippingMethod === "pac"}
-                    onChange={() => setShippingMethod("pac")}
-                    className="accent-[#C59D3F]"
-                  />
-                  <div>
-                    <div className="font-bold text-sm">PAC Econômico</div>
-                    <div className="text-xs text-content/65">Entrega em 5 a 8 dias úteis</div>
-                  </div>
-                </div>
-                <span className="font-mono font-bold text-sm text-[#C59D3F]">R$ 25,00</span>
-              </label>
+            <div className="flex items-center justify-between">
+              <h3 className="font-mono text-xs font-bold text-[#C59D3F] uppercase tracking-wider">
+                Opções de Envio (Calculado em Tempo Real)
+              </h3>
+              {shippingLoading && (
+                <span className="font-mono text-xs font-semibold text-[#C59D3F] animate-pulse">
+                  Calculando frete com CEP...
+                </span>
+              )}
             </div>
+
+            {shippingLoading ? (
+              <div className="rounded-xl border border-content/15 bg-canvas p-6 text-center text-xs font-mono text-content/70">
+                Calculando opções de envio para o CEP {address.cep}...
+              </div>
+            ) : shippingOptions.length > 0 ? (
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {shippingOptions.map((option) => {
+                  const isSelected = selectedShippingOption?.id === option.id;
+                  return (
+                    <label
+                      key={option.id}
+                      className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all ${
+                        isSelected
+                          ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content shadow-sm"
+                          : "border-content/15 bg-canvas hover:border-content/30"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="radio"
+                          name="shipping"
+                          checked={isSelected}
+                          onChange={() => setSelectedShippingOption(option)}
+                          className="accent-[#C59D3F]"
+                        />
+                        <div>
+                          <div className="font-bold text-sm">{option.name}</div>
+                          <div className="text-xs text-content/65">
+                            Entrega em {option.deliveryTime} {option.deliveryTime === 1 ? "dia útil" : "dias úteis"}
+                          </div>
+                        </div>
+                      </div>
+                      <span className="font-mono font-bold text-sm text-[#C59D3F]">
+                        {formatBRL(option.price)}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            ) : (
+              // Standard Fallback Radio Buttons if CEP not yet entered
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <label
+                  className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all ${
+                    shippingMethod === "sedex"
+                      ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content"
+                      : "border-content/15 bg-canvas hover:border-content/30"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="shipping"
+                      checked={shippingMethod === "sedex"}
+                      onChange={() => {
+                        setShippingMethod("sedex");
+                        setSelectedShippingOption(null);
+                      }}
+                      className="accent-[#C59D3F]"
+                    />
+                    <div>
+                      <div className="font-bold text-sm">SEDEX Expresso (Correios)</div>
+                      <div className="text-xs text-content/65">Entrega em 1 a 3 dias úteis</div>
+                    </div>
+                  </div>
+                  <span className="font-mono font-bold text-sm text-[#C59D3F]">R$ 45,00</span>
+                </label>
+
+                <label
+                  className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all ${
+                    shippingMethod === "pac"
+                      ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content"
+                      : "border-content/15 bg-canvas hover:border-content/30"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="shipping"
+                      checked={shippingMethod === "pac"}
+                      onChange={() => {
+                        setShippingMethod("pac");
+                        setSelectedShippingOption(null);
+                      }}
+                      className="accent-[#C59D3F]"
+                    />
+                    <div>
+                      <div className="font-bold text-sm">PAC Econômico (Correios)</div>
+                      <div className="text-xs text-content/65">Entrega em 5 a 8 dias úteis</div>
+                    </div>
+                  </div>
+                  <span className="font-mono font-bold text-sm text-[#C59D3F]">R$ 25,00</span>
+                </label>
+              </div>
+            )}
           </div>
 
           <div className="flex gap-4">
@@ -1102,7 +1218,7 @@ function CheckoutContent() {
                 {address.neighborhood}, {address.city}
               </p>
               <p className="text-[11px] text-[#C59D3F] font-mono font-semibold pt-1">
-                🚚 {shippingMethod.toUpperCase()} ({formatBRL(shippingCost)})
+                🚚 {selectedShippingOption ? selectedShippingOption.name : shippingMethod.toUpperCase()} ({formatBRL(shippingCost)})
               </p>
             </div>
 
@@ -1178,7 +1294,7 @@ function CheckoutContent() {
                 <span className="font-mono">{formatBRL(subtotal)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Frete ({shippingMethod.toUpperCase()})</span>
+                <span>Frete ({selectedShippingOption ? selectedShippingOption.name : shippingMethod.toUpperCase()})</span>
                 <span className="font-mono">{formatBRL(shippingCost)}</span>
               </div>
               <div className="flex justify-between border-t border-content/10 pt-3 text-base font-bold text-content">
