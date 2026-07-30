@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
+import { dbPool } from "@/lib/db";
 import { validateCpfOrCnpj } from "@/lib/validators";
 
 const JWT_SECRET = process.env.SUPABASE_SERVICE_ROLE_KEY || "aura-jwt-secret-key-2026-secure";
@@ -64,118 +65,189 @@ export async function POST(req: Request) {
       return NextResponse.json({ errors }, { status: 400 });
     }
 
-    // 1. Check for Duplicate E-mail or CPF/CNPJ using Prisma ORM
-    const existingEmail = await prisma.userProfile.findUnique({
-      where: { email: cleanEmail },
-      select: { id: true },
-    });
-
-    if (existingEmail) {
-      return NextResponse.json(
-        { errors: { email: "Este e-mail já está cadastrado no sistema. Clique em Entrar." } },
-        { status: 400 }
-      );
-    }
-
-    const existingCpf = await prisma.userProfile.findUnique({
-      where: { cpfCnpj: cleanCpfCnpj },
-      select: { id: true },
-    });
-
-    if (existingCpf) {
-      return NextResponse.json(
-        { errors: { cpfCnpj: "Este CPF/CNPJ já está cadastrado no sistema." } },
-        { status: 400 }
-      );
-    }
-
-    // 2. Hash Password with BCrypt
+    // Hash Password with BCrypt
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // 3. Create User Profile & Address
-    const createdProfile = await prisma.userProfile.create({
-      data: {
-        cpfCnpj: cleanCpfCnpj,
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        birthDate: birthDate ? new Date(birthDate) : null,
-        email: cleanEmail,
-        phone: cleanPhone,
-        passwordHash,
-        addresses: {
-          create: {
-            cep: cleanCep,
-            street: street.trim(),
-            number: number.trim(),
-            complement: complement?.trim() || null,
-            neighborhood: neighborhood.trim(),
-            city: city.trim(),
-            uf: uf?.trim() || "SE",
-            isDefault: true,
+    let createdUser: {
+      id: string;
+      cpfCnpj: string;
+      firstName: string;
+      lastName: string;
+      birthDate: string;
+      email: string;
+      phone: string;
+    } | null = null;
+
+    let createdAddr: {
+      id: string;
+      cep: string;
+      street: string;
+      number: string;
+      complement: string;
+      neighborhood: string;
+      city: string;
+      uf: string;
+      isDefault: boolean;
+    } | null = null;
+
+    // 1. Primary DB Operations via Prisma ORM
+    try {
+      const existingEmail = await prisma.userProfile.findUnique({
+        where: { email: cleanEmail },
+        select: { id: true },
+      });
+
+      if (existingEmail) {
+        return NextResponse.json(
+          { errors: { email: "Este e-mail já está cadastrado no sistema. Clique em Entrar." } },
+          { status: 400 }
+        );
+      }
+
+      const existingCpf = await prisma.userProfile.findUnique({
+        where: { cpfCnpj: cleanCpfCnpj },
+        select: { id: true },
+      });
+
+      if (existingCpf) {
+        return NextResponse.json(
+          { errors: { cpfCnpj: "Este CPF/CNPJ já está cadastrado no sistema." } },
+          { status: 400 }
+        );
+      }
+
+      const created = await prisma.userProfile.create({
+        data: {
+          cpfCnpj: cleanCpfCnpj,
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          birthDate: birthDate ? new Date(birthDate) : null,
+          email: cleanEmail,
+          phone: cleanPhone,
+          passwordHash,
+          addresses: {
+            create: {
+              cep: cleanCep,
+              street: street.trim(),
+              number: number.trim(),
+              complement: complement?.trim() || null,
+              neighborhood: neighborhood.trim(),
+              city: city.trim(),
+              uf: uf?.trim() || "SE",
+              isDefault: true,
+            },
           },
         },
-      },
-      include: {
-        addresses: true,
-      },
-    });
+        include: {
+          addresses: true,
+        },
+      });
 
-    const primaryAddress = createdProfile.addresses[0];
+      const primary = created.addresses[0];
+      createdUser = {
+        id: created.id,
+        cpfCnpj: created.cpfCnpj,
+        firstName: created.firstName,
+        lastName: created.lastName,
+        birthDate: created.birthDate ? created.birthDate.toISOString().split("T")[0] : "",
+        email: created.email,
+        phone: created.phone,
+      };
 
-    // 4. Generate JWT Token
+      createdAddr = {
+        id: primary ? primary.id : `addr-${Date.now()}`,
+        cep: primary ? primary.cep : cleanCep,
+        street: primary ? primary.street : street.trim(),
+        number: primary ? primary.number : number.trim(),
+        complement: primary?.complement || "",
+        neighborhood: primary ? primary.neighborhood : neighborhood.trim(),
+        city: primary ? primary.city : city.trim(),
+        uf: primary ? primary.uf : (uf?.trim() || "SE"),
+        isDefault: true,
+      };
+    } catch (prismaErr) {
+      console.warn("Prisma ORM indisponível no cadastro Vercel, ativando dbPool:", prismaErr);
+
+      // Check duplicates via SQL
+      const checkEmail = await dbPool.query("SELECT id FROM public.user_profiles WHERE LOWER(email) = $1 LIMIT 1", [cleanEmail]);
+      if (checkEmail.rows.length > 0) {
+        return NextResponse.json(
+          { errors: { email: "Este e-mail já está cadastrado no sistema. Clique em Entrar." } },
+          { status: 400 }
+        );
+      }
+
+      const checkCpf = await dbPool.query("SELECT id FROM public.user_profiles WHERE cpf_cnpj = $1 LIMIT 1", [cleanCpfCnpj]);
+      if (checkCpf.rows.length > 0) {
+        return NextResponse.json(
+          { errors: { cpfCnpj: "Este CPF/CNPJ já está cadastrado no sistema." } },
+          { status: 400 }
+        );
+      }
+
+      // Insert via pg driver directly
+      const pInsert = await dbPool.query(
+        `INSERT INTO public.user_profiles 
+         (cpf_cnpj, first_name, last_name, birth_date, email, phone, password_hash)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         RETURNING id, cpf_cnpj, first_name, last_name, birth_date, email, phone`,
+        [cleanCpfCnpj, firstName.trim(), lastName.trim(), birthDate || null, cleanEmail, cleanPhone, passwordHash]
+      );
+
+      const u = pInsert.rows[0];
+
+      const aInsert = await dbPool.query(
+        `INSERT INTO public.user_addresses
+         (user_id, cep, street, number, complement, neighborhood, city, uf, is_default)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true)
+         RETURNING id, cep, street, number, complement, neighborhood, city, uf, is_default`,
+        [u.id, cleanCep, street.trim(), number.trim(), complement?.trim() || null, neighborhood.trim(), city.trim(), uf?.trim() || "SE"]
+      );
+
+      const a = aInsert.rows[0];
+
+      createdUser = {
+        id: u.id,
+        cpfCnpj: u.cpf_cnpj,
+        firstName: u.first_name,
+        lastName: u.last_name,
+        birthDate: u.birth_date ? String(u.birth_date).split("T")[0] : "",
+        email: u.email,
+        phone: u.phone,
+      };
+
+      createdAddr = {
+        id: a.id,
+        cep: a.cep,
+        street: a.street,
+        number: a.number,
+        complement: a.complement || "",
+        neighborhood: a.neighborhood,
+        city: a.city,
+        uf: a.uf,
+        isDefault: a.is_default,
+      };
+    }
+
+    // Generate JWT Token
     const token = jwt.sign(
       {
-        userId: createdProfile.id,
-        email: createdProfile.email,
-        cpfCnpj: createdProfile.cpfCnpj,
-        name: `${createdProfile.firstName} ${createdProfile.lastName}`,
+        userId: createdUser!.id,
+        email: createdUser!.email,
+        cpfCnpj: createdUser!.cpfCnpj,
+        name: `${createdUser!.firstName} ${createdUser!.lastName}`,
       },
       JWT_SECRET,
       { expiresIn: "30d" }
     );
 
-    const user = {
-      id: createdProfile.id,
-      cpfCnpj: createdProfile.cpfCnpj,
-      firstName: createdProfile.firstName,
-      lastName: createdProfile.lastName,
-      birthDate: createdProfile.birthDate ? createdProfile.birthDate.toISOString().split("T")[0] : "",
-      email: createdProfile.email,
-      phone: createdProfile.phone,
-    };
-
-    const addressRes = primaryAddress
-      ? {
-          id: primaryAddress.id,
-          cep: primaryAddress.cep,
-          street: primaryAddress.street,
-          number: primaryAddress.number,
-          complement: primaryAddress.complement || "",
-          neighborhood: primaryAddress.neighborhood,
-          city: primaryAddress.city,
-          uf: primaryAddress.uf,
-          isDefault: primaryAddress.isDefault || true,
-        }
-      : {
-          id: `addr-${Date.now()}`,
-          cep: cleanCep,
-          street: street.trim(),
-          number: number.trim(),
-          complement: complement?.trim() || "",
-          neighborhood: neighborhood.trim(),
-          city: city.trim(),
-          uf: uf?.trim() || "SE",
-          isDefault: true,
-        };
-
     const response = NextResponse.json({
       success: true,
       token,
-      user,
-      address: addressRes,
+      user: createdUser,
+      address: createdAddr,
     });
 
-    // Set JWT Token in Cookies (Visible in DevTools Application -> Cookies)
     response.cookies.set({
       name: "aura_token",
       value: token,
@@ -188,7 +260,7 @@ export async function POST(req: Request) {
     return response;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Erro ao cadastrar usuário.";
-    console.error("Erro no registro Prisma ORM:", err);
+    console.error("Erro no registro DB:", err);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

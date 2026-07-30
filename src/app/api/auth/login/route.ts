@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
+import { dbPool } from "@/lib/db";
 
 const JWT_SECRET = process.env.SUPABASE_SERVICE_ROLE_KEY || "aura-jwt-secret-key-2026-secure";
 
@@ -20,20 +21,102 @@ export async function POST(req: Request) {
     const cleanInput = emailOrCpf.replace(/\D/g, "");
     const trimmedInput = emailOrCpf.toLowerCase().trim();
 
-    // 1. Fetch user profile from database
-    const dbUser = await prisma.userProfile.findFirst({
-      where: {
-        OR: [
-          { email: trimmedInput },
-          { cpfCnpj: cleanInput !== "" ? cleanInput : undefined },
-        ],
-      },
-      include: {
-        addresses: {
-          orderBy: { createdAt: "desc" },
+    let dbUser: {
+      id: string;
+      cpfCnpj: string;
+      firstName: string;
+      lastName: string;
+      birthDate: Date | string | null;
+      email: string;
+      phone: string;
+      passwordHash: string | null;
+      addresses: Array<{
+        id: string;
+        userId?: string | null;
+        recipientName?: string | null;
+        cep: string;
+        street: string;
+        number: string;
+        complement?: string | null;
+        neighborhood: string;
+        city: string;
+        uf: string;
+        isDefault?: boolean | null;
+      }>;
+    } | null = null;
+
+    // 1. Primary DB Lookup via Prisma ORM
+    try {
+      const found = await prisma.userProfile.findFirst({
+        where: {
+          OR: [
+            { email: trimmedInput },
+            { cpfCnpj: cleanInput !== "" ? cleanInput : undefined },
+          ],
         },
-      },
-    });
+        include: {
+          addresses: {
+            orderBy: { createdAt: "desc" },
+          },
+        },
+      });
+
+      if (found) {
+        dbUser = {
+          id: found.id,
+          cpfCnpj: found.cpfCnpj,
+          firstName: found.firstName,
+          lastName: found.lastName,
+          birthDate: found.birthDate,
+          email: found.email,
+          phone: found.phone,
+          passwordHash: found.passwordHash,
+          addresses: found.addresses,
+        };
+      }
+    } catch (prismaErr) {
+      console.warn("Prisma ORM indisponível na Vercel, ativando fallback dbPool:", prismaErr);
+
+      // Fallback: Direct PostgreSQL Query via pg Driver
+      const sqlRes = await dbPool.query(
+        `SELECT * FROM public.user_profiles 
+         WHERE LOWER(email) = $1 OR (cpf_cnpj = $2 AND $2 != '') 
+         LIMIT 1`,
+        [trimmedInput, cleanInput]
+      );
+
+      if (sqlRes.rows.length > 0) {
+        const u = sqlRes.rows[0];
+        const addrRes = await dbPool.query(
+          "SELECT * FROM public.user_addresses WHERE user_id = $1 ORDER BY created_at DESC",
+          [u.id]
+        );
+
+        dbUser = {
+          id: u.id,
+          cpfCnpj: u.cpf_cnpj,
+          firstName: u.first_name,
+          lastName: u.last_name,
+          birthDate: u.birth_date,
+          email: u.email,
+          phone: u.phone,
+          passwordHash: u.password_hash,
+          addresses: addrRes.rows.map((a) => ({
+            id: a.id,
+            userId: a.user_id,
+            recipientName: a.recipient_name,
+            cep: a.cep,
+            street: a.street,
+            number: a.number,
+            complement: a.complement,
+            neighborhood: a.neighborhood,
+            city: a.city,
+            uf: a.uf,
+            isDefault: a.is_default,
+          })),
+        };
+      }
+    }
 
     if (!dbUser) {
       return NextResponse.json(
@@ -55,10 +138,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // 3. Map addresses
+    // 3. Map Addresses
     const addresses = dbUser.addresses.map((a) => ({
       id: a.id,
-      userId: a.userId || dbUser.id,
+      userId: a.userId || dbUser!.id,
       recipientName: a.recipientName || undefined,
       cep: a.cep,
       street: a.street,
@@ -87,7 +170,7 @@ export async function POST(req: Request) {
       cpfCnpj: dbUser.cpfCnpj,
       firstName: dbUser.firstName,
       lastName: dbUser.lastName,
-      birthDate: dbUser.birthDate ? dbUser.birthDate.toISOString().split("T")[0] : "",
+      birthDate: dbUser.birthDate ? String(dbUser.birthDate).split("T")[0] : "",
       email: dbUser.email,
       phone: dbUser.phone,
     };
@@ -99,7 +182,6 @@ export async function POST(req: Request) {
       addresses,
     });
 
-    // Set JWT Token in Cookies (Visible in DevTools Application -> Cookies)
     response.cookies.set({
       name: "aura_token",
       value: token,
@@ -112,7 +194,7 @@ export async function POST(req: Request) {
     return response;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Erro ao realizar login.";
-    console.error("Erro no login Prisma ORM:", err);
+    console.error("Erro no login DB:", err);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
