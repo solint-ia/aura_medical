@@ -167,6 +167,64 @@ export async function POST(req: Request) {
       isDefault: a.isDefault || false,
     }));
 
+    // 3.5 Fetch User Orders from DB
+    let orders: any[] = [];
+    try {
+      const dbOrders = await prisma.order.findMany({
+        where: { userId: dbUser.id },
+        include: { items: true, address: true },
+        orderBy: { createdAt: "desc" },
+      });
+
+      orders = dbOrders.map((o) => ({
+        id: o.id,
+        orderNumber: o.orderNumber,
+        userId: o.userId,
+        addressId: o.addressId,
+        addressSummary: o.address
+          ? `${o.address.street}, ${o.address.number} ${o.address.complement || ""} - ${o.address.city} (${o.address.uf})`
+          : o.notes || "Endereço cadastrado",
+        shippingMethod: o.shippingMethod,
+        shippingCost: Number(o.shippingCost),
+        subtotal: Number(o.subtotal),
+        totalPrice: Number(o.totalPrice),
+        paymentMethod: o.paymentMethod,
+        status: o.status,
+        trackingCode: o.trackingCode || "",
+        createdAt: o.createdAt?.toISOString() || new Date().toISOString(),
+        items: o.items.map((i) => ({
+          id: i.id,
+          productId: i.productId,
+          productName: i.productName,
+          quantity: i.quantity,
+          unitPrice: Number(i.unitPrice),
+          totalPrice: Number(i.totalPrice),
+          imagePath: i.imagePath || undefined,
+        })),
+      }));
+    } catch (orderErr) {
+      console.warn("Prisma orders login fetch fallback dbPool:", orderErr);
+      const sqlRes = await dbPool.query(
+        "SELECT * FROM public.orders WHERE user_id = $1 ORDER BY created_at DESC",
+        [dbUser.id]
+      );
+      orders = sqlRes.rows.map((o) => ({
+        id: o.id,
+        orderNumber: o.order_number,
+        userId: o.user_id,
+        addressSummary: o.notes || "Endereço cadastrado",
+        shippingMethod: o.shipping_method,
+        shippingCost: Number(o.shipping_cost),
+        subtotal: Number(o.subtotal),
+        totalPrice: Number(o.total_price),
+        paymentMethod: o.payment_method,
+        status: o.status,
+        trackingCode: o.tracking_code || "",
+        createdAt: o.created_at ? new Date(o.created_at).toISOString() : new Date().toISOString(),
+        items: [],
+      }));
+    }
+
     // 4. Generate Signed JWT Token
     const token = jwt.sign(
       {
@@ -196,6 +254,7 @@ export async function POST(req: Request) {
       token,
       user,
       addresses,
+      orders,
     });
 
     response.cookies.set({

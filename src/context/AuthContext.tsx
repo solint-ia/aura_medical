@@ -167,7 +167,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: false, error: data.error || "Credenciais inválidas." };
       }
 
-      syncState(data.user, data.token, data.addresses || [], orders);
+      syncState(data.user, data.token, data.addresses || [], data.orders || []);
       if (data.addresses && data.addresses.length > 0) {
         setSelectedAddress(data.addresses[0]);
       }
@@ -315,8 +315,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
-    syncState(null, null, [], orders);
+    syncState(null, null, [], []);
     setSelectedAddress(null);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(LOCAL_STORAGE_ORDERS_KEY);
+    }
   };
 
   return (
