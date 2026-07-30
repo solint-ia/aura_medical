@@ -27,11 +27,11 @@ export function SiteFooter() {
               <span className="underline underline-offset-4 decoration-[#C59D3F]/50">Atendimento via WhatsApp</span>
             </AccreditationButton>
             <a
-              href="mailto:contato@auraregenerative.com.br"
+              href="mailto:contato@auraregenera.com"
               className="inline-flex items-center gap-1.5 font-medium text-on-panel transition-colors hover:text-[#C59D3F]"
             >
               <span>E-mail:</span>
-              <span className="underline underline-offset-4 decoration-[#C59D3F]/50">contato@auraregenerative.com.br</span>
+              <span className="underline underline-offset-4 decoration-[#C59D3F]/50">contato@auraregenera.com</span>
             </a>
           </div>
         </div>

@@ -14,7 +14,6 @@ import {
   ShieldCheck,
   ShoppingBag,
   Sparkles,
-  Truck,
 } from "lucide-react";
 
 import { AccreditationProvider } from "@/components/accreditation/AccreditationProvider";
@@ -23,7 +22,7 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { useCart } from "@/context/CartContext";
 import { formatBRL } from "@/lib/format";
 
-type Step = 1 | 2 | 3;
+type Step = 1 | 2 | 3 | 4;
 type PaymentMethod = "card" | "pix" | null;
 
 interface ContactForm {
@@ -195,7 +194,7 @@ function CheckoutContent() {
     }
   };
 
-  // Step 1 Validation (Contact + Address)
+  // Step 1 Validation (Personal Data ONLY)
   const validateStep1 = (): boolean => {
     const newErrors: FormErrors = {};
 
@@ -214,6 +213,22 @@ function CheckoutContent() {
       newErrors.phone = "Telefone deve ter entre 10 e 11 dígitos com DDD.";
     }
 
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleContinueToStep2 = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateStep1()) {
+      setStep(2);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  // Step 2 Validation (Shipping Address ONLY)
+  const validateStep2 = (): boolean => {
+    const newErrors: FormErrors = {};
+
     const cepDigits = address.cep.replace(/\D/g, "");
     if (!address.cep.trim()) newErrors.cep = "CEP é obrigatório.";
     else if (cepDigits.length !== 8) newErrors.cep = "CEP deve ter 8 dígitos.";
@@ -227,16 +242,16 @@ function CheckoutContent() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleContinueToStep2 = (e: React.FormEvent) => {
+  const handleContinueToStep3 = (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateStep1()) {
-      setStep(2);
+    if (validateStep2()) {
+      setStep(3);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
-  // Step 2 Validation (Payment Method)
-  const validateStep2 = (): boolean => {
+  // Step 3 Validation (Payment Method ONLY)
+  const validateStep3 = (): boolean => {
     const newErrors: FormErrors = {};
 
     if (!paymentMethod) {
@@ -263,18 +278,18 @@ function CheckoutContent() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleContinueToStep3 = (e: React.FormEvent) => {
+  const handleContinueToStep4 = (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateStep2()) {
-      setStep(3);
+    if (validateStep3()) {
+      setStep(4);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
-  // Step 3 Final Submission
+  // Step 4 Final Submission (Review & Submit)
   const handleFinalizeOrder = (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateStep1() && validateStep2()) {
+    if (validateStep1() && validateStep2() && validateStep3()) {
       setSubmittedOrderSummary({
         total: totalPrice,
         itemsCount: items.reduce((s, i) => s + i.quantity, 0),
@@ -286,9 +301,10 @@ function CheckoutContent() {
   };
 
   const inputClass = (hasError?: boolean) =>
-    `w-full rounded-lg border px-3.5 py-3 text-sm transition-colors outline-none ${hasError
-      ? "border-red-500 bg-red-500/5 text-red-900 dark:text-red-200 focus:border-red-600"
-      : "border-content/18 bg-canvas dark:bg-card text-content focus:border-[#C59D3F]"
+    `w-full rounded-lg border px-3.5 py-3 text-sm transition-colors outline-none ${
+      hasError
+        ? "border-red-500 bg-red-500/5 text-red-900 dark:text-red-200 focus:border-red-600"
+        : "border-content/18 bg-canvas dark:bg-card text-content focus:border-[#C59D3F]"
     }`;
 
   if (!isHydrated) {
@@ -389,16 +405,18 @@ function CheckoutContent() {
               {step}
             </span>
             <span className="font-mono text-xs font-bold text-content uppercase tracking-wider">
-              Passo {step} de 3:{" "}
+              Passo {step} de 4:{" "}
               {step === 1
-                ? "Dados & Entrega"
+                ? "Dados Pessoais"
                 : step === 2
-                  ? "Pagamento"
-                  : "Revisão do Pedido"}
+                  ? "Endereço"
+                  : step === 3
+                    ? "Pagamento"
+                    : "Revisão"}
             </span>
           </div>
           <span className="font-mono text-xs font-bold text-[#C59D3F]">
-            {step === 1 ? "33%" : step === 2 ? "66%" : "100%"}
+            {step === 1 ? "25%" : step === 2 ? "50%" : step === 3 ? "75%" : "100%"}
           </span>
         </div>
 
@@ -406,17 +424,18 @@ function CheckoutContent() {
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-content/10">
           <div
             className="h-full bg-[#C59D3F] transition-all duration-300 ease-out"
-            style={{ width: step === 1 ? "33.33%" : step === 2 ? "66.66%" : "100%" }}
+            style={{ width: step === 1 ? "25%" : step === 2 ? "50%" : step === 3 ? "75%" : "100%" }}
           />
         </div>
 
         {/* Quick Number Switcher Buttons for Mobile */}
-        <div className="flex items-center justify-between pt-1 font-mono text-[11px]">
+        <div className="flex items-center justify-between pt-1 font-mono text-[10.5px]">
           <button
             type="button"
             onClick={() => setStep(1)}
-            className={`flex items-center gap-1 font-semibold ${step === 1 ? "text-[#C59D3F]" : "text-content/60"
-              }`}
+            className={`flex items-center gap-1 font-semibold ${
+              step === 1 ? "text-[#C59D3F]" : "text-content/60"
+            }`}
           >
             <span>1. Dados</span>
           </button>
@@ -428,10 +447,11 @@ function CheckoutContent() {
             onClick={() => {
               if (validateStep1()) setStep(2);
             }}
-            className={`flex items-center gap-1 font-semibold ${step === 2 ? "text-[#C59D3F]" : step > 2 ? "text-content/60" : "text-content/30"
-              }`}
+            className={`flex items-center gap-1 font-semibold ${
+              step === 2 ? "text-[#C59D3F]" : step > 2 ? "text-content/60" : "text-content/30"
+            }`}
           >
-            <span>2. Pagamento</span>
+            <span>2. Entrega</span>
           </button>
 
           <span className="text-content/20">|</span>
@@ -441,31 +461,48 @@ function CheckoutContent() {
             onClick={() => {
               if (validateStep1() && validateStep2()) setStep(3);
             }}
-            className={`flex items-center gap-1 font-semibold ${step === 3 ? "text-[#C59D3F]" : "text-content/30"
-              }`}
+            className={`flex items-center gap-1 font-semibold ${
+              step === 3 ? "text-[#C59D3F]" : step > 3 ? "text-content/60" : "text-content/30"
+            }`}
           >
-            <span>3. Revisão</span>
+            <span>3. Pagamento</span>
+          </button>
+
+          <span className="text-content/20">|</span>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (validateStep1() && validateStep2() && validateStep3()) setStep(4);
+            }}
+            className={`flex items-center gap-1 font-semibold ${
+              step === 4 ? "text-[#C59D3F]" : "text-content/30"
+            }`}
+          >
+            <span>4. Revisão</span>
           </button>
         </div>
       </div>
 
-      {/* Desktop 3-Step Tracker (Hidden on Mobile) */}
+      {/* Desktop 4-Step Tracker (Hidden on Mobile) */}
       <div className="mb-10 hidden items-center justify-between border-b border-content/12 pb-5 font-mono text-xs tracking-wider uppercase md:flex">
         <button
           type="button"
           onClick={() => setStep(1)}
-          className={`flex items-center gap-2 font-semibold transition-colors ${step === 1 ? "text-[#C59D3F]" : "text-content/70 hover:text-content"
-            }`}
+          className={`flex items-center gap-2 font-semibold transition-colors ${
+            step === 1 ? "text-[#C59D3F]" : "text-content/70 hover:text-content"
+          }`}
         >
           <span
-            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${step === 1
-              ? "bg-[#C59D3F] text-[#0D1B2A]"
-              : "bg-[#C59D3F]/20 text-[#C59D3F]"
-              }`}
+            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${
+              step === 1
+                ? "bg-[#C59D3F] text-[#0D1B2A]"
+                : "bg-[#C59D3F]/20 text-[#C59D3F]"
+            }`}
           >
             1
           </span>
-          <span>1. Dados & Entrega</span>
+          <span>1. Dados Pessoais</span>
         </button>
 
         <span className="text-content/25">/</span>
@@ -475,24 +512,26 @@ function CheckoutContent() {
           onClick={() => {
             if (validateStep1()) setStep(2);
           }}
-          className={`flex items-center gap-2 font-semibold transition-colors ${step === 2
-            ? "text-[#C59D3F]"
-            : step > 2
-              ? "text-content/70 hover:text-content"
-              : "text-content/40"
-            }`}
+          className={`flex items-center gap-2 font-semibold transition-colors ${
+            step === 2
+              ? "text-[#C59D3F]"
+              : step > 2
+                ? "text-content/70 hover:text-content"
+                : "text-content/40"
+          }`}
         >
           <span
-            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${step === 2
-              ? "bg-[#C59D3F] text-[#0D1B2A]"
-              : step > 2
-                ? "bg-[#C59D3F]/20 text-[#C59D3F]"
-                : "bg-content/10 text-content/50"
-              }`}
+            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${
+              step === 2
+                ? "bg-[#C59D3F] text-[#0D1B2A]"
+                : step > 2
+                  ? "bg-[#C59D3F]/20 text-[#C59D3F]"
+                  : "bg-content/10 text-content/50"
+            }`}
           >
             2
           </span>
-          <span>2. Pagamento</span>
+          <span>2. Endereço</span>
         </button>
 
         <span className="text-content/25">/</span>
@@ -502,34 +541,64 @@ function CheckoutContent() {
           onClick={() => {
             if (validateStep1() && validateStep2()) setStep(3);
           }}
-          className={`flex items-center gap-2 font-semibold transition-colors ${step === 3 ? "text-[#C59D3F]" : "text-content/40"
-            }`}
+          className={`flex items-center gap-2 font-semibold transition-colors ${
+            step === 3
+              ? "text-[#C59D3F]"
+              : step > 3
+                ? "text-content/70 hover:text-content"
+                : "text-content/40"
+          }`}
         >
           <span
-            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${step === 3
-              ? "bg-[#C59D3F] text-[#0D1B2A]"
-              : "bg-content/10 text-content/50"
-              }`}
+            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${
+              step === 3
+                ? "bg-[#C59D3F] text-[#0D1B2A]"
+                : step > 3
+                  ? "bg-[#C59D3F]/20 text-[#C59D3F]"
+                  : "bg-content/10 text-content/50"
+            }`}
           >
             3
           </span>
-          <span>3. Revisão do Pedido</span>
+          <span>3. Pagamento</span>
+        </button>
+
+        <span className="text-content/25">/</span>
+
+        <button
+          type="button"
+          onClick={() => {
+            if (validateStep1() && validateStep2() && validateStep3()) setStep(4);
+          }}
+          className={`flex items-center gap-2 font-semibold transition-colors ${
+            step === 4 ? "text-[#C59D3F]" : "text-content/40"
+          }`}
+        >
+          <span
+            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${
+              step === 4
+                ? "bg-[#C59D3F] text-[#0D1B2A]"
+                : "bg-content/10 text-content/50"
+            }`}
+          >
+            4
+          </span>
+          <span>4. Revisão</span>
         </button>
       </div>
 
-      {/* STEP 1: Identification & Shipping Address */}
+      {/* STEP 1: Dados Pessoais ONLY */}
       {step === 1 && (
         <form onSubmit={handleContinueToStep2} className="space-y-8 max-w-3xl mx-auto">
           <div>
             <h2 className="font-display text-2xl font-bold text-content mb-1">
-              1. Dados Pessoais & Endereço de Entrega
+              1. Dados Pessoais
             </h2>
             <p className="text-sm text-content/70">
-              Informe seus dados de contato e o endereço para entrega dos produtos.
+              Informe seus dados de identificação e contato para acompanhamento do pedido.
             </p>
           </div>
 
-          {/* Contact Details Section */}
           <div className="rounded-2xl border border-content/12 bg-card p-6 space-y-4">
             <h3 className="font-mono text-xs font-bold text-[#C59D3F] uppercase tracking-wider">
               Informações de Contato
@@ -578,6 +647,42 @@ function CheckoutContent() {
                 {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
               </div>
             </div>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full rounded-xl bg-[#C59D3F] py-4 text-base font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-lg active:scale-[0.99]"
+          >
+            Continuar para Endereço de Entrega →
+          </button>
+        </form>
+      )}
+
+      {/* STEP 2: Endereço de Entrega ONLY */}
+      {step === 2 && (
+        <form onSubmit={handleContinueToStep3} className="space-y-8 max-w-3xl mx-auto">
+          <div>
+            <h2 className="font-display text-2xl font-bold text-content mb-1">
+              2. Endereço de Entrega & Frete
+            </h2>
+            <p className="text-sm text-content/70">
+              Informe o endereço onde deseja receber seus produtos.
+            </p>
+          </div>
+
+          {/* Quick Contact Summary */}
+          <div className="rounded-xl border border-content/12 bg-canvas p-4 text-xs font-mono flex items-center justify-between">
+            <div>
+              <span className="text-content/60">Cliente: </span>
+              <strong className="text-content">{contact.name}</strong> ({contact.email} · {contact.phone})
+            </div>
+            <button
+              type="button"
+              onClick={() => setStep(1)}
+              className="text-[#C59D3F] underline font-bold ml-3 shrink-0"
+            >
+              Editar
+            </button>
           </div>
 
           {/* Address Section */}
@@ -688,10 +793,11 @@ function CheckoutContent() {
             </h3>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <label
-                className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all ${shippingMethod === "sedex"
-                  ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content"
-                  : "border-content/15 bg-canvas hover:border-content/30"
-                  }`}
+                className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all ${
+                  shippingMethod === "sedex"
+                    ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content"
+                    : "border-content/15 bg-canvas hover:border-content/30"
+                }`}
               >
                 <div className="flex items-center gap-3">
                   <input
@@ -710,10 +816,11 @@ function CheckoutContent() {
               </label>
 
               <label
-                className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all ${shippingMethod === "pac"
-                  ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content"
-                  : "border-content/15 bg-canvas hover:border-content/30"
-                  }`}
+                className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all ${
+                  shippingMethod === "pac"
+                    ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content"
+                    : "border-content/15 bg-canvas hover:border-content/30"
+                }`}
               >
                 <div className="flex items-center gap-3">
                   <input
@@ -733,40 +840,58 @@ function CheckoutContent() {
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="w-full rounded-xl bg-[#C59D3F] py-4 text-base font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-lg active:scale-[0.99]"
-          >
-            Continuar para Pagamento →
-          </button>
+          <div className="flex gap-4">
+            <button
+              type="button"
+              onClick={() => setStep(1)}
+              className="w-1/3 rounded-xl border border-content/20 bg-transparent py-4 text-sm font-semibold text-content hover:bg-content/5"
+            >
+              ← Voltar
+            </button>
+            <button
+              type="submit"
+              className="w-2/3 rounded-xl bg-[#C59D3F] py-4 text-base font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-lg active:scale-[0.99]"
+            >
+              Continuar para Pagamento →
+            </button>
+          </div>
         </form>
       )}
 
-      {/* STEP 2: Payment Method */}
-      {step === 2 && (
-        <form onSubmit={handleContinueToStep3} className="space-y-8 max-w-3xl mx-auto">
+      {/* STEP 3: Forma de Pagamento ONLY */}
+      {step === 3 && (
+        <form onSubmit={handleContinueToStep4} className="space-y-8 max-w-3xl mx-auto">
           <div>
             <h2 className="font-display text-2xl font-bold text-content mb-1">
-              2. Forma de Pagamento
+              3. Forma de Pagamento
             </h2>
             <p className="text-sm text-content/70">
               Escolha como deseja realizar o pagamento do seu pedido.
             </p>
           </div>
 
-          {/* Quick summary of Step 1 */}
-          <div className="rounded-xl border border-content/12 bg-canvas p-4 text-xs font-mono flex items-center justify-between">
+          {/* Quick summary of Step 1 & 2 */}
+          <div className="rounded-xl border border-content/12 bg-canvas p-4 text-xs font-mono flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
             <div>
               <span className="text-content/60">Entrega para: </span>
               <strong className="text-content">{contact.name}</strong> ({address.street}, {address.number} - {address.city})
             </div>
-            <button
-              type="button"
-              onClick={() => setStep(1)}
-              className="text-[#C59D3F] underline font-bold ml-3 shrink-0"
-            >
-              Editar
-            </button>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setStep(1)}
+                className="text-[#C59D3F] underline font-bold shrink-0"
+              >
+                Dados
+              </button>
+              <button
+                type="button"
+                onClick={() => setStep(2)}
+                className="text-[#C59D3F] underline font-bold shrink-0"
+              >
+                Endereço
+              </button>
+            </div>
           </div>
 
           {/* Payment Selection Cards */}
@@ -784,10 +909,11 @@ function CheckoutContent() {
                   setPaymentMethod("pix");
                   setErrors((prev) => ({ ...prev, paymentMethod: undefined }));
                 }}
-                className={`flex flex-col items-center justify-center rounded-xl border p-5 transition-all text-center ${paymentMethod === "pix"
-                  ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content shadow-sm"
-                  : "border-content/15 bg-canvas hover:border-content/30 text-content/80"
-                  }`}
+                className={`flex flex-col items-center justify-center rounded-xl border p-5 transition-all text-center ${
+                  paymentMethod === "pix"
+                    ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content shadow-sm"
+                    : "border-content/15 bg-canvas hover:border-content/30 text-content/80"
+                }`}
               >
                 <QrCode className="h-8 w-8 text-[#C59D3F] mb-2" />
                 <span className="font-bold text-sm">PIX à Vista</span>
@@ -802,10 +928,11 @@ function CheckoutContent() {
                   setPaymentMethod("card");
                   setErrors((prev) => ({ ...prev, paymentMethod: undefined }));
                 }}
-                className={`flex flex-col items-center justify-center rounded-xl border p-5 transition-all text-center ${paymentMethod === "card"
-                  ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content shadow-sm"
-                  : "border-content/15 bg-canvas hover:border-content/30 text-content/80"
-                  }`}
+                className={`flex flex-col items-center justify-center rounded-xl border p-5 transition-all text-center ${
+                  paymentMethod === "card"
+                    ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content shadow-sm"
+                    : "border-content/15 bg-canvas hover:border-content/30 text-content/80"
+                }`}
               >
                 <CreditCard className="h-8 w-8 text-[#C59D3F] mb-2" />
                 <span className="font-bold text-sm">Cartão de Crédito</span>
@@ -904,7 +1031,7 @@ function CheckoutContent() {
           <div className="flex gap-4">
             <button
               type="button"
-              onClick={() => setStep(1)}
+              onClick={() => setStep(2)}
               className="w-1/3 rounded-xl border border-content/20 bg-transparent py-4 text-sm font-semibold text-content hover:bg-content/5"
             >
               ← Voltar
@@ -913,61 +1040,82 @@ function CheckoutContent() {
               type="submit"
               className="w-2/3 rounded-xl bg-[#C59D3F] py-4 text-base font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-lg active:scale-[0.99]"
             >
-              Revisar Pedido →
+              Ir para Revisão do Pedido →
             </button>
           </div>
         </form>
       )}
 
-      {/* STEP 3: Review & Confirm (Order Summary & Final Submit Button ONLY rendered here) */}
-      {step === 3 && (
+      {/* STEP 4: Review & Confirm Order */}
+      {step === 4 && (
         <form onSubmit={handleFinalizeOrder} className="space-y-8 max-w-3xl mx-auto">
           <div>
             <h2 className="font-display text-2xl font-bold text-content mb-1">
-              3. Revisão & Confirmação do Pedido
+              4. Revisão & Confirmação do Pedido
             </h2>
             <p className="text-sm text-content/70">
               Confirme os dados de entrega, pagamento e os itens do seu pedido antes de finalizar.
             </p>
           </div>
 
-          {/* Masked Reassurance Summary Cards */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {/* Contact & Address Reassurance Card */}
-            <div className="rounded-2xl border border-content/12 bg-card p-5 space-y-2">
+          {/* Reassurance Summary Cards for Step 1, 2, 3 */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {/* Step 1: Personal Data Card */}
+            <div className="rounded-2xl border border-content/12 bg-card p-4.5 space-y-2">
               <div className="flex items-center justify-between border-b border-content/10 pb-2">
-                <span className="font-mono text-xs font-bold text-[#C59D3F] uppercase">
-                  Dados & Entrega
+                <span className="font-mono text-[11px] font-bold text-[#C59D3F] uppercase">
+                  1. Dados Pessoais
                 </span>
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold text-[#C59D3F] hover:underline"
+                  className="inline-flex items-center gap-1 font-mono text-[10.5px] font-semibold text-[#C59D3F] hover:underline"
                 >
                   <Edit2 className="h-3 w-3" />
                   Editar
                 </button>
               </div>
-              <p className="text-sm font-bold text-content">{contact.name}</p>
-              <p className="text-xs text-content/75 font-mono">{contact.email} · {contact.phone}</p>
-              <p className="text-xs text-content/75 font-mono pt-1">
-                📍 {address.street}, {address.number} {address.complement && `(${address.complement})`} - {address.neighborhood}, {address.city}
-              </p>
-              <p className="text-xs text-[#C59D3F] font-mono font-semibold pt-1">
-                🚚 Frete {shippingMethod.toUpperCase()} ({formatBRL(shippingCost)})
-              </p>
+              <p className="text-xs font-bold text-content">{contact.name}</p>
+              <p className="text-[11px] text-content/75 font-mono">{contact.email}</p>
+              <p className="text-[11px] text-content/75 font-mono">{contact.phone}</p>
             </div>
 
-            {/* Payment Method Reassurance Card */}
-            <div className="rounded-2xl border border-content/12 bg-card p-5 space-y-2">
+            {/* Step 2: Address Card */}
+            <div className="rounded-2xl border border-content/12 bg-card p-4.5 space-y-2">
               <div className="flex items-center justify-between border-b border-content/10 pb-2">
-                <span className="font-mono text-xs font-bold text-[#C59D3F] uppercase">
-                  Forma de Pagamento
+                <span className="font-mono text-[11px] font-bold text-[#C59D3F] uppercase">
+                  2. Entrega
                 </span>
                 <button
                   type="button"
                   onClick={() => setStep(2)}
-                  className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold text-[#C59D3F] hover:underline"
+                  className="inline-flex items-center gap-1 font-mono text-[10.5px] font-semibold text-[#C59D3F] hover:underline"
+                >
+                  <Edit2 className="h-3 w-3" />
+                  Editar
+                </button>
+              </div>
+              <p className="text-[11px] text-content/75 font-mono">
+                📍 {address.street}, {address.number} {address.complement && `(${address.complement})`}
+              </p>
+              <p className="text-[11px] text-content/75 font-mono">
+                {address.neighborhood}, {address.city}
+              </p>
+              <p className="text-[11px] text-[#C59D3F] font-mono font-semibold pt-1">
+                🚚 {shippingMethod.toUpperCase()} ({formatBRL(shippingCost)})
+              </p>
+            </div>
+
+            {/* Step 3: Payment Card */}
+            <div className="rounded-2xl border border-content/12 bg-card p-4.5 space-y-2">
+              <div className="flex items-center justify-between border-b border-content/10 pb-2">
+                <span className="font-mono text-[11px] font-bold text-[#C59D3F] uppercase">
+                  3. Pagamento
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setStep(3)}
+                  className="inline-flex items-center gap-1 font-mono text-[10.5px] font-semibold text-[#C59D3F] hover:underline"
                 >
                   <Edit2 className="h-3 w-3" />
                   Editar
@@ -975,32 +1123,29 @@ function CheckoutContent() {
               </div>
               {paymentMethod === "pix" ? (
                 <div className="space-y-1">
-                  <p className="text-sm font-bold text-content flex items-center gap-1.5">
-                    <QrCode className="h-4 w-4 text-[#C59D3F]" />
+                  <p className="text-xs font-bold text-content flex items-center gap-1">
+                    <QrCode className="h-3.5 w-3.5 text-[#C59D3F]" />
                     PIX à Vista
                   </p>
-                  <p className="text-xs text-content/70 font-mono">
-                    QR Code e Chave Copia e Cola gerados imediatamente na confirmação.
+                  <p className="text-[10.5px] text-content/70 font-mono">
+                    QR Code gerado ao confirmar.
                   </p>
                 </div>
               ) : (
                 <div className="space-y-1">
-                  <p className="text-sm font-bold text-content flex items-center gap-1.5">
-                    <CreditCard className="h-4 w-4 text-[#C59D3F]" />
+                  <p className="text-xs font-bold text-content flex items-center gap-1">
+                    <CreditCard className="h-3.5 w-3.5 text-[#C59D3F]" />
                     Cartão de Crédito
                   </p>
-                  <p className="text-xs text-content/75 font-mono">
-                    •••• •••• •••• {card.number.replace(/\s/g, "").slice(-4) || "****"}
-                  </p>
-                  <p className="text-xs text-content/65 font-mono">
-                    Titular: {card.name}
+                  <p className="text-[10.5px] text-content/75 font-mono">
+                    •••• {card.number.replace(/\s/g, "").slice(-4) || "****"}
                   </p>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Resumo do Pedido Card (Only in Step 3) */}
+          {/* Resumo do Pedido Card */}
           <div className="rounded-2xl border border-content/12 bg-card p-6 shadow-md">
             <h3 className="font-display text-lg font-bold text-content mb-4 border-b border-content/10 pb-3">
               Resumo do Pedido
@@ -1064,14 +1209,22 @@ function CheckoutContent() {
               </div>
             </div>
 
-            {/* ISOLATED FINAL SUBMIT BUTTON (ONLY IN STEP 3) */}
-            <button
-              type="submit"
-              className="w-full rounded-xl bg-[#C59D3F] py-4 text-lg font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-xl active:scale-[0.99] flex items-center justify-center gap-2.5"
-            >
-              <Lock className="h-5 w-5" />
-              <span>Finalizar Compra ({formatBRL(totalPrice)})</span>
-            </button>
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={() => setStep(3)}
+                className="w-1/3 rounded-xl border border-content/20 bg-transparent py-4 text-sm font-semibold text-content hover:bg-content/5"
+              >
+                ← Voltar
+              </button>
+              <button
+                type="submit"
+                className="w-2/3 rounded-xl bg-[#C59D3F] py-4 text-lg font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-xl active:scale-[0.99] flex items-center justify-center gap-2.5"
+              >
+                <Lock className="h-5 w-5" />
+                <span>Finalizar Compra ({formatBRL(totalPrice)})</span>
+              </button>
+            </div>
           </div>
         </form>
       )}
