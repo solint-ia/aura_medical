@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Lock, Mail, MapPin, User, X } from "lucide-react";
+import { Lock, User, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { formatCpfOrCnpj, validateCpfOrCnpj } from "@/lib/validators";
 
@@ -25,9 +25,9 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
   const [loginPassword, setLoginPassword] = useState("");
 
   // Registration Step 1 state (Personal Data & Password)
-  const [regCpfCnpj, setRegCpfCnpj] = useState("");
   const [regFirstName, setRegFirstName] = useState("");
   const [regLastName, setRegLastName] = useState("");
+  const [regCpfCnpj, setRegCpfCnpj] = useState("");
   const [regBirthDate, setRegBirthDate] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPhone, setRegPhone] = useState("");
@@ -102,14 +102,14 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
     setGeneralError("");
     const newErrors: Record<string, string> = {};
 
+    if (!regFirstName.trim()) newErrors.firstName = "Nome é obrigatório.";
+    if (!regLastName.trim()) newErrors.lastName = "Sobrenome é obrigatório.";
+
     if (!regCpfCnpj.trim()) {
       newErrors.cpfCnpj = "CPF ou CNPJ é obrigatório.";
     } else if (!validateCpfOrCnpj(regCpfCnpj)) {
       newErrors.cpfCnpj = "CPF ou CNPJ com formato inválido.";
     }
-
-    if (!regFirstName.trim()) newErrors.firstName = "Nome é obrigatório.";
-    if (!regLastName.trim()) newErrors.lastName = "Sobrenome é obrigatório.";
 
     if (!regEmail.trim()) {
       newErrors.email = "E-mail é obrigatório.";
@@ -131,7 +131,7 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
     }
 
     if (!regConfirmPassword) {
-      newErrors.confirmPassword = "Confirmação de senha é obrigatória.";
+      newErrors.confirmPassword = "Confirmação é obrigatória.";
     } else if (regPassword !== regConfirmPassword) {
       newErrors.confirmPassword = "As senhas não coincidem.";
     }
@@ -155,7 +155,7 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
       newErrors.cep = "CEP deve possuir 8 dígitos.";
     }
 
-    if (!regStreet.trim()) newErrors.street = "Logradouro / Rua é obrigatório.";
+    if (!regStreet.trim()) newErrors.street = "Rua é obrigatória.";
     if (!regNumber.trim()) newErrors.number = "Número é obrigatório.";
     if (!regNeighborhood.trim()) newErrors.neighborhood = "Bairro é obrigatório.";
     if (!regCity.trim()) newErrors.city = "Cidade e UF são obrigatórias.";
@@ -194,7 +194,7 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
     } else if (result.errors) {
       setFieldErrors(result.errors);
       if (result.errors.email || result.errors.cpfCnpj || result.errors.password) {
-        setRegStep(1); // Return to Step 1 if profile duplicate or password error
+        setRegStep(1); // Retornar ao passo 1 se erro de perfil/senha
       }
     } else {
       setGeneralError(result.error || "Erro ao realizar cadastro.");
@@ -202,39 +202,39 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
   };
 
   const inputClass = (hasError?: boolean) =>
-    `w-full rounded-lg border px-3.5 py-2.5 text-sm transition-colors outline-none ${
+    `w-full rounded-lg border px-3 py-2 text-xs transition-colors outline-none ${
       hasError
         ? "border-red-500 bg-red-500/5 text-red-900 dark:text-red-200 focus:border-red-600"
         : "border-content/18 bg-canvas dark:bg-card text-content focus:border-[#C59D3F]"
     }`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="relative w-full max-w-lg rounded-2xl border border-content/12 bg-card p-6 shadow-2xl transition-all my-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3">
+      <div className="relative w-full max-w-md max-h-[90vh] flex flex-col rounded-2xl border border-content/12 bg-card p-5 shadow-2xl overflow-hidden">
         {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-full p-1.5 text-content/60 hover:bg-content/10 hover:text-content"
+          className="absolute right-3.5 top-3.5 rounded-full p-1 text-content/60 hover:bg-content/10 hover:text-content"
         >
-          <X className="h-5 w-5" />
+          <X className="h-4 w-4" />
         </button>
 
         {/* Modal Header */}
-        <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#C59D3F]/15 text-[#C59D3F]">
-            <User className="h-6 w-6" />
+        <div className="mb-3 text-center shrink-0">
+          <div className="mx-auto mb-1.5 flex h-9 w-9 items-center justify-center rounded-full bg-[#C59D3F]/15 text-[#C59D3F]">
+            <User className="h-4.5 w-4.5" />
           </div>
-          <h2 className="font-display text-2xl font-bold text-content">
+          <h2 className="font-display text-xl font-bold text-content">
             Área do Cliente
           </h2>
-          <p className="text-xs text-content/70 mt-1 font-mono">
-            Acesse seus pedidos, acompanhe entregas e gerencie seus endereços.
+          <p className="text-[11px] text-content/70 font-mono">
+            Acesse seus pedidos, acompanhe entregas e gerencie seus dados.
           </p>
         </div>
 
         {/* Tab Selector */}
-        <div className="mb-6 flex border-b border-content/12 font-mono text-xs">
+        <div className="mb-4 flex border-b border-content/12 font-mono text-xs shrink-0">
           <button
             type="button"
             onClick={() => {
@@ -242,7 +242,7 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
               setGeneralError("");
               setFieldErrors({});
             }}
-            className={`flex-1 py-2.5 font-bold uppercase transition-colors border-b-2 ${
+            className={`flex-1 py-2 font-bold uppercase transition-colors border-b-2 ${
               tab === "login"
                 ? "border-[#C59D3F] text-[#C59D3F]"
                 : "border-transparent text-content/60 hover:text-content"
@@ -258,7 +258,7 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
               setGeneralError("");
               setFieldErrors({});
             }}
-            className={`flex-1 py-2.5 font-bold uppercase transition-colors border-b-2 ${
+            className={`flex-1 py-2 font-bold uppercase transition-colors border-b-2 ${
               tab === "register"
                 ? "border-[#C59D3F] text-[#C59D3F]"
                 : "border-transparent text-content/60 hover:text-content"
@@ -269,379 +269,383 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
         </div>
 
         {generalError && (
-          <div className="mb-4 rounded-lg bg-red-500/10 p-3 font-mono text-xs font-semibold text-red-500 border border-red-500/20">
+          <div className="mb-3 rounded-lg bg-red-500/10 p-2.5 font-mono text-[11px] font-semibold text-red-500 border border-red-500/20 shrink-0">
             ⚠️ {generalError}
           </div>
         )}
 
-        {/* TAB 1: LOGIN FORM WITH PASSWORD */}
-        {tab === "login" && (
-          <form onSubmit={handleLoginSubmit} className="space-y-4">
-            <div>
-              <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">
-                E-mail ou CPF / CNPJ *
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="seuemail@exemplo.com ou 000.000.000-00"
-                  value={loginEmailOrCpf}
-                  onChange={(e) => {
-                    setLoginEmailOrCpf(e.target.value);
-                    setFieldErrors((prev) => ({ ...prev, loginEmailOrCpf: "" }));
-                  }}
-                  className={inputClass(!!fieldErrors.loginEmailOrCpf)}
-                />
-                <User className="absolute right-3 top-3 h-4 w-4 text-content/40" />
+        {/* Scrollable Form Body */}
+        <div className="overflow-y-auto pr-1 flex-1">
+          {/* TAB 1: LOGIN FORM WITH PASSWORD */}
+          {tab === "login" && (
+            <form onSubmit={handleLoginSubmit} className="space-y-3">
+              <div>
+                <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
+                  E-mail ou CPF / CNPJ *
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="seuemail@exemplo.com ou 000.000.000-00"
+                    value={loginEmailOrCpf}
+                    onChange={(e) => {
+                      setLoginEmailOrCpf(e.target.value);
+                      setFieldErrors((prev) => ({ ...prev, loginEmailOrCpf: "" }));
+                    }}
+                    className={inputClass(!!fieldErrors.loginEmailOrCpf)}
+                  />
+                  <User className="absolute right-2.5 top-2.5 h-3.5 w-3.5 text-content/40" />
+                </div>
+                {fieldErrors.loginEmailOrCpf && (
+                  <p className="mt-0.5 font-mono text-[10px] text-red-500">{fieldErrors.loginEmailOrCpf}</p>
+                )}
               </div>
-              {fieldErrors.loginEmailOrCpf && (
-                <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.loginEmailOrCpf}</p>
-              )}
-            </div>
 
-            <div>
-              <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">
-                Senha *
-              </label>
-              <div className="relative">
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  value={loginPassword}
-                  onChange={(e) => {
-                    setLoginPassword(e.target.value);
-                    setFieldErrors((prev) => ({ ...prev, loginPassword: "" }));
-                  }}
-                  className={inputClass(!!fieldErrors.loginPassword)}
-                />
-                <Lock className="absolute right-3 top-3 h-4 w-4 text-content/40" />
+              <div>
+                <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
+                  Senha *
+                </label>
+                <div className="relative">
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    value={loginPassword}
+                    onChange={(e) => {
+                      setLoginPassword(e.target.value);
+                      setFieldErrors((prev) => ({ ...prev, loginPassword: "" }));
+                    }}
+                    className={inputClass(!!fieldErrors.loginPassword)}
+                  />
+                  <Lock className="absolute right-2.5 top-2.5 h-3.5 w-3.5 text-content/40" />
+                </div>
+                {fieldErrors.loginPassword && (
+                  <p className="mt-0.5 font-mono text-[10px] text-red-500">{fieldErrors.loginPassword}</p>
+                )}
               </div>
-              {fieldErrors.loginPassword && (
-                <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.loginPassword}</p>
-              )}
-            </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-xl bg-[#C59D3F] py-3.5 font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99]"
-            >
-              {loading ? "Entrando..." : "Entrar na Conta →"}
-            </button>
-          </form>
-        )}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-xl bg-[#C59D3F] py-2.5 font-bold text-xs text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99] mt-2"
+              >
+                {loading ? "Entrando..." : "Entrar na Conta →"}
+              </button>
+            </form>
+          )}
 
-        {/* TAB 2: 2-STEP REGISTRATION FORM */}
-        {tab === "register" && (
-          <div>
-            {/* Step Tracker for Registration */}
-            <div className="mb-5 flex items-center justify-between font-mono text-[11px] border-b border-content/10 pb-3 uppercase">
-              <span className={`font-bold ${regStep === 1 ? "text-[#C59D3F]" : "text-content/50"}`}>
-                1. Dados & Acesso
-              </span>
-              <span className="text-content/30">➔</span>
-              <span className={`font-bold ${regStep === 2 ? "text-[#C59D3F]" : "text-content/50"}`}>
-                2. Endereço de Entrega
-              </span>
-            </div>
+          {/* TAB 2: 2-STEP REGISTRATION FORM */}
+          {tab === "register" && (
+            <div>
+              {/* Step Tracker for Registration */}
+              <div className="mb-3 flex items-center justify-between font-mono text-[10px] border-b border-content/10 pb-2 uppercase">
+                <span className={`font-bold ${regStep === 1 ? "text-[#C59D3F]" : "text-content/50"}`}>
+                  1. Dados & Acesso
+                </span>
+                <span className="text-content/30">➔</span>
+                <span className={`font-bold ${regStep === 2 ? "text-[#C59D3F]" : "text-content/50"}`}>
+                  2. Endereço de Entrega
+                </span>
+              </div>
 
-            {/* STEP 1: PERSONAL DATA & PASSWORD */}
-            {regStep === 1 && (
-              <form onSubmit={handleNextToAddressStep} className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
-                <div>
-                  <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">
-                    CPF ou CNPJ *
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="000.000.000-00 ou 00.000.000/0000-00"
-                    value={regCpfCnpj}
-                    onChange={(e) => {
-                      setRegCpfCnpj(formatCpfOrCnpj(e.target.value));
-                      setFieldErrors((prev) => ({ ...prev, cpfCnpj: "" }));
-                    }}
-                    className={inputClass(!!fieldErrors.cpfCnpj)}
-                  />
-                  {fieldErrors.cpfCnpj && (
-                    <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.cpfCnpj}</p>
-                  )}
-                </div>
+              {/* STEP 1: PERSONAL DATA & PASSWORD (Nome e Sobrenome NO INÍCIO) */}
+              {regStep === 1 && (
+                <form onSubmit={handleNextToAddressStep} className="space-y-2.5">
+                  {/* NOME E SOBRENOME NO INÍCIO COMO SOLICITADO */}
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div>
+                      <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
+                        Nome *
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Maria"
+                        value={regFirstName}
+                        onChange={(e) => {
+                          setRegFirstName(e.target.value);
+                          setFieldErrors((prev) => ({ ...prev, firstName: "" }));
+                        }}
+                        className={inputClass(!!fieldErrors.firstName)}
+                      />
+                      {fieldErrors.firstName && (
+                        <p className="mt-0.5 font-mono text-[10px] text-red-500">{fieldErrors.firstName}</p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
+                        Sobrenome *
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Silva"
+                        value={regLastName}
+                        onChange={(e) => {
+                          setRegLastName(e.target.value);
+                          setFieldErrors((prev) => ({ ...prev, lastName: "" }));
+                        }}
+                        className={inputClass(!!fieldErrors.lastName)}
+                      />
+                      {fieldErrors.lastName && (
+                        <p className="mt-0.5 font-mono text-[10px] text-red-500">{fieldErrors.lastName}</p>
+                      )}
+                    </div>
+                  </div>
 
-                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">
-                      Nome *
+                    <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
+                      CPF ou CNPJ *
                     </label>
                     <input
                       type="text"
-                      placeholder="Maria"
-                      value={regFirstName}
+                      placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                      value={regCpfCnpj}
                       onChange={(e) => {
-                        setRegFirstName(e.target.value);
-                        setFieldErrors((prev) => ({ ...prev, firstName: "" }));
+                        setRegCpfCnpj(formatCpfOrCnpj(e.target.value));
+                        setFieldErrors((prev) => ({ ...prev, cpfCnpj: "" }));
                       }}
-                      className={inputClass(!!fieldErrors.firstName)}
+                      className={inputClass(!!fieldErrors.cpfCnpj)}
                     />
-                    {fieldErrors.firstName && (
-                      <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.firstName}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">
-                      Sobrenome *
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Silva"
-                      value={regLastName}
-                      onChange={(e) => {
-                        setRegLastName(e.target.value);
-                        setFieldErrors((prev) => ({ ...prev, lastName: "" }));
-                      }}
-                      className={inputClass(!!fieldErrors.lastName)}
-                    />
-                    {fieldErrors.lastName && (
-                      <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.lastName}</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">
-                      Data de Nascimento
-                    </label>
-                    <input
-                      type="date"
-                      value={regBirthDate}
-                      onChange={(e) => setRegBirthDate(e.target.value)}
-                      className={inputClass()}
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">
-                      Telefone / WhatsApp *
-                    </label>
-                    <input
-                      type="tel"
-                      placeholder="(11) 99999-9999"
-                      value={regPhone}
-                      onChange={(e) => {
-                        setRegPhone(e.target.value);
-                        setFieldErrors((prev) => ({ ...prev, phone: "" }));
-                      }}
-                      className={inputClass(!!fieldErrors.phone)}
-                    />
-                    {fieldErrors.phone && (
-                      <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.phone}</p>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">
-                    E-mail *
-                  </label>
-                  <input
-                    type="email"
-                    placeholder="seuemail@exemplo.com"
-                    value={regEmail}
-                    onChange={(e) => {
-                      setRegEmail(e.target.value);
-                      setFieldErrors((prev) => ({ ...prev, email: "" }));
-                    }}
-                    className={inputClass(!!fieldErrors.email)}
-                  />
-                  {fieldErrors.email && (
-                    <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.email}</p>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">
-                      Senha * (mín. 6 caracteres)
-                    </label>
-                    <input
-                      type="password"
-                      placeholder="••••••••"
-                      value={regPassword}
-                      onChange={(e) => {
-                        setRegPassword(e.target.value);
-                        setFieldErrors((prev) => ({ ...prev, password: "" }));
-                      }}
-                      className={inputClass(!!fieldErrors.password)}
-                    />
-                    {fieldErrors.password && (
-                      <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.password}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">
-                      Confirmar Senha *
-                    </label>
-                    <input
-                      type="password"
-                      placeholder="••••••••"
-                      value={regConfirmPassword}
-                      onChange={(e) => {
-                        setRegConfirmPassword(e.target.value);
-                        setFieldErrors((prev) => ({ ...prev, confirmPassword: "" }));
-                      }}
-                      className={inputClass(!!fieldErrors.confirmPassword)}
-                    />
-                    {fieldErrors.confirmPassword && (
-                      <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.confirmPassword}</p>
-                    )}
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full rounded-xl bg-[#C59D3F] py-3.5 font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99]"
-                >
-                  Continuar para Endereço de Entrega →
-                </button>
-              </form>
-            )}
-
-            {/* STEP 2: ADDRESS */}
-            {regStep === 2 && (
-              <form onSubmit={handleRegisterSubmit} className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">
-                      CEP *
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="00000-000"
-                      maxLength={9}
-                      value={regCep}
-                      onChange={(e) => {
-                        setRegCep(e.target.value);
-                        handleViaCep(e.target.value);
-                        setFieldErrors((prev) => ({ ...prev, cep: "" }));
-                      }}
-                      className={inputClass(!!fieldErrors.cep)}
-                    />
-                    {cepLoading && <span className="font-mono text-[10px] text-[#C59D3F]">Buscando CEP...</span>}
-                    {fieldErrors.cep && (
-                      <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.cep}</p>
+                    {fieldErrors.cpfCnpj && (
+                      <p className="mt-0.5 font-mono text-[10px] text-red-500">{fieldErrors.cpfCnpj}</p>
                     )}
                   </div>
 
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div>
+                      <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
+                        Data de Nascimento
+                      </label>
+                      <input
+                        type="date"
+                        value={regBirthDate}
+                        onChange={(e) => setRegBirthDate(e.target.value)}
+                        className={inputClass()}
+                      />
+                    </div>
+                    <div>
+                      <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
+                        Telefone / WhatsApp *
+                      </label>
+                      <input
+                        type="tel"
+                        placeholder="(11) 99999-9999"
+                        value={regPhone}
+                        onChange={(e) => {
+                          setRegPhone(e.target.value);
+                          setFieldErrors((prev) => ({ ...prev, phone: "" }));
+                        }}
+                        className={inputClass(!!fieldErrors.phone)}
+                      />
+                      {fieldErrors.phone && (
+                        <p className="mt-0.5 font-mono text-[10px] text-red-500">{fieldErrors.phone}</p>
+                      )}
+                    </div>
+                  </div>
+
                   <div>
-                    <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">
-                      Número *
+                    <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
+                      E-mail *
                     </label>
                     <input
-                      type="text"
-                      placeholder="1000"
-                      value={regNumber}
+                      type="email"
+                      placeholder="seuemail@exemplo.com"
+                      value={regEmail}
                       onChange={(e) => {
-                        setRegNumber(e.target.value);
-                        setFieldErrors((prev) => ({ ...prev, number: "" }));
+                        setRegEmail(e.target.value);
+                        setFieldErrors((prev) => ({ ...prev, email: "" }));
                       }}
-                      className={inputClass(!!fieldErrors.number)}
+                      className={inputClass(!!fieldErrors.email)}
                     />
-                    {fieldErrors.number && (
-                      <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.number}</p>
+                    {fieldErrors.email && (
+                      <p className="mt-0.5 font-mono text-[10px] text-red-500">{fieldErrors.email}</p>
                     )}
                   </div>
-                </div>
 
-                <div>
-                  <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">
-                    Logradouro / Rua *
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Av. Paulista"
-                    value={regStreet}
-                    onChange={(e) => {
-                      setRegStreet(e.target.value);
-                      setFieldErrors((prev) => ({ ...prev, street: "" }));
-                    }}
-                    className={inputClass(!!fieldErrors.street)}
-                  />
-                  {fieldErrors.street && (
-                    <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.street}</p>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">
-                      Complemento
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Apto 42"
-                      value={regComplement}
-                      onChange={(e) => setRegComplement(e.target.value)}
-                      className={inputClass()}
-                    />
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div>
+                      <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
+                        Senha * (mín. 6 chars)
+                      </label>
+                      <input
+                        type="password"
+                        placeholder="••••••••"
+                        value={regPassword}
+                        onChange={(e) => {
+                          setRegPassword(e.target.value);
+                          setFieldErrors((prev) => ({ ...prev, password: "" }));
+                        }}
+                        className={inputClass(!!fieldErrors.password)}
+                      />
+                      {fieldErrors.password && (
+                        <p className="mt-0.5 font-mono text-[10px] text-red-500">{fieldErrors.password}</p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
+                        Confirmar Senha *
+                      </label>
+                      <input
+                        type="password"
+                        placeholder="••••••••"
+                        value={regConfirmPassword}
+                        onChange={(e) => {
+                          setRegConfirmPassword(e.target.value);
+                          setFieldErrors((prev) => ({ ...prev, confirmPassword: "" }));
+                        }}
+                        className={inputClass(!!fieldErrors.confirmPassword)}
+                      />
+                      {fieldErrors.confirmPassword && (
+                        <p className="mt-0.5 font-mono text-[10px] text-red-500">{fieldErrors.confirmPassword}</p>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">
-                      Bairro *
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Bela Vista"
-                      value={regNeighborhood}
-                      onChange={(e) => {
-                        setRegNeighborhood(e.target.value);
-                        setFieldErrors((prev) => ({ ...prev, neighborhood: "" }));
-                      }}
-                      className={inputClass(!!fieldErrors.neighborhood)}
-                    />
-                    {fieldErrors.neighborhood && (
-                      <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.neighborhood}</p>
-                    )}
-                  </div>
-                </div>
 
-                <div>
-                  <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">
-                    Cidade / UF *
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="São Paulo - SP"
-                    value={regCity}
-                    onChange={(e) => {
-                      setRegCity(e.target.value);
-                      setFieldErrors((prev) => ({ ...prev, city: "" }));
-                    }}
-                    className={inputClass(!!fieldErrors.city)}
-                  />
-                  {fieldErrors.city && (
-                    <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.city}</p>
-                  )}
-                </div>
-
-                <div className="flex gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setRegStep(1)}
-                    className="w-1/3 rounded-xl border border-content/20 py-3.5 font-mono text-xs font-semibold text-content hover:bg-content/5"
-                  >
-                    ← Voltar
-                  </button>
                   <button
                     type="submit"
-                    disabled={loading}
-                    className="w-2/3 rounded-xl bg-[#C59D3F] py-3.5 font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99]"
+                    className="w-full rounded-xl bg-[#C59D3F] py-2.5 font-bold text-xs text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99] mt-2"
                   >
-                    {loading ? "Cadastrando..." : "Concluir Cadastro & Acessar →"}
+                    Continuar →
                   </button>
-                </div>
-              </form>
-            )}
-          </div>
-        )}
+                </form>
+              )}
+
+              {/* STEP 2: ADDRESS */}
+              {regStep === 2 && (
+                <form onSubmit={handleRegisterSubmit} className="space-y-2.5">
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div>
+                      <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
+                        CEP *
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="00000-000"
+                        maxLength={9}
+                        value={regCep}
+                        onChange={(e) => {
+                          setRegCep(e.target.value);
+                          handleViaCep(e.target.value);
+                          setFieldErrors((prev) => ({ ...prev, cep: "" }));
+                        }}
+                        className={inputClass(!!fieldErrors.cep)}
+                      />
+                      {cepLoading && <span className="font-mono text-[9px] text-[#C59D3F]">Buscando CEP...</span>}
+                      {fieldErrors.cep && (
+                        <p className="mt-0.5 font-mono text-[10px] text-red-500">{fieldErrors.cep}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
+                        Número *
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="1000"
+                        value={regNumber}
+                        onChange={(e) => {
+                          setRegNumber(e.target.value);
+                          setFieldErrors((prev) => ({ ...prev, number: "" }));
+                        }}
+                        className={inputClass(!!fieldErrors.number)}
+                      />
+                      {fieldErrors.number && (
+                        <p className="mt-0.5 font-mono text-[10px] text-red-500">{fieldErrors.number}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
+                      Logradouro / Rua *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Av. Paulista"
+                      value={regStreet}
+                      onChange={(e) => {
+                        setRegStreet(e.target.value);
+                        setFieldErrors((prev) => ({ ...prev, street: "" }));
+                      }}
+                      className={inputClass(!!fieldErrors.street)}
+                    />
+                    {fieldErrors.street && (
+                      <p className="mt-0.5 font-mono text-[10px] text-red-500">{fieldErrors.street}</p>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div>
+                      <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
+                        Complemento
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Apto 42"
+                        value={regComplement}
+                        onChange={(e) => setRegComplement(e.target.value)}
+                        className={inputClass()}
+                      />
+                    </div>
+                    <div>
+                      <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
+                        Bairro *
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Bela Vista"
+                        value={regNeighborhood}
+                        onChange={(e) => {
+                          setRegNeighborhood(e.target.value);
+                          setFieldErrors((prev) => ({ ...prev, neighborhood: "" }));
+                        }}
+                        className={inputClass(!!fieldErrors.neighborhood)}
+                      />
+                      {fieldErrors.neighborhood && (
+                        <p className="mt-0.5 font-mono text-[10px] text-red-500">{fieldErrors.neighborhood}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
+                      Cidade / UF *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="São Paulo - SP"
+                      value={regCity}
+                      onChange={(e) => {
+                        setRegCity(e.target.value);
+                        setFieldErrors((prev) => ({ ...prev, city: "" }));
+                      }}
+                      className={inputClass(!!fieldErrors.city)}
+                    />
+                    {fieldErrors.city && (
+                      <p className="mt-0.5 font-mono text-[10px] text-red-500">{fieldErrors.city}</p>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2.5 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setRegStep(1)}
+                      className="w-1/3 rounded-xl border border-content/20 py-2.5 font-mono text-xs font-semibold text-content hover:bg-content/5"
+                    >
+                      ← Voltar
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-2/3 rounded-xl bg-[#C59D3F] py-2.5 font-bold text-xs text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99]"
+                    >
+                      {loading ? "Cadastrando..." : "Concluir Cadastro & Acessar →"}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

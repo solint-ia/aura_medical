@@ -758,7 +758,7 @@ function CheckoutContent() {
             type="submit"
             className="w-full rounded-xl bg-[#C59D3F] py-4 text-base font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-lg active:scale-[0.99]"
           >
-            Continuar para Endereço de Entrega →
+            Continuar →
           </button>
         </form>
       )}
