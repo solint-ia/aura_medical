@@ -899,59 +899,9 @@ function CheckoutContent() {
                 })}
               </div>
             ) : (
-              // Standard Fallback Radio Buttons if CEP not yet entered
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <label
-                  className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all ${
-                    shippingMethod === "sedex"
-                      ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content"
-                      : "border-content/15 bg-canvas hover:border-content/30"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name="shipping"
-                      checked={shippingMethod === "sedex"}
-                      onChange={() => {
-                        setShippingMethod("sedex");
-                        setSelectedShippingOption(null);
-                      }}
-                      className="accent-[#C59D3F]"
-                    />
-                    <div>
-                      <div className="font-bold text-sm">SEDEX Expresso (Correios)</div>
-                      <div className="text-xs text-content/65">Entrega em 1 a 3 dias úteis</div>
-                    </div>
-                  </div>
-                  <span className="font-mono font-bold text-sm text-[#C59D3F]">R$ 45,00</span>
-                </label>
-
-                <label
-                  className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all ${
-                    shippingMethod === "pac"
-                      ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content"
-                      : "border-content/15 bg-canvas hover:border-content/30"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name="shipping"
-                      checked={shippingMethod === "pac"}
-                      onChange={() => {
-                        setShippingMethod("pac");
-                        setSelectedShippingOption(null);
-                      }}
-                      className="accent-[#C59D3F]"
-                    />
-                    <div>
-                      <div className="font-bold text-sm">PAC Econômico (Correios)</div>
-                      <div className="text-xs text-content/65">Entrega em 5 a 8 dias úteis</div>
-                    </div>
-                  </div>
-                  <span className="font-mono font-bold text-sm text-[#C59D3F]">R$ 25,00</span>
-                </label>
+              <div className="rounded-xl border border-content/12 bg-canvas p-5 text-center text-xs font-mono text-content/75 space-y-1">
+                <p className="font-bold text-content text-sm">📍 Digite seu CEP no campo acima</p>
+                <p>Os valores e prazos de entrega serão calculados em tempo real de acordo com o endereço da sua região.</p>
               </div>
             )}
           </div>
