@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 const MERCADO_PAGO_ACCESS_TOKEN =
   process.env.MERCADO_PAGO_ACCESS_TOKEN ||
-  "APP_USR-8507854408157125-070716-51bda5db66af1fd91ae5ea55f11942b7-3524782187";
+  "APP_USR-3712643348963661-070715-0c6e3f9b0c2c3b39a6e71881110b75ff-200222084";
 
 export async function GET(req: Request) {
   try {

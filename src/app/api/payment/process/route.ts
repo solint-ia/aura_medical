@@ -2,11 +2,11 @@ import { NextResponse } from "next/server";
 
 const MERCADO_PAGO_ACCESS_TOKEN =
   process.env.MERCADO_PAGO_ACCESS_TOKEN ||
-  "APP_USR-8507854408157125-070716-51bda5db66af1fd91ae5ea55f11942b7-3524782187";
+  "APP_USR-3712643348963661-070715-0c6e3f9b0c2c3b39a6e71881110b75ff-200222084";
 
 const MERCADO_PAGO_PUBLIC_KEY =
   process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY ||
-  "APP_USR-bb01be4f-328e-4cec-bc80-b8e07d5ee646";
+  "APP_USR-0e9c81f9-7c18-4400-bf14-d1a88411cc1e";
 
 // Auto-detect card brand from BIN number
 function detectCardBrand(cardNumber: string): string {
