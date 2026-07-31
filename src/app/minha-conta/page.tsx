@@ -34,6 +34,36 @@ import { useCart } from "@/context/CartContext";
 import { formatBRL } from "@/lib/format";
 import { formatDateBR, formatCep, formatCpfOrCnpj, formatPhone } from "@/lib/validators";
 
+const PROTOCOL_IMAGE_MAP: Record<string, string> = {
+  "queixo-duplo": "/images/fotos-protocolos/queixoduplo-2.png",
+  "perfilamento-facial": "/images/fotos-protocolos/perfilamento-2.png",
+  "gordura-localizada": "/images/fotos-protocolos/gorduralocalizada-2.png",
+  celulite: "/images/fotos-protocolos/celulite-2.png",
+  cicatrizes: "/images/fotos-protocolos/cicatrizes-2.png",
+  "fibrose-pos-cirurgica": "/images/fotos-protocolos/fibrose-2.png",
+};
+
+function getProtocolImg(productId?: string, productName?: string, imagePath?: string): string {
+  if (imagePath && imagePath.includes("/fotos-protocolos/")) return imagePath;
+
+  const rawKey = (productId || productName || "").toLowerCase().trim();
+  const slugKey = rawKey
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/^protocolo\s+/, "")
+    .replace(/\s+/g, "-");
+
+  if (PROTOCOL_IMAGE_MAP[slugKey]) return PROTOCOL_IMAGE_MAP[slugKey];
+  if (slugKey.includes("queixo")) return PROTOCOL_IMAGE_MAP["queixo-duplo"];
+  if (slugKey.includes("perfilamento")) return PROTOCOL_IMAGE_MAP["perfilamento-facial"];
+  if (slugKey.includes("gordura")) return PROTOCOL_IMAGE_MAP["gordura-localizada"];
+  if (slugKey.includes("celulite")) return PROTOCOL_IMAGE_MAP["celulite"];
+  if (slugKey.includes("cicatriz")) return PROTOCOL_IMAGE_MAP["cicatrizes"];
+  if (slugKey.includes("fibrose")) return PROTOCOL_IMAGE_MAP["fibrose-pos-cirurgica"];
+
+  return "/images/fotos-protocolos/queixoduplo-2.png";
+}
+
 type TabType = "pedidos" | "enderecos" | "perfil";
 
 function CustomerPortalContent() {
@@ -370,26 +400,36 @@ function CustomerPortalContent() {
 
                 {/* Items List */}
                 <div className="mb-6 divide-y divide-content/10">
-                  {order.items.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#C59D3F]/15 font-display font-bold text-[#C59D3F]">
-                          {item.productName.charAt(0)}
+                  {order.items.map((item) => {
+                    const itemImg = getProtocolImg(item.productId, item.productName, item.imagePath);
+
+                    return (
+                      <div key={item.id} className="flex items-center justify-between py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#C59D3F]/40 shadow-xs ring-2 ring-[#C59D3F]/10">
+                            <Image
+                              src={itemImg}
+                              alt={item.productName}
+                              fill
+                              sizes="48px"
+                              className="object-cover"
+                            />
+                          </div>
+                          <div>
+                            <p className="font-bold text-sm text-content">
+                              Protocolo {item.productName.replace(/^Protocolo\s+/i, "")}
+                            </p>
+                            <p className="font-mono text-xs text-content/65">
+                              Qtd: {item.quantity} × {formatBRL(item.unitPrice)}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-bold text-sm text-content">
-                            Protocolo {item.productName}
-                          </p>
-                          <p className="font-mono text-xs text-content/65">
-                            Qtd: {item.quantity} × {formatBRL(item.unitPrice)}
-                          </p>
-                        </div>
+                        <span className="font-mono text-sm font-semibold text-content">
+                          {formatBRL(item.totalPrice)}
+                        </span>
                       </div>
-                      <span className="font-mono text-sm font-semibold text-content">
-                        {formatBRL(item.totalPrice)}
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 {/* Order Footer & Actions */}
