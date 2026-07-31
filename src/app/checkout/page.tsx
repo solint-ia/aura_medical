@@ -36,6 +36,7 @@ interface CardForm {
   expiry: string;
   cvv: string;
   cpf: string;
+  installments: number;
 }
 
 interface FormErrors {
@@ -80,12 +81,22 @@ function CheckoutContent() {
     expiry: "",
     cvv: "",
     cpf: "",
+    installments: 1,
   });
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(null);
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
   const [selectedShippingOption, setSelectedShippingOption] = useState<ShippingOption | null>(null);
   const [shippingLoading, setShippingLoading] = useState(false);
+
+  const [processingPayment, setProcessingPayment] = useState(false);
+  const [paymentError, setPaymentError] = useState("");
+  const [pixData, setPixData] = useState<{
+    paymentId: string;
+    qrCode: string;
+    qrCodeBase64?: string;
+  } | null>(null);
+  const [pixCopied, setPixCopied] = useState(false);
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -149,9 +160,10 @@ function CheckoutContent() {
     setStep(2);
   };
 
-  // Finalize Order
+  // Finalize Order via Mercado Pago
   const handleFinalizeOrder = async (e: React.FormEvent) => {
     e.preventDefault();
+    setPaymentError("");
     const newErrors: FormErrors = {};
 
     if (!paymentMethod) {
@@ -177,29 +189,80 @@ function CheckoutContent() {
       return;
     }
 
-    const created = await createOrder({
-      address: selectedAddress,
-      shippingMethod: selectedShippingOption ? selectedShippingOption.name : "Frete Padrão",
-      shippingCost,
-      subtotal,
-      totalPrice,
-      paymentMethod: paymentMethod === "pix" ? "pix" : "credito",
-      items: items.map((i) => ({
-        id: i.id,
-        name: i.name,
-        quantity: i.quantity,
-        unitPrice: i.unitPrice,
-        imagePath: i.imagePath,
-      })),
-    });
+    setProcessingPayment(true);
 
-    setSubmittedOrderNumber(created.orderNumber);
-    setSubmittedOrderSummary({
-      total: totalPrice,
-      itemsCount: items.reduce((s, i) => s + i.quantity, 0),
-    });
-    setIsSubmitted(true);
-    clearCart();
+    try {
+      // 1. Create local order record
+      const created = await createOrder({
+        address: selectedAddress,
+        shippingMethod: selectedShippingOption ? selectedShippingOption.name : "Frete Padrão",
+        shippingCost,
+        subtotal,
+        totalPrice,
+        paymentMethod: paymentMethod === "pix" ? "pix" : "credito",
+        items: items.map((i) => ({
+          id: i.id,
+          name: i.name,
+          quantity: i.quantity,
+          unitPrice: i.unitPrice,
+          imagePath: i.imagePath,
+        })),
+      });
+
+      // 2. Call Mercado Pago Process Payment API
+      const payRes = await fetch("/api/payment/process", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          paymentMethod,
+          amount: totalPrice,
+          description: `Aura Regenera - Pedido ${created.orderNumber}`,
+          orderNumber: created.orderNumber,
+          payer: {
+            email: user?.email,
+            firstName: user?.firstName,
+            lastName: user?.lastName,
+            cpfCnpj: user?.cpfCnpj,
+          },
+          cardData: paymentMethod === "card" ? {
+            number: card.number,
+            holderName: card.name,
+            expiry: card.expiry,
+            cvv: card.cvv,
+            cpf: card.cpf,
+            installments: card.installments,
+          } : undefined,
+        }),
+      });
+
+      const payData = await payRes.json();
+      setProcessingPayment(false);
+
+      if (!payData.success) {
+        setPaymentError(payData.error || "Recusado pelo Mercado Pago. Verifique os dados.");
+        return;
+      }
+
+      setSubmittedOrderNumber(created.orderNumber);
+      setSubmittedOrderSummary({
+        total: totalPrice,
+        itemsCount: items.reduce((s, i) => s + i.quantity, 0),
+      });
+
+      if (paymentMethod === "pix" && payData.qrCode) {
+        setPixData({
+          paymentId: String(payData.paymentId),
+          qrCode: payData.qrCode,
+          qrCodeBase64: payData.qrCodeBase64,
+        });
+      }
+
+      setIsSubmitted(true);
+      clearCart();
+    } catch {
+      setProcessingPayment(false);
+      setPaymentError("Erro de comunicação ao processar pagamento com o Mercado Pago.");
+    }
   };
 
   const inputClass = (hasError?: boolean) =>
@@ -272,12 +335,11 @@ function CheckoutContent() {
 
     return (
       <div className="mx-auto flex min-h-[75vh] max-w-2xl flex-col items-center justify-center px-4 py-8 text-center">
-
         <div className="mx-auto mt-6 mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#C59D3F]/20 text-[#C59D3F]">
           <Check className="h-10 w-10" />
         </div>
         <h1 className="font-display text-3xl font-bold text-content mb-1">
-          Pedido Confirmado com Sucesso!
+          {paymentMethod === "pix" ? "Pedido Registrado — Pagamento via PIX" : "Pedido Confirmado com Sucesso!"}
         </h1>
         <p className="font-mono text-sm font-bold text-[#C59D3F] mb-4">
           Código do Pedido: {submittedOrderNumber}
@@ -286,17 +348,76 @@ function CheckoutContent() {
           Obrigado, <strong className="text-content">{user.firstName} {user.lastName}</strong>. Seu pedido de{" "}
           <strong className="text-[#C59D3F]">{submittedOrderSummary.itemsCount} kit(s)</strong> foi registrado em nosso sistema.
         </p>
+
+        {/* PIX QR CODE & COPIA E COLA SECTION */}
+        {paymentMethod === "pix" && pixData && (
+          <div className="w-full rounded-2xl border-2 border-[#C59D3F] bg-card p-6 mb-8 text-center space-y-4 shadow-xl">
+            <span className="inline-block rounded-full bg-emerald-500/15 px-3.5 py-1 font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400">
+              ⚡ QR Code PIX Mercado Pago Gerado com Sucesso
+            </span>
+            <p className="text-xs text-content/80 font-mono">
+              Escaneie o QR Code abaixo com o aplicativo do seu banco para concluir o pagamento de <strong>{formatBRL(submittedOrderSummary.total)}</strong>:
+            </p>
+
+            {pixData.qrCodeBase64 ? (
+              <div className="mx-auto flex justify-center py-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`data:image/png;base64,${pixData.qrCodeBase64}`}
+                  alt="QR Code PIX Mercado Pago"
+                  className="h-48 w-48 rounded-xl border border-content/20 bg-white p-2 shadow-md"
+                />
+              </div>
+            ) : (
+              <div className="mx-auto flex h-48 w-48 items-center justify-center rounded-xl bg-card border border-[#C59D3F]/40 p-4 font-mono text-xs text-[#C59D3F]">
+                <QrCode className="h-24 w-24 opacity-80" />
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <label className="block font-mono text-xs font-bold uppercase text-content/70">
+                Código PIX Copia e Cola:
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={pixData.qrCode}
+                  className="w-full rounded-xl border border-content/20 bg-canvas px-3.5 py-2.5 font-mono text-xs text-content select-all outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(pixData.qrCode);
+                    setPixCopied(true);
+                    setTimeout(() => setPixCopied(false), 3000);
+                  }}
+                  className="shrink-0 rounded-xl bg-[#C59D3F] px-4 py-2.5 font-mono text-xs font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-sm active:scale-[0.98]"
+                >
+                  {pixCopied ? "✓ Copiado!" : "📋 Copiar PIX"}
+                </button>
+              </div>
+            </div>
+
+            <p className="text-[11px] font-mono text-content/60">
+              💡 Após o pagamento no seu banco, a aprovação é instantânea no Mercado Pago.
+            </p>
+          </div>
+        )}
+
         {selectedAddress && (
-          <div className="rounded-xl border border-content/12 bg-card p-6 text-left mb-8 space-y-2 font-mono text-sm text-content/80">
+          <div className="w-full rounded-xl border border-content/12 bg-card p-6 text-left mb-8 space-y-2 font-mono text-sm text-content/80">
             <p>📍 <strong className="text-content">Entrega:</strong> {selectedAddress.street}, {selectedAddress.number} {selectedAddress.complement} - {selectedAddress.city}</p>
             <p>🚚 <strong className="text-content">Frete:</strong> {shippingName} ({formatBRL(shippingCost)})</p>
-            <p>💳 <strong className="text-content">Pagamento:</strong> {paymentMethod === "pix" ? "PIX à vista" : "Cartão de Crédito"}</p>
+            <p>💳 <strong className="text-content">Pagamento:</strong> {paymentMethod === "pix" ? "PIX à vista (Mercado Pago)" : "Cartão de Crédito (Mercado Pago)"}</p>
             <p>💰 <strong className="text-content">Valor Total:</strong> {formatBRL(submittedOrderSummary.total)}</p>
           </div>
         )}
+
         <p className="text-sm text-content/60 mb-8">
           Nosso time comercial entrará em contato via WhatsApp ({formatPhone(user.phone)}) para confirmação de entrega e emissão de nota fiscal.
         </p>
+
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Link
             href="/minha-conta"
@@ -690,16 +811,42 @@ function CheckoutContent() {
                     />
                     {errors.cardCpf && <p className="mt-1 text-xs text-red-500">{errors.cardCpf}</p>}
                   </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block mb-1.5 font-mono text-xs text-content/75 uppercase tracking-wider">
+                      Opções de Parcelamento *
+                    </label>
+                    <select
+                      value={card.installments}
+                      onChange={(e) => setCard({ ...card, installments: Number(e.target.value) })}
+                      className={inputClass(false)}
+                    >
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((num) => (
+                        <option key={num} value={num}>
+                          {num}x de {formatBRL(totalPrice / num)} sem juros {num === 1 ? "(À vista)" : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
             )}
           </div>
 
+          {paymentError && (
+            <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 font-mono text-xs text-red-600 dark:text-red-400 font-semibold">
+              ⚠️ {paymentError}
+            </div>
+          )}
+
           <button
             type="submit"
-            className="w-full rounded-xl bg-[#C59D3F] py-4 text-base font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-lg active:scale-[0.99]"
+            disabled={processingPayment}
+            className="w-full rounded-xl bg-[#C59D3F] py-4 text-base font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-lg active:scale-[0.99] disabled:opacity-50"
           >
-            Confirmar & Finalizar Pedido ({formatBRL(totalPrice)}) →
+            {processingPayment
+              ? "Processando Pagamento com Mercado Pago..."
+              : `Confirmar & Finalizar Pedido (${formatBRL(totalPrice)}) →`}
           </button>
         </form>
       )}
