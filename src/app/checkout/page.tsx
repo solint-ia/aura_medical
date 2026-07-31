@@ -369,8 +369,13 @@ function CheckoutContent() {
                 />
               </div>
             ) : (
-              <div className="mx-auto flex h-48 w-48 items-center justify-center rounded-xl bg-card border border-[#C59D3F]/40 p-4 font-mono text-xs text-[#C59D3F]">
-                <QrCode className="h-24 w-24 opacity-80" />
+              <div className="mx-auto flex justify-center py-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(pixData.qrCode)}`}
+                  alt="QR Code PIX Escaneável"
+                  className="h-48 w-48 rounded-xl border border-content/20 bg-white p-2 shadow-md"
+                />
               </div>
             )}
 

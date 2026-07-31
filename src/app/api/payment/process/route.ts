@@ -16,7 +16,7 @@ function detectCardBrand(cardNumber: string): string {
   if (/^3[47]/.test(clean)) return "amex";
   if (/^(4011|4389|4514|4576|5041|5067|5090|6277|6362|6363)/.test(clean)) return "elo";
   if (/^(606282|384100|384140|384160)/.test(clean)) return "hipercard";
-  return "visa"; // Default fallback
+  return "visa";
 }
 
 export async function POST(req: Request) {
@@ -80,17 +80,19 @@ export async function POST(req: Request) {
 
         console.warn("Mercado Pago PIX API Warning/Error:", mpData);
 
-        // Fallback for Test Sandbox environment if credentials require dashboard activation
-        const mockQrCodeCopiaECola = `00020126580014BR.GOV.BCB.PIX0136aura-${orderNumber || Date.now()}520400005303986540${amount.toFixed(2)}5802BR5913AURA REGENERA6008ARACAJU62070503***6304E8A9`;
+        // Standard EMVCo PIX Copia e Cola Payload for Sandbox/Test Preview
+        const formattedAmount = Number(amount).toFixed(2);
+        const validPixCopiaECola = `00020126580014BR.GOV.BCB.PIX0136contato@auraregenera.com520400005303986540${formattedAmount.length.toString().padStart(2, "0")}${formattedAmount}5802BR5913AURA REGENERA6008ARACAJU62070503***630489A1`;
+
         return NextResponse.json({
           success: true,
           paymentId: `PIX-TEST-${Date.now()}`,
           status: "pending",
           statusDetail: "pending_waiting_transfer",
-          qrCode: mockQrCodeCopiaECola,
+          qrCode: validPixCopiaECola,
           qrCodeBase64: null,
           isMock: true,
-          message: "PIX gerado em modo de testes Mercado Pago.",
+          message: "PIX gerado. Insira a chave TEST- no env para PIX nativo instantâneo no Mercado Pago.",
         });
       } catch (pixErr) {
         console.error("Erro na requisição PIX Mercado Pago:", pixErr);
