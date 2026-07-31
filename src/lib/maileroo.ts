@@ -54,7 +54,7 @@ interface TemplateParams {
 }
 
 export function renderAuraEmailTemplate({ title, subtitle, code, actionMessage }: TemplateParams) {
-  const logoUrl = "https://auraregenera.com/logos/logo-vertical-3.png";
+  const logoUrl = "https://auraregenera.com/logos/logo-email.png";
 
   return `
     <!DOCTYPE html>
@@ -186,7 +186,7 @@ interface ContactTemplateParams {
 }
 
 export function renderContactEmailTemplate({ name, email, phone, message, protocolName }: ContactTemplateParams) {
-  const logoUrl = "https://auraregenera.com/logos/logo-vertical-3.png";
+  const logoUrl = "https://auraregenera.com/logos/logo-email.png";
   const cleanPhone = phone.replace(/\D/g, "");
 
   return `
