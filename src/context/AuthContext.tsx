@@ -64,7 +64,7 @@ interface AuthContextType {
   setSelectedAddress: (addr: UserAddress | null) => void;
   orders: Order[];
   isHydrated: boolean;
-  login: (emailOrCpf: string, passwordInput: string) => Promise<{ success: boolean; errors?: Record<string, string>; error?: string }>;
+  login: (emailOrCpf: string, passwordInput: string) => Promise<{ success: boolean; user?: UserProfile; errors?: Record<string, string>; error?: string }>;
   register: (
     profileData: Omit<UserProfile, "id">,
     addressData: Omit<UserAddress, "id">,
@@ -172,7 +172,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSelectedAddress(data.addresses[0]);
       }
 
-      return { success: true };
+      return { success: true, user: data.user };
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Erro ao realizar login.";
       return { success: false, error: errorMsg };

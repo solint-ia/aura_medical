@@ -88,6 +88,12 @@ function CustomerPortalContent() {
     );
   }
 
+  // REDIRECT ADMIN USERS TO /admin
+  if (user && (user.role === "ADMIN" || user.email.toLowerCase() === "contato@auraregenera.com")) {
+    router.push("/admin");
+    return null;
+  }
+
   // UNAUTHENTICATED STATE
   if (!user) {
     return (

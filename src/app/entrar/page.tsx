@@ -87,7 +87,11 @@ function AuthPageContent() {
 
   // Redirect if already logged in
   if (user) {
-    router.push("/minha-conta");
+    if (user.role === "ADMIN" || user.email.toLowerCase() === "contato@auraregenera.com") {
+      router.push("/admin");
+    } else {
+      router.push("/minha-conta");
+    }
     return null;
   }
 
@@ -151,7 +155,15 @@ function AuthPageContent() {
     setLoading(false);
 
     if (result.success) {
-      router.push("/minha-conta");
+      if (
+        result.user?.role === "ADMIN" ||
+        result.user?.email.toLowerCase() === "contato@auraregenera.com" ||
+        loginEmailOrCpf.toLowerCase().includes("contato@auraregenera.com")
+      ) {
+        router.push("/admin");
+      } else {
+        router.push("/minha-conta");
+      }
     } else {
       setGeneralError(result.error || "Credenciais inválidas.");
     }
@@ -318,7 +330,15 @@ function AuthPageContent() {
       setLoading(false);
 
       if (data.success) {
-        router.push("/minha-conta");
+        if (
+          data.user?.role === "ADMIN" ||
+          data.user?.email.toLowerCase() === "contato@auraregenera.com" ||
+          regEmail.toLowerCase().includes("contato@auraregenera.com")
+        ) {
+          router.push("/admin");
+        } else {
+          router.push("/minha-conta");
+        }
       } else {
         setGeneralError(data.error || "Código de verificação incorreto ou expirado.");
       }
