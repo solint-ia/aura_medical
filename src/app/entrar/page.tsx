@@ -21,7 +21,7 @@ import {
 
 function AuthPageContent() {
   const router = useRouter();
-  const { user, login, register } = useAuth();
+  const { user, login, register, isHydrated } = useAuth();
 
   const [tab, setTab] = useState<"login" | "register" | "forgot">("login");
   const [regStep, setRegStep] = useState<1 | 2 | 3>(1);
@@ -98,14 +98,23 @@ function AuthPageContent() {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // Redirect if already logged in
-  if (user) {
-    if (user.role === "ADMIN" || user.email.toLowerCase() === "contato@auraregenera.com") {
-      router.push("/admin");
-    } else {
-      router.push("/minha-conta");
+  // Redirect if already logged in via useEffect side-effect
+  useEffect(() => {
+    if (user && isHydrated) {
+      if (user.role === "ADMIN" || user.email.toLowerCase() === "contato@auraregenera.com") {
+        router.push("/admin");
+      } else {
+        router.push("/minha-conta");
+      }
     }
-    return null;
+  }, [user, isHydrated, router]);
+
+  if (user) {
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-20 text-center font-mono text-sm text-content/60">
+        Redirecionando...
+      </div>
+    );
   }
 
   // Handle Document Masking

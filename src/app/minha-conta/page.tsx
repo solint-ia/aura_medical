@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -124,10 +124,19 @@ function CustomerPortalContent() {
     );
   }
 
-  // REDIRECT ADMIN USERS TO /admin
+  // REDIRECT ADMIN USERS TO /admin via useEffect side-effect
+  useEffect(() => {
+    if (user && isHydrated && (user.role === "ADMIN" || user.email.toLowerCase() === "contato@auraregenera.com")) {
+      router.push("/admin");
+    }
+  }, [user, isHydrated, router]);
+
   if (user && (user.role === "ADMIN" || user.email.toLowerCase() === "contato@auraregenera.com")) {
-    router.push("/admin");
-    return null;
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-20 text-center font-mono text-sm text-content/60">
+        Redirecionando para o painel administrativo...
+      </div>
+    );
   }
 
   // UNAUTHENTICATED STATE
