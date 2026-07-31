@@ -116,6 +116,13 @@ function CustomerPortalContent() {
   const [profileErrorMsg, setProfileErrorMsg] = useState("");
   const [passwordLoading, setPasswordLoading] = useState(false);
 
+  // REDIRECT ADMIN USERS TO /admin via useEffect side-effect
+  useEffect(() => {
+    if (user && isHydrated && (user.role === "ADMIN" || user.email.toLowerCase() === "contato@auraregenera.com")) {
+      router.push("/admin");
+    }
+  }, [user, isHydrated, router]);
+
   if (!isHydrated) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-20 text-center font-mono text-sm text-content/60">
@@ -123,13 +130,6 @@ function CustomerPortalContent() {
       </div>
     );
   }
-
-  // REDIRECT ADMIN USERS TO /admin via useEffect side-effect
-  useEffect(() => {
-    if (user && isHydrated && (user.role === "ADMIN" || user.email.toLowerCase() === "contato@auraregenera.com")) {
-      router.push("/admin");
-    }
-  }, [user, isHydrated, router]);
 
   if (user && (user.role === "ADMIN" || user.email.toLowerCase() === "contato@auraregenera.com")) {
     return (
