@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import { prisma } from "@/lib/prisma";
 import { dbPool } from "@/lib/db";
 
 const JWT_SECRET = process.env.SUPABASE_SERVICE_ROLE_KEY || "aura-jwt-secret-key-2026-secure";
@@ -20,53 +19,21 @@ export async function POST(req: Request) {
     const trimmedEmail = email.toLowerCase().trim();
     const trimmedCode = code.replace(/\D/g, "");
 
-    let dbUser: any = null;
+    // Direct SQL Query via dbPool
+    const sqlRes = await dbPool.query(
+      "SELECT * FROM public.user_profiles WHERE LOWER(email) = $1 LIMIT 1",
+      [trimmedEmail]
+    );
 
-    try {
-      const found = await prisma.userProfile.findFirst({
-        where: { email: trimmedEmail },
-        include: { addresses: true },
-      });
-
-      if (found) {
-        dbUser = found;
-      }
-    } catch (prismaErr) {
-      console.warn("Prisma verify-code fallback dbPool:", prismaErr);
-
-      const sqlRes = await dbPool.query(
-        "SELECT * FROM public.user_profiles WHERE LOWER(email) = $1 LIMIT 1",
-        [trimmedEmail]
-      );
-
-      if (sqlRes.rows.length > 0) {
-        const u = sqlRes.rows[0];
-        const addrRes = await dbPool.query(
-          "SELECT * FROM public.user_addresses WHERE user_id = $1 ORDER BY created_at DESC",
-          [u.id]
-        );
-
-        dbUser = {
-          id: u.id,
-          cpfCnpj: u.cpf_cnpj,
-          firstName: u.first_name,
-          lastName: u.last_name,
-          birthDate: u.birth_date,
-          email: u.email,
-          phone: u.phone,
-          role: u.role || "USER",
-          verificationCode: u.verification_code,
-          verificationExpires: u.verification_expires,
-          addresses: addrRes.rows,
-        };
-      }
-    }
-
-    if (!dbUser) {
+    if (sqlRes.rows.length === 0) {
       return NextResponse.json({ error: "Usuário não encontrado." }, { status: 404 });
     }
 
-    if (!dbUser.verificationCode || dbUser.verificationCode !== trimmedCode) {
+    const u = sqlRes.rows[0];
+    const verificationCode = u.verification_code;
+    const verificationExpires = u.verification_expires;
+
+    if (!verificationCode || verificationCode !== trimmedCode) {
       return NextResponse.json(
         { error: "Código de verificação incorreto. Verifique e tente novamente." },
         { status: 400 }
@@ -74,7 +41,7 @@ export async function POST(req: Request) {
     }
 
     const now = new Date();
-    const expiresAt = dbUser.verificationExpires ? new Date(dbUser.verificationExpires) : null;
+    const expiresAt = verificationExpires ? new Date(verificationExpires) : null;
 
     if (!expiresAt || expiresAt < now) {
       return NextResponse.json(
@@ -84,53 +51,48 @@ export async function POST(req: Request) {
     }
 
     // Mark as verified and clear code
-    try {
-      await prisma.userProfile.update({
-        where: { id: dbUser.id },
-        data: {
-          emailVerified: true,
-          verificationCode: null,
-          verificationExpires: null,
-        } as any,
-      });
-    } catch (err) {
-      await dbPool.query(
-        `UPDATE public.user_profiles 
-         SET email_verified = true, verification_code = NULL, verification_expires = NULL 
-         WHERE id = $1`,
-        [dbUser.id]
-      );
-    }
+    await dbPool.query(
+      `UPDATE public.user_profiles 
+       SET email_verified = true, verification_code = NULL, verification_expires = NULL 
+       WHERE id = $1`,
+      [u.id]
+    );
+
+    // Fetch user addresses
+    const addrRes = await dbPool.query(
+      "SELECT * FROM public.user_addresses WHERE user_id = $1 ORDER BY created_at DESC",
+      [u.id]
+    );
 
     // Generate JWT Token
     const token = jwt.sign(
       {
-        userId: dbUser.id,
-        email: dbUser.email,
-        cpfCnpj: dbUser.cpfCnpj,
-        name: `${dbUser.firstName} ${dbUser.lastName}`,
-        role: dbUser.role || "USER",
+        userId: u.id,
+        email: u.email,
+        cpfCnpj: u.cpf_cnpj,
+        name: `${u.first_name} ${u.last_name}`,
+        role: u.role || "USER",
       },
       JWT_SECRET,
       { expiresIn: "30d" }
     );
 
     const user = {
-      id: dbUser.id,
-      cpfCnpj: dbUser.cpfCnpj,
-      firstName: dbUser.firstName,
-      lastName: dbUser.lastName,
-      birthDate: dbUser.birthDate ? String(dbUser.birthDate).split("T")[0] : "",
-      email: dbUser.email,
-      phone: dbUser.phone,
-      role: dbUser.role || "USER",
+      id: u.id,
+      cpfCnpj: u.cpf_cnpj,
+      firstName: u.first_name,
+      lastName: u.last_name,
+      birthDate: u.birth_date ? String(u.birth_date).split("T")[0] : "",
+      email: u.email,
+      phone: u.phone,
+      role: u.role || "USER",
     };
 
     const response = NextResponse.json({
       success: true,
       token,
       user,
-      addresses: dbUser.addresses || [],
+      addresses: addrRes.rows || [],
     });
 
     response.cookies.set({

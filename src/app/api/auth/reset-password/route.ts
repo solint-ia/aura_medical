@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { prisma } from "@/lib/prisma";
 import { dbPool } from "@/lib/db";
 
 export async function POST(req: Request) {
@@ -25,35 +24,21 @@ export async function POST(req: Request) {
     const trimmedEmail = email.toLowerCase().trim();
     const trimmedCode = code.replace(/\D/g, "");
 
-    let dbUser: any = null;
+    // Direct SQL Query via dbPool to prevent Prisma engine cache issues
+    const sqlRes = await dbPool.query(
+      `SELECT id, reset_password_code, reset_password_expires 
+       FROM public.user_profiles 
+       WHERE LOWER(email) = $1 LIMIT 1`,
+      [trimmedEmail]
+    );
 
-    try {
-      const found = await prisma.userProfile.findFirst({
-        where: { email: trimmedEmail },
-      });
-
-      if (found) {
-        dbUser = found;
-      }
-    } catch (prismaErr) {
-      console.warn("Prisma reset-password fallback dbPool:", prismaErr);
-
-      const sqlRes = await dbPool.query(
-        "SELECT * FROM public.user_profiles WHERE LOWER(email) = $1 LIMIT 1",
-        [trimmedEmail]
-      );
-
-      if (sqlRes.rows.length > 0) {
-        dbUser = sqlRes.rows[0];
-      }
-    }
-
-    if (!dbUser) {
+    if (sqlRes.rows.length === 0) {
       return NextResponse.json({ error: "Usuário não encontrado." }, { status: 404 });
     }
 
-    const savedCode = dbUser.resetPasswordCode || dbUser.reset_password_code;
-    const savedExpires = dbUser.resetPasswordExpires || dbUser.reset_password_expires;
+    const dbUser = sqlRes.rows[0];
+    const savedCode = dbUser.reset_password_code;
+    const savedExpires = dbUser.reset_password_expires;
 
     if (!savedCode || savedCode !== trimmedCode) {
       return NextResponse.json(
@@ -75,23 +60,12 @@ export async function POST(req: Request) {
     // Hash new password
     const passwordHash = await bcrypt.hash(newPassword, 10);
 
-    try {
-      await prisma.userProfile.update({
-        where: { id: dbUser.id },
-        data: {
-          passwordHash,
-          resetPasswordCode: null,
-          resetPasswordExpires: null,
-        } as any,
-      });
-    } catch (err) {
-      await dbPool.query(
-        `UPDATE public.user_profiles 
-         SET password_hash = $1, reset_password_code = NULL, reset_password_expires = NULL, updated_at = NOW() 
-         WHERE id = $2`,
-        [passwordHash, dbUser.id]
-      );
-    }
+    await dbPool.query(
+      `UPDATE public.user_profiles 
+       SET password_hash = $1, reset_password_code = NULL, reset_password_expires = NULL, updated_at = NOW() 
+       WHERE id = $2`,
+      [passwordHash, dbUser.id]
+    );
 
     return NextResponse.json({
       success: true,
