@@ -104,7 +104,9 @@ function CheckoutContent() {
   const [submittedOrderSummary, setSubmittedOrderSummary] = useState<{
     total: number;
     itemsCount: number;
-  }>({ total: 0, itemsCount: 0 });
+    shippingCost: number;
+    shippingName: string;
+  }>({ total: 0, itemsCount: 0, shippingCost: 0, shippingName: "Frete Padrão" });
 
   // Dynamic Shipping Calculation via /api/frete/calcular
   const fetchShippingRates = useCallback(async (cleanCep: string, currentItems: typeof items) => {
@@ -216,14 +218,25 @@ function CheckoutContent() {
         body: JSON.stringify({
           paymentMethod,
           amount: totalPrice,
-          description: `Aura Regenera - Pedido ${created.orderNumber}`,
+          subtotal,
+          shippingCost,
+          description: `Aura Regenera - Pedido #${created.orderNumber}`,
           orderNumber: created.orderNumber,
           payer: {
             email: user?.email,
             firstName: user?.firstName,
             lastName: user?.lastName,
             cpfCnpj: user?.cpfCnpj,
+            phone: user?.phone,
           },
+          address: selectedAddress,
+          items: items.map((i) => ({
+            id: i.id,
+            name: i.name,
+            quantity: i.quantity,
+            unitPrice: i.unitPrice,
+            imagePath: i.imagePath,
+          })),
           cardData: paymentMethod === "card" ? {
             number: card.number,
             holderName: card.name,
@@ -243,10 +256,16 @@ function CheckoutContent() {
         return;
       }
 
+      const shippingName = selectedShippingOption
+        ? selectedShippingOption.name
+        : "Frete Padrão";
+
       setSubmittedOrderNumber(created.orderNumber);
       setSubmittedOrderSummary({
         total: totalPrice,
         itemsCount: items.reduce((s, i) => s + i.quantity, 0),
+        shippingCost,
+        shippingName,
       });
 
       if (paymentMethod === "pix" && payData.qrCode) {
@@ -413,7 +432,7 @@ function CheckoutContent() {
         {selectedAddress && (
           <div className="w-full rounded-xl border border-content/12 bg-card p-6 text-left mb-8 space-y-2 font-mono text-sm text-content/80">
             <p>📍 <strong className="text-content">Entrega:</strong> {selectedAddress.street}, {selectedAddress.number} {selectedAddress.complement} - {selectedAddress.city}</p>
-            <p>🚚 <strong className="text-content">Frete:</strong> {shippingName} ({formatBRL(shippingCost)})</p>
+            <p>🚚 <strong className="text-content">Frete:</strong> {submittedOrderSummary.shippingName} ({submittedOrderSummary.shippingCost === 0 ? "GRÁTIS / R$ 0,00" : formatBRL(submittedOrderSummary.shippingCost)})</p>
             <p>💳 <strong className="text-content">Pagamento:</strong> {paymentMethod === "pix" ? "PIX à vista (Mercado Pago)" : "Cartão de Crédito (Mercado Pago)"}</p>
             <p>💰 <strong className="text-content">Valor Total:</strong> {formatBRL(submittedOrderSummary.total)}</p>
           </div>

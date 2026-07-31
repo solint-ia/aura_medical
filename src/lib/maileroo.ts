@@ -1,3 +1,5 @@
+import { formatBRL } from "./format";
+
 interface SendEmailParams {
   to: string;
   subject: string;
@@ -398,6 +400,294 @@ export function renderContactEmailTemplate({ name, email, phone, message, protoc
         </div>
         <div class="footer">
           <p>© 2026 Aura Regenera · Formato Oficial de Atendimento ao Cliente</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+export interface OrderEmailItem {
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  imagePath?: string;
+}
+
+export interface OrderSuccessTemplateParams {
+  customerName: string;
+  orderNumber: string;
+  paymentMethod: string;
+  shippingAddress: string;
+  items: OrderEmailItem[];
+  subtotal: number;
+  shippingCost: number;
+  totalPrice: number;
+}
+
+export function renderOrderSuccessEmailTemplate({
+  customerName,
+  orderNumber,
+  paymentMethod,
+  shippingAddress,
+  items,
+  subtotal,
+  shippingCost,
+  totalPrice,
+}: OrderSuccessTemplateParams) {
+  const logoUrl = "https://auraregenera.com/logos/logo-email.png";
+
+  const itemsHtml = items
+    .map(
+      (item) => `
+    <tr>
+      <td style="padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 14px; font-weight: 600; color: #FFFFFF;">
+        ${item.name}
+      </td>
+      <td style="padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 14px; color: #C59D3F; font-family: monospace; text-align: center;">
+        ${item.quantity}x
+      </td>
+      <td style="padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 14px; font-weight: 700; color: #FFFFFF; font-family: monospace; text-align: right;">
+        ${formatBRL(item.unitPrice * item.quantity)}
+      </td>
+    </tr>
+  `
+    )
+    .join("");
+
+  return `
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Pedido #${orderNumber} Confirmado - Aura Regenera</title>
+      <style>
+        body {
+          margin: 0;
+          padding: 0;
+          background-color: #0B131F;
+          font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+          color: #E2E8F0;
+        }
+        .container {
+          max-width: 620px;
+          margin: 30px auto;
+          background-color: #0D1B2A;
+          border: 1px solid rgba(197, 157, 63, 0.3);
+          border-radius: 20px;
+          overflow: hidden;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+        .header {
+          padding: 35px 30px 20px 30px;
+          text-align: center;
+          background: linear-gradient(180deg, rgba(197, 157, 63, 0.15) 0%, rgba(13, 27, 42, 0) 100%);
+        }
+        .logo {
+          max-height: 100px;
+          width: auto;
+          margin-bottom: 14px;
+        }
+        .badge {
+          display: inline-block;
+          background-color: rgba(16, 185, 129, 0.15);
+          color: #10B981;
+          border: 1px solid rgba(16, 185, 129, 0.4);
+          font-size: 11px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          padding: 6px 16px;
+          border-radius: 20px;
+          margin-bottom: 12px;
+        }
+        .body-content {
+          padding: 20px 35px 40px 35px;
+        }
+        .title {
+          font-size: 24px;
+          font-weight: 700;
+          color: #FFFFFF;
+          margin: 0 0 8px 0;
+          text-align: center;
+        }
+        .order-code {
+          font-family: monospace;
+          font-size: 14px;
+          font-weight: 700;
+          color: #C59D3F;
+          text-align: center;
+          margin-bottom: 20px;
+        }
+        .positive-message {
+          background-color: rgba(197, 157, 63, 0.08);
+          border: 1px dashed rgba(197, 157, 63, 0.35);
+          border-radius: 14px;
+          padding: 18px 22px;
+          font-size: 14px;
+          color: #E2E8F0;
+          line-height: 1.6;
+          text-align: center;
+          margin-bottom: 28px;
+        }
+        .info-card {
+          background-color: #112236;
+          border-left: 4px solid #C59D3F;
+          border-radius: 12px;
+          padding: 20px 24px;
+          margin-bottom: 25px;
+        }
+        .info-row {
+          margin-bottom: 12px;
+          font-size: 13.5px;
+        }
+        .info-row:last-child {
+          margin-bottom: 0;
+        }
+        .label {
+          color: #94A3B8;
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          display: block;
+          margin-bottom: 2px;
+          font-weight: 600;
+        }
+        .value {
+          color: #FFFFFF;
+          font-weight: 600;
+        }
+        .items-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 25px;
+          background-color: rgba(255,255,255,0.02);
+          border-radius: 12px;
+          overflow: hidden;
+        }
+        .items-table th {
+          background-color: rgba(197, 157, 63, 0.12);
+          color: #C59D3F;
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          padding: 12px 16px;
+          text-align: left;
+        }
+        .summary-box {
+          background-color: #070E17;
+          border-radius: 12px;
+          padding: 18px 24px;
+          margin-bottom: 30px;
+        }
+        .summary-row {
+          display: flex;
+          justify-content: space-between;
+          font-size: 13.5px;
+          margin-bottom: 8px;
+          color: #94A3B8;
+        }
+        .summary-row.total {
+          font-size: 16px;
+          font-weight: 700;
+          color: #FFFFFF;
+          border-top: 1px solid rgba(255,255,255,0.1);
+          padding-top: 10px;
+          margin-top: 10px;
+          margin-bottom: 0;
+        }
+        .actions {
+          text-align: center;
+          margin-top: 30px;
+        }
+        .btn-account {
+          background-color: #C59D3F;
+          color: #0D1B2A !important;
+          padding: 14px 28px;
+          text-decoration: none;
+          border-radius: 12px;
+          font-weight: 700;
+          font-size: 14px;
+          display: inline-block;
+          box-shadow: 0 4px 15px rgba(197, 157, 63, 0.35);
+        }
+        .footer {
+          padding: 22px 30px;
+          background-color: #070E17;
+          border-top: 1px solid rgba(255,255,255,0.08);
+          text-align: center;
+          font-size: 11px;
+          color: #64748B;
+          font-family: monospace;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <img src="${logoUrl}" alt="Aura Regenera" class="logo"><br>
+          <span class="badge">✓ Compra Confirmada</span>
+        </div>
+        <div class="body-content">
+          <h1 class="title">Pedido Confirmado!</h1>
+          <div class="order-code">Código do Pedido: ${orderNumber}</div>
+
+          <div class="positive-message">
+            ✨ <strong>Parabéns por escolher a excelência em biotecnologia estética!</strong><br>
+            Seu pedido foi registrado com sucesso e nossa equipe já está preparando o envio dos seus protocolos enzimáticos.
+          </div>
+
+          <div class="info-card">
+            <div class="info-row">
+              <span class="label">👤 Cliente</span>
+              <span class="value">${customerName}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">💳 Forma de Pagamento</span>
+              <span class="value" style="color: #C59D3F;">${paymentMethod}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">📍 Endereço de Entrega</span>
+              <span class="value">${shippingAddress}</span>
+            </div>
+          </div>
+
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th>Protocolo</th>
+                <th style="text-align: center;">Qtd</th>
+                <th style="text-align: right;">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+          </table>
+
+          <div class="summary-box">
+            <div class="summary-row">
+              <span>Subtotal:</span>
+              <span style="font-family: monospace;">${formatBRL(subtotal)}</span>
+            </div>
+            <div class="summary-row">
+              <span>Frete:</span>
+              <span style="font-family: monospace;">${shippingCost === 0 ? "GRÁTIS" : formatBRL(shippingCost)}</span>
+            </div>
+            <div class="summary-row total">
+              <span>Total Pago:</span>
+              <span style="font-family: monospace; color: #C59D3F;">${formatBRL(totalPrice)}</span>
+            </div>
+          </div>
+
+          <div class="actions">
+            <a href="https://auraregenera.com/minha-conta" class="btn-account">📦 Acompanhar Pedido na Minha Conta →</a>
+          </div>
+        </div>
+        <div class="footer">
+          <p>© 2026 Aura Regenera · Biotecnologia & Medicina Estética de Alta Performance</p>
+          <p>Dúvidas? Fale conosco via <a href="mailto:contato@auraregenera.com" style="color: #C59D3F;">contato@auraregenera.com</a></p>
         </div>
       </div>
     </body>
