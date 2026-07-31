@@ -18,50 +18,28 @@ export async function POST(req: Request) {
     const resetCode = String(Math.floor(100000 + Math.random() * 900000));
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
 
-    let userFound = false;
+    // 2. Direct SQL Query via dbPool for guaranteed database update
+    const sqlRes = await dbPool.query(
+      "SELECT id FROM public.user_profiles WHERE LOWER(email) = $1 LIMIT 1",
+      [trimmedEmail]
+    );
 
-    try {
-      const dbUser = await prisma.userProfile.findFirst({
-        where: { email: trimmedEmail },
-      });
-
-      if (dbUser) {
-        userFound = true;
-        await prisma.userProfile.update({
-          where: { id: dbUser.id },
-          data: {
-            resetPasswordCode: resetCode,
-            resetPasswordExpires: expiresAt,
-          } as any,
-        });
-      }
-    } catch (prismaErr) {
-      console.warn("Prisma forgot-password fallback dbPool:", prismaErr);
-
-      const sqlRes = await dbPool.query(
-        "SELECT id FROM public.user_profiles WHERE LOWER(email) = $1 LIMIT 1",
-        [trimmedEmail]
-      );
-
-      if (sqlRes.rows.length > 0) {
-        userFound = true;
-        await dbPool.query(
-          `UPDATE public.user_profiles 
-           SET reset_password_code = $1, reset_password_expires = $2 
-           WHERE id = $3`,
-          [resetCode, expiresAt.toISOString(), sqlRes.rows[0].id]
-        );
-      }
-    }
-
-    if (!userFound) {
+    if (sqlRes.rows.length === 0) {
       return NextResponse.json(
         { error: "Nenhuma conta cadastrada com este e-mail." },
         { status: 404 }
       );
     }
 
-    // 2. Render Luxury HTML Email
+    const userId = sqlRes.rows[0].id;
+    await dbPool.query(
+      `UPDATE public.user_profiles 
+       SET reset_password_code = $1, reset_password_expires = $2 
+       WHERE id = $3`,
+      [resetCode, expiresAt.toISOString(), userId]
+    );
+
+    // 3. Render Luxury HTML Email
     const html = renderAuraEmailTemplate({
       title: "Redefinição de Senha Aura Regenera",
       subtitle: `Solicitação de redefinição de senha para a conta (${trimmedEmail}). Digite o código de 6 dígitos abaixo no site para cadastrar uma nova senha.`,
@@ -69,7 +47,7 @@ export async function POST(req: Request) {
       actionMessage: "Se você não solicitou a alteração de senha, altere seus dados de acesso imediatamente por segurança.",
     });
 
-    // 3. Dispatch Email via Maileroo
+    // 4. Dispatch Email via Maileroo
     const mailResult = await sendMailerooEmail({
       to: trimmedEmail,
       subject: `Código de Redefinição de Senha Aura: ${resetCode}`,

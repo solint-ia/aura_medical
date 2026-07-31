@@ -12,54 +12,33 @@ export async function sendMailerooEmail({ to, subject, html }: SendEmailParams) 
     return { success: false, error: "Chave Maileroo não configurada." };
   }
 
-  const fromEmail = "Aura Regenera <contato@auraregenera.com>";
-
   try {
-    // 1. Primary Maileroo API Endpoint
+    const formData = new URLSearchParams();
+    formData.append("api_key", apiKey);
+    formData.append("from", "contato@auraregenera.com");
+    formData.append("from_name", "Aura Regenera");
+    formData.append("to", to);
+    formData.append("subject", subject);
+    formData.append("html", html);
+
     const res = await fetch("https://smtp.maileroo.com/send", {
       method: "POST",
       headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
         "X-API-Key": apiKey,
-        "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        from: fromEmail,
-        to,
-        subject,
-        html,
-        tracking: true,
-      }),
+      body: formData.toString(),
     });
 
     const data = await res.json().catch(() => ({}));
 
-    if (res.ok && (data.success || data.status === "success" || data.id)) {
+    if (res.ok && data.success) {
+      console.log("E-mail enviado com sucesso via Maileroo:", data);
       return { success: true, data };
     }
 
-    // 2. Fallback Maileroo v1 Endpoint if primary endpoint returns non-200
-    const fallbackRes = await fetch("https://api.maileroo.com/v1/email/send", {
-      method: "POST",
-      headers: {
-        "X-API-Key": apiKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: fromEmail,
-        to,
-        subject,
-        html,
-      }),
-    });
-
-    const fallbackData = await fallbackRes.json().catch(() => ({}));
-
-    if (fallbackRes.ok) {
-      return { success: true, data: fallbackData };
-    }
-
-    console.error("Erro ao enviar e-mail via Maileroo API:", data || fallbackData);
-    return { success: false, error: data.message || fallbackData.message || "Erro no envio via Maileroo." };
+    console.error("Erro ao enviar e-mail via Maileroo API:", data);
+    return { success: false, error: data.message || "Erro no envio via Maileroo." };
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : "Falha na conexão com a API do Maileroo.";
     console.error("Exceção ao disparar e-mail Maileroo:", err);
