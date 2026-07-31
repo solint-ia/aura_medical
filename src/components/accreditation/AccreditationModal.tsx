@@ -28,6 +28,8 @@ export function AccreditationModal({
 }: AccreditationModalProps) {
   const [form, setForm] = useState<LeadForm>(EMPTY_FORM);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
 
@@ -51,9 +53,36 @@ export function AccreditationModal({
   const updateField = (field: keyof LeadForm) => (value: string) =>
     setForm((current) => ({ ...current, [field]: value }));
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setIsSubmitted(true);
+    setErrorMsg("");
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          message: form.message,
+          protocolName,
+        }),
+      });
+
+      const data = await res.json();
+      setLoading(false);
+
+      if (data.success) {
+        setIsSubmitted(true);
+      } else {
+        setErrorMsg(data.error || "Erro ao enviar mensagem.");
+      }
+    } catch {
+      setLoading(false);
+      setErrorMsg("Erro de conexão ao enviar mensagem.");
+    }
   };
 
   return (
@@ -153,11 +182,17 @@ export function AccreditationModal({
                 onChange={(event) => updateField("message")(event.target.value)}
                 className={FIELD_CLASSES}
               />
+              {errorMsg && (
+                <div className="rounded-lg bg-red-500/10 p-3 font-mono text-xs font-semibold text-red-500 border border-red-500/20">
+                  ⚠️ {errorMsg}
+                </div>
+              )}
               <button
                 type="submit"
-                className="mt-1.5 rounded-lg bg-action px-5 py-[15px] text-[15px] font-semibold text-action-fg transition-colors hover:bg-action-hover"
+                disabled={loading}
+                className="mt-1.5 rounded-lg bg-action px-5 py-[15px] text-[15px] font-semibold text-action-fg transition-colors hover:bg-action-hover active:scale-[0.99] disabled:opacity-50"
               >
-                Enviar Mensagem
+                {loading ? "Enviando Mensagem..." : "Enviar Mensagem"}
               </button>
             </form>
 

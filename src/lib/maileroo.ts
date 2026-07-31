@@ -33,7 +33,7 @@ export async function sendMailerooEmail({ to, subject, html }: SendEmailParams) 
     const data = await res.json().catch(() => ({}));
 
     if (res.ok && data.success) {
-      console.log("E-mail enviado com sucesso via Maileroo:", data);
+      console.log(`E-mail enviado com sucesso via Maileroo para ${to}:`, data);
       return { success: true, data };
     }
 
@@ -170,6 +170,234 @@ export function renderAuraEmailTemplate({ title, subtitle, code, actionMessage }
         <div class="footer">
           <p>© 2026 Aura Regenera · Biotecnologia & Medicina Estética de Alta Performance</p>
           <p>Dúvidas? Entre em contato via <a href="mailto:contato@auraregenera.com">contato@auraregenera.com</a></p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+interface ContactTemplateParams {
+  name: string;
+  email: string;
+  phone: string;
+  message?: string;
+  protocolName?: string;
+}
+
+export function renderContactEmailTemplate({ name, email, phone, message, protocolName }: ContactTemplateParams) {
+  const logoUrl = "https://auraregenera.com/logos/logo-vertical-3.png";
+  const cleanPhone = phone.replace(/\D/g, "");
+
+  return `
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Novo Contato - Fale Conosco</title>
+      <style>
+        body {
+          margin: 0;
+          padding: 0;
+          background-color: #0B131F;
+          font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+          color: #E2E8F0;
+        }
+        .container {
+          max-width: 600px;
+          margin: 40px auto;
+          background-color: #0D1B2A;
+          border: 1px solid rgba(197, 157, 63, 0.3);
+          border-radius: 20px;
+          overflow: hidden;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+        .header {
+          padding: 40px 30px 20px 30px;
+          text-align: center;
+          background: linear-gradient(180deg, rgba(197, 157, 63, 0.15) 0%, rgba(13, 27, 42, 0) 100%);
+        }
+        .logo {
+          max-height: 110px;
+          width: auto;
+          margin-bottom: 16px;
+        }
+        .badge {
+          display: inline-block;
+          background-color: rgba(197, 157, 63, 0.15);
+          color: #C59D3F;
+          border: 1px solid rgba(197, 157, 63, 0.4);
+          font-size: 11px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          padding: 6px 14px;
+          border-radius: 20px;
+          margin-bottom: 12px;
+        }
+        .body-content {
+          padding: 20px 35px 40px 35px;
+        }
+        .title {
+          font-size: 22px;
+          font-weight: 700;
+          color: #FFFFFF;
+          margin: 0 0 8px 0;
+          text-align: center;
+        }
+        .subtitle {
+          font-size: 13.5px;
+          color: #94A3B8;
+          margin: 0 0 25px 0;
+          text-align: center;
+          line-height: 1.5;
+        }
+        .info-card {
+          background-color: #112236;
+          border-left: 4px solid #C59D3F;
+          border-radius: 12px;
+          padding: 20px 24px;
+          margin-bottom: 24px;
+        }
+        .info-row {
+          margin-bottom: 14px;
+          font-size: 14px;
+          line-height: 1.5;
+        }
+        .info-row:last-child {
+          margin-bottom: 0;
+        }
+        .label {
+          color: #94A3B8;
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          display: block;
+          margin-bottom: 3px;
+          font-weight: 600;
+        }
+        .value {
+          color: #FFFFFF;
+          font-weight: 600;
+        }
+        .value a {
+          color: #C59D3F;
+          text-decoration: none;
+        }
+        .message-box {
+          background-color: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 12px;
+          padding: 18px 22px;
+          margin-bottom: 30px;
+        }
+        .message-title {
+          font-size: 12px;
+          color: #C59D3F;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          font-weight: 700;
+          margin-bottom: 8px;
+        }
+        .message-text {
+          font-size: 14px;
+          color: #E2E8F0;
+          line-height: 1.6;
+          white-space: pre-wrap;
+          margin: 0;
+        }
+        .actions {
+          text-align: center;
+          margin-top: 25px;
+        }
+        .btn-mail {
+          background-color: #C59D3F;
+          color: #0D1B2A !important;
+          padding: 13px 24px;
+          text-decoration: none;
+          border-radius: 10px;
+          font-weight: 700;
+          font-size: 13.5px;
+          display: inline-block;
+          margin-right: 10px;
+          margin-bottom: 10px;
+          box-shadow: 0 4px 12px rgba(197, 157, 63, 0.3);
+        }
+        .btn-wa {
+          background-color: #25D366;
+          color: #FFFFFF !important;
+          padding: 13px 24px;
+          text-decoration: none;
+          border-radius: 10px;
+          font-weight: 700;
+          font-size: 13.5px;
+          display: inline-block;
+          margin-bottom: 10px;
+          box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+        }
+        .footer {
+          padding: 22px 30px;
+          background-color: #070E17;
+          border-top: 1px solid rgba(255,255,255,0.08);
+          text-align: center;
+          font-size: 11px;
+          color: #64748B;
+          font-family: monospace;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <img src="${logoUrl}" alt="Aura Regenera" class="logo"><br>
+          <span class="badge">Atendimento & Suporte</span>
+        </div>
+        <div class="body-content">
+          <h1 class="title">Novo Contato - Fale Conosco</h1>
+          <p class="subtitle">Um cliente enviou uma mensagem através do formulário de contato do site Aura Regenera.</p>
+
+          <div class="info-card">
+            <div class="info-row">
+              <span class="label">👤 Nome Completo</span>
+              <span class="value">${name}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">✉️ E-mail</span>
+              <span class="value"><a href="mailto:${email}">${email}</a></span>
+            </div>
+            <div class="info-row">
+              <span class="label">📱 WhatsApp / Telefone</span>
+              <span class="value"><a href="https://wa.me/55${cleanPhone}">${phone}</a></span>
+            </div>
+            ${
+              protocolName
+                ? `
+            <div class="info-row">
+              <span class="label">🧬 Protocolo de Interesse</span>
+              <span class="value" style="color: #C59D3F;">${protocolName}</span>
+            </div>
+            `
+                : ""
+            }
+          </div>
+
+          <div class="message-box">
+            <div class="message-title">💬 Como podemos ajudar? (Mensagem)</div>
+            <p class="message-text">${message ? message.trim() : "Nenhuma mensagem adicional preenchida."}</p>
+          </div>
+
+          <div class="actions">
+            <a href="mailto:${email}" class="btn-mail">✉️ Responder por E-mail</a>
+            ${
+              cleanPhone
+                ? `<a href="https://wa.me/55${cleanPhone}" class="btn-wa">💬 Chamar no WhatsApp</a>`
+                : ""
+            }
+          </div>
+        </div>
+        <div class="footer">
+          <p>© 2026 Aura Regenera · Formato Oficial de Atendimento ao Cliente</p>
         </div>
       </div>
     </body>
