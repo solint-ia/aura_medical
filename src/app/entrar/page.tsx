@@ -61,13 +61,15 @@ function AuthPageContent() {
   const [resendingCode, setResendingCode] = useState(false);
 
   // Forgot Password state
-  const [forgotStep, setForgotStep] = useState<1 | 2>(1);
+  const [forgotStep, setForgotStep] = useState<1 | 2 | 3>(1);
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotCode, setForgotCode] = useState("");
+  const [forgotTimer, setForgotTimer] = useState(600); // 10 minutes = 600s
+  const [resendingForgotCode, setResendingForgotCode] = useState(false);
   const [forgotNewPassword, setForgotNewPassword] = useState("");
   const [forgotConfirmPassword, setForgotConfirmPassword] = useState("");
 
-  // Timer countdown for OTP (10 minutes)
+  // Timer countdown for OTP Registration (10 minutes)
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (regStep === 3 && otpTimer > 0) {
@@ -77,6 +79,17 @@ function AuthPageContent() {
     }
     return () => clearInterval(interval);
   }, [regStep, otpTimer]);
+
+  // Timer countdown for Forgot Password OTP (10 minutes)
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (tab === "forgot" && forgotStep === 2 && forgotTimer > 0) {
+      interval = setInterval(() => {
+        setForgotTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [tab, forgotStep, forgotTimer]);
 
   // Format seconds to MM:SS
   const formatTimer = (seconds: number) => {
@@ -396,6 +409,7 @@ function AuthPageContent() {
 
       if (data.success) {
         setForgotStep(2);
+        setForgotTimer(600); // 10 minutes
         setSuccessMsg(`Código de recuperação de 6 dígitos enviado para ${forgotEmail}.`);
       } else {
         setGeneralError(data.error || "E-mail não encontrado.");
@@ -406,15 +420,76 @@ function AuthPageContent() {
     }
   };
 
-  const handleResetPasswordSubmit = async (e: React.FormEvent) => {
+  // Step 2: Validate Code
+  const handleVerifyForgotCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setGeneralError("");
     setSuccessMsg("");
 
     if (!forgotCode.trim() || forgotCode.replace(/\D/g, "").length !== 6) {
-      setGeneralError("Informe o código de 6 dígitos recebido por e-mail.");
+      setGeneralError("Digite o código de 6 dígitos recebido por e-mail.");
       return;
     }
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/verify-reset-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: forgotEmail.toLowerCase().trim(),
+          code: forgotCode.replace(/\D/g, ""),
+        }),
+      });
+
+      const data = await res.json();
+      setLoading(false);
+
+      if (data.success) {
+        setForgotStep(3);
+        setSuccessMsg("Código verificado com sucesso! Digite sua nova senha abaixo.");
+      } else {
+        setGeneralError(data.error || "Código de recuperação incorreto ou expirado.");
+      }
+    } catch {
+      setLoading(false);
+      setGeneralError("Erro de comunicação ao verificar código.");
+    }
+  };
+
+  // Resend Forgot Password Code
+  const handleResendForgotCode = async () => {
+    setResendingForgotCode(true);
+    setGeneralError("");
+    setSuccessMsg("");
+
+    try {
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: forgotEmail.toLowerCase().trim() }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setForgotTimer(600); // Reset 10min timer
+        setSuccessMsg(`Novo código de recuperação de 6 dígitos reenviado para ${forgotEmail}.`);
+      } else {
+        setGeneralError(data.error || "Erro ao reenviar código.");
+      }
+    } catch {
+      setGeneralError("Erro de conexão ao reenviar código.");
+    } finally {
+      setResendingForgotCode(false);
+    }
+  };
+
+  // Step 3: Reset Password
+  const handleResetPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setGeneralError("");
+    setSuccessMsg("");
 
     if (!forgotNewPassword || forgotNewPassword.length < 6) {
       setGeneralError("A nova senha deve possuir no mínimo 6 caracteres.");
@@ -443,6 +518,10 @@ function AuthPageContent() {
 
       if (data.success) {
         setTab("login");
+        setForgotStep(1);
+        setForgotCode("");
+        setForgotNewPassword("");
+        setForgotConfirmPassword("");
         setSuccessMsg("Senha redefinida com sucesso! Digite sua nova senha para entrar.");
       } else {
         setGeneralError(data.error || "Erro ao redefinir senha.");
@@ -1077,19 +1156,22 @@ function AuthPageContent() {
           )}
 
           {forgotStep === 2 && (
-            <form onSubmit={handleResetPasswordSubmit} className="space-y-5">
+            <form onSubmit={handleVerifyForgotCode} className="space-y-5 max-w-md mx-auto">
               <div className="text-center space-y-1">
+                <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-[#C59D3F]/20 text-[#C59D3F]">
+                  <Mail className="h-6 w-6" />
+                </div>
                 <h3 className="font-display text-lg font-bold text-content">
-                  Redefinição de Senha
+                  Digite o Código de 6 Dígitos
                 </h3>
                 <p className="text-xs text-content/70 font-mono">
-                  Insira o código de 6 dígitos enviado para {forgotEmail} e digite sua nova senha.
+                  Enviamos o código para <strong>{forgotEmail}</strong>. Ele expira em 10 minutos.
                 </p>
               </div>
 
               <div>
-                <label className="block font-mono text-xs uppercase text-content/80 font-semibold mb-1">
-                  Código de 6 Dígitos *
+                <label className="block text-center font-mono text-xs uppercase text-content/80 font-bold mb-2">
+                  Código de Recuperação
                 </label>
                 <input
                   type="text"
@@ -1097,11 +1179,58 @@ function AuthPageContent() {
                   placeholder="000000"
                   value={forgotCode}
                   onChange={(e) => setForgotCode(e.target.value.replace(/\D/g, ""))}
-                  className="w-full rounded-xl border-2 border-[#C59D3F] bg-canvas py-3 text-center font-mono text-2xl font-bold text-[#C59D3F] tracking-[8px] outline-none"
+                  className="w-full rounded-2xl border-2 border-[#C59D3F] bg-canvas py-3.5 text-center font-mono text-3xl font-extrabold text-[#C59D3F] tracking-[12px] outline-none shadow-md"
                 />
               </div>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex items-center justify-between font-mono text-xs text-content/70 border-t border-b border-content/10 py-3">
+                <span>⏱ Expira em: <strong className="text-content">{formatTimer(forgotTimer)}</strong></span>
+                <button
+                  type="button"
+                  onClick={handleResendForgotCode}
+                  disabled={resendingForgotCode}
+                  className="text-[#C59D3F] hover:underline font-bold flex items-center gap-1"
+                >
+                  <RefreshCw className={`h-3.5 w-3.5 ${resendingForgotCode ? "animate-spin" : ""}`} />
+                  <span>{resendingForgotCode ? "Enviando..." : "Reenviar Código"}</span>
+                </button>
+              </div>
+
+              <div className="flex gap-4 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setForgotStep(1)}
+                  className="w-1/3 rounded-xl border border-content/20 py-3.5 font-mono text-xs font-semibold text-content hover:bg-content/5 flex items-center justify-center gap-1.5"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  <span>Voltar</span>
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-2/3 rounded-xl bg-[#C59D3F] py-3.5 font-bold text-sm text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99]"
+                >
+                  {loading ? "Verificando..." : "Validar Código →"}
+                </button>
+              </div>
+            </form>
+          )}
+
+          {forgotStep === 3 && (
+            <form onSubmit={handleResetPasswordSubmit} className="space-y-5 max-w-md mx-auto">
+              <div className="text-center space-y-1">
+                <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-[#C59D3F]/20 text-[#C59D3F]">
+                  <KeyRound className="h-6 w-6" />
+                </div>
+                <h3 className="font-display text-lg font-bold text-content">
+                  Cadastrar Nova Senha
+                </h3>
+                <p className="text-xs text-content/70 font-mono">
+                  Código verificado! Digite sua nova senha de acesso para a conta ({forgotEmail}).
+                </p>
+              </div>
+
+              <div className="space-y-4">
                 <div>
                   <label className="block mb-1.5 font-mono text-xs uppercase text-content/80 font-semibold">
                     Nova Senha *
@@ -1132,7 +1261,7 @@ function AuthPageContent() {
               <div className="flex gap-4 pt-2">
                 <button
                   type="button"
-                  onClick={() => setForgotStep(1)}
+                  onClick={() => setForgotStep(2)}
                   className="w-1/3 rounded-xl border border-content/20 py-3.5 font-mono text-xs font-semibold text-content hover:bg-content/5 flex items-center justify-center gap-1.5"
                 >
                   <ArrowLeft className="h-4 w-4" />
@@ -1143,7 +1272,7 @@ function AuthPageContent() {
                   disabled={loading}
                   className="w-2/3 rounded-xl bg-[#C59D3F] py-3.5 font-bold text-sm text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99]"
                 >
-                  {loading ? "Redefinindo..." : "Salvar Nova Senha →"}
+                  {loading ? "Salvando..." : "Salvar Nova Senha →"}
                 </button>
               </div>
             </form>

@@ -15,7 +15,7 @@ export async function sendMailerooEmail({ to, subject, html }: SendEmailParams) 
   try {
     const formData = new URLSearchParams();
     formData.append("api_key", apiKey);
-    formData.append("from", "contato@auraregenera.com");
+    formData.append("from", "Aura Regenera <contato@auraregenera.com>");
     formData.append("from_name", "Aura Regenera");
     formData.append("to", to);
     formData.append("subject", subject);
