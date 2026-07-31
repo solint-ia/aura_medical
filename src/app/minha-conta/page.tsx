@@ -70,6 +70,7 @@ function CustomerPortalContent() {
   const router = useRouter();
   const {
     user,
+    authToken,
     addresses,
     selectedAddress,
     setSelectedAddress,
@@ -102,13 +103,18 @@ function CustomerPortalContent() {
   // Delete Address Confirmation Modal State
   const [deletingAddress, setDeletingAddress] = useState<UserAddress | null>(null);
 
-  // Profile Edit state (Editing ONLY Name, Phone, and Birth Date)
+  // Profile Edit state (Editing Name, Phone, Birth Date & Password)
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editFirstName, setEditFirstName] = useState("");
   const [editLastName, setEditLastName] = useState("");
   const [editPhone, setEditPhone] = useState("");
   const [editBirthDate, setEditBirthDate] = useState("");
+  const [editCurrentPassword, setEditCurrentPassword] = useState("");
+  const [editNewPassword, setEditNewPassword] = useState("");
+  const [editConfirmPassword, setEditConfirmPassword] = useState("");
   const [profileSuccessMsg, setProfileSuccessMsg] = useState("");
+  const [profileErrorMsg, setProfileErrorMsg] = useState("");
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   if (!isHydrated) {
     return (
@@ -255,14 +261,25 @@ function CustomerPortalContent() {
     setEditLastName(user.lastName);
     setEditPhone(user.phone);
     setEditBirthDate(user.birthDate || "");
+    setEditCurrentPassword("");
+    setEditNewPassword("");
+    setEditConfirmPassword("");
     setProfileSuccessMsg("");
+    setProfileErrorMsg("");
     setIsEditingProfile(true);
   };
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editFirstName.trim() || !editLastName.trim()) return;
+    setProfileErrorMsg("");
+    setProfileSuccessMsg("");
 
+    if (!editFirstName.trim() || !editLastName.trim()) {
+      setProfileErrorMsg("Nome e Sobrenome são obrigatórios.");
+      return;
+    }
+
+    // 1. Update basic profile info
     await updateProfile({
       firstName: editFirstName,
       lastName: editLastName,
@@ -270,8 +287,59 @@ function CustomerPortalContent() {
       birthDate: editBirthDate,
     });
 
+    // 2. If password fields are filled, attempt password update
+    if (editCurrentPassword || editNewPassword || editConfirmPassword) {
+      if (!editCurrentPassword) {
+        setProfileErrorMsg("Informe sua senha atual para alterar a senha.");
+        return;
+      }
+      if (!editNewPassword) {
+        setProfileErrorMsg("Informe a nova senha desejada.");
+        return;
+      }
+      if (editNewPassword.length < 6) {
+        setProfileErrorMsg("A nova senha deve ter no mínimo 6 caracteres.");
+        return;
+      }
+      if (editNewPassword !== editConfirmPassword) {
+        setProfileErrorMsg("A nova senha e a confirmação de senha não coincidem.");
+        return;
+      }
+
+      setPasswordLoading(true);
+      try {
+        const res = await fetch("/api/auth/change-password", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+          },
+          body: JSON.stringify({
+            currentPassword: editCurrentPassword,
+            newPassword: editNewPassword,
+            email: user.email,
+          }),
+        });
+
+        const data = await res.json();
+        setPasswordLoading(false);
+
+        if (!data.success) {
+          setProfileErrorMsg(data.error || "Erro ao alterar a senha.");
+          return;
+        }
+      } catch (err) {
+        setPasswordLoading(false);
+        setProfileErrorMsg("Erro de comunicação ao alterar senha.");
+        return;
+      }
+    }
+
     setIsEditingProfile(false);
-    setProfileSuccessMsg("Informações pessoais atualizadas com sucesso!");
+    setEditCurrentPassword("");
+    setEditNewPassword("");
+    setEditConfirmPassword("");
+    setProfileSuccessMsg("Informações pessoais e senha atualizadas com sucesso!");
     setTimeout(() => setProfileSuccessMsg(""), 4000);
   };
 
@@ -753,6 +821,12 @@ function CustomerPortalContent() {
             <form onSubmit={handleSaveProfile} className="rounded-2xl border border-[#C59D3F]/30 bg-card p-6 space-y-4 shadow-xl">
               <h3 className="font-display text-lg font-bold text-content">Editar Informações Pessoais</h3>
 
+              {profileErrorMsg && (
+                <div className="rounded-xl bg-red-500/10 p-3 font-mono text-xs font-semibold text-red-500 border border-red-500/20">
+                  ⚠️ {profileErrorMsg}
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">Nome *</label>
@@ -796,19 +870,65 @@ function CustomerPortalContent() {
                 </div>
               )}
 
+              {/* ALTERAÇÃO DE SENHA */}
+              <div className="border-t border-content/12 pt-4 space-y-3">
+                <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-[#C59D3F] uppercase">
+                  <Lock className="h-3.5 w-3.5" />
+                  <span>Alterar Senha de Acesso (Opcional)</span>
+                </div>
+
+                <div>
+                  <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">Senha Atual</label>
+                  <input
+                    type="password"
+                    placeholder="Digite sua senha atual"
+                    value={editCurrentPassword}
+                    onChange={(e) => setEditCurrentPassword(e.target.value)}
+                    className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-[#C59D3F]"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">Nova Senha</label>
+                    <input
+                      type="password"
+                      placeholder="Mínimo 6 caracteres"
+                      value={editNewPassword}
+                      onChange={(e) => setEditNewPassword(e.target.value)}
+                      className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-[#C59D3F]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">Confirmar Nova Senha</label>
+                    <input
+                      type="password"
+                      placeholder="Repita a nova senha"
+                      value={editConfirmPassword}
+                      onChange={(e) => setEditConfirmPassword(e.target.value)}
+                      className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-[#C59D3F]"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={() => setIsEditingProfile(false)}
+                  onClick={() => {
+                    setIsEditingProfile(false);
+                    setProfileErrorMsg("");
+                  }}
                   className="w-1/2 rounded-lg border border-content/20 py-2.5 font-mono text-xs font-semibold text-content"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="w-1/2 rounded-lg bg-[#C59D3F] py-2.5 font-mono text-xs font-bold text-[#0D1B2A]"
+                  disabled={passwordLoading}
+                  className="w-1/2 rounded-lg bg-[#C59D3F] py-2.5 font-mono text-xs font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c]"
                 >
-                  Salvar Alterações
+                  {passwordLoading ? "Verificando..." : "Salvar Alterações"}
                 </button>
               </div>
             </form>
