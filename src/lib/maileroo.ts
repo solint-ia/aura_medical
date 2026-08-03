@@ -17,7 +17,7 @@ export async function sendMailerooEmail({ to, subject, html }: SendEmailParams) 
   try {
     const formData = new URLSearchParams();
     formData.append("api_key", apiKey);
-    formData.append("from", "Aura Regenera <contato@auraregenera.com>");
+    formData.append("from", "Aura Regenera <nao-responda@auraregenera.com>");
     formData.append("from_name", "Aura Regenera");
     formData.append("to", to);
     formData.append("subject", subject);
@@ -372,16 +372,15 @@ export function renderContactEmailTemplate({ name, email, phone, message, protoc
               <span class="label">📱 WhatsApp / Telefone</span>
               <span class="value"><a href="https://wa.me/55${cleanPhone}">${phone}</a></span>
             </div>
-            ${
-              protocolName
-                ? `
+            ${protocolName
+      ? `
             <div class="info-row">
               <span class="label">🧬 Protocolo de Interesse</span>
               <span class="value" style="color: #C59D3F;">${protocolName}</span>
             </div>
             `
-                : ""
-            }
+      : ""
+    }
           </div>
 
           <div class="message-box">
@@ -391,11 +390,10 @@ export function renderContactEmailTemplate({ name, email, phone, message, protoc
 
           <div class="actions">
             <a href="mailto:${email}" class="btn-mail">✉️ Responder por E-mail</a>
-            ${
-              cleanPhone
-                ? `<a href="https://wa.me/55${cleanPhone}" class="btn-wa">💬 Chamar no WhatsApp</a>`
-                : ""
-            }
+            ${cleanPhone
+      ? `<a href="https://wa.me/55${cleanPhone}" class="btn-wa">💬 Chamar no WhatsApp</a>`
+      : ""
+    }
           </div>
         </div>
         <div class="footer">

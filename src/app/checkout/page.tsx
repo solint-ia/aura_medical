@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import Script from "next/script";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -211,6 +212,11 @@ function CheckoutContent() {
         })),
       });
 
+      const deviceId =
+        (window as unknown as { MP_DEVICE_SESSION_ID?: string }).MP_DEVICE_SESSION_ID ||
+        (document.getElementById("deviceId") as HTMLInputElement)?.value ||
+        "";
+
       // 2. Call Mercado Pago Process Payment API
       const payRes = await fetch("/api/payment/process", {
         method: "POST",
@@ -222,6 +228,7 @@ function CheckoutContent() {
           shippingCost,
           description: `Aura Regenera - Pedido #${created.orderNumber}`,
           orderNumber: created.orderNumber,
+          deviceId,
           payer: {
             email: user?.email,
             firstName: user?.firstName,
@@ -881,6 +888,8 @@ function CheckoutContent() {
 export default function CheckoutPage() {
   return (
     <AccreditationProvider>
+      <Script src="https://www.mercadopago.com/v2/security.js" strategy="afterInteractive" />
+      <input type="hidden" id="deviceId" />
       <SiteHeader />
       <main className="bg-canvas">
         <CheckoutContent />
