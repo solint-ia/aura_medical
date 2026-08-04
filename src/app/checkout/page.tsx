@@ -156,8 +156,24 @@ function CheckoutContent() {
   }, [isSubmitted, paymentMethod, pixData, pixPaid]);
 
   // Dynamic Shipping Calculation via /api/frete/calcular
+  // TEMPORARIAMENTE DESATIVADO: Melhor Envio ainda em modo sandbox (sem credenciais
+  // de produção). Frete grátis para todos os protocolos enquanto isso. O código real
+  // de cálculo fica comentado abaixo pronto para reativar.
   const fetchShippingRates = useCallback(async (cleanCep: string, currentItems: typeof items) => {
     if (cleanCep.length !== 8) return;
+
+    const freeShipping: ShippingOption = {
+      id: "frete-gratis",
+      name: "Frete Grátis",
+      price: 0,
+      deliveryTime: 7,
+      company: "Aura Regenera",
+      logo: "",
+    };
+    setShippingOptions([freeShipping]);
+    setSelectedShippingOption(freeShipping);
+
+    /* ---- Cálculo real via Melhor Envio (reativar quando houver credenciais de produção) ----
     setShippingLoading(true);
 
     try {
@@ -180,6 +196,7 @@ function CheckoutContent() {
     } finally {
       setShippingLoading(false);
     }
+    */
   }, []);
 
   // Calculate freight when selectedAddress changes
@@ -191,6 +208,10 @@ function CheckoutContent() {
   }, [selectedAddress, items, fetchShippingRates]);
 
   // Shipping Fee & Total Calculation
+  // TEMPORARIAMENTE: frete grátis para todos os protocolos (Melhor Envio desativado, ver acima).
+  // Lógica original de precificação preservada em comentário para reativação futura.
+  const shippingCost = 0;
+  /*
   const hasTestProtocol = items.some((i) => i.id === "teste-pix" || i.id === "teste-cartao");
   const shippingCost = items.length === 0
     ? 0
@@ -199,6 +220,7 @@ function CheckoutContent() {
       : selectedShippingOption
         ? selectedShippingOption.price
         : 25;
+  */
 
   const totalPrice = subtotal + shippingCost;
 
@@ -698,7 +720,7 @@ function CheckoutContent() {
             <div className="rounded-2xl border border-content/12 bg-card p-6 space-y-4">
               <h3 className="font-mono text-xs font-bold text-[#C59D3F] uppercase tracking-wider flex items-center gap-2">
                 <Truck className="h-4 w-4" />
-                Opções de Envio (Melhor Envio)
+                Envio
               </h3>
 
               {shippingLoading ? (

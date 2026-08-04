@@ -15,6 +15,26 @@ function detectCardBrand(cardNumber: string): string {
   return "visa";
 }
 
+// Dynamically resolve the real payment_method_id from Mercado Pago based on the card BIN.
+// The hardcoded regex list in detectCardBrand cannot cover every Elo/Hipercard BIN range,
+// so cards outside it were silently falling back to "visa" and getting rejected
+// with "Invalid payment_method_id" (code 3028) by /v1/payments.
+async function fetchPaymentMethodId(bin: string): Promise<string | undefined> {
+  try {
+    const res = await fetch(
+      `https://api.mercadopago.com/v1/payment_methods/search?public_key=${MERCADO_PAGO_PUBLIC_KEY}&bin=${bin}`
+    );
+    const data = await res.json();
+    const result = Array.isArray(data?.results) ? data.results[0] : undefined;
+    if (result?.id) {
+      return String(result.id);
+    }
+  } catch (err) {
+    console.warn("Aviso ao buscar payment_method_id no Mercado Pago:", err);
+  }
+  return undefined;
+}
+
 // Dynamically fetch card issuer ID from Mercado Pago API based on BIN
 async function fetchIssuerId(brand: string, bin: string): Promise<string | undefined> {
   try {
@@ -234,7 +254,10 @@ export async function POST(req: Request) {
       const bin = cleanCardNumber.slice(0, 6);
       const [expMonth, expYear] = cardData.expiry.split("/").map((s: string) => s.trim());
       const fullYear = expYear.length === 2 ? `20${expYear}` : expYear;
-      const brand = detectCardBrand(cleanCardNumber);
+      // Prefer the brand Mercado Pago itself resolves for this BIN; the local regex
+      // (detectCardBrand) is only a fallback for when that lookup fails.
+      const resolvedBrand = await fetchPaymentMethodId(bin);
+      const brand = resolvedBrand || detectCardBrand(cleanCardNumber);
 
       // Tokenize card via Mercado Pago Card Token API
       const tokenPayload = {

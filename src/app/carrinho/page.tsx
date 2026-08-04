@@ -189,7 +189,7 @@ function CartContent() {
               </div>
               <div className="flex justify-between text-xs text-content/60">
                 <span>Frete</span>
-                <span>Calculado no checkout</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Grátis</span>
               </div>
               <div className="flex justify-between border-t border-content/10 pt-3 text-lg font-bold text-content">
                 <span>Total Estimado</span>
