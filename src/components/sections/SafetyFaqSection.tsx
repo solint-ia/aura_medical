@@ -1,6 +1,6 @@
 import { FaqAccordion } from "@/components/sections/FaqAccordion";
 import { SectionIntro } from "@/components/ui/SectionIntro";
-import { REGULATORY_DISCLAIMER, SAFETY_NOTES } from "@/data/safety";
+import { SAFETY_NOTES } from "@/data/safety";
 
 export function SafetyFaqSection() {
   return (
@@ -18,13 +18,16 @@ export function SafetyFaqSection() {
         />
 
         <div className="mb-14 grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-10">
-          <dl className="flex flex-col gap-5">
+          <dl className="flex flex-col gap-4">
             {SAFETY_NOTES.map((note) => (
-              <div key={note.label}>
-                <dt className="mb-2 font-mono text-[11px] tracking-[0.06em] text-content/65 uppercase">
+              <div
+                key={note.label}
+                className="rounded-2xl border border-content/12 border-l-4 border-l-[#C59D3F] bg-card p-5 shadow-sm sm:p-6"
+              >
+                <dt className="mb-2 font-mono text-[14px] font-bold tracking-[0.06em] text-[#C59D3F] uppercase">
                   {note.label}
                 </dt>
-                <dd className="text-[14.5px] leading-[1.6] text-content/78">
+                <dd className="text-[17.5px] leading-[1.6] font-medium text-content">
                   {note.body}
                 </dd>
               </div>
@@ -33,10 +36,6 @@ export function SafetyFaqSection() {
 
           <FaqAccordion />
         </div>
-
-        <p className="max-w-[900px] border-t border-content/10 pt-6 text-[12.5px] leading-[1.6] text-content/65">
-          {REGULATORY_DISCLAIMER}
-        </p>
       </div>
     </section>
   );

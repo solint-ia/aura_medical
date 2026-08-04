@@ -190,12 +190,24 @@ export default async function EnzymeDetailPage({ params }: EnzymePageProps) {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-content/12 bg-card p-6 shadow-sm">
+              {/*
+                "Apresentação: 10 ampolas liofilizadas" saiu daqui porque esta página
+                vende a ampola avulsa — informar a caixa fechada confundia o que o
+                cliente está comprando. O dado segue em `enzyme.presentation`.
+              */}
+
+              <div
+                id="registro-anvisa"
+                className="scroll-mt-32 rounded-2xl border border-[#C59D3F]/30 bg-card p-6 shadow-sm"
+              >
                 <span className="block font-mono text-xs font-semibold tracking-wider text-content/50 uppercase mb-2">
-                  Apresentação
+                  Registro ANVISA
                 </span>
-                <p className="font-display text-lg font-bold text-content">
-                  {enzyme.presentation}
+                <p className="font-mono text-lg font-bold text-content break-all">
+                  {enzyme.anvisaRegistration}
+                </p>
+                <p className="mt-1.5 text-xs font-medium text-content/70">
+                  {enzyme.anvisaProduct}
                 </p>
               </div>
             </div>

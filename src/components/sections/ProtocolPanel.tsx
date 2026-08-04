@@ -8,9 +8,6 @@ import { ENZYMES } from "@/data/enzymes";
 import { countVials, PRICE_PER_VIAL, type Protocol } from "@/data/protocols";
 import { formatBRL } from "@/lib/format";
 
-const BLOCK_LABEL_CLASSES =
-  "font-mono text-[11px] tracking-[0.08em] text-content/55 uppercase";
-
 const VIAL_IMAGE_MAP: Record<string, string> = {
   slim: "/frascos/slim.png",
   smooth: "/frascos/smooth.png",
@@ -48,7 +45,9 @@ export function ProtocolPanel({ protocol }: { protocol: Protocol }) {
         ) : null}
 
         <div className="flex flex-col">
-          <p className={`mb-1 ${BLOCK_LABEL_CLASSES}`}>Protocolo Selecionado</p>
+          <p className="mb-1.5 font-mono text-[13px] font-bold tracking-[0.1em] text-[#C59D3F] uppercase">
+            Protocolo Padrão
+          </p>
           <h3 className="font-display text-[clamp(26px,2.6vw,36px)] font-bold tracking-[-0.01em] text-content leading-tight">
             {protocol.name}
           </h3>
@@ -58,7 +57,9 @@ export function ProtocolPanel({ protocol }: { protocol: Protocol }) {
       <hr className="border-content/10" />
 
       <div>
-        <p className={`mb-3.5 ${BLOCK_LABEL_CLASSES}`}>Composição do Kit</p>
+        <p className="mb-3.5 font-mono text-[13px] font-bold tracking-[0.08em] text-content/85 uppercase">
+          Composição do Kit
+        </p>
 
         <ul className="flex flex-wrap gap-3">
           {protocol.composition.map((item) => {
@@ -95,8 +96,8 @@ export function ProtocolPanel({ protocol }: { protocol: Protocol }) {
           })}
         </ul>
 
-        <p className="mt-3.5 font-mono text-[10.5px] tracking-[0.05em] text-content/55 uppercase">
-          {totalVials} ampolas ao todo
+        <p className="mt-3.5 font-mono text-[13px] font-bold tracking-[0.05em] text-content/90 uppercase">
+          {totalVials} ampolas ao todo por região
         </p>
       </div>
 
@@ -107,7 +108,7 @@ export function ProtocolPanel({ protocol }: { protocol: Protocol }) {
           <p className="font-display text-[clamp(36px,4vw,46px)] leading-none font-bold tracking-[-0.01em] text-content">
             {formatBRL(protocol.totalPrice)}
           </p>
-          <p className="mt-2 font-mono text-[11.5px] text-content/75">
+          <p className="mt-2 font-mono text-[13.5px] font-medium text-content/90">
             {totalVials} × {formatBRL(PRICE_PER_VIAL)} / ampola · <span className="font-bold text-[#C59D3F]">em até 10x no cartão</span>
           </p>
         </div>

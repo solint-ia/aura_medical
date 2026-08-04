@@ -23,12 +23,12 @@ export const INDICATIONS: Indication[] = [
   },
   {
     id: "queixo-duplo",
-    title: "Queixo Duplo / Papada",
+    title: "Queixo Duplo (Papada)",
     description:
       "Reduz o acúmulo adiposo submentual e melhora o ângulo cervicomentoniano.",
     enzymes: ["slim", "drain"],
     featured: false,
-    photoPlaceholder: "Close-up · Queixo Duplo / Papada",
+    photoPlaceholder: "Close-up · Queixo Duplo (Papada)",
   },
   {
     id: "celulite",

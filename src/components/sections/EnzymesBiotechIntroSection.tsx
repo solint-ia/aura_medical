@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import { enzymesData } from "@/data/enzymes";
 import {
   Dna,
   Snowflake,
@@ -34,7 +35,12 @@ interface BiotechChapter {
     founded: string;
     guarantee: string;
   };
+  /** Lista os processos ANVISA lidos de `enzymesData` — números moram só lá. */
+  anvisaRecords?: boolean;
 }
+
+/** Âncora usada pelo FAQ para cair direto no capítulo de registro sanitário. */
+export const ANVISA_CHAPTER_ID = "registro-anvisa";
 
 const BIOTECH_CHAPTERS: BiotechChapter[] = [
   {
@@ -94,16 +100,46 @@ const BIOTECH_CHAPTERS: BiotechChapter[] = [
         "Garantia dos mais rigorosos padrões de qualidade e certificações internacionais no fabrico e fornecimento de produtos farmacêuticos estéreis e dispositivos médicos.",
     },
   },
+  {
+    id: ANVISA_CHAPTER_ID,
+    stepNumber: "04",
+    navTitle: "Registro ANVISA",
+    subtitleTag: "Regularização Sanitária",
+    title: "Registro ANVISA da linha pbserum Professional",
+    subtitle:
+      "Cada enzima da linha possui processo próprio junto à ANVISA — Agência Nacional de Vigilância Sanitária.",
+    body1:
+      "A regularização sanitária no Brasil é individual por produto: Slim+, Smooth+ e Drain+ têm cada um o seu número de processo, listados abaixo junto ao nome exato sob o qual foram registrados.",
+    anvisaRecords: true,
+  },
 ];
 
 export function EnzymesBiotechIntroSection() {
   const [activeStep, setActiveStep] = useState<number>(0);
   const chapter = BIOTECH_CHAPTERS[activeStep];
 
+  // Chegando por `/enzimas#registro-anvisa` (link do FAQ), abre o capítulo certo:
+  // sem isso a âncora rolaria até a seção mostrando o capítulo 01. O listener
+  // cobre o caso de o link ser clicado com a página já aberta, quando o
+  // navegador só troca o hash e não remonta nada.
+  useEffect(() => {
+    const syncFromHash = () => {
+      if (window.location.hash !== `#${ANVISA_CHAPTER_ID}`) return;
+
+      const index = BIOTECH_CHAPTERS.findIndex((item) => item.id === ANVISA_CHAPTER_ID);
+      if (index >= 0) setActiveStep(index);
+    };
+
+    syncFromHash();
+    window.addEventListener("hashchange", syncFromHash);
+    return () => window.removeEventListener("hashchange", syncFromHash);
+  }, []);
+
   return (
     <section
+      id={ANVISA_CHAPTER_ID}
       aria-label="Introdução Conceitual e Biotecnologia"
-      className="relative overflow-hidden bg-[#0A1622] px-[clamp(20px,4vw,56px)] pt-12 sm:pt-16 md:pt-20 pb-[clamp(64px,8vw,104px)] text-[#F6F3EC]"
+      className="relative scroll-mt-24 overflow-hidden bg-[#0A1622] px-[clamp(20px,4vw,56px)] pt-12 sm:pt-16 md:pt-20 pb-[clamp(64px,8vw,104px)] text-[#F6F3EC]"
     >
       {/* Background ambient radial glows */}
       <div
@@ -247,6 +283,36 @@ export function EnzymesBiotechIntroSection() {
                     );
                   })}
                 </div>
+              ) : null}
+
+              {/* Chapter 4 ANVISA Records */}
+              {chapter.anvisaRecords ? (
+                <ul className="mt-2 grid grid-cols-1 gap-4">
+                  {enzymesData.map((enzyme) => (
+                    <li
+                      key={enzyme.slug}
+                      className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 rounded-2xl border border-[#C59D3F]/30 bg-[#0D1E2E] p-5 shadow-lg"
+                    >
+                      <div className="flex items-center gap-3">
+                        <CheckCircle2 className="h-5 w-5 shrink-0 text-[#C59D3F]" />
+                        <div>
+                          <p className="font-display text-base font-bold text-[#F6F3EC]">
+                            {enzyme.name}
+                          </p>
+                          <p className="text-xs text-[#F6F3EC]/70">{enzyme.anvisaProduct}</p>
+                        </div>
+                      </div>
+                      <div className="ml-8 sm:ml-0">
+                        <span className="block font-mono text-[10.5px] uppercase tracking-wider text-[#F6F3EC]/50">
+                          Processo ANVISA
+                        </span>
+                        <span className="font-mono text-sm font-bold text-[#C59D3F]">
+                          {enzyme.anvisaRegistration}
+                        </span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
               ) : null}
 
               {/* Chapter 3 Factory Details */}

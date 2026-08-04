@@ -58,7 +58,7 @@ export function HeroSection() {
               href="#protocolos"
               className="group inline-flex items-center gap-2.5 rounded-lg bg-action px-8 py-4 text-[15.5px] font-semibold text-action-fg transition-all hover:bg-action-hover shadow-md hover:shadow-lg active:scale-[0.99]"
             >
-              <span>Ver protocolos e preços</span>
+              <span>Ver protocolos</span>
               <svg
                 aria-hidden="true"
                 className="h-4 w-4 transition-transform group-hover:translate-y-0.5"
@@ -71,11 +71,6 @@ export function HeroSection() {
               </svg>
             </a>
           </div>
-          <p className="order-5 flex animate-fade-up flex-wrap gap-x-5 gap-y-2.5 font-mono text-[11px] tracking-[0.04em] text-content/80 uppercase [animation-delay:320ms]">
-            <span>Fórmula Profissional de Alta Performance</span>
-            <span aria-hidden="true">·</span>
-            <span>PB500 · PB220 · PB3000</span>
-          </p>
         </div>
 
         <div className="relative order-2 mt-4 mb-10 ml-auto aspect-[1/0.88] w-full max-w-[560px] hero:order-none hero:my-0">

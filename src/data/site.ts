@@ -39,6 +39,20 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
   },
 ];
 
+export const WHATSAPP_NUMBER_DISPLAY = "(79) 9 96809911";
+export const WHATSAPP_URL = "https://wa.me/5579996809911";
+export const CONTACT_EMAIL = "contato@auraregenera.com";
+
+/** CNPJ da Aura Regenera — fonte: cnpj.biz/68305659000190. */
+export const COMPANY_CNPJ = "68.305.659/0001-90";
+
+/**
+ * PENDENTE: perfil do Instagram ainda não informado. Enquanto a string estiver
+ * vazia o ícone não é renderizado no rodapé — um link quebrado seria pior do
+ * que a ausência do ícone. Basta preencher aqui para ele aparecer.
+ */
+export const INSTAGRAM_URL = "";
+
 export const ADVERSE_EVENT_CONTACT = {
   label: "Reportar evento adverso",
   email: "technosurveillance@pbserum.com",

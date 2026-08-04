@@ -15,7 +15,7 @@ export interface CaseCategory {
 }
 
 export const CASE_CATEGORIES: CaseCategory[] = [
-  { id: "queixo-duplo", label: "Queixo Duplo" },
+  { id: "queixo-duplo", label: "Queixo Duplo (Papada)" },
   { id: "cicatrizes", label: "Cicatrizes" },
   { id: "fibrose-pos-cirurgica", label: "Fibrose Pós-Cirúrgica" },
   { id: "perfilamento-facial", label: "Perfilamento Facial" },
@@ -27,7 +27,7 @@ export const clinicalCasesData: ClinicalCase[] = [
   {
     id: "queixo-1",
     categoryId: "queixo-duplo",
-    categoryName: "Queixo Duplo",
+    categoryName: "Queixo Duplo (Papada)",
     beforeImage: "/Casos-clinicos/queixoduplo1-antes.png",
     afterImage: "/Casos-clinicos/queixoduplos1-depois.png",
     doctor: "Dra. Susana Misticone",
@@ -56,7 +56,7 @@ export const clinicalCasesData: ClinicalCase[] = [
   {
     id: "queixo-2",
     categoryId: "queixo-duplo",
-    categoryName: "Queixo Duplo",
+    categoryName: "Queixo Duplo (Papada)",
     beforeImage: "/Casos-clinicos/queixoduplo2-antes.png",
     afterImage: "/Casos-clinicos/queixoduplo2-depois.png",
     doctor: "Dra. Farah el Chaer",

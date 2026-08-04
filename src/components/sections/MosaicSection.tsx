@@ -28,7 +28,7 @@ export function MosaicSection() {
         {/* Image with 3D drop shadow matching hexagon contours */}
         <Image
           src="/images/mosaico.png"
-          alt="Mosaico de indicações clínicas: Gordura Localizada, Flacidez, Celulite, Fibrose, Cicatrizes, Queixo Duplo"
+          alt="Mosaico de indicações clínicas: Gordura Localizada, Flacidez, Celulite, Fibrose, Cicatrizes, Queixo Duplo (Papada)"
           width={1400}
           height={788}
           priority

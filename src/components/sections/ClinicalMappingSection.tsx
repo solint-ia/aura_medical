@@ -26,7 +26,7 @@ export function ClinicalMappingSection() {
             Identifique a indicação ideal para a sua necessidade.
           </h2>
           <p className="mt-4 text-base text-[#0A1622]/75 sm:text-lg leading-relaxed">
-            Visualização 3D das zonas de aplicação facial e corporal para bioremodelação tecidual.
+            Visualização 3D das zonas de tratamento facial e corporal para bioremodelação tecidual.
           </p>
         </div>
 
@@ -73,7 +73,11 @@ export function ClinicalMappingSection() {
           </div>
         </div>
 
-        {/* Task 1 & 2: Scale Down Container & Reset Vertical Margins */}
+        {/*
+          OCULTO A PEDIDO DO CLIENTE — bloco "Técnica de Aplicação / Esquema Técnico
+          & Malha de Aplicação" e a imagem abaixo dele. Código preservado de
+          propósito; para reexibir, basta remover este comentário.
+
         <div className="w-full max-w-4xl lg:max-w-5xl mx-auto mt-12 md:mt-16 text-center">
           <span className="font-mono text-xs font-semibold tracking-[0.18em] text-[#C59D3F] uppercase md:text-sm">
             Técnica de Aplicação
@@ -94,6 +98,7 @@ export function ClinicalMappingSection() {
             />
           </div>
         </div>
+        */}
       </div>
     </section>
   );

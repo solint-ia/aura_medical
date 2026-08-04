@@ -4,7 +4,7 @@ export function PartnershipCtaSection() {
   return (
     <section
       id="atendimento-tecnologia"
-      aria-label="Experimente a eficácia da Aura Regenera"
+      aria-label="Experimente a eficácia dos nossos produtos da Aura Regenera"
       className="relative overflow-hidden bg-[#F7F5F0] dark:bg-canvas px-[clamp(20px,4vw,56px)] pt-12 md:pt-16 pb-12 md:pb-14 text-content border-t border-content/10"
     >
       {/* Background ambient accents */}
@@ -19,7 +19,7 @@ export function PartnershipCtaSection() {
         </span>
 
         <h2 className="mt-3 font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-content leading-[1.12]">
-          Experimente a eficácia da Aura Regenera.
+          Experimente a eficácia dos nossos produtos da Aura Regenera.
         </h2>
 
         <p className="mt-4 text-base sm:text-lg text-content/80 max-w-2xl mx-auto leading-relaxed">

@@ -30,7 +30,7 @@ export const PRODUCTS: Product[] = [
   {
     id: "smooth",
     name: "Smooth+",
-    activeIngredient: "Colagenases G&H PB220*",
+    activeIngredient: "Colagenase G&H PB220*",
     origin: "S. pyogenes + C. histolyticum · patenteada",
     substrate: "Colágeno fibrótico e septos fibrosos",
     mechanism:
@@ -89,7 +89,7 @@ export const ENZYME_COMPARISON: EnzymeComparisonRow[] = [
   {
     attribute: "Eficácia Clínica",
     recombinant:
-      "Resultados visíveis e prolongados em curto prazo, atuando desde a primeira aplicação.",
+      "Resultados visíveis e prolongados em curto prazo, atuando desde a primeira sessão.",
     animal:
       "Resposta clínica variável, frequentemente exigindo múltiplas sessões para resultados iniciais.",
   },

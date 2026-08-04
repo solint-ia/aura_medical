@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import Link from "next/link";
 
 import { FAQ_ITEMS } from "@/data/safety";
 
@@ -45,7 +46,22 @@ export function FaqAccordion() {
                 aria-labelledby={buttonId}
                 className="pb-1.5 text-[14.5px] leading-[1.6] text-content/75"
               >
-                {item.answer}
+                <p>{item.answer}</p>
+                {item.links ? (
+                  <ul className="mt-2.5 flex flex-col gap-1.5">
+                    {item.links.map((link) => (
+                      <li key={link.href}>
+                        <Link
+                          href={link.href}
+                          className="inline-flex items-center gap-1.5 font-mono text-[13px] font-semibold text-[#C59D3F] underline underline-offset-4 decoration-[#C59D3F]/40 transition-colors hover:decoration-[#C59D3F]"
+                        >
+                          {link.label}
+                          <span aria-hidden="true">→</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
               </div>
             ) : null}
           </div>

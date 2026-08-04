@@ -3,9 +3,16 @@ export interface SafetyNote {
   body: string;
 }
 
+export interface FaqLink {
+  href: string;
+  label: string;
+}
+
 export interface FaqItem {
   question: string;
   answer: string;
+  /** Links exibidos abaixo da resposta, quando ela aponta para outra página. */
+  links?: FaqLink[];
 }
 
 export const SAFETY_NOTES: SafetyNote[] = [
@@ -32,7 +39,7 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     question: "Existe pedido mínimo?",
     answer:
-      "Não há valor mínimo de pedido. Você pode adquirir desde kits individuais até múltiplos tratamentos com condições especiais.",
+      "Não há valor mínimo de pedido. Você pode adquirir desde enzimas individuais até protocolos completos.",
   },
   {
     question: "Quais os prazos de entrega?",
@@ -41,7 +48,10 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     question: "Os produtos possuem registro e comprovação?",
     answer:
-      "Sim. pbserum Plus é formulado sob rigorosos padrões internacionais de qualidade, com registro cosmético conforme o Regulamento (CE) 1223/2009.",
+      "Sim. Cada enzima da linha pbserum Plus possui registro na ANVISA, além do registro cosmético conforme o Regulamento (CE) 1223/2009. Os números de processo de Slim+, Smooth+ e Drain+ estão no capítulo 04 — Registro ANVISA, na seção Biotecnologia Avançada:",
+    links: [
+      { href: "/enzimas#registro-anvisa", label: "Capítulo 04 · Registro ANVISA" },
+    ],
   },
   {
     question: "Como utilizar os produtos?",
@@ -49,6 +59,3 @@ export const FAQ_ITEMS: FaqItem[] = [
       "Cada protocolo acompanha instruções detalhadas de uso e reconstituição. Nossas fórmulas recombinantes possuem alta tecnologia para máxima eficiência.",
   },
 ];
-
-export const REGULATORY_DISCLAIMER =
-  "Fórmula profissional de alta performance. Produto cosmético registrado conforme o Regulamento (CE) 1223/2009. pbserum Plus não trata ou cura doenças; resultados individuais podem variar.";

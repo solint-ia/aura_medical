@@ -34,7 +34,7 @@ const ENZYME_VIALS: EnzymeVialCard[] = [
     description: "Atua na interface água/lipídio hidrolisando triglicerídeos de forma seletiva para redução de gordura localizada.",
     price: 390,
     imagePath: "/frascos/slim.png",
-    badge: "Hidrólise de Lipídios",
+    badge: "Lipase PB500",
     badgeColor: "bg-[#C59D3F]/15 text-[#C59D3F] border-[#C59D3F]/30",
     accentColor: "#C59D3F",
     targetSubstrate: "Triglicerídeos do adipócito",
@@ -44,11 +44,11 @@ const ENZYME_VIALS: EnzymeVialCard[] = [
     slug: "smooth-plus",
     name: "Smooth+",
     subtitle: "Ampola Avulsa de Colagenase",
-    activeIngredient: "Colagenases G&H PB220 Patenteadas",
+    activeIngredient: "Colagenase G&H PB220 Patenteada",
     description: "Cliva o colágeno desorganizado e rompe septos fibrosos da celulite e cicatrizes sem agredir tecidos sadios.",
     price: 390,
     imagePath: "/frascos/smooth.png",
-    badge: "Tecnologia Patenteada",
+    badge: "Colagenase G/H PB220",
     badgeColor: "bg-[#D97706]/15 text-[#D97706] border-[#D97706]/30",
     accentColor: "#D97706",
     targetSubstrate: "Colágeno fibrótico & septos",
@@ -63,7 +63,7 @@ const ENZYME_VIALS: EnzymeVialCard[] = [
     description: "Degrada os polissacarídeos da matriz extracelular, eliminando retenção hídrica e otimizando a difusão dos ativos.",
     price: 390,
     imagePath: "/frascos/drain.png",
-    badge: "Difusão & Drenagem",
+    badge: "Hialuronidase PB3000",
     badgeColor: "bg-[#EAB308]/15 text-[#EAB308] border-[#EAB308]/30",
     accentColor: "#EAB308",
     targetSubstrate: "Matriz extracelular & edemas",
@@ -117,7 +117,7 @@ export function IndividualEnzymesSection() {
             id="enzimas-avulsas-title"
             className="font-display text-[clamp(28px,4vw,44px)] font-bold tracking-tight text-white mb-4"
           >
-            Ampolas de Enzimas Individuais
+            Ampolas de Enzimas Recombinantes
           </h2>
 
           <p className="mx-auto max-w-2xl text-base text-slate-300">
@@ -162,9 +162,7 @@ export function IndividualEnzymesSection() {
                     <h3 className="font-display text-2xl font-bold text-white mb-1">
                       {vial.name}
                     </h3>
-                    <p className="font-mono text-xs font-bold text-[#C59D3F] uppercase tracking-wider mb-2">
-                      {vial.activeIngredient}
-                    </p>
+                    {/* Nome da enzima saiu daqui: agora aparece no badge do topo do card. */}
                     <p className="text-sm text-slate-300 leading-relaxed mb-4">
                       {vial.description}
                     </p>

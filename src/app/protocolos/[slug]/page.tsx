@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `Protocolo ${protocol.title} · pbserum Plus | Aura Regenera`,
-    description: `Detalhamento clínico do protocolo de ${protocol.title}: composição enzimática, reconstituição, frequência de sessões e técnica de aplicação.`,
+    description: `Detalhamento clínico do protocolo de ${protocol.title}: composição enzimática, reconstituição, frequência de sessões e técnica de uso.`,
   };
 }
 
@@ -127,7 +127,7 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                   <div className="group relative aspect-square w-64 h-64 sm:w-72 sm:h-72 lg:w-80 lg:h-80 rounded-full overflow-hidden border-[3px] border-[#C59D3F] shadow-[0_20px_50px_rgba(197,157,63,0.18)] ring-8 ring-[#C59D3F]/10 transition-transform duration-500 hover:scale-[1.02]">
                     <Image
                       src={protocol.imagePath1}
-                      alt={`Área de aplicação do protocolo ${protocol.title}`}
+                      alt={`Área de tratamento do protocolo ${protocol.title}`}
                       fill
                       sizes="(max-width: 768px) 280px, 320px"
                       priority
@@ -137,7 +137,7 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                   </div>
 
                   <p className="mt-4 font-mono text-xs tracking-wider text-content/50 uppercase text-center">
-                    Mapeamento de Aplicação Anatômica
+                    Mapeamento Anatômico
                   </p>
 
                   {/* Summary Card */}
@@ -151,7 +151,7 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                         <span className="font-mono text-sm font-bold text-content">{protocol.sessions} sessões</span>
                       </div>
                       <div className="flex items-start justify-between border-b border-content/8 pb-3">
-                        <span className="text-sm font-medium text-content/70">Intervalo de Aplicação</span>
+                        <span className="text-sm font-medium text-content/70">Intervalo entre Sessões</span>
                         <span className="font-mono text-sm font-bold text-content">{protocol.frequency}</span>
                       </div>
                       <div className="flex items-start justify-between">
@@ -166,14 +166,14 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                       <div className="mt-6 border-t border-content/10 pt-5">
                         <div className="flex items-end justify-between">
                           <span className="font-mono text-xs tracking-wider text-content/50 uppercase">
-                            Valor do kit
+                            Valor do protocolo
                           </span>
                           <span className="font-display text-2xl font-bold text-content">
                             {formatBRL(pricing.totalPrice)}
                           </span>
                         </div>
-                        <p className="mt-1 text-right font-mono text-[11px] text-content/75">
-                          {pricing.vials} ampolas por kit · <span className="font-bold text-[#C59D3F]">em até 10x no cartão</span>
+                        <p className="mt-1 text-right font-mono text-[13px] font-medium text-content/90">
+                          {pricing.vials} ampolas por região · <span className="font-bold text-[#C59D3F]">em até 10x no cartão</span>
                         </p>
 
                         <div className="mt-4">
@@ -206,7 +206,7 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                     <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
                       01
                     </span>
-                    <h2 className="font-display text-xl font-bold text-content">
+                    <h2 className="font-display text-2xl sm:text-[26px] font-bold text-content">
                       Composição do Kit
                     </h2>
                   </div>
@@ -283,7 +283,7 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                     </div>
                     <div className="rounded-xl border border-content/8 bg-canvas p-5">
                       <p className="font-mono text-xs text-content/50 uppercase tracking-wider mb-1">
-                        Frequência das Aplicações
+                        Frequência das Sessões
                       </p>
                       <p className="text-2xl font-bold text-content">{protocol.frequency}</p>
                     </div>
@@ -318,33 +318,7 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                   </ol>
                 </section>
 
-                {/* 4. Aplicação */}
-                <section className="rounded-2xl border border-content/10 bg-card p-6 sm:p-8 shadow-sm">
-                  <div className="flex items-center gap-3 mb-6">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
-                      04
-                    </span>
-                    <h2 className="font-display text-xl font-bold text-content">
-                      Técnica de Aplicação & Dosagem
-                    </h2>
-                  </div>
-
-                  <ul className="space-y-3">
-                    {protocol.application.map((rule, idx) => (
-                      <li
-                        key={idx}
-                        className="flex items-start gap-3 rounded-xl border border-content/8 bg-canvas p-4"
-                      >
-                        <span className="mt-1 h-1.5 w-1.5 flex-none rounded-full bg-action" />
-                        <span className="text-sm leading-relaxed text-content/90 font-medium">
-                          {rule}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-
-                {/* Task 2: Inject Second Circular Image (imagePath2) Between Aplicação and Marcação */}
+                {/* Task 2: Inject Second Circular Image (imagePath2) Between Reconstituição and Marcação */}
                 {protocol.imagePath2 ? (
                   <div className="my-10 flex flex-col items-center justify-center py-4">
                     <div className="group relative aspect-square w-64 h-64 sm:w-72 sm:h-72 lg:w-80 lg:h-80 rounded-full overflow-hidden border-[3px] border-[#C59D3F] shadow-[0_20px_50px_rgba(197,157,63,0.18)] ring-8 ring-[#C59D3F]/10 transition-transform duration-500 hover:scale-[1.02]">
@@ -363,11 +337,11 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                   </div>
                 ) : null}
 
-                {/* 5. Marcação */}
+                {/* 4. Marcação */}
                 <section className="rounded-2xl border border-content/10 bg-card p-6 sm:p-8 shadow-sm">
                   <div className="flex items-center gap-3 mb-6">
                     <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
-                      05
+                      04
                     </span>
                     <h2 className="font-display text-xl font-bold text-content">
                       Distribuição & Marcação de Malha
@@ -381,12 +355,12 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                   </div>
                 </section>
 
-                {/* 6. Resultados Esperados */}
+                {/* 5. Resultados Esperados */}
                 {protocol.expectedResults && protocol.expectedResults.length > 0 ? (
                   <section className="rounded-2xl border border-content/10 bg-card p-6 sm:p-8 shadow-sm">
                     <div className="flex items-center gap-3 mb-6">
                       <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
-                        06
+                        05
                       </span>
                       <h2 className="font-display text-xl font-bold text-content">
                         Resultados Esperados
