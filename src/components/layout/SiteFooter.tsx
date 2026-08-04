@@ -10,9 +10,9 @@ export function SiteFooter() {
           <Image
             src="/logos/AR-DARK.png"
             alt="Aura Regenera"
-            width={260}
-            height={260}
-            className="h-28 sm:h-32 md:h-36 w-auto object-contain drop-shadow-md"
+            width={695}
+            height={558}
+            className="h-24 sm:h-28 md:h-32 w-auto object-contain drop-shadow-md"
           />
         </div>
 
