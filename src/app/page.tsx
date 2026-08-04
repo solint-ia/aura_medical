@@ -5,6 +5,7 @@ import { ClinicalCasesSection } from "@/components/sections/ClinicalCasesSection
 import { ClinicalMappingSection } from "@/components/sections/ClinicalMappingSection";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { MosaicSection } from "@/components/sections/MosaicSection";
+import { IndividualEnzymesSection } from "@/components/sections/IndividualEnzymesSection";
 import { PartnershipCtaSection } from "@/components/sections/PartnershipCtaSection";
 import { ProtocolsSection } from "@/components/sections/ProtocolsSection";
 import { SafetyFaqSection } from "@/components/sections/SafetyFaqSection";
@@ -19,6 +20,7 @@ export default function LandingPage() {
         <ClinicalCasesSection />
         <ClinicalMappingSection />
         <ProtocolsSection />
+        <IndividualEnzymesSection />
         <SafetyFaqSection />
         <PartnershipCtaSection />
       </main>
