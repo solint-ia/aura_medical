@@ -171,7 +171,7 @@ export function renderAuraEmailTemplate({ title, subtitle, code, actionMessage }
         </div>
         <div class="footer">
           <p>© 2026 Aura Regenera · Biotecnologia & Medicina Estética de Alta Performance</p>
-          <p>Dúvidas? Entre em contato via <a href="mailto:contato@auraregenera.com">contato@auraregenera.com</a></p>
+          <p>Dúvidas? Entre em contato via <a href="mailto:contato@auraregenera.com">contato@auraregenera.com</a> ou <a href="https://wa.me/5579996809911" target="_blank" style="color: #25D366; text-decoration: none; font-weight: bold;">WhatsApp (79) 9 96809911</a></p>
         </div>
       </div>
     </body>
@@ -629,7 +629,6 @@ export function renderOrderSuccessEmailTemplate({
         </div>
         <div class="body-content">
           <h1 class="title">Pedido Confirmado!</h1>
-          <div class="order-code">Código do Pedido: ${orderNumber}</div>
 
           <div class="positive-message">
             ✨ <strong>Parabéns por escolher a excelência em biotecnologia estética!</strong><br>
@@ -685,7 +684,7 @@ export function renderOrderSuccessEmailTemplate({
         </div>
         <div class="footer">
           <p>© 2026 Aura Regenera · Biotecnologia & Medicina Estética de Alta Performance</p>
-          <p>Dúvidas? Fale conosco via <a href="mailto:contato@auraregenera.com" style="color: #C59D3F;">contato@auraregenera.com</a></p>
+          <p>Dúvidas? Fale conosco via <a href="mailto:contato@auraregenera.com" style="color: #C59D3F; text-decoration: none;">contato@auraregenera.com</a> ou <a href="https://wa.me/5579996809911" target="_blank" style="color: #25D366; text-decoration: none; font-weight: bold;">WhatsApp (79) 9 96809911</a></p>
         </div>
       </div>
     </body>
