@@ -76,6 +76,16 @@ interface AdminOrder {
   }>;
 }
 
+interface AdminUserAddress {
+  cep: string;
+  street: string;
+  number: string;
+  complement: string;
+  neighborhood: string;
+  city: string;
+  uf: string;
+}
+
 interface AdminUser {
   id: string;
   cpfCnpj: string;
@@ -88,6 +98,7 @@ interface AdminUser {
   createdAt: string;
   totalOrders: number;
   totalSpent: number;
+  address: AdminUserAddress | null;
 }
 
 const BRAZIL_STATES = [
@@ -946,6 +957,7 @@ function AdminDashboardContent() {
                       <th className="p-4">CPF / CNPJ</th>
                       <th className="p-4">E-mail</th>
                       <th className="p-4">Telefone</th>
+                      <th className="p-4">Endereço Principal</th>
                       <th className="p-4">Regra</th>
                       <th className="p-4">Compras</th>
                       <th className="p-4 text-right">Ações</th>
@@ -960,6 +972,22 @@ function AdminDashboardContent() {
                         <td className="p-4 text-content/80">{formatCpfOrCnpj(u.cpfCnpj)}</td>
                         <td className="p-4 text-content/80">{u.email}</td>
                         <td className="p-4 text-content/80">{formatPhone(u.phone)}</td>
+                        <td className="p-4 text-content/80 min-w-[220px]">
+                          {u.address ? (
+                            <>
+                              <p>
+                                {u.address.street}, {u.address.number}
+                                {u.address.complement ? ` - ${u.address.complement}` : ""}
+                              </p>
+                              <p className="text-[10px] text-content/50">
+                                {u.address.neighborhood} · {u.address.city}/{u.address.uf} · CEP{" "}
+                                {formatCep(u.address.cep)}
+                              </p>
+                            </>
+                          ) : (
+                            <span className="text-content/40">Sem endereço cadastrado</span>
+                          )}
+                        </td>
                         <td className="p-4">
                           <span
                             className={`rounded-full px-2.5 py-0.5 font-bold text-[10px] ${

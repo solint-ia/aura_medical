@@ -750,11 +750,11 @@ function AuthPageContent() {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block mb-1.5 font-mono text-xs uppercase text-content/80 font-semibold">
-                    {docType === "cpf" ? "Nome *" : "Razão Social / Nome Fantasia *"}
+                    {docType === "cpf" ? "Nome *" : "Nome da Clínica/Empresa *"}
                   </label>
                   <input
                     type="text"
-                    placeholder={docType === "cpf" ? "Seu nome" : "Razão Social"}
+                    placeholder={docType === "cpf" ? "Seu nome" : "Nome da clínica ou empresa"}
                     value={regFirstName}
                     onChange={(e) => {
                       setRegFirstName(e.target.value);
@@ -769,7 +769,7 @@ function AuthPageContent() {
 
                 <div>
                   <label className="block mb-1.5 font-mono text-xs uppercase text-content/80 font-semibold">
-                    {docType === "cpf" ? "Sobrenome *" : "Responsável Técnico / Sobrenome *"}
+                    {docType === "cpf" ? "Sobrenome *" : "Nome do Responsável *"}
                   </label>
                   <input
                     type="text"

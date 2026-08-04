@@ -25,34 +25,60 @@ export async function GET(req: Request) {
           orders: {
             select: { id: true, totalPrice: true },
           },
+          addresses: {
+            where: { isDefault: true },
+            take: 1,
+          },
         },
         orderBy: { createdAt: "desc" },
       });
 
-      users = dbUsers.map((u) => ({
-        id: u.id,
-        cpfCnpj: u.cpfCnpj,
-        firstName: u.firstName,
-        lastName: u.lastName,
-        birthDate: u.birthDate ? u.birthDate.toISOString().split("T")[0] : "",
-        email: u.email,
-        phone: u.phone,
-        role: (u as any).role || "USER",
-        createdAt: u.createdAt,
-        totalOrders: u.orders.length,
-        totalSpent: u.orders.reduce((sum, o) => sum + Number(o.totalPrice), 0),
-      }));
+      users = dbUsers.map((u) => {
+        const defaultAddress = u.addresses[0];
+        return {
+          id: u.id,
+          cpfCnpj: u.cpfCnpj,
+          firstName: u.firstName,
+          lastName: u.lastName,
+          birthDate: u.birthDate ? u.birthDate.toISOString().split("T")[0] : "",
+          email: u.email,
+          phone: u.phone,
+          role: (u as any).role || "USER",
+          createdAt: u.createdAt,
+          totalOrders: u.orders.length,
+          totalSpent: u.orders.reduce((sum, o) => sum + Number(o.totalPrice), 0),
+          address: defaultAddress
+            ? {
+                cep: defaultAddress.cep,
+                street: defaultAddress.street,
+                number: defaultAddress.number,
+                complement: defaultAddress.complement || "",
+                neighborhood: defaultAddress.neighborhood,
+                city: defaultAddress.city,
+                uf: defaultAddress.uf,
+              }
+            : null,
+        };
+      });
     } catch (prismaErr) {
       console.warn("Prisma users list fallback dbPool:", prismaErr);
 
       const sqlRes = await dbPool.query(`
-        SELECT u.*, 
+        SELECT u.*,
                COUNT(o.id) as orders_count,
-               COALESCE(SUM(o.total_price), 0) as total_spent
+               COALESCE(SUM(o.total_price), 0) as total_spent,
+               a.cep as address_cep,
+               a.street as address_street,
+               a.number as address_number,
+               a.complement as address_complement,
+               a.neighborhood as address_neighborhood,
+               a.city as address_city,
+               a.uf as address_uf
         FROM public.user_profiles u
         LEFT JOIN public.orders o ON u.id = o.user_id
+        LEFT JOIN public.user_addresses a ON a.user_id = u.id AND a.is_default = true
         WHERE ($1 = '' OR LOWER(u.first_name) LIKE $2 OR LOWER(u.last_name) LIKE $2 OR LOWER(u.email) LIKE $2 OR u.cpf_cnpj LIKE $2)
-        GROUP BY u.id
+        GROUP BY u.id, a.cep, a.street, a.number, a.complement, a.neighborhood, a.city, a.uf
         ORDER BY u.created_at DESC
       `, [query, `%${query}%`]);
 
@@ -68,6 +94,17 @@ export async function GET(req: Request) {
         createdAt: u.created_at,
         totalOrders: parseInt(u.orders_count || "0"),
         totalSpent: Number(u.total_spent || 0),
+        address: u.address_street
+          ? {
+              cep: u.address_cep,
+              street: u.address_street,
+              number: u.address_number,
+              complement: u.address_complement || "",
+              neighborhood: u.address_neighborhood,
+              city: u.address_city,
+              uf: u.address_uf,
+            }
+          : null,
       }));
     }
 

@@ -1,6 +1,34 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { dbPool } from "@/lib/db";
+import { sendMailerooEmail, renderShippingUpdateEmailTemplate } from "@/lib/maileroo";
+
+async function notifyTrackingUpdate(params: {
+  email: string;
+  customerName: string;
+  orderNumber: string;
+  trackingCode: string;
+  status: string;
+  shippingAddress: string;
+}) {
+  try {
+    const html = renderShippingUpdateEmailTemplate({
+      customerName: params.customerName,
+      orderNumber: params.orderNumber,
+      trackingCode: params.trackingCode,
+      status: params.status,
+      shippingAddress: params.shippingAddress,
+    });
+
+    await sendMailerooEmail({
+      to: params.email,
+      subject: `🚚 Pedido #${params.orderNumber} Está a Caminho! - Aura Regenera`,
+      html,
+    });
+  } catch (mailErr) {
+    console.error("Erro ao enviar e-mail de atualização de rastreio:", mailErr);
+  }
+}
 
 function extractUf(order: any): string {
   if (order.address?.uf) return order.address.uf.toUpperCase();
@@ -149,27 +177,75 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "ID do pedido é obrigatório." }, { status: 400 });
     }
 
+    const cleanTrackingCode = trackingCode !== undefined ? trackingCode.trim() : undefined;
+    const shouldNotifyTracking = !!cleanTrackingCode;
+
     try {
       const updated = await prisma.order.update({
         where: { id },
         data: {
           status: status || undefined,
-          trackingCode: trackingCode !== undefined ? trackingCode.trim() : undefined,
+          trackingCode: cleanTrackingCode,
         },
+        include: { user: true, address: true },
       });
+
+      if (shouldNotifyTracking && updated.user?.email) {
+        const shippingAddress = updated.address
+          ? `${updated.address.street}, ${updated.address.number} ${updated.address.complement || ""} - ${updated.address.neighborhood}, ${updated.address.city}/${updated.address.uf} (CEP ${updated.address.cep})`.trim()
+          : "Endereço cadastrado na conta";
+
+        await notifyTrackingUpdate({
+          email: updated.user.email,
+          customerName: `${updated.user.firstName} ${updated.user.lastName}`.trim(),
+          orderNumber: updated.orderNumber,
+          trackingCode: updated.trackingCode || cleanTrackingCode!,
+          status: updated.status,
+          shippingAddress,
+        });
+      }
 
       return NextResponse.json({ success: true, order: updated });
     } catch (prismaErr) {
       console.warn("Prisma order update fallback dbPool:", prismaErr);
 
       await dbPool.query(
-        `UPDATE public.orders 
-         SET status = COALESCE($1, status), 
-             tracking_code = COALESCE($2, tracking_code), 
+        `UPDATE public.orders
+         SET status = COALESCE($1, status),
+             tracking_code = COALESCE($2, tracking_code),
              updated_at = NOW()
          WHERE id = $3`,
-        [status || null, trackingCode !== undefined ? trackingCode.trim() : null, id]
+        [status || null, cleanTrackingCode ?? null, id]
       );
+
+      if (shouldNotifyTracking) {
+        const rowRes = await dbPool.query(
+          `SELECT o.order_number, o.status, o.tracking_code,
+                  u.email, u.first_name, u.last_name,
+                  a.street, a.number as addr_number, a.complement, a.neighborhood, a.city, a.uf, a.cep
+           FROM public.orders o
+           LEFT JOIN public.user_profiles u ON o.user_id = u.id
+           LEFT JOIN public.user_addresses a ON o.address_id = a.id
+           WHERE o.id = $1`,
+          [id]
+        );
+        const row = rowRes.rows[0];
+
+        if (row?.email) {
+          const shippingAddress = row.street
+            ? `${row.street}, ${row.addr_number} ${row.complement || ""} - ${row.neighborhood}, ${row.city}/${row.uf} (CEP ${row.cep})`.trim()
+            : "Endereço cadastrado na conta";
+
+          await notifyTrackingUpdate({
+            email: row.email,
+            customerName: `${row.first_name} ${row.last_name}`.trim(),
+            orderNumber: row.order_number,
+            trackingCode: row.tracking_code || cleanTrackingCode!,
+            status: row.status,
+            shippingAddress,
+          });
+        }
+      }
 
       return NextResponse.json({ success: true });
     }

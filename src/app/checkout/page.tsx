@@ -999,7 +999,11 @@ function CheckoutContent() {
 export default function CheckoutPage() {
   return (
     <AccreditationProvider>
-      <Script src="https://www.mercadopago.com/v2/security.js" strategy="afterInteractive" />
+      <Script
+        src="https://www.mercadopago.com/v2/security.js"
+        strategy="afterInteractive"
+        {...({ view: "checkout" } as Record<string, string>)}
+      />
       <input type="hidden" id="deviceId" />
       <SiteHeader />
       <main className="bg-canvas">

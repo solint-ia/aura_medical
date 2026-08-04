@@ -691,3 +691,214 @@ export function renderOrderSuccessEmailTemplate({
     </html>
   `;
 }
+
+export interface ShippingUpdateTemplateParams {
+  customerName: string;
+  orderNumber: string;
+  trackingCode: string;
+  status: string;
+  shippingAddress: string;
+}
+
+const SHIPPING_STATUS_INFO: Record<string, { label: string; emoji: string; color: string }> = {
+  pendente: { label: "Pedido Pendente", emoji: "⏳", color: "#F59E0B" },
+  pago: { label: "Pagamento Confirmado", emoji: "✓", color: "#10B981" },
+  em_separacao: { label: "Em Separação", emoji: "🏬", color: "#F59E0B" },
+  em_transporte: { label: "Em Transporte", emoji: "🚚", color: "#3B82F6" },
+  entregue: { label: "Entregue", emoji: "📦", color: "#10B981" },
+  cancelado: { label: "Cancelado", emoji: "❌", color: "#EF4444" },
+};
+
+export function renderShippingUpdateEmailTemplate({
+  customerName,
+  orderNumber,
+  trackingCode,
+  status,
+  shippingAddress,
+}: ShippingUpdateTemplateParams) {
+  const logoUrl = "https://auraregenera.com/logos/logo-email.png";
+  const statusInfo = SHIPPING_STATUS_INFO[status] || SHIPPING_STATUS_INFO.em_transporte;
+
+  return `
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Pedido #${orderNumber} - Atualização de Transporte</title>
+      <style>
+        body {
+          margin: 0;
+          padding: 0;
+          background-color: #0B131F;
+          font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+          color: #E2E8F0;
+        }
+        .container {
+          max-width: 600px;
+          margin: 30px auto;
+          background-color: #0D1B2A;
+          border: 1px solid rgba(197, 157, 63, 0.3);
+          border-radius: 20px;
+          overflow: hidden;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+        .header {
+          padding: 35px 30px 20px 30px;
+          text-align: center;
+          background: linear-gradient(180deg, rgba(197, 157, 63, 0.15) 0%, rgba(13, 27, 42, 0) 100%);
+        }
+        .logo {
+          max-height: 100px;
+          width: auto;
+          margin-bottom: 14px;
+        }
+        .badge {
+          display: inline-block;
+          background-color: ${statusInfo.color}22;
+          color: ${statusInfo.color};
+          border: 1px solid ${statusInfo.color}66;
+          font-size: 11px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          padding: 6px 16px;
+          border-radius: 20px;
+          margin-bottom: 12px;
+        }
+        .body-content {
+          padding: 20px 35px 40px 35px;
+        }
+        .title {
+          font-size: 24px;
+          font-weight: 700;
+          color: #FFFFFF;
+          margin: 0 0 8px 0;
+          text-align: center;
+        }
+        .subtitle {
+          font-size: 14px;
+          color: #94A3B8;
+          margin: 0 0 28px 0;
+          text-align: center;
+          line-height: 1.6;
+        }
+        .code-box {
+          background: rgba(197, 157, 63, 0.12);
+          border: 1.5px solid #C59D3F;
+          border-radius: 14px;
+          padding: 18px 24px;
+          margin: 0 0 28px 0;
+          text-align: center;
+        }
+        .code-label {
+          margin: 0 0 6px 0;
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          color: #94A3B8;
+        }
+        .code {
+          font-family: 'Courier New', Courier, monospace;
+          font-size: 26px;
+          font-weight: 800;
+          color: #C59D3F;
+          letter-spacing: 4px;
+          margin: 0;
+          text-shadow: 0 0 10px rgba(197, 157, 63, 0.3);
+        }
+        .info-card {
+          background-color: #112236;
+          border-left: 4px solid #C59D3F;
+          border-radius: 12px;
+          padding: 20px 24px;
+          margin-bottom: 25px;
+        }
+        .info-row {
+          margin-bottom: 12px;
+          font-size: 13.5px;
+        }
+        .info-row:last-child {
+          margin-bottom: 0;
+        }
+        .label {
+          color: #94A3B8;
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          display: block;
+          margin-bottom: 2px;
+          font-weight: 600;
+        }
+        .value {
+          color: #FFFFFF;
+          font-weight: 600;
+        }
+        .actions {
+          text-align: center;
+          margin-top: 10px;
+        }
+        .btn-account {
+          background-color: #C59D3F;
+          color: #0D1B2A !important;
+          padding: 14px 28px;
+          text-decoration: none;
+          border-radius: 12px;
+          font-weight: 700;
+          font-size: 14px;
+          display: inline-block;
+          box-shadow: 0 4px 15px rgba(197, 157, 63, 0.35);
+        }
+        .footer {
+          padding: 22px 30px;
+          background-color: #070E17;
+          border-top: 1px solid rgba(255,255,255,0.08);
+          text-align: center;
+          font-size: 11px;
+          color: #64748B;
+          font-family: monospace;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <img src="${logoUrl}" alt="Aura Regenera" class="logo"><br>
+          <span class="badge">${statusInfo.emoji} ${statusInfo.label}</span>
+        </div>
+        <div class="body-content">
+          <h1 class="title">Seu Pedido Está a Caminho!</h1>
+          <p class="subtitle">
+            Atualizamos o status de transporte do seu pedido <strong style="color: #C59D3F;">#${orderNumber}</strong>.
+            Use o código abaixo para acompanhar a entrega junto à transportadora.
+          </p>
+
+          <div class="code-box">
+            <p class="code-label">Código de Rastreio</p>
+            <p class="code">${trackingCode}</p>
+          </div>
+
+          <div class="info-card">
+            <div class="info-row">
+              <span class="label">👤 Cliente</span>
+              <span class="value">${customerName}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">📍 Endereço de Entrega</span>
+              <span class="value">${shippingAddress}</span>
+            </div>
+          </div>
+
+          <div class="actions">
+            <a href="https://auraregenera.com/minha-conta" class="btn-account">📦 Acompanhar Pedido na Minha Conta →</a>
+          </div>
+        </div>
+        <div class="footer">
+          <p>© 2026 Aura Regenera · Biotecnologia & Medicina Estética de Alta Performance</p>
+          <p>Dúvidas? Fale conosco via <a href="mailto:contato@auraregenera.com" style="color: #C59D3F; text-decoration: none;">contato@auraregenera.com</a> ou <a href="https://wa.me/5579996809911" target="_blank" style="color: #25D366; text-decoration: none; font-weight: bold;">WhatsApp (79) 9 96809911</a></p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
