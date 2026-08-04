@@ -22,10 +22,15 @@ export function SiteFooter() {
             Contato Aura Regenera
           </p>
           <div className="flex flex-col items-center sm:items-end gap-1.5 text-xs sm:text-sm">
-            <AccreditationButton className="inline-flex items-center gap-1.5 font-medium text-on-panel transition-colors hover:text-[#C59D3F]">
+            <a
+              href="https://wa.me/5579996809911"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 font-medium text-on-panel transition-colors hover:text-[#C59D3F]"
+            >
               <span>WhatsApp:</span>
-              <span className="underline underline-offset-4 decoration-[#C59D3F]/50">Atendimento via WhatsApp</span>
-            </AccreditationButton>
+              <span className="underline underline-offset-4 decoration-[#C59D3F]/50">(79) 9 96809911</span>
+            </a>
             <a
               href="mailto:contato@auraregenera.com"
               className="inline-flex items-center gap-1.5 font-medium text-on-panel transition-colors hover:text-[#C59D3F]"

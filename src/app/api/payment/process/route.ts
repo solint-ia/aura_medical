@@ -231,7 +231,7 @@ export async function POST(req: Request) {
 
         if (mpRes.ok && mpData.point_of_interaction?.transaction_data) {
           const transData = mpData.point_of_interaction.transaction_data;
-          triggerOrderEmail();
+          await triggerOrderEmail();
 
           return NextResponse.json({
             success: true,
@@ -382,7 +382,7 @@ export async function POST(req: Request) {
       const payData = await payRes.json();
 
       if (payRes.ok && (payData.status === "approved" || payData.status === "in_process")) {
-        triggerOrderEmail();
+        await triggerOrderEmail();
         return NextResponse.json({
           success: true,
           paymentId: payData.id,
