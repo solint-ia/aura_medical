@@ -172,8 +172,8 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                             {formatBRL(pricing.totalPrice)}
                           </span>
                         </div>
-                        <p className="mt-1 text-right font-mono text-[11px] text-content/50">
-                          {pricing.vials} frascos por kit
+                        <p className="mt-1 text-right font-mono text-[11px] text-content/75">
+                          {pricing.vials} frascos por kit · <span className="font-bold text-[#C59D3F]">em até 10x no cartão</span>
                         </p>
 
                         <div className="mt-4">

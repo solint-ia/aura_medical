@@ -107,8 +107,8 @@ export function ProtocolPanel({ protocol }: { protocol: Protocol }) {
           <p className="font-display text-[clamp(36px,4vw,46px)] leading-none font-bold tracking-[-0.01em] text-content">
             {formatBRL(protocol.totalPrice)}
           </p>
-          <p className="mt-2 font-mono text-[11.5px] text-content/55">
-            {totalVials} × {formatBRL(PRICE_PER_VIAL)} / frasco
+          <p className="mt-2 font-mono text-[11.5px] text-content/75">
+            {totalVials} × {formatBRL(PRICE_PER_VIAL)} / frasco · <span className="font-bold text-[#C59D3F]">em até 10x no cartão</span>
           </p>
         </div>
 

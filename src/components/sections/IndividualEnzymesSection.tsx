@@ -136,18 +136,13 @@ export function IndividualEnzymesSection() {
                 className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-[#0D1B2A] p-7 transition-all duration-300 hover:border-[#C59D3F]/50 hover:shadow-2xl hover:shadow-[#C59D3F]/10 hover:-translate-y-1"
               >
                 <div>
-                  {/* Top Badge & Patents */}
+                  {/* Top Badge */}
                   <div className="flex items-center justify-between gap-2 mb-6">
                     <span
                       className={`inline-block rounded-full border px-3 py-1 font-mono text-xs font-bold ${vial.badgeColor}`}
                     >
                       {vial.badge}
                     </span>
-                    {vial.patented && (
-                      <span className="inline-flex items-center gap-1 font-mono text-[11px] text-amber-400 font-bold">
-                        <ShieldCheck className="h-3.5 w-3.5" /> Patenteado
-                      </span>
-                    )}
                   </div>
 
                   {/* Vial Product Image Card Showcase */}
@@ -173,11 +168,6 @@ export function IndividualEnzymesSection() {
                     <p className="text-sm text-slate-300 leading-relaxed mb-4">
                       {vial.description}
                     </p>
-
-                    <div className="rounded-xl border border-white/8 bg-black/30 p-3 text-xs font-mono text-slate-400 space-y-1">
-                      <p>🎯 <strong className="text-white">Substrato:</strong> {vial.targetSubstrate}</p>
-                      <p>📦 <strong className="text-white">Apresentação:</strong> Frasco Liofilizado</p>
-                    </div>
                   </div>
                 </div>
 
