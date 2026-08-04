@@ -35,9 +35,9 @@ export const metadata: Metadata = {
     "Slim+, Smooth+ e Drain+: bio-remodeladores enzimáticos recombinantes de alta performance para flacidez, gordura localizada, celulite, fibrose e cicatrizes. Resultados comprovados para a sua pele.",
   metadataBase: new URL(SITE_URL),
   icons: {
-    icon: "/Favicon-Aura.ico",
-    shortcut: "/Favicon-Aura.ico",
-    apple: "/Favicon-Aura.ico",
+    icon: "/logos/AR-favicon.png",
+    shortcut: "/logos/AR-favicon.png",
+    apple: "/logos/AR-favicon.png",
   },
   openGraph: {
     title: "Aura Regenera",

@@ -85,7 +85,7 @@ export function SiteHeader() {
         />
         <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-90">
           <Image
-            src="/logos/logo-horizontal-3.png"
+            src="/logos/logo-aura-horizontal.png"
             alt="Aura Regenera"
             width={280}
             height={70}

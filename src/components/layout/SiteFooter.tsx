@@ -8,7 +8,7 @@ export function SiteFooter() {
         {/* Logo centralizada em telas mobile */}
         <div className="flex flex-col items-center sm:items-start">
           <Image
-            src="/logos/logo-rodapé.png"
+            src="/logos/AR-DARK.png"
             alt="Aura Regenera"
             width={260}
             height={260}

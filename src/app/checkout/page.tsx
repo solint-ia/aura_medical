@@ -438,6 +438,20 @@ function CheckoutContent() {
 
     return (
       <div className="mx-auto flex min-h-[75vh] max-w-2xl flex-col items-center justify-center px-4 py-8 text-center">
+        <Image
+          src="/logos/AR-LIGHT.png"
+          alt="Aura Regenera"
+          width={220}
+          height={64}
+          className="block dark:hidden h-12 w-auto object-contain"
+        />
+        <Image
+          src="/logos/AR-DARK.png"
+          alt="Aura Regenera"
+          width={220}
+          height={64}
+          className="hidden dark:block h-12 w-auto object-contain"
+        />
         <div className="mx-auto mt-6 mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#C59D3F]/20 text-[#C59D3F]">
           <Check className="h-10 w-10" />
         </div>

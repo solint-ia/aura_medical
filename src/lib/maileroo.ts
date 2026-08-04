@@ -1,5 +1,22 @@
 import { formatBRL } from "./format";
 
+/**
+ * Logo dos e-mails. Precisa ser URL absoluta, no domínio canônico (www) — o
+ * apex responde 308 e nem todo cliente de e-mail segue redirect em <img>.
+ * O arquivo precisa estar commitado em `public/logos/` e publicado em produção.
+ */
+export const EMAIL_LOGO_URL = "https://www.auraregenera.com/logos/logo-aura-horizontal.png";
+
+/**
+ * <img> do logo pronto para e-mail: dimensões em atributos HTML (Outlook ignora
+ * classes CSS e `max-height`) e estilo inline (Gmail remove <style> em alguns
+ * contextos, como a visualização mobile e o "mensagem cortada").
+ */
+function emailLogoImg(width = 200) {
+  const height = Math.round((width * 248) / 860);
+  return `<img src="${EMAIL_LOGO_URL}" alt="Aura Regenera" width="${width}" height="${height}" border="0" style="display: block; margin: 0 auto 16px auto; width: ${width}px; height: ${height}px; max-width: 100%; border: 0; outline: none; text-decoration: none;">`;
+}
+
 interface SendEmailParams {
   to: string;
   subject: string;
@@ -56,8 +73,6 @@ interface TemplateParams {
 }
 
 export function renderAuraEmailTemplate({ title, subtitle, code, actionMessage }: TemplateParams) {
-  const logoUrl = "https://auraregenera.com/logos/logo-email.png";
-
   return `
     <!DOCTYPE html>
     <html lang="pt-BR">
@@ -86,11 +101,6 @@ export function renderAuraEmailTemplate({ title, subtitle, code, actionMessage }
           padding: 40px 30px 20px 30px;
           text-align: center;
           background: linear-gradient(180deg, rgba(197, 157, 63, 0.12) 0%, rgba(13, 27, 42, 0) 100%);
-        }
-        .logo {
-          max-height: 120px;
-          width: auto;
-          margin-bottom: 16px;
         }
         .body-content {
           padding: 20px 35px 40px 35px;
@@ -156,7 +166,7 @@ export function renderAuraEmailTemplate({ title, subtitle, code, actionMessage }
     <body>
       <div class="container">
         <div class="header">
-          <img src="${logoUrl}" alt="Aura Regenera" class="logo">
+          ${emailLogoImg(210)}
         </div>
         <div class="body-content">
           <h1 class="title">${title}</h1>
@@ -188,7 +198,6 @@ interface ContactTemplateParams {
 }
 
 export function renderContactEmailTemplate({ name, email, phone, message, protocolName }: ContactTemplateParams) {
-  const logoUrl = "https://auraregenera.com/logos/logo-email.png";
   const cleanPhone = phone.replace(/\D/g, "");
 
   return `
@@ -219,11 +228,6 @@ export function renderContactEmailTemplate({ name, email, phone, message, protoc
           padding: 40px 30px 20px 30px;
           text-align: center;
           background: linear-gradient(180deg, rgba(197, 157, 63, 0.15) 0%, rgba(13, 27, 42, 0) 100%);
-        }
-        .logo {
-          max-height: 110px;
-          width: auto;
-          margin-bottom: 16px;
         }
         .badge {
           display: inline-block;
@@ -352,8 +356,8 @@ export function renderContactEmailTemplate({ name, email, phone, message, protoc
     <body>
       <div class="container">
         <div class="header">
-          <img src="${logoUrl}" alt="Aura Regenera" class="logo"><br>
-          <span class="badge">Atendimento & Suporte</span>
+          ${emailLogoImg(200)}
+          <span class="badge">Atendimento &amp; Suporte</span>
         </div>
         <div class="body-content">
           <h1 class="title">Novo Contato - Fale Conosco</h1>
@@ -433,8 +437,6 @@ export function renderOrderSuccessEmailTemplate({
   shippingCost,
   totalPrice,
 }: OrderSuccessTemplateParams) {
-  const logoUrl = "https://auraregenera.com/logos/logo-email.png";
-
   const itemsHtml = items
     .map(
       (item) => `
@@ -481,11 +483,6 @@ export function renderOrderSuccessEmailTemplate({
           padding: 35px 30px 20px 30px;
           text-align: center;
           background: linear-gradient(180deg, rgba(197, 157, 63, 0.15) 0%, rgba(13, 27, 42, 0) 100%);
-        }
-        .logo {
-          max-height: 100px;
-          width: auto;
-          margin-bottom: 14px;
         }
         .badge {
           display: inline-block;
@@ -624,7 +621,7 @@ export function renderOrderSuccessEmailTemplate({
     <body>
       <div class="container">
         <div class="header">
-          <img src="${logoUrl}" alt="Aura Regenera" class="logo"><br>
+          ${emailLogoImg(200)}
           <span class="badge">✓ Compra Confirmada</span>
         </div>
         <div class="body-content">
@@ -716,7 +713,6 @@ export function renderShippingUpdateEmailTemplate({
   status,
   shippingAddress,
 }: ShippingUpdateTemplateParams) {
-  const logoUrl = "https://auraregenera.com/logos/logo-email.png";
   const statusInfo = SHIPPING_STATUS_INFO[status] || SHIPPING_STATUS_INFO.em_transporte;
 
   return `
@@ -747,11 +743,6 @@ export function renderShippingUpdateEmailTemplate({
           padding: 35px 30px 20px 30px;
           text-align: center;
           background: linear-gradient(180deg, rgba(197, 157, 63, 0.15) 0%, rgba(13, 27, 42, 0) 100%);
-        }
-        .logo {
-          max-height: 100px;
-          width: auto;
-          margin-bottom: 14px;
         }
         .badge {
           display: inline-block;
@@ -863,7 +854,7 @@ export function renderShippingUpdateEmailTemplate({
     <body>
       <div class="container">
         <div class="header">
-          <img src="${logoUrl}" alt="Aura Regenera" class="logo"><br>
+          ${emailLogoImg(200)}
           <span class="badge">${statusInfo.emoji} ${statusInfo.label}</span>
         </div>
         <div class="body-content">
