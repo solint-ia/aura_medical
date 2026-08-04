@@ -464,7 +464,11 @@ function CustomerPortalContent() {
                     <span className="text-content/50 uppercase">Pedido:</span>{" "}
                     <strong className="text-content text-sm">{order.orderNumber}</strong>
                     <span className="text-content/40 ml-3">
-                      Data: {new Date(order.createdAt).toLocaleDateString("pt-BR")}
+                      Data: {new Date(order.createdAt).toLocaleDateString("pt-BR")} às{" "}
+                      {new Date(order.createdAt).toLocaleTimeString("pt-BR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
