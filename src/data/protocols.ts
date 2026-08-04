@@ -87,6 +87,26 @@ export const PROTOCOLS: Protocol[] = [
     sessions: "6 sessões · a cada 2 semanas",
     totalPrice: 1950,
   },
+  {
+    id: "teste-pix",
+    name: "Protocolo de Teste PIX (R$ 1,00 - Frete Grátis)",
+    image: "/images/fotos-protocolos/queixoduplo-2.png",
+    composition: [
+      { enzyme: "slim", vials: 1 },
+    ],
+    sessions: "1 sessão de teste",
+    totalPrice: 1,
+  },
+  {
+    id: "teste-cartao",
+    name: "Protocolo de Teste Cartão (R$ 5,00 - Frete Grátis)",
+    image: "/images/fotos-protocolos/queixoduplo-2.png",
+    composition: [
+      { enzyme: "slim", vials: 1 },
+    ],
+    sessions: "1 sessão de teste",
+    totalPrice: 5,
+  },
 ];
 
 export function countVials(protocol: Protocol): number {
@@ -260,6 +280,44 @@ export const protocolsData: ProtocolDetail[] = [
       "Aspecto mais uniforme da região tratada",
       "Recuperação progressiva da mobilidade tecidual",
       "Resultados progressivos ao longo das sessões"
+    ]
+  },
+  {
+    slug: "teste-pix",
+    title: "Protocolo de Teste PIX (R$ 1,00 - Frete Grátis)",
+    imagePath1: "/images/fotos-protocolos/queixoduplo-1.png",
+    imagePath2: "/images/fotos-protocolos/queixoduplo-2.png",
+    introduction: "Protocolo especial de teste para validação de pagamento via PIX (R$ 1,00 - Frete Grátis).",
+    composition: [
+      { name: "1 Frasco de Teste (Slim+)", description: "Validação de checkout PIX" }
+    ],
+    sessions: "1",
+    frequency: "Única",
+    reconstitution: ["Apenas para teste de checkout."],
+    application: ["Apenas para teste de checkout."],
+    marking: "Marcação de teste",
+    expectedResults: [
+      "Validação do fluxo de pagamento PIX",
+      "Testes de confirmação por e-mail"
+    ]
+  },
+  {
+    slug: "teste-cartao",
+    title: "Protocolo de Teste Cartão (R$ 5,00 - Frete Grátis)",
+    imagePath1: "/images/fotos-protocolos/queixoduplo-1.png",
+    imagePath2: "/images/fotos-protocolos/queixoduplo-2.png",
+    introduction: "Protocolo especial de teste para validação de pagamento no cartão (R$ 5,00 - Frete Grátis).",
+    composition: [
+      { name: "1 Frasco de Teste (Slim+)", description: "Validação de checkout Cartão" }
+    ],
+    sessions: "1",
+    frequency: "Única",
+    reconstitution: ["Apenas para teste de checkout."],
+    application: ["Apenas para teste de checkout."],
+    marking: "Marcação de teste",
+    expectedResults: [
+      "Validação do fluxo de pagamento no cartão",
+      "Testes de confirmação por e-mail"
     ]
   }
 ];

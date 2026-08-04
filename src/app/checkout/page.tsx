@@ -49,6 +49,29 @@ interface FormErrors {
   cardCpf?: string;
 }
 
+const MP_INSTALLMENT_FACTORS: Record<number, number> = {
+  1: 1.0,
+  2: 1.0459,
+  3: 1.0597,
+  4: 1.0737,
+  5: 1.0880,
+  6: 1.1025,
+  7: 1.1173,
+  8: 1.1323,
+  9: 1.1476,
+  10: 1.1632,
+};
+
+function formatInstallmentText(num: number, totalPrice: number): string {
+  if (num === 1) {
+    return `1x de ${formatBRL(totalPrice)} à vista (sem juros)`;
+  }
+  const factor = MP_INSTALLMENT_FACTORS[num] || (1.0 + num * 0.015);
+  const totalWithInterest = totalPrice * factor;
+  const installmentValue = totalWithInterest / num;
+  return `${num}x de ${formatBRL(installmentValue)} (Total: ${formatBRL(totalWithInterest)})`;
+}
+
 interface ShippingOption {
   id: number | string;
   name: string;
@@ -145,11 +168,14 @@ function CheckoutContent() {
   }, [selectedAddress, items, fetchShippingRates]);
 
   // Shipping Fee & Total Calculation
+  const hasTestProtocol = items.some((i) => i.id === "teste-pix" || i.id === "teste-cartao");
   const shippingCost = items.length === 0
     ? 0
-    : selectedShippingOption
-      ? selectedShippingOption.price
-      : 25;
+    : hasTestProtocol
+      ? (selectedShippingOption ? selectedShippingOption.price : 0)
+      : selectedShippingOption
+        ? selectedShippingOption.price
+        : 25;
 
   const totalPrice = subtotal + shippingCost;
 
@@ -759,7 +785,7 @@ function CheckoutContent() {
                 <div>
                   <h4 className="font-bold text-base text-content">Cartão de Crédito</h4>
                   <p className="mt-1 text-xs text-content/70">
-                    Parcele em até 12x sem juros com segurança garantida.
+                    Parcele em até 10x com juros pelo Mercado Pago.
                   </p>
                 </div>
               </div>
@@ -852,9 +878,9 @@ function CheckoutContent() {
                       onChange={(e) => setCard({ ...card, installments: Number(e.target.value) })}
                       className={inputClass(false)}
                     >
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((num) => (
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
                         <option key={num} value={num}>
-                          {num}x de {formatBRL(totalPrice / num)} sem juros {num === 1 ? "(À vista)" : ""}
+                          {formatInstallmentText(num, totalPrice)}
                         </option>
                       ))}
                     </select>

@@ -30,6 +30,24 @@ export async function POST(req: Request) {
       );
     }
 
+    const hasTestItem = Array.isArray(items) && items.some((i: { id?: string }) => i.id === "teste-pix" || i.id === "teste-cartao");
+    if (hasTestItem) {
+      return NextResponse.json({
+        success: true,
+        source: "teste-frete-gratis",
+        options: [
+          {
+            id: "frete-gratis-teste",
+            name: "Frete Grátis (Protocolo de Teste)",
+            price: 0,
+            deliveryTime: 1,
+            company: "Aura Express",
+            logo: "",
+          },
+        ],
+      });
+    }
+
     const originCep = (process.env.MELHOR_ENVIO_CEP_ORIGEM || "49041-060").replace(/\D/g, "");
     const configuredApiUrl = process.env.MELHOR_ENVIO_API_URL || "https://sandbox.melhorenvio.com.br/api/v2";
     const token = process.env.MELHOR_ENVIO_TOKEN;
