@@ -121,6 +121,7 @@ function CheckoutContent() {
     qrCodeBase64?: string;
   } | null>(null);
   const [pixCopied, setPixCopied] = useState(false);
+  const [pixPaid, setPixPaid] = useState(false);
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -131,6 +132,28 @@ function CheckoutContent() {
     shippingCost: number;
     shippingName: string;
   }>({ total: 0, itemsCount: 0, shippingCost: 0, shippingName: "Frete Padrão" });
+
+  // Real-time PIX Payment Status Polling via /api/payment/status
+  useEffect(() => {
+    if (!isSubmitted || paymentMethod !== "pix" || !pixData?.paymentId || pixPaid) {
+      return;
+    }
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/payment/status?paymentId=${pixData.paymentId}`);
+        const data = await res.json();
+        if (data.success && data.status === "approved") {
+          setPixPaid(true);
+          clearInterval(interval);
+        }
+      } catch (err) {
+        console.warn("Aviso ao checar status do PIX:", err);
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [isSubmitted, paymentMethod, pixData, pixPaid]);
 
   // Dynamic Shipping Calculation via /api/frete/calcular
   const fetchShippingRates = useCallback(async (cleanCep: string, currentItems: typeof items) => {
@@ -385,13 +408,19 @@ function CheckoutContent() {
       ? selectedShippingOption.name
       : "Frete Padrão";
 
+    const isPixPending = paymentMethod === "pix" && !pixPaid;
+
     return (
       <div className="mx-auto flex min-h-[75vh] max-w-2xl flex-col items-center justify-center px-4 py-8 text-center">
         <div className="mx-auto mt-6 mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#C59D3F]/20 text-[#C59D3F]">
           <Check className="h-10 w-10" />
         </div>
         <h1 className="font-display text-3xl font-bold text-content mb-1">
-          {paymentMethod === "pix" ? "Pedido Registrado — Pagamento via PIX" : "Pedido Confirmado com Sucesso!"}
+          {paymentMethod === "pix"
+            ? pixPaid
+              ? "🎉 Pagamento PIX Confirmado com Sucesso!"
+              : "Pedido Registrado — Pagamento via PIX"
+            : "🎉 Pedido Confirmado com Sucesso!"}
         </h1>
         <p className="font-mono text-sm font-bold text-[#C59D3F] mb-4">
           Código do Pedido: {submittedOrderNumber}
@@ -401,8 +430,30 @@ function CheckoutContent() {
           <strong className="text-[#C59D3F]">{submittedOrderSummary.itemsCount} kit(s)</strong> foi registrado em nosso sistema.
         </p>
 
-        {/* PIX QR CODE & COPIA E COLA SECTION */}
-        {paymentMethod === "pix" && pixData && (
+        {/* CARD APPROVED BANNER */}
+        {paymentMethod === "card" && (
+          <div className="w-full rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 mb-6 text-center text-xs font-mono text-emerald-700 dark:text-emerald-300">
+            ✓ Pagamento via Cartão de Crédito aprovado e confirmado pelo Mercado Pago.
+          </div>
+        )}
+
+        {/* PIX CONFIRMED SUCCESS BANNER */}
+        {paymentMethod === "pix" && pixPaid && (
+          <div className="w-full rounded-2xl border-2 border-emerald-500 bg-emerald-500/10 p-6 mb-8 text-center space-y-3 shadow-xl">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500 text-white font-bold text-xl shadow-md">
+              ✓
+            </div>
+            <h3 className="font-bold text-lg text-emerald-800 dark:text-emerald-300">
+              Pagamento PIX Identificado com Sucesso!
+            </h3>
+            <p className="text-xs text-content/80 font-mono">
+              O seu pagamento via PIX no valor de <strong>{formatBRL(submittedOrderSummary.total)}</strong> foi confirmado pelo Mercado Pago. Seu pedido foi encaminhado para a equipe comercial!
+            </p>
+          </div>
+        )}
+
+        {/* PIX QR CODE & COPIA E COLA SECTION (PENDING STATE) */}
+        {isPixPending && pixData && (
           <div className="w-full rounded-2xl border-2 border-[#C59D3F] bg-card p-6 mb-8 text-center space-y-4 shadow-xl">
             <span className="inline-block rounded-full bg-emerald-500/15 px-3.5 py-1 font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400">
               ⚡ QR Code PIX Mercado Pago Gerado com Sucesso
@@ -456,9 +507,13 @@ function CheckoutContent() {
               </div>
             </div>
 
-            <p className="text-[11px] font-mono text-content/60">
-              💡 Após o pagamento no seu banco, a aprovação é instantânea no Mercado Pago.
-            </p>
+            <div className="flex items-center justify-center gap-2 font-mono text-xs text-[#C59D3F] pt-2">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C59D3F] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#C59D3F]"></span>
+              </span>
+              Aguardando confirmação do pagamento em tempo real...
+            </div>
           </div>
         )}
 
