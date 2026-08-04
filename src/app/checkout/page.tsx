@@ -432,8 +432,9 @@ function CheckoutContent() {
 
         {/* CARD APPROVED BANNER */}
         {paymentMethod === "card" && (
-          <div className="w-full rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 mb-6 text-center text-xs font-mono text-emerald-700 dark:text-emerald-300">
-            ✓ Pagamento via Cartão de Crédito aprovado e confirmado pelo Mercado Pago.
+          <div className="w-full rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 mb-6 text-center text-xs font-mono text-emerald-700 dark:text-emerald-300 space-y-1">
+            <p>✓ Pagamento via Cartão de Crédito aprovado e confirmado pelo Mercado Pago.</p>
+            <p className="text-[11px] text-content/75">📩 Enviamos os detalhes resumidos da compra para o seu e-mail (<strong>{user.email}</strong>).</p>
           </div>
         )}
 
@@ -448,6 +449,9 @@ function CheckoutContent() {
             </h3>
             <p className="text-xs text-content/80 font-mono">
               O seu pagamento via PIX no valor de <strong>{formatBRL(submittedOrderSummary.total)}</strong> foi confirmado pelo Mercado Pago. Seu pedido foi encaminhado para a equipe comercial!
+            </p>
+            <p className="text-xs font-mono text-emerald-700 dark:text-emerald-300 font-semibold pt-1">
+              📩 Enviamos os detalhes resumidos da compra para o seu e-mail (<strong>{user.email}</strong>).
             </p>
           </div>
         )}
