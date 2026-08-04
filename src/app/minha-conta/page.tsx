@@ -514,21 +514,14 @@ function CustomerPortalContent() {
                   <div className="space-y-1 text-content/75">
                     <p>📍 <strong className="text-content">Endereço:</strong> {order.addressSummary}</p>
                     <p>🚚 <strong className="text-content">Frete:</strong> {order.shippingMethod} ({formatBRL(order.shippingCost)})</p>
-                    {order.trackingCode && (
+                    {order.trackingCode && order.trackingCode.trim() !== "" && !order.trackingCode.startsWith("ME-") ? (
                       <p>📦 <strong className="text-content">Rastreio:</strong> <span className="text-[#C59D3F] font-bold">{order.trackingCode}</span></p>
+                    ) : (
+                      <p>📦 <strong className="text-content">Rastreio:</strong> <span className="text-content/50 italic">Em preparação para envio</span></p>
                     )}
                   </div>
 
                   <div className="flex gap-3 flex-wrap">
-                    <button
-                      type="button"
-                      onClick={() => alert("Nota Fiscal eletrônica emitida pelo Mercado Pago em breve.")}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-content/20 bg-canvas px-4 py-2 font-semibold text-content hover:border-[#C59D3F]"
-                    >
-                      <FileText className="h-4 w-4 text-[#C59D3F]" />
-                      <span>Nota Fiscal (PDF)</span>
-                    </button>
-
                     <button
                       type="button"
                       onClick={() => setReorderOrder(order)}

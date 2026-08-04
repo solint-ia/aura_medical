@@ -82,6 +82,7 @@ interface AuthContextType {
     totalPrice: number;
     paymentMethod: string;
     items: Array<{ id: string; name: string; quantity: number; unitPrice: number; imagePath?: string }>;
+    orderNumber?: string;
   }) => Promise<Order>;
   logout: () => void;
 }
@@ -279,6 +280,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     totalPrice: number;
     paymentMethod: string;
     items: Array<{ id: string; name: string; quantity: number; unitPrice: number; imagePath?: string }>;
+    orderNumber?: string;
   }) => {
     const addressSummary = `${orderPayload.address.street}, ${orderPayload.address.number} ${orderPayload.address.complement || ""} - ${orderPayload.address.neighborhood}, ${orderPayload.address.city} (${orderPayload.address.uf}) CEP: ${orderPayload.address.cep}`;
 
@@ -298,6 +300,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           totalPrice: orderPayload.totalPrice,
           paymentMethod: orderPayload.paymentMethod,
           items: orderPayload.items,
+          orderNumber: orderPayload.orderNumber,
         }),
       });
 
@@ -316,7 +319,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           paymentMethod: orderPayload.paymentMethod,
           status: "pago",
           trackingCode: data.order.trackingCode || data.order.tracking_code || "",
-          invoiceUrl: "#nfe-preview",
+          invoiceUrl: data.order.invoiceUrl || data.order.invoice_url || "",
           createdAt: data.order.createdAt || new Date().toISOString(),
           items: orderPayload.items.map((i) => ({
             id: `item-${Date.now()}-${i.id}`,
@@ -333,7 +336,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (err) {
       console.warn("Erro ao salvar pedido via API, utilizando fallback local:", err);
-      const orderNumber = `AUR-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+      const orderNumber = orderPayload.orderNumber || `AUR-2026-${Math.floor(1000 + Math.random() * 9000)}`;
       newOrder = {
         id: `ord-${Date.now()}`,
         orderNumber,
@@ -346,8 +349,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         totalPrice: orderPayload.totalPrice,
         paymentMethod: orderPayload.paymentMethod,
         status: "pago",
-        trackingCode: `ME-${Math.floor(100000000 + Math.random() * 900000000)}BR`,
-        invoiceUrl: "#nfe-preview",
+        trackingCode: "",
+        invoiceUrl: "",
         createdAt: new Date().toISOString(),
         items: orderPayload.items.map((i) => ({
           id: `item-${Date.now()}-${i.id}`,

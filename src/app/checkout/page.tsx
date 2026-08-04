@@ -266,29 +266,14 @@ function CheckoutContent() {
     setProcessingPayment(true);
 
     try {
-      // 1. Create local order record
-      const created = await createOrder({
-        address: selectedAddress,
-        shippingMethod: selectedShippingOption ? selectedShippingOption.name : "Frete Padrão",
-        shippingCost,
-        subtotal,
-        totalPrice,
-        paymentMethod: paymentMethod === "pix" ? "pix" : "credito",
-        items: items.map((i) => ({
-          id: i.id,
-          name: i.name,
-          quantity: i.quantity,
-          unitPrice: i.unitPrice,
-          imagePath: i.imagePath,
-        })),
-      });
+      const orderNumber = `AUR-2026-${Math.floor(1000 + Math.random() * 9000)}`;
 
       const deviceId =
         (window as unknown as { MP_DEVICE_SESSION_ID?: string }).MP_DEVICE_SESSION_ID ||
         (document.getElementById("deviceId") as HTMLInputElement)?.value ||
         "";
 
-      // 2. Call Mercado Pago Process Payment API
+      // 1. Call Mercado Pago Process Payment API FIRST
       const payRes = await fetch("/api/payment/process", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -297,8 +282,8 @@ function CheckoutContent() {
           amount: totalPrice,
           subtotal,
           shippingCost,
-          description: `Aura Regenera - Pedido #${created.orderNumber}`,
-          orderNumber: created.orderNumber,
+          description: `Aura Regenera - Pedido #${orderNumber}`,
+          orderNumber,
           deviceId,
           payer: {
             email: user?.email,
@@ -331,14 +316,33 @@ function CheckoutContent() {
 
       if (!payData.success) {
         setPaymentError(payData.error || "Recusado pelo Mercado Pago. Verifique os dados.");
-        return;
+        return; // Payment failed or rejected! Do NOT create order, items remain in cart!
       }
 
+      // 2. Payment succeeded! NOW create the order in DB & user's order history
+      const created = await createOrder({
+        address: selectedAddress,
+        shippingMethod: selectedShippingOption ? selectedShippingOption.name : "Frete Padrão",
+        shippingCost,
+        subtotal,
+        totalPrice,
+        paymentMethod: paymentMethod === "pix" ? "pix" : "credito",
+        items: items.map((i) => ({
+          id: i.id,
+          name: i.name,
+          quantity: i.quantity,
+          unitPrice: i.unitPrice,
+          imagePath: i.imagePath,
+        })),
+        orderNumber,
+      });
+
+      const finalOrderNumber = created?.orderNumber || orderNumber;
       const shippingName = selectedShippingOption
         ? selectedShippingOption.name
         : "Frete Padrão";
 
-      setSubmittedOrderNumber(created.orderNumber);
+      setSubmittedOrderNumber(finalOrderNumber);
       setSubmittedOrderSummary({
         total: totalPrice,
         itemsCount: items.reduce((s, i) => s + i.quantity, 0),

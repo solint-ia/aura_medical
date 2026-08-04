@@ -15,6 +15,7 @@ export async function POST(req: Request) {
       totalPrice,
       paymentMethod,
       items,
+      orderNumber: customOrderNumber,
     } = body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -24,8 +25,8 @@ export async function POST(req: Request) {
       );
     }
 
-    const orderNumber = `AUR-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-    const trackingCode = `ME-${Math.floor(100000000 + Math.random() * 900000000)}BR`;
+    const orderNumber = customOrderNumber || `AUR-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+    const trackingCode = "";
 
     let createdOrder: any = null;
 
@@ -42,8 +43,8 @@ export async function POST(req: Request) {
           totalPrice: Number(totalPrice || 0),
           paymentMethod: paymentMethod || "pix",
           status: "pago",
-          trackingCode,
-          invoiceUrl: "#nfe-preview",
+          trackingCode: "",
+          invoiceUrl: "",
           notes: addressSummary || null,
           items: {
             create: items.map((i: any) => ({
@@ -79,8 +80,8 @@ export async function POST(req: Request) {
           Number(totalPrice || 0),
           paymentMethod || "pix",
           "pago",
-          trackingCode,
-          "#nfe-preview",
+          "",
+          "",
           addressSummary || null,
         ]
       );
