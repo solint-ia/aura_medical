@@ -13,6 +13,8 @@ export interface Protocol {
   sessions: string;
   /** Kit price in BRL, already agreed with the commercial team. */
   totalPrice: number;
+  /** Internal-only protocol (payment test kits). Excluded from public listings and routes. */
+  hidden?: boolean;
 }
 
 export const PROTOCOLS: Protocol[] = [
@@ -96,6 +98,7 @@ export const PROTOCOLS: Protocol[] = [
     ],
     sessions: "1 sessão de teste",
     totalPrice: 1,
+    hidden: true,
   },
   {
     id: "teste-cartao",
@@ -106,8 +109,12 @@ export const PROTOCOLS: Protocol[] = [
     ],
     sessions: "1 sessão de teste",
     totalPrice: 5,
+    hidden: true,
   },
 ];
+
+/** Protocols shown on the public site (homepage configurator, /protocolos/[slug]). */
+export const PUBLIC_PROTOCOLS: Protocol[] = PROTOCOLS.filter((p) => !p.hidden);
 
 export function countVials(protocol: Protocol): number {
   return protocol.composition.reduce((total, item) => total + item.vials, 0);
@@ -132,6 +139,8 @@ export interface ProtocolDetail {
   application: string[];
   marking: string;
   expectedResults: string[];
+  /** Internal-only protocol (payment test kits). Excluded from public listings and routes. */
+  hidden?: boolean;
 }
 
 export const protocolsData: ProtocolDetail[] = [
@@ -299,7 +308,8 @@ export const protocolsData: ProtocolDetail[] = [
     expectedResults: [
       "Validação do fluxo de pagamento PIX",
       "Testes de confirmação por e-mail"
-    ]
+    ],
+    hidden: true,
   },
   {
     slug: "teste-cartao",
@@ -318,7 +328,8 @@ export const protocolsData: ProtocolDetail[] = [
     expectedResults: [
       "Validação do fluxo de pagamento no cartão",
       "Testes de confirmação por e-mail"
-    ]
+    ],
+    hidden: true,
   }
 ];
 

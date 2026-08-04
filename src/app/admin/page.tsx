@@ -10,6 +10,7 @@ import {
   Check,
   Download,
   Edit2,
+  FlaskConical,
   Filter,
   Globe,
   Lock,
@@ -29,11 +30,15 @@ import {
 import { AccreditationProvider } from "@/components/accreditation/AccreditationProvider";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { BuyNowButton } from "@/components/ui/BuyNowButton";
 import { useAuth } from "@/context/AuthContext";
+import { PROTOCOLS } from "@/data/protocols";
 import { formatBRL } from "@/lib/format";
 import { formatCep, formatCpfOrCnpj, formatPhone } from "@/lib/validators";
 
-type AdminTab = "stats" | "orders" | "users" | "profile";
+type AdminTab = "stats" | "orders" | "users" | "profile" | "tests";
+
+const TEST_PROTOCOLS = PROTOCOLS.filter((p) => p.hidden);
 
 interface AdminStats {
   totalRevenue: number;
@@ -513,6 +518,19 @@ function AdminDashboardContent() {
         >
           <User className="h-4 w-4" />
           <span>Meus Dados Admin</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("tests")}
+          className={`flex items-center gap-2 py-3 px-5 font-bold uppercase transition-colors border-b-2 shrink-0 ${
+            activeTab === "tests"
+              ? "border-[#C59D3F] text-[#C59D3F]"
+              : "border-transparent text-content/60 hover:text-content"
+          }`}
+        >
+          <FlaskConical className="h-4 w-4" />
+          <span>Testes de Pagamento</span>
         </button>
       </div>
 
@@ -1166,6 +1184,39 @@ function AdminDashboardContent() {
               Salvar Dados Admin →
             </button>
           </form>
+        </div>
+      )}
+
+      {/* TAB 5: TESTES DE PAGAMENTO (kits internos, não listados no site) */}
+      {activeTab === "tests" && (
+        <div className="max-w-2xl space-y-6">
+          <div className="rounded-xl border border-[#C59D3F]/30 bg-[#C59D3F]/10 p-4 font-mono text-xs text-content/80">
+            ⚠️ Kits de valor simbólico para validar o fluxo de pagamento (PIX e Cartão) em produção.
+            Não aparecem na página inicial nem em <code>/protocolos/[slug]</code> — só aqui.
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {TEST_PROTOCOLS.map((protocol) => (
+              <div
+                key={protocol.id}
+                className="rounded-2xl border border-content/12 bg-card p-5 shadow-sm flex flex-col gap-3"
+              >
+                <div>
+                  <h3 className="font-display text-sm font-bold text-content">{protocol.name}</h3>
+                  <p className="mt-1 font-mono text-xs text-content/60">{protocol.sessions}</p>
+                </div>
+                <span className="font-mono text-lg font-bold text-[#C59D3F]">
+                  {formatBRL(protocol.totalPrice)}
+                </span>
+                <BuyNowButton
+                  protocol={protocol}
+                  className="mt-auto w-full rounded-lg bg-[#C59D3F] px-4 py-2.5 text-center text-xs font-semibold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] active:scale-[0.99]"
+                >
+                  Adicionar ao Carrinho e Testar →
+                </BuyNowButton>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

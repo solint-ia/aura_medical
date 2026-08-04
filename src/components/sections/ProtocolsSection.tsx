@@ -5,7 +5,7 @@ import { useState } from "react";
 import { ProtocolPanel } from "@/components/sections/ProtocolPanel";
 import { ScrollHint } from "@/components/ui/ScrollHint";
 import { SectionIntro } from "@/components/ui/SectionIntro";
-import { PROTOCOLS } from "@/data/protocols";
+import { PUBLIC_PROTOCOLS as PROTOCOLS } from "@/data/protocols";
 import { useScrollHint } from "@/hooks/useScrollHint";
 import { formatBRL } from "@/lib/format";
 

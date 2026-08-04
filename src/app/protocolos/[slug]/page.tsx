@@ -24,16 +24,18 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  return protocolsData.map((protocol) => ({
-    slug: protocol.slug,
-  }));
+  return protocolsData
+    .filter((protocol) => !protocol.hidden)
+    .map((protocol) => ({
+      slug: protocol.slug,
+    }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const protocol = getProtocolBySlug(slug);
 
-  if (!protocol) {
+  if (!protocol || protocol.hidden) {
     return {
       title: "Protocolo não encontrado · Aura Regenera",
     };
@@ -49,7 +51,7 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const protocol = getProtocolBySlug(slug);
 
-  if (!protocol) {
+  if (!protocol || protocol.hidden) {
     notFound();
   }
 
