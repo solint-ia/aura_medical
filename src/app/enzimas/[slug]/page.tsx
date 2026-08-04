@@ -7,6 +7,7 @@ import { ArrowLeft, CheckCircle2, AlertTriangle, ShieldCheck, Award } from "luci
 import { AccreditationProvider } from "@/components/accreditation/AccreditationProvider";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { BuyEnzymeVialButton } from "@/components/enzymes/BuyEnzymeVialButton";
 import {
   enzymesData,
   getEnzymeBySlug,
@@ -115,21 +116,19 @@ export default async function EnzymeDetailPage({ params }: EnzymePageProps) {
                 </p>
 
                 <div className="pt-2 flex flex-wrap items-center gap-4">
+                  <BuyEnzymeVialButton
+                    id={baseId}
+                    name={enzyme.name}
+                    activeIngredient={enzyme.activeIngredient}
+                    imagePath={vialImage}
+                    price={390}
+                  />
+
                   <Link
                     href="/#protocolos"
-                    className="group inline-flex items-center justify-center gap-2.5 rounded-xl bg-[#C59D3F] px-8 py-4 text-base font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-lg hover:shadow-xl active:scale-[0.99]"
+                    className="group inline-flex items-center justify-center gap-2.5 rounded-xl border border-white/20 bg-white/10 px-6 py-4 text-sm font-semibold text-white transition-all hover:border-[#C59D3F] hover:bg-white/15"
                   >
-                    <span>Explorar Protocolos com {enzyme.name}</span>
-                    <svg
-                      aria-hidden="true"
-                      className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                    </svg>
+                    <span>Ver Protocolos com {enzyme.name}</span>
                   </Link>
                 </div>
               </div>
