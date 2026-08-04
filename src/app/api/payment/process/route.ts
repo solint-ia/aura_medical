@@ -284,6 +284,9 @@ export async function POST(req: Request) {
         payer?.email?.toLowerCase().includes("auraregenera");
       const mpPayerEmail = isMerchantEmail ? `cliente.${Date.now()}@exemplo-teste.com` : (payer?.email || "cliente.teste@exemplo.com");
 
+      const paymentMethodId = tokenData.payment_method_id || tokenData.payment_method?.id || brand;
+      const finalIssuerId = tokenData.issuer?.id ? String(tokenData.issuer.id) : issuerId;
+
       // Process payment with card token
       const cardPaymentPayload: Record<string, unknown> = {
         transaction_amount: Number(amount),
@@ -292,7 +295,7 @@ export async function POST(req: Request) {
         statement_descriptor: "AURA REGENERA",
         external_reference: String(orderNumber || Date.now()),
         installments: Number(cardData.installments || 1),
-        payment_method_id: brand,
+        payment_method_id: paymentMethodId,
         payer: {
           email: mpPayerEmail,
           first_name: holderFirstName,
@@ -308,8 +311,8 @@ export async function POST(req: Request) {
         metadata: mpMetadata,
       };
 
-      if (issuerId) {
-        cardPaymentPayload.issuer_id = issuerId;
+      if (finalIssuerId) {
+        cardPaymentPayload.issuer_id = finalIssuerId;
       }
 
       const mpHeaders: Record<string, string> = {
@@ -338,38 +341,29 @@ export async function POST(req: Request) {
           status: payData.status,
           statusDetail: payData.status_detail,
           installments: payData.installments,
-          brand,
+          brand: paymentMethodId,
         });
       }
 
       console.warn("Mercado Pago Card Payment Response:", payData);
 
-      if (payData.status === "rejected") {
-        let userMessage = "Pagamento com cartão recusado.";
-        if (payData.status_detail === "cc_rejected_bad_filled_other") {
-          userMessage = "Dados do cartão incorretos. Verifique o número, validade e CVV.";
-        } else if (payData.status_detail === "cc_rejected_insufficient_amount") {
-          userMessage = "Saldo/Limite insuficiente no cartão.";
-        } else if (payData.status_detail === "cc_rejected_bad_filled_security_code") {
-          userMessage = "Código de segurança (CVV) incorreto.";
-        } else if (payData.status_detail === "cc_rejected_high_risk") {
-          userMessage = "Pagamento recusado por segurança antifraude da operadora.";
-        }
-        return NextResponse.json({ error: userMessage, statusDetail: payData.status_detail }, { status: 400 });
+      let userMessage = payData.message || "Pagamento com cartão recusado.";
+      if (payData.status_detail === "cc_rejected_bad_filled_other") {
+        userMessage = "Dados do cartão incorretos. Verifique o número, validade e CVV.";
+      } else if (payData.status_detail === "cc_rejected_insufficient_amount") {
+        userMessage = "Saldo/Limite insuficiente no cartão.";
+      } else if (payData.status_detail === "cc_rejected_bad_filled_security_code") {
+        userMessage = "Código de segurança (CVV) incorreto.";
+      } else if (payData.status_detail === "cc_rejected_high_risk") {
+        userMessage = "Pagamento recusado por segurança antifraude da operadora.";
+      } else if (payData.message === "Invalid payment_method_id" || payData.cause?.some((c: { code?: string }) => c.code === "205")) {
+        userMessage = "Bandeira do cartão não reconhecida pelo Mercado Pago. Verifique os dados digitados.";
       }
 
-      triggerOrderEmail();
-
-      return NextResponse.json({
-        success: true,
-        paymentId: `CARD-APPROVED-${Date.now()}`,
-        status: "approved",
-        statusDetail: "accredited",
-        installments: Number(cardData.installments || 1),
-        brand,
-        isMock: true,
-        message: "Pagamento aprovado em ambiente de testes Mercado Pago.",
-      });
+      return NextResponse.json(
+        { error: userMessage, statusDetail: payData.status_detail || payData.error },
+        { status: 400 }
+      );
     }
 
     return NextResponse.json({ error: "Forma de pagamento não suportada." }, { status: 400 });
