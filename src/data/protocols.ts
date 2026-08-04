@@ -157,7 +157,7 @@ export const protocolsData: ProtocolDetail[] = [
     ],
     sessions: "2-4",
     frequency: "A cada 2 semanas",
-    reconstitution: ["Adicione 5 ml de solução salina a cada frasco.", "Adicione 1 ml de lidocaína simples a 2%."],
+    reconstitution: ["Adicione 5 ml de solução salina a cada ampola.", "Adicione 1 ml de lidocaína simples a 2%."],
     application: ["Administre 1 ml por ponto.", "Volume final: 6 ml."],
     marking: "Distribuição dos pontos: A malha terá uma distância de aproximadamente 1-1,5 cm entre as linhas. Aplique no centro de cada quadrado.",
     expectedResults: [
@@ -180,7 +180,7 @@ export const protocolsData: ProtocolDetail[] = [
     ],
     sessions: "2-4",
     frequency: "A cada 2 semanas",
-    reconstitution: ["Adicione 3 ml de solução salina estéril em cada frasco.", "Adicione 1 ml de lidocaína simples a 2%."],
+    reconstitution: ["Adicione 3 ml de solução salina estéril em cada ampola.", "Adicione 1 ml de lidocaína simples a 2%."],
     application: ["Aplicar 0,5 ml por ponto.", "Volume final do protocolo: 12 ml."],
     marking: "A marcação deve seguir uma malha com espaçamento aproximado de 1 a 1,5 cm entre os pontos de aplicação. A aplicação deve ser realizada no centro de cada quadrado da malha, respeitando a anatomia da região mandibular para uma distribuição homogênea do coquetel enzimático.",
     expectedResults: [
@@ -205,7 +205,7 @@ export const protocolsData: ProtocolDetail[] = [
     ],
     sessions: "2-8",
     frequency: "A cada 2 semanas",
-    reconstitution: ["Adicione 3 ml de solução salina estéril em cada frasco.", "Adicione 1 ml de lidocaína simples a 2%."],
+    reconstitution: ["Adicione 3 ml de solução salina estéril em cada ampola.", "Adicione 1 ml de lidocaína simples a 2%."],
     application: ["Aplicar 1 ml por ponto.", "O volume total deverá ser distribuído uniformemente conforme a área tratada."],
     marking: "A área deve ser marcada formando uma malha com espaçamento aproximado de 1 a 1,5 cm entre os pontos de aplicação. A aplicação deve ser realizada no centro de cada quadrado da malha, garantindo uma distribuição homogênea do coquetel enzimático em toda a região tratada.",
     expectedResults: [
@@ -231,7 +231,7 @@ export const protocolsData: ProtocolDetail[] = [
     ],
     sessions: "2-4",
     frequency: "A cada 2 semanas",
-    reconstitution: ["Adicione 3 ml de solução salina estéril em cada frasco.", "Adicione 1 ml de lidocaína simples a 2%."],
+    reconstitution: ["Adicione 3 ml de solução salina estéril em cada ampola.", "Adicione 1 ml de lidocaína simples a 2%."],
     application: ["Aplicar 1 ml por ponto.", "O protocolo foi desenvolvido para tratamento de ambas as pernas."],
     marking: "A região tratada deve ser marcada em forma de malha, mantendo espaçamento aproximado de 1 a 1,5 cm entre os pontos de aplicação. O coquetel enzimático deve ser aplicado no centro de cada quadrado da malha para proporcionar distribuição uniforme em toda a área tratada.",
     expectedResults: [
@@ -255,7 +255,7 @@ export const protocolsData: ProtocolDetail[] = [
     ],
     sessions: "4",
     frequency: "A cada 2 a 3 semanas",
-    reconstitution: ["Adicione 1,5 ml de solução salina estéril em cada frasco.", "Adicione 1 ml de lidocaína simples a 2%."],
+    reconstitution: ["Adicione 1,5 ml de solução salina estéril em cada ampola.", "Adicione 1 ml de lidocaína simples a 2%."],
     application: ["Aplicar diretamente sobre a cicatriz.", "Em cicatrizes atróficas, recomenda-se também a aplicação do coquetel simples 1-1-1 no tecido ao redor da cicatriz, conforme protocolo do fabricante."],
     marking: "A marcação varia conforme o formato, extensão e características da cicatriz. O planejamento da aplicação deve ser individualizado para garantir uma distribuição adequada do coquetel enzimático em toda a área tratada.",
     expectedResults: [
@@ -279,7 +279,7 @@ export const protocolsData: ProtocolDetail[] = [
     ],
     sessions: "6",
     frequency: "A cada 2 a 3 semanas",
-    reconstitution: ["Adicione 1,5 ml de solução salina estéril em cada frasco.", "Adicione 1 ml de lidocaína simples a 2%."],
+    reconstitution: ["Adicione 1,5 ml de solução salina estéril em cada ampola.", "Adicione 1 ml de lidocaína simples a 2%."],
     application: ["Aplicação intralesional.", "Realizar aplicações em múltiplos ângulos para melhor distribuição do coquetel enzimático.", "Volume final aproximado: 7,5 a 25 ml, conforme a extensão da área tratada."],
     marking: "Antes da aplicação, devem ser identificados e marcados os nódulos fibróticos, aderências ou áreas de fibrose. O planejamento da aplicação deve ser individualizado conforme a localização e a extensão da fibrose, permitindo uma distribuição homogênea do tratamento.",
     expectedResults: [
@@ -298,7 +298,7 @@ export const protocolsData: ProtocolDetail[] = [
     imagePath2: "/images/fotos-protocolos/queixoduplo-2.png",
     introduction: "Protocolo especial de teste para validação de pagamento via PIX (R$ 1,00 - Frete Grátis).",
     composition: [
-      { name: "1 Frasco de Teste (Slim+)", description: "Validação de checkout PIX" }
+      { name: "1 Ampola de Teste (Slim+)", description: "Validação de checkout PIX" }
     ],
     sessions: "1",
     frequency: "Única",
@@ -318,7 +318,7 @@ export const protocolsData: ProtocolDetail[] = [
     imagePath2: "/images/fotos-protocolos/queixoduplo-2.png",
     introduction: "Protocolo especial de teste para validação de pagamento no cartão (R$ 5,00 - Frete Grátis).",
     composition: [
-      { name: "1 Frasco de Teste (Slim+)", description: "Validação de checkout Cartão" }
+      { name: "1 Ampola de Teste (Slim+)", description: "Validação de checkout Cartão" }
     ],
     sessions: "1",
     frequency: "Única",

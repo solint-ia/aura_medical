@@ -73,7 +73,7 @@ export function ProtocolPanel({ protocol }: { protocol: Protocol }) {
                 {vialImg ? (
                   <Image
                     src={vialImg}
-                    alt={`Frasco ${enzyme.label}`}
+                    alt={`Ampola ${enzyme.label}`}
                     width={50}
                     height={70}
                     className="h-12 w-auto object-contain shrink-0 drop-shadow-sm"
@@ -87,7 +87,7 @@ export function ProtocolPanel({ protocol }: { protocol: Protocol }) {
                 <div className="flex flex-col">
                   <span className="font-bold text-content">{enzyme.label}</span>
                   <span className="font-mono text-xs font-bold text-[#C59D3F]">
-                    {item.vials}x frasco{item.vials > 1 ? "s" : ""}
+                    {item.vials}x ampola{item.vials > 1 ? "s" : ""}
                   </span>
                 </div>
               </li>
@@ -96,7 +96,7 @@ export function ProtocolPanel({ protocol }: { protocol: Protocol }) {
         </ul>
 
         <p className="mt-3.5 font-mono text-[10.5px] tracking-[0.05em] text-content/55 uppercase">
-          {totalVials} frascos ao todo
+          {totalVials} ampolas ao todo
         </p>
       </div>
 
@@ -108,7 +108,7 @@ export function ProtocolPanel({ protocol }: { protocol: Protocol }) {
             {formatBRL(protocol.totalPrice)}
           </p>
           <p className="mt-2 font-mono text-[11.5px] text-content/75">
-            {totalVials} × {formatBRL(PRICE_PER_VIAL)} / frasco · <span className="font-bold text-[#C59D3F]">em até 10x no cartão</span>
+            {totalVials} × {formatBRL(PRICE_PER_VIAL)} / ampola · <span className="font-bold text-[#C59D3F]">em até 10x no cartão</span>
           </p>
         </div>
 

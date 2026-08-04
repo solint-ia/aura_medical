@@ -33,7 +33,7 @@ export function ProductCard({ product }: { product: Product }) {
         {vialImage ? (
           <Image
             src={vialImage}
-            alt={`Frasco ${product.name}`}
+            alt={`Ampola ${product.name}`}
             width={140}
             height={190}
             aria-hidden="true"

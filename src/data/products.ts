@@ -23,7 +23,7 @@ export const PRODUCTS: Product[] = [
     mechanism:
       "Atua na interface água/lipídio da membrana adipocitária, ancorando-se a regiões de carga negativa para hidrolisar os triglicerídeos armazenados, sem necessidade de penetração total na célula.",
     indications: ["Gordura localizada"],
-    packaging: "10 frascos liofilizados",
+    packaging: "10 ampolas liofilizadas",
     imageSrc: "/images/products/pbserum-slim-plus.png",
     imageAlt: "Caixa do pbserum Slim+ Professional",
   },
@@ -36,7 +36,7 @@ export const PRODUCTS: Product[] = [
     mechanism:
       "A dupla ação das colagenases G e H cliva os pontos de ligação expostos no colágeno desorganizado de cicatrizes e septos fibróticos, liberando estruturas retraídas sem agredir o colágeno saudável ao redor.",
     indications: ["Fibrose", "Cicatrizes"],
-    packaging: "10 frascos liofilizados",
+    packaging: "10 ampolas liofilizadas",
     imageSrc: "/images/products/pbserum-smooth-plus.png",
     imageAlt: "Caixa do pbserum Smooth+ Professional",
   },
@@ -49,7 +49,7 @@ export const PRODUCTS: Product[] = [
     mechanism:
       "Degrada os polissacarídeos responsáveis pela retenção de fluidos na matriz extracelular, melhorando a permeabilidade tecidual e reduzindo edema; potencializa a difusão das demais enzimas quando combinada em protocolo.",
     indications: ["Drenagem · Edema"],
-    packaging: "10 frascos liofilizados",
+    packaging: "10 ampolas liofilizadas",
     imageSrc: "/images/products/pbserum-drain-plus.png",
     imageAlt: "Caixa do pbserum Drain+ Professional",
   },

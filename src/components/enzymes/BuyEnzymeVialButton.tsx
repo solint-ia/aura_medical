@@ -30,7 +30,7 @@ export function BuyEnzymeVialButton({
   const handleBuy = () => {
     addToCart({
       id: `enz-${id}`,
-      name: `Frasco Avulso ${name} (${activeIngredient})`,
+      name: `Ampola Avulsa ${name} (${activeIngredient})`,
       unitPrice: price,
       vials: 1,
       quantity: 1,
@@ -58,12 +58,12 @@ export function BuyEnzymeVialButton({
       {isAdded ? (
         <>
           <Check className="h-5 w-5" />
-          <span>Frasco Adicionado!</span>
+          <span>Ampola Adicionada!</span>
         </>
       ) : (
         <>
           <ShoppingCart className="h-5 w-5" />
-          <span>Comprar Frasco Avulso ({formatBRL(price)})</span>
+          <span>Comprar Avulso ({formatBRL(price)})</span>
         </>
       )}
     </button>

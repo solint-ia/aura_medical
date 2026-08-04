@@ -92,7 +92,7 @@ export function EnzymeTriadSection() {
                 <div className="relative my-2 flex h-44 sm:h-48 w-full items-center justify-center">
                   <Image
                     src={enzyme.image}
-                    alt={`Frasco ${enzyme.name}`}
+                    alt={`Ampola ${enzyme.name}`}
                     width={300}
                     height={400}
                     priority

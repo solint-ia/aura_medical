@@ -65,7 +65,7 @@ export const enzymesData: EnzymeDetail[] = [
     shortDescription: "Hidrolisa os triglicerídeos sem a necessidade de penetração total na célula, atuando na interface água/lipídio.",
     fullDescription: "A Lipase PB500 atua de forma seletiva na interface água/lipídio da membrana adipocitária. Ao ancorar-se a regiões de carga negativa, ela consegue hidrolisar os triglicerídeos armazenados de forma altamente eficaz, promovendo a redução de medidas sem causar danos celulares desnecessários.",
     indications: ["Gordura Localizada", "Remodelação Corporal"],
-    presentation: "10 frascos liofilizados"
+    presentation: "10 ampolas liofilizadas"
   },
   {
     slug: "smooth-plus",
@@ -76,7 +76,7 @@ export const enzymesData: EnzymeDetail[] = [
     shortDescription: "Cliva os pontos de ligação do colágeno desorganizado, liberando estruturas retraídas sem agredir o tecido saudável.",
     fullDescription: "A dupla ação patenteada das colagenases G e H atua especificamente clivando os pontos de ligação expostos no colágeno desorganizado, característico de cicatrizes e septos fibróticos da celulite. Essa ação enzimática inteligente libera as estruturas retraídas, promovendo a reorganização do tecido sem agredir o colágeno saudável ao redor.",
     indications: ["Fibrose", "Cicatrizes", "Celulite"],
-    presentation: "10 frascos liofilizados",
+    presentation: "10 ampolas liofilizadas",
     patented: true
   },
   {
@@ -88,7 +88,7 @@ export const enzymesData: EnzymeDetail[] = [
     shortDescription: "Degrada polissacarídeos responsáveis pela retenção de fluidos, reduzindo edemas e potencializando a difusão de ativos.",
     fullDescription: "A Hialuronidase PB3000 atua degradando os polissacarídeos que causam a retenção de fluidos na matriz extracelular. Isso não apenas melhora a permeabilidade tecidual e reduz o edema (inchaço), como atua como um poderoso agente de difusão, potencializando a penetração e eficácia das outras enzimas quando combinadas em protocolo.",
     indications: ["Drenagem", "Edema", "Difusão de Ativos"],
-    presentation: "10 frascos liofilizados"
+    presentation: "10 ampolas liofilizadas"
   }
 ];
 

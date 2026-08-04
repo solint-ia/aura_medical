@@ -29,7 +29,7 @@ const ENZYME_VIALS: EnzymeVialCard[] = [
     id: "enz-slim-plus",
     slug: "slim-plus",
     name: "Slim+",
-    subtitle: "Frasco Avulso de Lipase",
+    subtitle: "Ampola Avulsa de Lipase",
     activeIngredient: "Lipase PB500 Recombinante",
     description: "Atua na interface água/lipídio hidrolisando triglicerídeos de forma seletiva para redução de gordura localizada.",
     price: 390,
@@ -43,7 +43,7 @@ const ENZYME_VIALS: EnzymeVialCard[] = [
     id: "enz-smooth-plus",
     slug: "smooth-plus",
     name: "Smooth+",
-    subtitle: "Frasco Avulso de Colagenase",
+    subtitle: "Ampola Avulsa de Colagenase",
     activeIngredient: "Colagenases G&H PB220 Patenteadas",
     description: "Cliva o colágeno desorganizado e rompe septos fibrosos da celulite e cicatrizes sem agredir tecidos sadios.",
     price: 390,
@@ -58,7 +58,7 @@ const ENZYME_VIALS: EnzymeVialCard[] = [
     id: "enz-drain-plus",
     slug: "drain-plus",
     name: "Drain+",
-    subtitle: "Frasco Avulso de Hialuronidase",
+    subtitle: "Ampola Avulsa de Hialuronidase",
     activeIngredient: "Hialuronidase PB3000 Purificada",
     description: "Degrada os polissacarídeos da matriz extracelular, eliminando retenção hídrica e otimizando a difusão dos ativos.",
     price: 390,
@@ -78,7 +78,7 @@ export function IndividualEnzymesSection() {
   const handleBuyVial = (vial: EnzymeVialCard) => {
     addToCart({
       id: vial.id,
-      name: `Frasco Avulso ${vial.name} (${vial.activeIngredient})`,
+      name: `Ampola Avulsa ${vial.name} (${vial.activeIngredient})`,
       unitPrice: vial.price,
       vials: 1,
       quantity: 1,
@@ -117,11 +117,11 @@ export function IndividualEnzymesSection() {
             id="enzimas-avulsas-title"
             className="font-display text-[clamp(28px,4vw,44px)] font-bold tracking-tight text-white mb-4"
           >
-            Frascos de Enzimas Individuais
+            Ampolas de Enzimas Individuais
           </h2>
 
           <p className="mx-auto max-w-2xl text-base text-slate-300">
-            Adquira frascos avulsos de alta concentração para compor sessões sob medida ou repor enzimas específicas em sua clínica médica com entrega rápida.
+            Adquira ampolas avulsas de alta concentração para compor sessões sob medida ou repor enzimas específicas em sua clínica médica com entrega rápida.
           </p>
         </div>
 
@@ -150,7 +150,7 @@ export function IndividualEnzymesSection() {
                     <div className="absolute inset-0 bg-radial from-[#C59D3F]/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                     <Image
                       src={vial.imagePath}
-                      alt={`Frasco ${vial.name}`}
+                      alt={`Ampola ${vial.name}`}
                       width={160}
                       height={180}
                       className="h-44 w-auto object-contain drop-shadow-2xl transition-transform duration-300 group-hover:scale-105"
@@ -191,11 +191,10 @@ export function IndividualEnzymesSection() {
                       type="button"
                       onClick={() => handleBuyVial(vial)}
                       disabled={isAdded}
-                      className={`flex w-full items-center justify-center gap-2 rounded-xl py-3 font-mono text-xs font-bold transition-all duration-200 active:scale-[0.98] ${
-                        isAdded
-                          ? "bg-emerald-500 text-white"
-                          : "bg-[#C59D3F] text-[#0D1B2A] hover:bg-[#d4ac4c] shadow-md"
-                      }`}
+                      className={`flex w-full items-center justify-center gap-2 rounded-xl py-3 font-mono text-xs font-bold transition-all duration-200 active:scale-[0.98] ${isAdded
+                        ? "bg-emerald-500 text-white"
+                        : "bg-[#C59D3F] text-[#0D1B2A] hover:bg-[#d4ac4c] shadow-md"
+                        }`}
                     >
                       {isAdded ? (
                         <>
@@ -205,7 +204,7 @@ export function IndividualEnzymesSection() {
                       ) : (
                         <>
                           <ShoppingCart className="h-4 w-4" />
-                          <span>Comprar Frasco</span>
+                          <span>Comprar</span>
                         </>
                       )}
                     </button>
@@ -215,7 +214,7 @@ export function IndividualEnzymesSection() {
                       href={`/enzimas/${vial.slug}`}
                       className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-white/20 bg-white/5 py-3 font-mono text-xs font-semibold text-white transition-colors hover:border-[#C59D3F] hover:bg-white/10"
                     >
-                      <span>Ver Completo</span>
+                      <span>Mais Detalhes</span>
                       <ArrowRight className="h-3.5 w-3.5 text-[#C59D3F]" />
                     </Link>
                   </div>

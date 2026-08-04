@@ -111,7 +111,10 @@ function CartContent() {
 
                   <div>
                     <h3 className="font-display text-lg font-bold text-content">
-                      {item.name.startsWith("Protocolo") || item.name.startsWith("Frasco") ? item.name : `Protocolo ${item.name}`}
+                      {/* "Frasco" cobre carrinhos salvos no localStorage antes da troca do termo */}
+                      {item.name.startsWith("Protocolo") || item.name.startsWith("Ampola") || item.name.startsWith("Frasco")
+                        ? item.name
+                        : `Protocolo ${item.name}`}
                     </h3>
                     <p className="text-xs text-content/65 font-mono">
                       {item.vials} ampola{item.vials > 1 ? "s" : ""}
