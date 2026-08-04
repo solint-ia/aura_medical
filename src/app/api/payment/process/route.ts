@@ -157,12 +157,15 @@ export async function POST(req: Request) {
         : undefined,
     };
 
+    const STORE_COPY_EMAIL = "contato@auraregenera.com";
+
     const triggerOrderEmail = async () => {
       if (!payer?.email) return;
       try {
+        const orderNumberStr = String(orderNumber || Date.now());
         const emailHtml = renderOrderSuccessEmailTemplate({
           customerName: customerFullName,
-          orderNumber: String(orderNumber || Date.now()),
+          orderNumber: orderNumberStr,
           paymentMethod: paymentMethod === "pix" ? "PIX à Vista (Mercado Pago)" : "Cartão de Crédito (Mercado Pago)",
           shippingAddress: formattedAddress,
           items: Array.isArray(items) ? items : [{ name: "Kit Protocolos Aura Regenera", quantity: 1, unitPrice: Number(amount) }],
@@ -173,9 +176,18 @@ export async function POST(req: Request) {
 
         await sendMailerooEmail({
           to: payer.email,
-          subject: `✨ Compra Confirmada! Seu Pedido #${orderNumber || Date.now()} - Aura Regenera`,
+          subject: `✨ Compra Confirmada! Seu Pedido #${orderNumberStr} - Aura Regenera`,
           html: emailHtml,
         });
+
+        // Cópia interna para a Aura Medical acompanhar toda venda confirmada (PIX e cartão).
+        if (payer.email.toLowerCase() !== STORE_COPY_EMAIL) {
+          await sendMailerooEmail({
+            to: STORE_COPY_EMAIL,
+            subject: `📋 [Cópia] Pedido #${orderNumberStr} confirmado - ${customerFullName}`,
+            html: emailHtml,
+          });
+        }
       } catch (mailErr) {
         console.error("Erro ao enviar e-mail de confirmação de pedido:", mailErr);
       }
