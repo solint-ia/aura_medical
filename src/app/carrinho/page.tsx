@@ -82,7 +82,7 @@ function CartContent() {
           <div className="divide-y divide-content/12 rounded-2xl border border-content/12 bg-card shadow-xs">
             {items.map((item) => {
               const displayImg =
-                (item.imagePath && item.imagePath.includes("/fotos-protocolos/") ? item.imagePath : null) ||
+                item.imagePath ||
                 PROTOCOL_IMAGE_MAP[item.id] ||
                 `/images/fotos-protocolos/${item.id.replace(/-/g, "")}-2.png`;
 
@@ -93,14 +93,14 @@ function CartContent() {
                 >
                   {/* Product Info */}
                   <div className="flex items-center gap-4">
-                    <div className="relative flex h-16 w-16 sm:h-18 sm:w-18 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#C59D3F]/40 shadow-sm ring-2 ring-[#C59D3F]/10">
+                    <div className="relative flex h-16 w-16 sm:h-18 sm:w-18 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#C59D3F]/40 bg-[#0D1B2A] shadow-sm ring-2 ring-[#C59D3F]/10">
                       {displayImg ? (
                         <Image
                           src={displayImg}
                           alt={item.name}
                           fill
                           sizes="72px"
-                          className="object-cover"
+                          className={displayImg.includes("/frascos/") ? "object-contain p-1.5" : "object-cover"}
                         />
                       ) : (
                         <span className="font-display text-xl font-bold text-[#C59D3F]">
@@ -111,7 +111,7 @@ function CartContent() {
 
                   <div>
                     <h3 className="font-display text-lg font-bold text-content">
-                      Protocolo {item.name}
+                      {item.name.startsWith("Protocolo") || item.name.startsWith("Frasco") ? item.name : `Protocolo ${item.name}`}
                     </h3>
                     <p className="text-xs text-content/65 font-mono">
                       {item.vials} ampola{item.vials > 1 ? "s" : ""}
