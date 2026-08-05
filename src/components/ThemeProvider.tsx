@@ -13,7 +13,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       // The toggle stays, and the choice is remembered.
       enableSystem={false}
       disableTransitionOnChange={false}
-      scriptProps={{ async: true }}
     >
       {children}
     </NextThemesProvider>
