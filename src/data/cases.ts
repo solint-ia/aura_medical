@@ -24,6 +24,16 @@ export const CASE_CATEGORIES: CaseCategory[] = [
 ];
 
 export const clinicalCasesData: ClinicalCase[] = [
+  // Queixo Duplo (Papada)
+  {
+    id: "queixo-3",
+    categoryId: "queixo-duplo",
+    categoryName: "Queixo Duplo (Papada)",
+    beforeImage: "/Casos-clinicos/queixoduplo3-antes.png",
+    afterImage: "/Casos-clinicos/queixoduplo3-depois.png",
+    doctor: "Equipe Médica pbserum",
+    sessions: 3,
+  },
   {
     id: "queixo-1",
     categoryId: "queixo-duplo",
@@ -35,12 +45,53 @@ export const clinicalCasesData: ClinicalCase[] = [
     sessions: 2,
   },
   {
+    id: "queixo-2",
+    categoryId: "queixo-duplo",
+    categoryName: "Queixo Duplo (Papada)",
+    beforeImage: "/Casos-clinicos/queixoduplo2-antes.png",
+    afterImage: "/Casos-clinicos/queixoduplo2-depois.png",
+    doctor: "Dra. Farah el Chaer",
+    country: "Líbano",
+    sessions: 3,
+  },
+
+  // Cicatrizes
+  {
+    id: "cicatriz-3",
+    categoryId: "cicatrizes",
+    categoryName: "Cicatrizes",
+    beforeImage: "/Casos-clinicos/cicatriz3-antes.png",
+    afterImage: "/Casos-clinicos/cicatriz3-depois.png",
+    doctor: "Equipe Médica pbserum",
+    sessions: 3,
+  },
+  {
     id: "cicatriz-1",
     categoryId: "cicatrizes",
     categoryName: "Cicatrizes",
     beforeImage: "/Casos-clinicos/cicatriz1-antes.png",
     afterImage: "/Casos-clinicos/cicatriz1-depois.png",
     doctor: "Dra. Maira González",
+    sessions: 3,
+  },
+  {
+    id: "cicatriz-2",
+    categoryId: "cicatrizes",
+    categoryName: "Cicatrizes",
+    beforeImage: "/Casos-clinicos/cicatriz2-antes.png",
+    afterImage: "/Casos-clinicos/cicatriz2-depois.png",
+    doctor: "Dra. Maira González",
+    sessions: 3,
+  },
+
+  // Fibrose Pós-Cirúrgica
+  {
+    id: "fibrose-2",
+    categoryId: "fibrose-pos-cirurgica",
+    categoryName: "Fibrose Pós-Cirúrgica",
+    beforeImage: "/Casos-clinicos/fibrose2-antes.png",
+    afterImage: "/Casos-clinicos/fibrose2-depois.png",
+    doctor: "Equipe Médica pbserum",
     sessions: 3,
   },
   {
@@ -53,24 +104,16 @@ export const clinicalCasesData: ClinicalCase[] = [
     country: "Espanha",
     sessions: 3,
   },
+
+  // Perfilamento Facial
   {
-    id: "queixo-2",
-    categoryId: "queixo-duplo",
-    categoryName: "Queixo Duplo (Papada)",
-    beforeImage: "/Casos-clinicos/queixoduplo2-antes.png",
-    afterImage: "/Casos-clinicos/queixoduplo2-depois.png",
-    doctor: "Dra. Farah el Chaer",
-    country: "Líbano",
-    sessions: 3,
-  },
-  {
-    id: "cicatriz-2",
-    categoryId: "cicatrizes",
-    categoryName: "Cicatrizes",
-    beforeImage: "/Casos-clinicos/cicatriz2-antes.png",
-    afterImage: "/Casos-clinicos/cicatriz2-depois.png",
-    doctor: "Dra. Maira González",
-    sessions: 3,
+    id: "perfilamento-2",
+    categoryId: "perfilamento-facial",
+    categoryName: "Perfilamento Facial",
+    beforeImage: "/Casos-clinicos/perfilamento2-antes.png",
+    afterImage: "/Casos-clinicos/perfilamento2-depois.png",
+    doctor: "Equipe Médica pbserum",
+    sessions: 2,
   },
   {
     id: "perfilamento-1",
@@ -81,6 +124,17 @@ export const clinicalCasesData: ClinicalCase[] = [
     doctor: "Dr. Ramón Alejandro Chapa",
     country: "México",
     sessions: 2,
+  },
+
+  // Gordura Localizada
+  {
+    id: "gordura-4",
+    categoryId: "gordura-localizada",
+    categoryName: "Gordura Localizada",
+    beforeImage: "/Casos-clinicos/gorduralocal4-antes.png",
+    afterImage: "/Casos-clinicos/gorduralocal4-depois.png",
+    doctor: "Equipe Médica pbserum",
+    sessions: 4,
   },
   {
     id: "gordura-1",
@@ -108,6 +162,17 @@ export const clinicalCasesData: ClinicalCase[] = [
     categoryName: "Gordura Localizada",
     beforeImage: "/Casos-clinicos/gorduralocal3-antes.png",
     afterImage: "/Casos-clinicos/gorduralocal3-depois.png",
+    doctor: "Equipe Médica pbserum",
+    sessions: 4,
+  },
+
+  // Celulite
+  {
+    id: "celulite-4",
+    categoryId: "celulite",
+    categoryName: "Celulite",
+    beforeImage: "/Casos-clinicos/celulite4-antes.png",
+    afterImage: "/Casos-clinicos/celulite4-depois.png",
     doctor: "Equipe Médica pbserum",
     sessions: 4,
   },
