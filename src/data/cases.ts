@@ -59,6 +59,15 @@ export const clinicalCasesData: ClinicalCase[] = [
 
   // Perfilamento Facial
   {
+    id: "perfilamento-1",
+    categoryId: "perfilamento-facial",
+    categoryName: "Perfilamento Facial",
+    beforeImage: "/Casos-clinicos/perfilamento1-antes.png",
+    afterImage: "/Casos-clinicos/perfilamento1-depois.png",
+    doctor: "Equipe Médica pbserum",
+    sessions: 2,
+  },
+  {
     id: "perfilamento-2",
     categoryId: "perfilamento-facial",
     categoryName: "Perfilamento Facial",
@@ -69,6 +78,15 @@ export const clinicalCasesData: ClinicalCase[] = [
   },
 
   // Gordura Localizada
+  {
+    id: "gordura-1",
+    categoryId: "gordura-localizada",
+    categoryName: "Gordura Localizada",
+    beforeImage: "/Casos-clinicos/gorduralocal1-antes.png",
+    afterImage: "/Casos-clinicos/gorduralocal1-depois.png",
+    doctor: "Equipe Médica pbserum",
+    sessions: 3,
+  },
   {
     id: "gordura-4",
     categoryId: "gordura-localizada",
@@ -81,6 +99,15 @@ export const clinicalCasesData: ClinicalCase[] = [
 
   // Celulite
   {
+    id: "celulite-1",
+    categoryId: "celulite",
+    categoryName: "Celulite",
+    beforeImage: "/Casos-clinicos/celulite1-antes.png",
+    afterImage: "/Casos-clinicos/celulite1-depois.png",
+    doctor: "Equipe Médica pbserum",
+    sessions: 3,
+  },
+  {
     id: "celulite-4",
     categoryId: "celulite",
     categoryName: "Celulite",
@@ -90,3 +117,4 @@ export const clinicalCasesData: ClinicalCase[] = [
     sessions: 4,
   },
 ];
+
