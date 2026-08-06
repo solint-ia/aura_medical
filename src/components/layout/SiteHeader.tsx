@@ -77,7 +77,7 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 flex items-center justify-between gap-6 bg-[#0D1B2A]/95 px-[clamp(20px,4vw,56px)] py-4 backdrop-blur-[14px] text-[#F6F3EC] shadow-[0_10px_35px_rgba(10,22,34,0.3)] relative">
+      <header className="sticky top-0 z-50 flex items-center justify-between gap-6 bg-[#0D1B2A]/95 px-[clamp(20px,4vw,56px)] py-5 md:py-[21px] backdrop-blur-[14px] text-[#F6F3EC] shadow-[0_10px_35px_rgba(10,22,34,0.3)] relative">
         {/* Soft Fading Gold Gradient Line */}
         <div
           aria-hidden="true"
@@ -89,7 +89,7 @@ export function SiteHeader() {
             alt="Aura Regenera"
             width={280}
             height={70}
-            className="h-11 sm:h-12 md:h-14 w-auto object-contain drop-shadow-sm"
+            className="h-12 sm:h-14 md:h-16 w-auto object-contain drop-shadow-sm"
             priority
           />
         </Link>
@@ -141,7 +141,7 @@ export function SiteHeader() {
 
             {/* Profile Dropdown Menu */}
             {isProfileDropdownOpen && user && (
-              <div className="absolute right-0 top-12 w-56 rounded-xl border border-white/15 bg-[#0D1B2A] p-2 shadow-2xl text-xs font-mono">
+              <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-white/15 bg-[#0D1B2A] p-2 shadow-2xl text-xs font-mono">
                 <div className="border-b border-white/10 px-3 py-2">
                   <p className="font-bold text-white text-sm">{user.firstName} {user.lastName}</p>
                   <p className="text-[11px] text-white/60 truncate">{user.email}</p>
