@@ -4,7 +4,17 @@ import { useState } from "react";
 import Image from "next/image";
 import { Lock, User, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { formatCep, formatCpf, formatCnpj, formatCpfOrCnpj, formatPhone, validateCpf, validateCnpj } from "@/lib/validators";
+import {
+  formatCep,
+  formatCpf,
+  formatCnpj,
+  formatCpfOrCnpj,
+  formatPhone,
+  validateCpf,
+  validateCnpj,
+  validateEmail,
+  validatePhone,
+} from "@/lib/validators";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -118,15 +128,14 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
 
     if (!regEmail.trim()) {
       newErrors.email = "E-mail é obrigatório.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(regEmail)) {
+    } else if (!validateEmail(regEmail)) {
       newErrors.email = "E-mail com formato inválido.";
     }
 
-    const phoneDigits = regPhone.replace(/\D/g, "");
     if (!regPhone.trim()) {
       newErrors.phone = "Telefone / WhatsApp é obrigatório.";
-    } else if (phoneDigits.length < 10) {
-      newErrors.phone = "Telefone deve conter no mínimo 10 dígitos com DDD.";
+    } else if (!validatePhone(regPhone)) {
+      newErrors.phone = "Telefone inválido. Informe DDD + número (10 ou 11 dígitos).";
     }
 
     if (!regPassword) {

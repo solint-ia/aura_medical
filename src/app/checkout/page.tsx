@@ -23,10 +23,22 @@ import { AccreditationProvider } from "@/components/accreditation/AccreditationP
 
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { CardBrandBadge } from "@/components/ui/CardBrandBadge";
 import { UserAddress, useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { formatBRL } from "@/lib/format";
-import { formatCep, formatCpfOrCnpj, formatPhone } from "@/lib/validators";
+import {
+  detectCardBrand,
+  detectCardBrandOrNull,
+  formatCardNumber,
+  formatCep,
+  formatCpf,
+  formatCpfOrCnpj,
+  formatPhone,
+  validateCardExpiry,
+  validateCardNumber,
+  validateCpf,
+} from "@/lib/validators";
 
 type Step = 1 | 2; // Step 1: Endereço & Frete | Step 2: Pagamento & Revisão
 type PaymentMethod = "card" | "pix" | null;
@@ -79,11 +91,6 @@ interface ShippingOption {
   deliveryTime: number;
   company: string;
   logo?: string;
-}
-
-function formatCardNumber(value: string) {
-  const digits = value.replace(/\D/g, "").slice(0, 16);
-  return digits.replace(/(.{4})/g, "$1 ").trim();
 }
 
 function formatExpiry(value: string) {
@@ -281,11 +288,27 @@ function CheckoutContent() {
 
     if (paymentMethod === "card") {
       if (!card.name.trim()) newErrors.cardName = "Nome impresso no cartão é obrigatório.";
-      if (card.number.replace(/\s/g, "").length < 16)
-        newErrors.cardNumber = "Número do cartão inválido.";
-      if (card.expiry.length < 5) newErrors.cardExpiry = "Validade inválida (MM/AA).";
-      if (card.cvv.length < 3) newErrors.cardCvv = "CVV inválido (3 ou 4 dígitos).";
-      if (!card.cpf.trim()) newErrors.cardCpf = "CPF do titular é obrigatório.";
+
+      if (!validateCardNumber(card.number)) {
+        newErrors.cardNumber = "Número do cartão inválido. Verifique os dígitos.";
+      }
+
+      if (!validateCardExpiry(card.expiry)) {
+        newErrors.cardExpiry = "Validade inválida ou cartão vencido (MM/AA).";
+      }
+
+      const cardBrand = detectCardBrand(card.number);
+      const expectedCvvLength = cardBrand === "amex" ? 4 : 3;
+      if (card.cvv.replace(/\D/g, "").length !== expectedCvvLength) {
+        newErrors.cardCvv = `CVV inválido (deve ter ${expectedCvvLength} dígitos).`;
+      }
+
+      const cardCpfDigits = card.cpf.replace(/\D/g, "");
+      if (!cardCpfDigits) {
+        newErrors.cardCpf = "CPF do titular é obrigatório.";
+      } else if (!validateCpf(cardCpfDigits)) {
+        newErrors.cardCpf = "CPF do titular inválido. Verifique os dígitos.";
+      }
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -998,13 +1021,19 @@ function CheckoutContent() {
                     <label className="block mb-1.5 font-mono text-xs text-content/75 uppercase tracking-wider">
                       Número do Cartão *
                     </label>
-                    <input
-                      type="text"
-                      placeholder="0000 0000 0000 0000"
-                      value={card.number}
-                      onChange={(e) => setCard({ ...card, number: formatCardNumber(e.target.value) })}
-                      className={inputClass(!!errors.cardNumber)}
-                    />
+                    <div className="relative">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="0000 0000 0000 0000"
+                        value={card.number}
+                        onChange={(e) => setCard({ ...card, number: formatCardNumber(e.target.value) })}
+                        className={`${inputClass(!!errors.cardNumber)} pr-14`}
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <CardBrandBadge brand={detectCardBrandOrNull(card.number)} />
+                      </div>
+                    </div>
                     {errors.cardNumber && <p className="mt-1 text-xs text-red-500">{errors.cardNumber}</p>}
                   </div>
 
@@ -1045,7 +1074,7 @@ function CheckoutContent() {
                       type="text"
                       placeholder="000.000.000-00"
                       value={card.cpf}
-                      onChange={(e) => setCard({ ...card, cpf: formatCpfOrCnpj(e.target.value) })}
+                      onChange={(e) => setCard({ ...card, cpf: formatCpf(e.target.value) })}
                       className={inputClass(!!errors.cardCpf)}
                     />
                     {errors.cardCpf && <p className="mt-1 text-xs text-red-500">{errors.cardCpf}</p>}

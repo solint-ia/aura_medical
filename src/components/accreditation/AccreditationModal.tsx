@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { formatPhone, validateEmail, validatePhone } from "@/lib/validators";
 
 interface AccreditationModalProps {
   protocolName: string | null;
@@ -56,6 +57,20 @@ export function AccreditationModal({
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMsg("");
+
+    if (!form.name.trim()) {
+      setErrorMsg("Informe seu nome completo.");
+      return;
+    }
+    if (!validateEmail(form.email)) {
+      setErrorMsg("Informe um e-mail válido.");
+      return;
+    }
+    if (!validatePhone(form.phone)) {
+      setErrorMsg("Informe um telefone/WhatsApp válido, com DDD.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -171,7 +186,7 @@ export function AccreditationModal({
                 placeholder="WhatsApp / telefone"
                 aria-label="WhatsApp ou telefone"
                 value={form.phone}
-                onChange={(event) => updateField("phone")(event.target.value)}
+                onChange={(event) => updateField("phone")(formatPhone(event.target.value))}
                 className={FIELD_CLASSES}
               />
               <textarea

@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
 import { dbPool } from "@/lib/db";
-import { validateCpfOrCnpj } from "@/lib/validators";
+import { validateCpfOrCnpj, validateEmail, validatePhone } from "@/lib/validators";
 
 const JWT_SECRET = process.env.SUPABASE_SERVICE_ROLE_KEY || "aura-jwt-secret-key-2026-secure";
 
@@ -38,12 +38,14 @@ export async function POST(req: Request) {
     const cleanEmail = (email || "").toLowerCase().trim();
     if (!cleanEmail) {
       errors.email = "E-mail é obrigatório.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+    } else if (!validateEmail(cleanEmail)) {
       errors.email = "E-mail com formato inválido.";
     }
 
     const cleanPhone = (phone || "").replace(/\D/g, "");
-    if (!cleanPhone || cleanPhone.length < 10) {
+    if (!cleanPhone) {
+      errors.phone = "Telefone / WhatsApp é obrigatório.";
+    } else if (!validatePhone(cleanPhone)) {
       errors.phone = "Telefone / WhatsApp inválido.";
     }
 

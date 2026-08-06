@@ -217,50 +217,97 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateProfile = async (data: { firstName: string; lastName: string; phone: string; birthDate: string }) => {
-    if (!user) return false;
+    if (!user || !authToken) return false;
 
-    const updatedUser: UserProfile = {
-      ...user,
-      firstName: data.firstName.trim(),
-      lastName: data.lastName.trim(),
-      phone: data.phone.trim(),
-      birthDate: data.birthDate,
-    };
+    try {
+      const res = await fetch("/api/auth/profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(data),
+      });
 
-    setUser(updatedUser);
-    localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(updatedUser));
-    return true;
+      const result = await res.json();
+      if (!result.success) return false;
+
+      const updatedUser: UserProfile = {
+        ...user,
+        firstName: result.user.firstName,
+        lastName: result.user.lastName,
+        phone: result.user.phone,
+        birthDate: result.user.birthDate,
+      };
+
+      setUser(updatedUser);
+      localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(updatedUser));
+      return true;
+    } catch (err) {
+      console.error("Erro ao atualizar perfil:", err);
+      return false;
+    }
   };
 
   const addAddress = async (addressData: Omit<UserAddress, "id">) => {
-    const newAddress: UserAddress = {
-      ...addressData,
-      id: `addr-${Date.now()}`,
-    };
+    if (!authToken) throw new Error("Sessão expirada. Faça login novamente.");
 
-    const updatedAddresses = [...addresses, newAddress];
+    const res = await fetch("/api/addresses", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify(addressData),
+    });
+
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || "Erro ao salvar endereço.");
+
+    const updatedAddresses = [...addresses, data.address];
     setAddresses(updatedAddresses);
     localStorage.setItem(LOCAL_STORAGE_ADDRESSES_KEY, JSON.stringify(updatedAddresses));
-    setSelectedAddress(newAddress);
-    return newAddress;
+    setSelectedAddress(data.address);
+    return data.address as UserAddress;
   };
 
   const updateAddress = async (addressId: string, addressData: Omit<UserAddress, "id">) => {
-    const updatedAddresses = addresses.map((addr) =>
-      addr.id === addressId ? { ...addressData, id: addressId } : addr
-    );
+    if (!authToken) throw new Error("Sessão expirada. Faça login novamente.");
 
+    const res = await fetch("/api/addresses", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify({ id: addressId, ...addressData }),
+    });
+
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || "Erro ao atualizar endereço.");
+
+    const updatedAddresses = addresses.map((addr) => (addr.id === addressId ? data.address : addr));
     setAddresses(updatedAddresses);
     localStorage.setItem(LOCAL_STORAGE_ADDRESSES_KEY, JSON.stringify(updatedAddresses));
 
     if (selectedAddress?.id === addressId) {
-      setSelectedAddress({ ...addressData, id: addressId });
+      setSelectedAddress(data.address);
     }
 
     return true;
   };
 
   const deleteAddress = async (addressId: string) => {
+    if (!authToken) throw new Error("Sessão expirada. Faça login novamente.");
+
+    const res = await fetch(`/api/addresses?id=${addressId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${authToken}` },
+    });
+
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || "Erro ao excluir endereço.");
+
     const updatedAddresses = addresses.filter((addr) => addr.id !== addressId);
     setAddresses(updatedAddresses);
     localStorage.setItem(LOCAL_STORAGE_ADDRESSES_KEY, JSON.stringify(updatedAddresses));

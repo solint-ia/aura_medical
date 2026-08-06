@@ -1,9 +1,15 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { dbPool } from "@/lib/db";
+import { validateEmail, validatePhone } from "@/lib/validators";
+import { verifyAdminToken } from "@/lib/auth";
 
 export async function GET(req: Request) {
   try {
+    if (!verifyAdminToken(req)) {
+      return NextResponse.json({ error: "Acesso restrito a administradores." }, { status: 401 });
+    }
+
     const { searchParams } = new URL(req.url);
     const query = (searchParams.get("query") || "").toLowerCase().trim();
 
@@ -117,11 +123,27 @@ export async function GET(req: Request) {
 
 export async function PUT(req: Request) {
   try {
+    if (!verifyAdminToken(req)) {
+      return NextResponse.json({ error: "Acesso restrito a administradores." }, { status: 401 });
+    }
+
     const body = await req.json();
     const { id, firstName, lastName, phone, email, cpfCnpj, role } = body;
 
     if (!id) {
       return NextResponse.json({ error: "ID do usuário é obrigatório." }, { status: 400 });
+    }
+
+    if (!firstName?.trim() || !lastName?.trim()) {
+      return NextResponse.json({ error: "Nome e Sobrenome são obrigatórios." }, { status: 400 });
+    }
+
+    if (email && !validateEmail(email)) {
+      return NextResponse.json({ error: "E-mail com formato inválido." }, { status: 400 });
+    }
+
+    if (phone && !validatePhone(phone)) {
+      return NextResponse.json({ error: "Telefone inválido." }, { status: 400 });
     }
 
     try {
@@ -166,6 +188,10 @@ export async function PUT(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
+    if (!verifyAdminToken(req)) {
+      return NextResponse.json({ error: "Acesso restrito a administradores." }, { status: 401 });
+    }
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
 

@@ -1,16 +1,25 @@
 import { NextResponse } from "next/server";
 import { sendMailerooEmail, renderContactEmailTemplate } from "@/lib/maileroo";
+import { validateEmail, validatePhone } from "@/lib/validators";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { name, email, phone, message, protocolName } = body;
 
-    if (!name || !email || !phone) {
+    if (!name?.trim() || !email?.trim() || !phone?.trim()) {
       return NextResponse.json(
         { error: "Por favor, preencha nome, e-mail e telefone." },
         { status: 400 }
       );
+    }
+
+    if (!validateEmail(email)) {
+      return NextResponse.json({ error: "E-mail com formato inválido." }, { status: 400 });
+    }
+
+    if (!validatePhone(phone)) {
+      return NextResponse.json({ error: "Telefone/WhatsApp inválido." }, { status: 400 });
     }
 
     // Render Luxury HTML Contact Email

@@ -34,7 +34,7 @@ import { BuyNowButton } from "@/components/ui/BuyNowButton";
 import { useAuth } from "@/context/AuthContext";
 import { PROTOCOLS } from "@/data/protocols";
 import { formatBRL } from "@/lib/format";
-import { formatCep, formatCpfOrCnpj, formatPhone } from "@/lib/validators";
+import { formatCep, formatCpfOrCnpj, formatPhone, validateEmail, validatePhone } from "@/lib/validators";
 
 type AdminTab = "stats" | "orders" | "users" | "profile" | "tests";
 
@@ -157,6 +157,7 @@ function AdminDashboardContent() {
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [userQuery, setUserQuery] = useState("");
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
+  const [editUserErrorMsg, setEditUserErrorMsg] = useState("");
   const [deletingUser, setDeletingUser] = useState<AdminUser | null>(null);
 
   // Admin Profile Edit State
@@ -215,7 +216,9 @@ function AdminDashboardContent() {
   const fetchUsers = useCallback(async () => {
     setLoadingUsers(true);
     try {
-      const res = await fetch(`/api/admin/users?query=${encodeURIComponent(userQuery)}`);
+      const res = await fetch(`/api/admin/users?query=${encodeURIComponent(userQuery)}`, {
+        headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
+      });
       const data = await res.json();
       if (data.users) {
         setUsers(data.users);
@@ -225,7 +228,7 @@ function AdminDashboardContent() {
     } finally {
       setLoadingUsers(false);
     }
-  }, [userQuery]);
+  }, [userQuery, authToken]);
 
   useEffect(() => {
     if (isAdmin) {
@@ -314,20 +317,40 @@ function AdminDashboardContent() {
   const handleSaveUserByAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingUser) return;
+    setEditUserErrorMsg("");
+
+    if (!editingUser.firstName.trim() || !editingUser.lastName.trim()) {
+      setEditUserErrorMsg("Nome e Sobrenome são obrigatórios.");
+      return;
+    }
+    if (!validateEmail(editingUser.email)) {
+      setEditUserErrorMsg("E-mail com formato inválido.");
+      return;
+    }
+    if (!validatePhone(editingUser.phone)) {
+      setEditUserErrorMsg("Telefone inválido. Informe DDD + número.");
+      return;
+    }
 
     try {
       const res = await fetch("/api/admin/users", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        },
         body: JSON.stringify(editingUser),
       });
       const data = await res.json();
       if (data.success) {
         setEditingUser(null);
         fetchUsers();
+      } else {
+        setEditUserErrorMsg(data.error || "Erro ao salvar usuário.");
       }
     } catch (err) {
       console.error("Erro ao salvar usuário:", err);
+      setEditUserErrorMsg("Erro de comunicação ao salvar usuário.");
     }
   };
 
@@ -337,6 +360,7 @@ function AdminDashboardContent() {
     try {
       const res = await fetch(`/api/admin/users?id=${deletingUser.id}`, {
         method: "DELETE",
+        headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
       });
       const data = await res.json();
       if (data.success) {
@@ -356,6 +380,11 @@ function AdminDashboardContent() {
 
     if (!editFirstName.trim() || !editLastName.trim()) {
       setProfileErrorMsg("Nome e Sobrenome são obrigatórios.");
+      return;
+    }
+
+    if (editPhone && !validatePhone(editPhone)) {
+      setProfileErrorMsg("Telefone/WhatsApp inválido. Informe DDD + número.");
       return;
     }
 
@@ -1080,7 +1109,10 @@ function AdminDashboardContent() {
                           <div className="flex items-center justify-end gap-3">
                             <button
                               type="button"
-                              onClick={() => setEditingUser(u)}
+                              onClick={() => {
+                                setEditingUser(u);
+                                setEditUserErrorMsg("");
+                              }}
                               className="text-[#C59D3F] hover:underline font-bold"
                             >
                               Editar
@@ -1112,6 +1144,11 @@ function AdminDashboardContent() {
                 <h3 className="font-display text-lg font-bold text-content">
                   Editar Cliente - {editingUser.firstName} {editingUser.lastName}
                 </h3>
+                {editUserErrorMsg && (
+                  <div className="rounded-xl bg-red-500/10 p-3 font-mono text-xs font-semibold text-red-500 border border-red-500/20">
+                    ⚠️ {editUserErrorMsg}
+                  </div>
+                )}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">Nome</label>
@@ -1147,7 +1184,7 @@ function AdminDashboardContent() {
                     <input
                       type="tel"
                       value={editingUser.phone}
-                      onChange={(e) => setEditingUser({ ...editingUser, phone: e.target.value })}
+                      onChange={(e) => setEditingUser({ ...editingUser, phone: formatPhone(e.target.value) })}
                       className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-xs text-content outline-none focus:border-[#C59D3F]"
                     />
                   </div>
@@ -1167,7 +1204,10 @@ function AdminDashboardContent() {
                 <div className="flex gap-3 pt-2">
                   <button
                     type="button"
-                    onClick={() => setEditingUser(null)}
+                    onClick={() => {
+                      setEditingUser(null);
+                      setEditUserErrorMsg("");
+                    }}
                     className="w-1/2 rounded-xl border border-content/20 py-2.5 font-mono text-xs font-semibold text-content hover:bg-content/5"
                   >
                     Cancelar

@@ -17,6 +17,8 @@ import {
   formatPhone,
   validateCpf,
   validateCnpj,
+  validateEmail,
+  validatePhone,
 } from "@/lib/validators";
 
 function AuthPageContent() {
@@ -216,15 +218,14 @@ function AuthPageContent() {
 
     if (!regEmail.trim()) {
       newErrors.email = "E-mail é obrigatório.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(regEmail)) {
+    } else if (!validateEmail(regEmail)) {
       newErrors.email = "E-mail com formato inválido.";
     }
 
-    const phoneDigits = regPhone.replace(/\D/g, "");
     if (!regPhone.trim()) {
       newErrors.phone = "Telefone / WhatsApp é obrigatório.";
-    } else if (phoneDigits.length < 10) {
-      newErrors.phone = "Telefone deve conter no mínimo 10 dígitos com DDD.";
+    } else if (!validatePhone(regPhone)) {
+      newErrors.phone = "Telefone inválido. Informe DDD + número (10 ou 11 dígitos).";
     }
 
     if (!regPassword) {
@@ -400,7 +401,7 @@ function AuthPageContent() {
     setGeneralError("");
     setSuccessMsg("");
 
-    if (!forgotEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(forgotEmail)) {
+    if (!forgotEmail.trim() || !validateEmail(forgotEmail)) {
       setGeneralError("Informe um e-mail válido cadastrado.");
       return;
     }

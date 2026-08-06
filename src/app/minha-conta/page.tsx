@@ -32,7 +32,7 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Order, UserAddress, useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { formatBRL } from "@/lib/format";
-import { formatDateBR, formatCep, formatCpfOrCnpj, formatPhone } from "@/lib/validators";
+import { formatDateBR, formatCep, formatCpfOrCnpj, formatPhone, validatePhone } from "@/lib/validators";
 
 const PROTOCOL_IMAGE_MAP: Record<string, string> = {
   "queixo-duplo": "/images/fotos-protocolos/queixoduplo-2.png",
@@ -99,6 +99,7 @@ function CustomerPortalContent() {
   const [addressNeighborhood, setAddressNeighborhood] = useState("");
   const [addressCity, setAddressCity] = useState("");
   const [cepLoading, setCepLoading] = useState(false);
+  const [addressErrorMsg, setAddressErrorMsg] = useState("");
 
   // Delete Address Confirmation Modal State
   const [deletingAddress, setDeletingAddress] = useState<UserAddress | null>(null);
@@ -219,6 +220,7 @@ function CustomerPortalContent() {
     setAddressComplement("");
     setAddressNeighborhood("");
     setAddressCity("");
+    setAddressErrorMsg("");
     setIsAddAddressOpen(true);
   };
 
@@ -230,12 +232,23 @@ function CustomerPortalContent() {
     setAddressComplement(addr.complement || "");
     setAddressNeighborhood(addr.neighborhood);
     setAddressCity(addr.city.includes("-") ? addr.city : `${addr.city} - ${addr.uf}`);
+    setAddressErrorMsg("");
     setIsAddAddressOpen(true);
   };
 
   const handleSaveAddress = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!addressCep || !addressStreet || !addressNumber || !addressNeighborhood || !addressCity) return;
+    setAddressErrorMsg("");
+
+    if (!addressCep || !addressStreet || !addressNumber || !addressNeighborhood || !addressCity) {
+      setAddressErrorMsg("Preencha todos os campos obrigatórios do endereço.");
+      return;
+    }
+
+    if (addressCep.replace(/\D/g, "").length !== 8) {
+      setAddressErrorMsg("CEP inválido. Deve possuir 8 dígitos.");
+      return;
+    }
 
     const payload = {
       cep: formatCep(addressCep),
@@ -247,19 +260,27 @@ function CustomerPortalContent() {
       uf: addressCity.includes("-") ? addressCity.split("-")[1].trim() : "SE",
     };
 
-    if (editingAddressId) {
-      await updateAddress(editingAddressId, payload);
-    } else {
-      await addAddress(payload);
-    }
+    try {
+      if (editingAddressId) {
+        await updateAddress(editingAddressId, payload);
+      } else {
+        await addAddress(payload);
+      }
 
-    setIsAddAddressOpen(false);
-    setEditingAddressId(null);
+      setIsAddAddressOpen(false);
+      setEditingAddressId(null);
+    } catch (err) {
+      setAddressErrorMsg(err instanceof Error ? err.message : "Erro ao salvar endereço.");
+    }
   };
 
   const handleConfirmDeleteAddress = async () => {
     if (deletingAddress) {
-      await deleteAddress(deletingAddress.id);
+      try {
+        await deleteAddress(deletingAddress.id);
+      } catch (err) {
+        console.error("Erro ao excluir endereço:", err);
+      }
       setDeletingAddress(null);
     }
   };
@@ -288,13 +309,23 @@ function CustomerPortalContent() {
       return;
     }
 
+    if (!validatePhone(editPhone)) {
+      setProfileErrorMsg("Telefone/WhatsApp inválido. Informe DDD + número.");
+      return;
+    }
+
     // 1. Update basic profile info
-    await updateProfile({
+    const profileUpdated = await updateProfile({
       firstName: editFirstName,
       lastName: editLastName,
       phone: editPhone,
       birthDate: editBirthDate,
     });
+
+    if (!profileUpdated) {
+      setProfileErrorMsg("Erro ao salvar os dados do perfil. Tente novamente.");
+      return;
+    }
 
     // 2. If password fields are filled, attempt password update
     if (editCurrentPassword || editNewPassword || editConfirmPassword) {
@@ -626,6 +657,11 @@ function CustomerPortalContent() {
               <h3 className="font-display text-lg font-bold text-content">
                 {editingAddressId ? "Editar Endereço de Entrega" : "Novo Endereço de Entrega"}
               </h3>
+              {addressErrorMsg && (
+                <div className="rounded-xl bg-red-500/10 p-3 font-mono text-xs font-semibold text-red-500 border border-red-500/20">
+                  ⚠️ {addressErrorMsg}
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">CEP *</label>
@@ -702,6 +738,7 @@ function CustomerPortalContent() {
                   onClick={() => {
                     setIsAddAddressOpen(false);
                     setEditingAddressId(null);
+                    setAddressErrorMsg("");
                   }}
                   className="w-1/2 rounded-lg border border-content/20 py-2.5 font-mono text-xs font-semibold text-content"
                 >
