@@ -115,6 +115,8 @@ function CheckoutContent() {
 
   const [processingPayment, setProcessingPayment] = useState(false);
   const [paymentError, setPaymentError] = useState("");
+  /** `status_detail` da recusa do Mercado Pago, para orientar o usuário por caso. */
+  const [paymentErrorDetail, setPaymentErrorDetail] = useState("");
   const [pixData, setPixData] = useState<{
     paymentId: string;
     qrCode: string;
@@ -270,6 +272,7 @@ function CheckoutContent() {
   const handleFinalizeOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     setPaymentError("");
+    setPaymentErrorDetail("");
     const newErrors: FormErrors = {};
 
     if (!paymentMethod) {
@@ -347,6 +350,7 @@ function CheckoutContent() {
       setProcessingPayment(false);
 
       if (!payData.success) {
+        setPaymentErrorDetail(payData.statusDetail || "");
         setPaymentError(payData.error || "Recusado pelo Mercado Pago. Verifique os dados.");
         return; // Payment failed or rejected! Do NOT create order, items remain in cart!
       }
@@ -411,6 +415,17 @@ function CheckoutContent() {
       setProcessingPayment(false);
       setPaymentError("Erro de comunicação ao processar pagamento com o Mercado Pago.");
     }
+  };
+
+  // Recusa por antifraude do emissor: nova tentativa com o MESMO cartão tende a
+  // ser recusada igual, então a UI orienta trocar de cartão ou pagar via Pix.
+  const isHighRiskRejection = paymentErrorDetail === "cc_rejected_high_risk";
+
+  const handleSwitchToPix = () => {
+    setPaymentMethod("pix");
+    setErrors((prev) => ({ ...prev, paymentMethod: "" }));
+    setPaymentError("");
+    setPaymentErrorDetail("");
   };
 
   const inputClass = (hasError?: boolean) =>
@@ -1057,9 +1072,36 @@ function CheckoutContent() {
             )}
           </div>
 
-          {paymentError && (
+          {paymentError && !isHighRiskRejection && (
             <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 font-mono text-xs text-red-600 dark:text-red-400 font-semibold">
               ⚠️ {paymentError}
+            </div>
+          )}
+
+          {/* Recusa por antifraude (cc_rejected_high_risk): sem convite a repetir o mesmo cartão. */}
+          {paymentError && isHighRiskRejection && (
+            <div className="space-y-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4">
+              <p className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+                <ShieldCheck className="h-4 w-4 shrink-0" />
+                Pagamento recusado por critérios de segurança
+              </p>
+              <p className="text-xs leading-relaxed text-content/85">{paymentError}</p>
+              <p className="text-xs leading-relaxed text-content/70">
+                Não é necessário tentar de novo com o mesmo cartão: a análise de risco do emissor
+                se repetiria. Informe os dados de <strong className="text-content">outro cartão</strong>{" "}
+                ou finalize por <strong className="text-content">Pix</strong>, com aprovação
+                instantânea. Nenhum valor foi cobrado e seu carrinho continua salvo.
+              </p>
+              {paymentMethod !== "pix" && (
+                <button
+                  type="button"
+                  onClick={handleSwitchToPix}
+                  className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 font-mono text-xs font-bold text-white transition-colors hover:bg-emerald-700 active:scale-[0.99]"
+                >
+                  <QrCode className="h-4 w-4" />
+                  Pagar com Pix
+                </button>
+              )}
             </div>
           )}
 

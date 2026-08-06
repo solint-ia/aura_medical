@@ -394,7 +394,11 @@ export async function POST(req: Request) {
       } else if (payData.status_detail === "cc_rejected_bad_filled_security_code") {
         userMessage = "Código de segurança (CVV) incorreto.";
       } else if (payData.status_detail === "cc_rejected_high_risk") {
-        userMessage = "Pagamento recusado por segurança antifraude da operadora.";
+        // Recusa pelo antifraude: repetir com o mesmo cartão tende a ser recusado
+        // de novo, então a mensagem orienta outro cartão ou Pix (a UI do checkout
+        // reconhece este status_detail e mostra o atalho para o Pix).
+        userMessage =
+          "O pagamento não pôde ser aprovado por critérios de segurança do emissor. Para concluir sua compra, utilize outro cartão ou escolha o pagamento via Pix.";
       } else if (payData.message === "Invalid payment_method_id" || payData.cause?.some((c: { code?: string }) => c.code === "205")) {
         userMessage = "Bandeira do cartão não reconhecida pelo Mercado Pago. Verifique os dados digitados.";
       }
