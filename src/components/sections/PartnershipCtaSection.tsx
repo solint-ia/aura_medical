@@ -23,7 +23,7 @@ export function PartnershipCtaSection() {
         </h2>
 
         <p className="mt-4 text-base sm:text-lg text-content/80 max-w-2xl mx-auto leading-relaxed">
-          Resultados comprovados e tecnologia enzimática avançada para a sua pele.
+          Resultados comprovados e tecnologia enzimática avançada para a bioremodelação e regeneração tecidual.
         </p>
 
         <div className="mt-7 flex items-center justify-center gap-4 flex-wrap">
