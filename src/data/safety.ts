@@ -48,9 +48,9 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     question: "Os produtos possuem registro e comprovação?",
     answer:
-      "Sim. Cada enzima da linha pbserum Plus possui registro na ANVISA, além do registro cosmético conforme o Regulamento (CE) 1223/2009. Os números de processo de Slim+, Smooth+ e Drain+ estão no capítulo 04 — Registro ANVISA, na seção Biotecnologia Avançada:",
+      "Sim. Cada enzima da linha pbserum Plus possui registro na ANVISA, além do registro cosmético conforme o Regulamento (CE) 1223/2009. Os números de processo de Slim+, Smooth+ e Drain+ estão no link abaixo:",
     links: [
-      { href: "/enzimas#registro-anvisa", label: "Capítulo 04 · Registro ANVISA" },
+      { href: "/enzimas#registro-anvisa", label: "Registro ANVISA" },
     ],
   },
   {
