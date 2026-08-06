@@ -870,11 +870,14 @@ function CheckoutContent() {
           )}
 
           {/* TOTAL SUMMARY & CONTINUE BUTTON */}
-          <div className="rounded-2xl border border-content/12 bg-card p-6 flex flex-wrap items-center justify-between gap-4">
+          <div className="rounded-2xl border border-content/12 bg-card p-6 flex flex-wrap items-center justify-between gap-4 shadow-sm">
             <div>
               <span className="font-mono text-xs text-content/60 uppercase">Subtotal + Frete:</span>
               <p className="font-display text-2xl font-bold text-[#C59D3F]">
-                {formatBRL(totalPrice)}
+                {formatBRL(orderTotalBeforeDiscount)}
+              </p>
+              <p className="font-mono text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-1 flex items-center gap-1">
+                <Sparkles className="h-3.5 w-3.5" /> No PIX por {formatBRL(orderTotalBeforeDiscount - pixDiscountAmount)} (Economize {formatBRL(pixDiscountAmount)})
               </p>
             </div>
 
@@ -905,25 +908,78 @@ function CheckoutContent() {
             </button>
           </div>
 
+          {/* PROMINENT PIX DISCOUNT BANNER */}
+          <div className="relative overflow-hidden rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-emerald-950/20 via-emerald-500/15 to-[#C59D3F]/15 p-4 sm:p-5 shadow-lg">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3.5">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-500 text-white font-bold shadow-md animate-pulse">
+                  <Sparkles className="h-6 w-6" />
+                </div>
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-emerald-500 px-2.5 py-0.5 font-mono text-[11px] font-extrabold uppercase text-white shadow-xs">
+                      ⚡ Desconto Exclusivo 5% OFF
+                    </span>
+                    <span className="font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                      Economize {formatBRL(pixDiscountAmount)}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-content/90 font-medium">
+                    Pagando via <strong className="text-emerald-600 dark:text-emerald-400 font-bold">PIX</strong>, seu pedido cai de{" "}
+                    <span className="line-through text-content/60 font-mono">{formatBRL(orderTotalBeforeDiscount)}</span> para{" "}
+                    <strong className="text-emerald-600 dark:text-emerald-400 font-mono text-sm font-extrabold">{formatBRL(orderTotalBeforeDiscount - pixDiscountAmount)}</strong> à vista.
+                  </p>
+                </div>
+              </div>
+
+              {paymentMethod !== "pix" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPaymentMethod("pix");
+                    setErrors((prev) => ({ ...prev, paymentMethod: "" }));
+                  }}
+                  className="shrink-0 rounded-xl bg-emerald-500 px-4 py-2.5 font-mono text-xs font-bold text-white transition-all hover:bg-emerald-600 shadow-md active:scale-[0.98] flex items-center gap-1.5"
+                >
+                  <QrCode className="h-4 w-4" />
+                  <span>Ativar 5% OFF no PIX</span>
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* SUMMARY REVIEW CARD */}
           {selectedAddress && (
-            <div className="rounded-2xl border border-content/12 bg-card p-5 font-mono text-xs space-y-2">
+            <div className="rounded-2xl border border-content/12 bg-card p-5 font-mono text-xs space-y-2.5">
               <p>📍 <strong className="text-content">Endereço Selecionado:</strong> {selectedAddress.street}, {selectedAddress.number} {selectedAddress.complement && `(${selectedAddress.complement})`} - {selectedAddress.city}</p>
               <p>🚚 <strong className="text-content">Frete Escolhido:</strong> {selectedShippingOption ? selectedShippingOption.name : "Frete Padrão"} ({formatBRL(shippingCost)})</p>
               {paymentMethod === "pix" ? (
                 <>
-                  <p>🧾 <strong className="text-content">Subtotal + Frete:</strong> {formatBRL(orderTotalBeforeDiscount)}</p>
-                  <p className="text-emerald-600 dark:text-emerald-400">
-                    🎉 <strong>Desconto Pix (5%):</strong> -{formatBRL(pixDiscountAmount)}
-                  </p>
-                  <p>💰 <strong className="text-content">Valor Total do Pedido:</strong> <span className="text-[#C59D3F] font-bold text-sm">{formatBRL(totalPrice)}</span></p>
+                  <p>🧾 <strong className="text-content">Subtotal + Frete:</strong> <span className="line-through text-content/60">{formatBRL(orderTotalBeforeDiscount)}</span></p>
+                  <div className="flex items-center justify-between rounded-xl bg-emerald-500/15 border border-emerald-500/30 p-2.5 text-emerald-800 dark:text-emerald-300 font-bold">
+                    <span className="flex items-center gap-1.5">
+                      <Sparkles className="h-4 w-4 text-emerald-500" /> Desconto Especial PIX (5% OFF):
+                    </span>
+                    <span className="font-mono text-sm text-emerald-600 dark:text-emerald-400">-{formatBRL(pixDiscountAmount)}</span>
+                  </div>
+                  <p className="pt-1">💰 <strong className="text-content">Valor Total do Pedido:</strong> <span className="text-[#C59D3F] font-bold text-base">{formatBRL(totalPrice)}</span></p>
                 </>
               ) : (
                 <>
                   <p>💰 <strong className="text-content">Valor Total do Pedido:</strong> <span className="text-[#C59D3F] font-bold text-sm">{formatBRL(totalPrice)}</span></p>
-                  <p className="text-[#C59D3F]/90">
-                    💡 Pagando via Pix, o total fica em {formatBRL(orderTotalBeforeDiscount - pixDiscountAmount)} (economia de {formatBRL(pixDiscountAmount)}).
-                  </p>
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-amber-500/10 border border-amber-500/25 p-2.5 text-amber-700 dark:text-amber-300 font-mono text-xs">
+                    <span>💡 No <strong>PIX</strong> o valor total fica por <strong>{formatBRL(orderTotalBeforeDiscount - pixDiscountAmount)}</strong> (Economia de <strong>{formatBRL(pixDiscountAmount)}</strong>)!</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPaymentMethod("pix");
+                        setErrors((prev) => ({ ...prev, paymentMethod: "" }));
+                      }}
+                      className="font-bold text-emerald-600 dark:text-emerald-400 underline hover:text-emerald-500"
+                    >
+                      Mudar para PIX (5% OFF) ➔
+                    </button>
+                  </div>
                 </>
               )}
             </div>
@@ -946,30 +1002,34 @@ function CheckoutContent() {
                   setPaymentMethod("pix");
                   setErrors((prev) => ({ ...prev, paymentMethod: "" }));
                 }}
-                className={`flex cursor-pointer items-start gap-4.5 rounded-xl border p-5 transition-all ${paymentMethod === "pix"
-                    ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content shadow-sm ring-1 ring-[#C59D3F]"
-                    : "border-content/15 bg-canvas hover:border-content/30"
+                className={`relative flex cursor-pointer items-start gap-4 rounded-2xl border-2 p-5 transition-all ${paymentMethod === "pix"
+                    ? "border-emerald-500 bg-emerald-500/10 text-content shadow-lg ring-2 ring-emerald-500/30"
+                    : "border-emerald-500/40 bg-card hover:border-emerald-500 hover:bg-emerald-500/5 shadow-sm"
                   }`}
               >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                <div className="absolute -top-3 right-4 rounded-full bg-emerald-500 px-3 py-0.5 font-mono text-[10px] font-extrabold uppercase text-white shadow-sm flex items-center gap-1">
+                  <Sparkles className="h-3 w-3" /> RECOMENDADO · 5% OFF
+                </div>
+
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-md">
                   <QrCode className="h-6 w-6" />
                 </div>
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
+                <div className="space-y-1">
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
                     <h4 className="font-bold text-base text-content">PIX à Vista</h4>
-                    <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
-                      Aprovação Instantânea
-                    </span>
-                    <span className="rounded-full bg-[#C59D3F]/20 px-2.5 py-0.5 font-mono text-[10px] font-bold text-[#C59D3F]">
-                      5% OFF
+                    <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                      Instantâneo
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-content/70">
-                    QR Code dinâmico do Mercado Pago gerado imediatamente após confirmar.
+                  <p className="text-xs text-content/75">
+                    QR Code dinâmico com aprovação imediata pelo Mercado Pago.
                   </p>
-                  <p className="mt-1 text-xs font-semibold text-[#C59D3F]">
-                    Pague com Pix e economize {formatBRL(pixDiscountAmount)} (5% de desconto no total).
-                  </p>
+                  <div className="mt-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 p-2.5 font-mono text-xs text-emerald-800 dark:text-emerald-300">
+                    💰 Total no PIX: <strong className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{formatBRL(orderTotalBeforeDiscount - pixDiscountAmount)}</strong>
+                    <p className="text-[11px] text-emerald-700 dark:text-emerald-300 font-semibold mt-0.5">
+                      ✓ Economia de {formatBRL(pixDiscountAmount)} (5% OFF)
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -979,7 +1039,7 @@ function CheckoutContent() {
                   setPaymentMethod("card");
                   setErrors((prev) => ({ ...prev, paymentMethod: "" }));
                 }}
-                className={`flex cursor-pointer items-start gap-4.5 rounded-xl border p-5 transition-all ${paymentMethod === "card"
+                className={`flex cursor-pointer items-start gap-4 rounded-2xl border p-5 transition-all ${paymentMethod === "card"
                     ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content shadow-sm ring-1 ring-[#C59D3F]"
                     : "border-content/15 bg-canvas hover:border-content/30"
                   }`}
@@ -987,10 +1047,13 @@ function CheckoutContent() {
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#C59D3F]/15 text-[#C59D3F]">
                   <CreditCard className="h-6 w-6" />
                 </div>
-                <div>
+                <div className="pt-1">
                   <h4 className="font-bold text-base text-content">Cartão de Crédito</h4>
                   <p className="mt-1 text-xs text-content/70">
-                    Parcele em até 10x com juros pelo Mercado Pago.
+                    Parcele em até 10x pelo Mercado Pago.
+                  </p>
+                  <p className="mt-2 text-xs font-mono text-content/60">
+                    Total: {formatBRL(orderTotalBeforeDiscount)}
                   </p>
                 </div>
               </div>
