@@ -122,6 +122,22 @@ function CheckoutContent() {
   } | null>(null);
   const [pixCopied, setPixCopied] = useState(false);
   const [pixPaid, setPixPaid] = useState(false);
+  /**
+   * Snapshot dos dados do pedido PIX, capturado ANTES do `clearCart()`, para
+   * poder notificar o cliente por e-mail só quando o pagamento for confirmado
+   * (o carrinho já estará vazio nesse momento).
+   */
+  const [pixEmailPayload, setPixEmailPayload] = useState<{
+    customerName: string;
+    customerEmail: string;
+    orderNumber: string;
+    paymentMethod: string;
+    shippingAddress: string;
+    items: { name: string; quantity: number; unitPrice: number }[];
+    subtotal: number;
+    shippingCost: number;
+    totalPrice: number;
+  } | null>(null);
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -146,6 +162,17 @@ function CheckoutContent() {
         if (data.success && data.status === "approved") {
           setPixPaid(true);
           clearInterval(interval);
+
+          // Pagamento confirmado agora: só aqui o cliente deve ser notificado
+          // por e-mail. O carrinho já foi limpo, por isso usamos o snapshot
+          // capturado em handleFinalizeOrder antes do clearCart().
+          if (pixEmailPayload) {
+            fetch("/api/payment/confirm-email", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ paymentId: pixData.paymentId, ...pixEmailPayload }),
+            }).catch((mailErr) => console.warn("Aviso ao confirmar e-mail de pagamento PIX:", mailErr));
+          }
         }
       } catch (err) {
         console.warn("Aviso ao checar status do PIX:", err);
@@ -153,7 +180,7 @@ function CheckoutContent() {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [isSubmitted, paymentMethod, pixData, pixPaid]);
+  }, [isSubmitted, paymentMethod, pixData, pixPaid, pixEmailPayload]);
 
   // Dynamic Shipping Calculation via /api/frete/calcular
   // TEMPORARIAMENTE DESATIVADO: Melhor Envio ainda em modo sandbox (sem credenciais
@@ -222,7 +249,12 @@ function CheckoutContent() {
         : 25;
   */
 
-  const totalPrice = subtotal + shippingCost;
+  const orderTotalBeforeDiscount = subtotal + shippingCost;
+  /** Incentivo para pagamento à vista: 5% de desconto no valor total pago via Pix. */
+  const PIX_DISCOUNT_RATE = 0.05;
+  const pixDiscountAmount = orderTotalBeforeDiscount * PIX_DISCOUNT_RATE;
+  const totalPrice =
+    paymentMethod === "pix" ? orderTotalBeforeDiscount - pixDiscountAmount : orderTotalBeforeDiscount;
 
   // Step 1 Validation: Must have a selected address
   const handleContinueToPayment = (e: React.FormEvent) => {
@@ -355,6 +387,21 @@ function CheckoutContent() {
           paymentId: String(payData.paymentId),
           qrCode: payData.qrCode,
           qrCodeBase64: payData.qrCodeBase64,
+        });
+
+        // Snapshot para o e-mail de confirmação, disparado só quando o
+        // polling acima detectar o pagamento aprovado (carrinho já estará vazio).
+        const cepDigits = selectedAddress.cep.replace(/\D/g, "");
+        setPixEmailPayload({
+          customerName: `${user?.firstName || "Cliente"} ${user?.lastName || "Aura"}`.trim(),
+          customerEmail: user?.email || "",
+          orderNumber: finalOrderNumber,
+          paymentMethod: "PIX à Vista (Mercado Pago)",
+          shippingAddress: `${selectedAddress.street}, ${selectedAddress.number} ${selectedAddress.complement ? `- ${selectedAddress.complement}` : ""} - ${selectedAddress.neighborhood}, ${selectedAddress.city}/${selectedAddress.uf} (CEP ${cepDigits})`.trim(),
+          items: items.map((i) => ({ name: i.name, quantity: i.quantity, unitPrice: i.unitPrice })),
+          subtotal,
+          shippingCost,
+          totalPrice,
         });
       }
 
@@ -825,7 +872,22 @@ function CheckoutContent() {
             <div className="rounded-2xl border border-content/12 bg-card p-5 font-mono text-xs space-y-2">
               <p>📍 <strong className="text-content">Endereço Selecionado:</strong> {selectedAddress.street}, {selectedAddress.number} {selectedAddress.complement && `(${selectedAddress.complement})`} - {selectedAddress.city}</p>
               <p>🚚 <strong className="text-content">Frete Escolhido:</strong> {selectedShippingOption ? selectedShippingOption.name : "Frete Padrão"} ({formatBRL(shippingCost)})</p>
-              <p>💰 <strong className="text-content">Valor Total do Pedido:</strong> <span className="text-[#C59D3F] font-bold text-sm">{formatBRL(totalPrice)}</span></p>
+              {paymentMethod === "pix" ? (
+                <>
+                  <p>🧾 <strong className="text-content">Subtotal + Frete:</strong> {formatBRL(orderTotalBeforeDiscount)}</p>
+                  <p className="text-emerald-600 dark:text-emerald-400">
+                    🎉 <strong>Desconto Pix (5%):</strong> -{formatBRL(pixDiscountAmount)}
+                  </p>
+                  <p>💰 <strong className="text-content">Valor Total do Pedido:</strong> <span className="text-[#C59D3F] font-bold text-sm">{formatBRL(totalPrice)}</span></p>
+                </>
+              ) : (
+                <>
+                  <p>💰 <strong className="text-content">Valor Total do Pedido:</strong> <span className="text-[#C59D3F] font-bold text-sm">{formatBRL(totalPrice)}</span></p>
+                  <p className="text-[#C59D3F]/90">
+                    💡 Pagando via Pix, o total fica em {formatBRL(orderTotalBeforeDiscount - pixDiscountAmount)} (economia de {formatBRL(pixDiscountAmount)}).
+                  </p>
+                </>
+              )}
             </div>
           )}
 
@@ -855,14 +917,20 @@ function CheckoutContent() {
                   <QrCode className="h-6 w-6" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <h4 className="font-bold text-base text-content">PIX à Vista</h4>
                     <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
                       Aprovação Instantânea
                     </span>
+                    <span className="rounded-full bg-[#C59D3F]/20 px-2.5 py-0.5 font-mono text-[10px] font-bold text-[#C59D3F]">
+                      5% OFF
+                    </span>
                   </div>
                   <p className="mt-1 text-xs text-content/70">
                     QR Code dinâmico do Mercado Pago gerado imediatamente após confirmar.
+                  </p>
+                  <p className="mt-1 text-xs font-semibold text-[#C59D3F]">
+                    Pague com Pix e economize {formatBRL(pixDiscountAmount)} (5% de desconto no total).
                   </p>
                 </div>
               </div>

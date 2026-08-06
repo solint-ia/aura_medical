@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { sendMailerooEmail, renderOrderSuccessEmailTemplate } from "@/lib/maileroo";
+import { sendOrderConfirmationEmail } from "@/lib/orderEmail";
 
 const MERCADO_PAGO_ACCESS_TOKEN = process.env.MERCADO_PAGO_ACCESS_TOKEN || "";
 const MERCADO_PAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY || "";
@@ -165,40 +165,23 @@ export async function POST(req: Request) {
         : undefined,
     };
 
-    const STORE_COPY_EMAIL = "contato@auraregenera.com";
-
+    // Só é chamado para pagamentos JÁ confirmados: cartão aprovado (abaixo) ou,
+    // no caso do PIX, pelo endpoint /api/payment/confirm-email quando o polling
+    // do checkout detecta status "approved". Nunca no momento em que a cobrança
+    // é apenas criada/pendente.
     const triggerOrderEmail = async () => {
       if (!payer?.email) return;
-      try {
-        const orderNumberStr = String(orderNumber || Date.now());
-        const emailHtml = renderOrderSuccessEmailTemplate({
-          customerName: customerFullName,
-          orderNumber: orderNumberStr,
-          paymentMethod: paymentMethod === "pix" ? "PIX à Vista (Mercado Pago)" : "Cartão de Crédito (Mercado Pago)",
-          shippingAddress: formattedAddress,
-          items: Array.isArray(items) ? items : [{ name: "Kit Protocolos Aura Regenera", quantity: 1, unitPrice: Number(amount) }],
-          subtotal: Number(subtotal || amount),
-          shippingCost: Number(shippingCost || 0),
-          totalPrice: Number(amount),
-        });
-
-        await sendMailerooEmail({
-          to: payer.email,
-          subject: `✨ Compra Confirmada! Seu Pedido #${orderNumberStr} - Aura Regenera`,
-          html: emailHtml,
-        });
-
-        // Cópia interna para a Aura Medical acompanhar toda venda confirmada (PIX e cartão).
-        if (payer.email.toLowerCase() !== STORE_COPY_EMAIL) {
-          await sendMailerooEmail({
-            to: STORE_COPY_EMAIL,
-            subject: `📋 [Cópia] Pedido #${orderNumberStr} confirmado - ${customerFullName}`,
-            html: emailHtml,
-          });
-        }
-      } catch (mailErr) {
-        console.error("Erro ao enviar e-mail de confirmação de pedido:", mailErr);
-      }
+      await sendOrderConfirmationEmail({
+        customerName: customerFullName,
+        customerEmail: payer.email,
+        orderNumber: String(orderNumber || Date.now()),
+        paymentMethod: paymentMethod === "pix" ? "PIX à Vista (Mercado Pago)" : "Cartão de Crédito (Mercado Pago)",
+        shippingAddress: formattedAddress,
+        items: Array.isArray(items) ? items : [{ name: "Kit Protocolos Aura Regenera", quantity: 1, unitPrice: Number(amount) }],
+        subtotal: Number(subtotal || amount),
+        shippingCost: Number(shippingCost || 0),
+        totalPrice: Number(amount),
+      });
     };
 
     // ----------------------------------------------------
@@ -239,7 +222,10 @@ export async function POST(req: Request) {
 
         if (mpRes.ok && mpData.point_of_interaction?.transaction_data) {
           const transData = mpData.point_of_interaction.transaction_data;
-          await triggerOrderEmail();
+          // NÃO enviar e-mail aqui: o QR foi apenas gerado, o pagamento ainda
+          // está "pending". A confirmação chega via polling do checkout em
+          // /api/payment/status, que aciona /api/payment/confirm-email quando
+          // o status vira "approved".
 
           return NextResponse.json({
             success: true,
@@ -257,7 +243,8 @@ export async function POST(req: Request) {
         const formattedAmount = Number(amount).toFixed(2);
         const validPixCopiaECola = `00020126580014BR.GOV.BCB.PIX0136contato@auraregenera.com520400005303986540${formattedAmount.length.toString().padStart(2, "0")}${formattedAmount}5802BR5913AURA REGENERA6008ARACAJU62070503***630489A1`;
 
-        triggerOrderEmail();
+        // Idem: modo de testes ainda não confirmou o pagamento, e-mail sai só
+        // quando /api/payment/status reportar "approved" para este PIX-TEST-*.
 
         return NextResponse.json({
           success: true,
