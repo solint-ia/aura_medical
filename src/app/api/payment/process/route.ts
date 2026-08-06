@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import { sendOrderConfirmationEmail } from "@/lib/orderEmail";
+import { prisma } from "@/lib/prisma";
+import { dbPool } from "@/lib/db";
+import { enzymesData } from "@/data/enzymes";
+import { protocolsData } from "@/data/protocols";
 
 const MERCADO_PAGO_ACCESS_TOKEN = process.env.MERCADO_PAGO_ACCESS_TOKEN || "";
 const MERCADO_PAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY || "";
@@ -67,6 +71,112 @@ async function fetchIssuerId(brand: string, bin: string): Promise<string | undef
   return undefined;
 }
 
+// ----------------------------------------------------
+// ENRIQUECIMENTO DO additional_info (análise de risco do Mercado Pago)
+// Todos os campos abaixo são opcionais: quando o dado não existe, o campo
+// simplesmente não é enviado — nada de valor fictício.
+// ----------------------------------------------------
+
+// Categoria do catálogo oficial do Mercado Pago. Kits de protocolo e ampolas
+// avulsas são todos dispositivos médico-estéticos.
+const MP_ITEM_CATEGORY_ID = "health";
+
+/** Limite do campo `description` de cada item na API do Mercado Pago. */
+const MP_DESCRIPTION_MAX_LENGTH = 256;
+
+function truncateForMp(text: string): string {
+  const clean = text.replace(/\s+/g, " ").trim();
+  return clean.length <= MP_DESCRIPTION_MAX_LENGTH
+    ? clean
+    : `${clean.slice(0, MP_DESCRIPTION_MAX_LENGTH - 1).trimEnd()}…`;
+}
+
+/**
+ * Reaproveita a descrição já escrita para as páginas de catálogo: introdução do
+ * protocolo (`protocolsData`) ou descrição curta da enzima (`enzymesData`).
+ * Itens de protocolo usam o próprio slug como id no carrinho; ampolas avulsas
+ * usam `enz-<enzima>` (ver `BuyEnzymeVialButton`).
+ */
+function findItemDescription(itemId: string): string | undefined {
+  const protocol = protocolsData.find((p) => p.slug === itemId);
+  if (protocol?.introduction) return truncateForMp(protocol.introduction);
+
+  const enzymeId = itemId.replace(/^enz-/, "");
+  const enzyme = enzymesData.find(
+    (e) => e.slug === enzymeId || e.slug === `${enzymeId}-plus`
+  );
+  if (enzyme?.shortDescription) return truncateForMp(enzyme.shortDescription);
+
+  return undefined;
+}
+
+/** O Mercado Pago exige URL absoluta em `picture_url`; o carrinho guarda caminho relativo. */
+function toAbsoluteImageUrl(imagePath: unknown, origin: string): string | undefined {
+  if (typeof imagePath !== "string" || imagePath.trim() === "") return undefined;
+  const path = imagePath.trim();
+  if (/^https?:\/\//i.test(path)) return path;
+  if (!origin) return undefined;
+  return `${origin.replace(/\/+$/, "")}/${path.replace(/^\/+/, "")}`;
+}
+
+/** Origem pública da requisição, usada apenas para montar `picture_url`. */
+function resolveRequestOrigin(req: Request): string {
+  const origin = req.headers.get("origin");
+  if (origin) return origin;
+
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
+  if (!host) return "";
+
+  const proto = req.headers.get("x-forwarded-proto") || "https";
+  return `${proto}://${host}`;
+}
+
+/**
+ * Data de criação da conta (`user_profiles.created_at`) em ISO-8601, enviada
+ * como `registration_date` para o antifraude reconhecer clientes antigos.
+ * Segue o mesmo padrão do resto do projeto: Prisma com fallback no dbPool.
+ * Qualquer falha apenas omite o campo — nunca interrompe o pagamento.
+ */
+async function fetchPayerRegistrationDate(
+  email?: string,
+  cpfCnpj?: string
+): Promise<string | undefined> {
+  const cleanEmail = (email || "").toLowerCase().trim();
+  const cleanDoc = (cpfCnpj || "").replace(/\D/g, "");
+  if (!cleanEmail && !cleanDoc) return undefined;
+
+  try {
+    const found = await prisma.userProfile.findFirst({
+      where: {
+        OR: [
+          ...(cleanEmail ? [{ email: cleanEmail }] : []),
+          ...(cleanDoc ? [{ cpfCnpj: cleanDoc }] : []),
+        ],
+      },
+      select: { createdAt: true },
+    });
+
+    return found?.createdAt ? found.createdAt.toISOString() : undefined;
+  } catch (prismaErr) {
+    console.warn("Prisma indisponível ao buscar created_at do cliente, tentando dbPool:", prismaErr);
+
+    try {
+      const sqlRes = await dbPool.query(
+        `SELECT created_at FROM public.user_profiles
+         WHERE (LOWER(email) = $1 AND $1 != '') OR (cpf_cnpj = $2 AND $2 != '')
+         LIMIT 1`,
+        [cleanEmail, cleanDoc]
+      );
+
+      const createdAt = sqlRes.rows[0]?.created_at;
+      return createdAt ? new Date(createdAt).toISOString() : undefined;
+    } catch (sqlErr) {
+      console.warn("Aviso ao buscar data de cadastro do cliente para o Mercado Pago:", sqlErr);
+      return undefined;
+    }
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -127,20 +237,34 @@ export async function POST(req: Request) {
       shipping_address: formattedAddress,
     };
 
+    // Dados extras do additional_info (categoria, descrição, foto e data de
+    // cadastro). Só entram no payload quando existem de fato.
+    const requestOrigin = resolveRequestOrigin(req);
+    const payerRegistrationDate = await fetchPayerRegistrationDate(payer?.email, payer?.cpfCnpj);
+
     const mpAdditionalInfo = {
       items: Array.isArray(items)
-        ? items.map((i: { id: string; name: string; quantity: number; unitPrice: number }) => ({
-            id: String(i.id),
-            title: String(i.name),
-            quantity: Number(i.quantity),
-            unit_price: Number(i.unitPrice),
-          }))
+        ? items.map((i: { id: string; name: string; quantity: number; unitPrice: number; imagePath?: string }) => {
+            const description = findItemDescription(String(i.id));
+            const pictureUrl = toAbsoluteImageUrl(i.imagePath, requestOrigin);
+
+            return {
+              id: String(i.id),
+              title: String(i.name),
+              quantity: Number(i.quantity),
+              unit_price: Number(i.unitPrice),
+              category_id: MP_ITEM_CATEGORY_ID,
+              ...(description ? { description } : {}),
+              ...(pictureUrl ? { picture_url: pictureUrl } : {}),
+            };
+          })
         : [
             {
               id: "item-default",
               title: itemListNames,
               quantity: 1,
               unit_price: Number(amount),
+              category_id: MP_ITEM_CATEGORY_ID,
             },
           ],
       payer: {
@@ -150,6 +274,12 @@ export async function POST(req: Request) {
           area_code: cleanPhone.slice(0, 2) || "79",
           number: cleanPhone.slice(2) || "999999999",
         },
+        // NÃO adicionar `identification` aqui: a API responde
+        // HTTP 400 "The name of the following parameters is wrong :
+        // [additional_info.payer.identification]" (verificado em 06/08/2026).
+        // O CPF/CNPJ do comprador já vai no `payer.identification` do nível
+        // raiz do payload e em `metadata.customer_cpf_cnpj`.
+        ...(payerRegistrationDate ? { registration_date: payerRegistrationDate } : {}),
       },
       shipments: address
         ? {

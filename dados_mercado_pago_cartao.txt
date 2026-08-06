@@ -1,0 +1,176 @@
+================================================================================
+DOCUMENTAÇÃO TÉCNICA DE INTEGRAÇÃO - MERCADO PAGO (PAGAMENTO COM CARTÃO DE CRÉDITO)
+AURA REGENERA / SITE-PEP
+================================================================================
+
+Este documento descreve detalhadamente todos os dados que são capturados, processados
+e enviados para as APIs do Mercado Pago durante a finalização de uma compra via
+Cartão de Crédito no checkout da plataforma.
+
+--------------------------------------------------------------------------------
+1. RESUMO DO FLUXO DE PAGAMENTO COM CARTÃO DE CRÉDITO
+--------------------------------------------------------------------------------
+
+O processamento de cartão ocorre em 2 etapas distintas de API por motivos de segurança e compliance PCI-DSS:
+
+1. ETAPA 1 (Tokenização do Cartão - Frontend -> API Mercado Pago):
+   Os dados brutos do cartão (número, código de segurança, validade e nome) são enviados
+   diretamente para a API de Card Tokens do Mercado Pago (`/v1/card_tokens`) usando a Chave Pública
+   (NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY). Em resposta, o Mercado Pago retorna um token criptografado
+   único e temporário (ex: `c7a8b9e0f1...`), evitando que dados sensíveis de cartão fiquem
+   salvos no servidor da aplicação.
+
+2. ETAPA 2 (Cobrança do Pagamento - Server-side / API Next.js -> API Mercado Pago):
+   No arquivo `src/app/api/payment/process/route.ts`, o servidor recebe o token e monta o payload completo
+   contendo o valor da transação, o token do cartão, parcelamento, identificador da sessão antifraude (Device ID),
+   dados cadastrais do comprador (Payer), resumo dos itens do carrinho e endereço completo de entrega.
+   Esse payload é enviado via requisição segura POST para `/v1/payments` utilizando o Token de Acesso Privado
+   (MERCADO_PAGO_ACCESS_TOKEN).
+
+--------------------------------------------------------------------------------
+2. ESTRUTURA DOS DADOS ENVIADOS AO MERCADO PAGO (PAYLOADS EM JSON)
+--------------------------------------------------------------------------------
+
+--- [REQUISIÇÃO 1: TOKENIZAÇÃO DO CARTÃO] ---
+Endpoint: POST https://api.mercadopago.com/v1/card_tokens?public_key={NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY}
+
+{
+  "card_number": "4514160000000000",
+  "expiration_month": 12,
+  "expiration_year": 2028,
+  "security_code": "123",
+  "cardholder": {
+    "name": "MARIA SILVA",
+    "identification": {
+      "type": "CPF",
+      "number": "00000000000"
+    }
+  }
+}
+
+--- [REQUISIÇÃO 2: PROCESSAMENTO DA COBRANÇA] ---
+Endpoint: POST https://api.mercadopago.com/v1/payments
+Headers da Requisição:
+- Authorization: Bearer {MERCADO_PAGO_ACCESS_TOKEN}
+- Content-Type: application/json
+- X-Idempotency-Key: card-AUR-2026-1234-1738800000000
+- X-Meli-Session-Id: {deviceId_antifraude}
+
+Body em JSON:
+{
+  "transaction_amount": 1500.00,
+  "token": "c7a8b9e0f1d2c3b4a5e6f7",
+  "description": "Aura Regenera - Pedido #AUR-2026-1234 | 1x Kit Slim+ Bio-remodelador | Cliente: Maria Silva (maria@email.com)",
+  "statement_descriptor": "AURA REGENERA",
+  "external_reference": "AUR-2026-1234",
+  "installments": 3,
+  "payment_method_id": "master",
+  "issuer_id": "25",
+  "binary_mode": true,
+  "payer": {
+    "email": "maria@email.com",
+    "first_name": "Maria",
+    "last_name": "Silva",
+    "entity_type": "individual",
+    "identification": {
+      "type": "CPF",
+      "number": "00000000000"
+    }
+  },
+  "additional_info": {
+    "items": [
+      {
+        "id": "kit-slim-plus",
+        "title": "Kit Slim+ Bio-remodelador",
+        "quantity": 1,
+        "unit_price": 1500.00
+      }
+    ],
+    "payer": {
+      "first_name": "Maria",
+      "last_name": "Silva",
+      "phone": {
+        "area_code": "79",
+        "number": "999999999"
+      }
+    },
+    "shipments": {
+      "receiver_address": {
+        "zip_code": "49000000",
+        "street_name": "Av. Beira Mar",
+        "street_number": 100,
+        "floor": "Apto 201",
+        "city_name": "Aracaju",
+        "state_name": "SE"
+      }
+    }
+  },
+  "metadata": {
+    "order_number": "AUR-2026-1234",
+    "customer_name": "Maria Silva",
+    "customer_email": "maria@email.com",
+    "customer_phone": "79999999999",
+    "customer_cpf_cnpj": "00000000000",
+    "items_summary": "1x Kit Slim+ Bio-remodelador",
+    "shipping_address": "Av. Beira Mar, 100 - Apto 201 - Jardins, Aracaju/SE (CEP 49000000)"
+  }
+}
+
+--------------------------------------------------------------------------------
+3. MAPEAMENTO DETALHADO: ONDE E COMO CADA DADO É OBTIDO
+--------------------------------------------------------------------------------
+
+1. DADOS DO CARTÃO DE CRÉDITO
+   - Onde são obtidos: Formulário de Pagamento no checkout (`src/app/checkout/page.tsx`, linhas 893-988).
+   - Como são obtidos: Digitados manualmente pelo usuário no Passo 2 do Checkout nos campos de input.
+   - Campos:
+     * `card_number`: Input "Número do Cartão" -> sanitizado removendo caracteres não numéricos.
+     * `expiration_month` / `expiration_year`: Input "Validade (MM/AA)" -> dividido pela barra ("/").
+     * `security_code`: Input "Código CVV" -> sanitizado (3 a 4 dígitos).
+     * `cardholder.name`: Input "Nome Impresso no Cartão" -> convertido para maiúsculas (`.toUpperCase()`).
+     * `cardholder.identification.number`: Input "CPF do Titular" -> sanitizado removendo pontuações.
+
+2. PARCELAMENTO (INSTALLMENTS)
+   - Onde é obtido: Menu Select de parcelas no checkout (`src/app/checkout/page.tsx`, linhas 975-986).
+   - Como é obtido: Selecionado pelo cliente (de 1x até 10x). O sistema calcula os juros com base na tabela `MP_INSTALLMENT_FACTORS`.
+
+3. BANDEIRA E BANCO EMISSOR (PAYMENT_METHOD_ID & ISSUER_ID)
+   - Onde são obtidos: Resolução automática no servidor (`src/app/api/payment/process/route.ts`, linhas 41-68 e 293-330).
+   - Como são obtidos:
+     * `payment_method_id`: Identificado dinamicamente a partir dos 6 primeiros dígitos do cartão (BIN) através da função `detectCardBrand()` (suporta Elo, Hipercard, Visa, Mastercard, Amex) ou retornado diretamente pelo Token do Mercado Pago.
+     * `issuer_id`: Obtido fazendo uma chamada em tempo real para a API do Mercado Pago (`https://api.mercadopago.com/v1/payment_methods/card_issuers`) informando a bandeira e os 6 primeiros dígitos do cartão (BIN).
+
+4. DADOS DO COMPRADOR / COMPRADORA (PAYER)
+   - Onde são obtidos: Sessão do usuário autenticado via `AuthContext` (`src/context/AuthContext.tsx`), armazenada no banco de dados / localStorage.
+   - Como são obtidos: Preenchidos automaticamente a partir do cadastro do profissional/cliente na plataforma Aura Regenera.
+   - Campos:
+     * `email`: E-mail cadastrado na conta (`user.email`).
+     * `first_name` / `last_name`: Nome e Sobrenome divididos a partir do cadastro (`user.firstName`, `user.lastName`).
+     * `identification.number`: CPF ou CNPJ cadastrado (`user.cpfCnpj`).
+     * `phone`: Telefone/WhatsApp cadastrado (`user.phone`), separado em código de área (DDD - 2 dígitos) e número (8 ou 9 dígitos).
+
+5. ENDEREÇO DE ENTREGA (SHIPMENTS & METADATA)
+   - Onde é obtido: Lista de endereços cadastrados na conta (`user.addresses`), selecionado pelo usuário no Passo 1 do Checkout (`src/app/checkout/page.tsx`, linhas 683-734).
+   - Como é obtido: Objeto `selectedAddress` contendo logradouro (`street`), número (`number`), complemento (`complement`), bairro (`neighborhood`), cidade (`city`), estado (`state`) e CEP (`cep`).
+
+6. RESUMO E ITENS DO PEDIDO (ITEMS & TRANSACTION_AMOUNT)
+   - Onde são obtidos: Estado global do Carrinho (`CartContext` em `src/context/CartContext.tsx`).
+   - Como são obtidos:
+     * `items`: Array de produtos no carrinho, contendo ID, nome do protocolo/produto (`name`), quantidade (`quantity`) e preço unitário (`unitPrice`).
+     * `transaction_amount`: Valor total da compra (`subtotal + shippingCost`).
+
+7. DISPOSITIVO E ANTIFRAUDE (DEVICE ID / X-MELI-SESSION-ID)
+   - Onde é obtido: Script oficial de segurança do Mercado Pago (`https://www.mercadopago.com/v2/security.js`) carregado no arquivo `src/app/checkout/page.tsx` (linhas 1016-1021).
+   - Como é obtido: O script gera uma impressão digital única do dispositivo/navegador (Session ID), armazenada no elemento DOM `<input type="hidden" id="deviceId" />` ou na variável `window.MP_DEVICE_SESSION_ID`, e enviada no cabeçalho HTTP `X-Meli-Session-Id` ao Mercado Pago para análise de risco antifraude.
+
+--------------------------------------------------------------------------------
+4. CONFIGURAÇÕES DE SEGURANÇA E AMBIENTE
+--------------------------------------------------------------------------------
+
+- `NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY`: Chave pública usada no frontend para tokenizar cartões de crédito com segurança sem expor credenciais privadas.
+- `MERCADO_PAGO_ACCESS_TOKEN`: Token de acesso privado usado exclusivamente no servidor Next.js (`src/app/api/payment/process/route.ts`) para autorizar a cobrança final na API do Mercado Pago.
+- `binary_mode: true`: Garante que a resposta da transação seja imediata (aprovada ou recusada), sem passar por estados intermediários de pendência manual.
+
+================================================================================
+FIM DO DOCUMENTO
+================================================================================

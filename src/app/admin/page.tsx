@@ -134,7 +134,7 @@ const BRAZIL_STATES = [
 
 function AdminDashboardContent() {
   const router = useRouter();
-  const { user, isHydrated, logout, updateProfile } = useAuth();
+  const { user, authToken, isHydrated, logout, updateProfile } = useAuth();
 
   const [activeTab, setActiveTab] = useState<AdminTab>("stats");
   const [loadingStats, setLoadingStats] = useState(false);
@@ -163,7 +163,12 @@ function AdminDashboardContent() {
   const [editFirstName, setEditFirstName] = useState("");
   const [editLastName, setEditLastName] = useState("");
   const [editPhone, setEditPhone] = useState("");
+  const [editCurrentPassword, setEditCurrentPassword] = useState("");
+  const [editNewPassword, setEditNewPassword] = useState("");
+  const [editConfirmPassword, setEditConfirmPassword] = useState("");
   const [profileMsg, setProfileMsg] = useState("");
+  const [profileErrorMsg, setProfileErrorMsg] = useState("");
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   // Check Admin Authorization
   const isAdmin =
@@ -347,6 +352,14 @@ function AdminDashboardContent() {
   const handleSaveAdminProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setProfileMsg("");
+    setProfileErrorMsg("");
+
+    if (!editFirstName.trim() || !editLastName.trim()) {
+      setProfileErrorMsg("Nome e Sobrenome são obrigatórios.");
+      return;
+    }
+
+    // 1. Update basic profile info
     const res = await updateProfile({
       firstName: editFirstName || user?.firstName || "",
       lastName: editLastName || user?.lastName || "",
@@ -354,9 +367,64 @@ function AdminDashboardContent() {
       birthDate: user?.birthDate || "",
     });
 
-    if (res) {
-      setProfileMsg("Perfil administrativo atualizado com sucesso!");
+    if (!res) {
+      setProfileErrorMsg("Erro ao atualizar os dados do perfil.");
+      return;
     }
+
+    // 2. If password fields are filled, attempt password update
+    if (editCurrentPassword || editNewPassword || editConfirmPassword) {
+      if (!editCurrentPassword) {
+        setProfileErrorMsg("Informe sua senha atual para alterar a senha.");
+        return;
+      }
+      if (!editNewPassword) {
+        setProfileErrorMsg("Informe a nova senha desejada.");
+        return;
+      }
+      if (editNewPassword.length < 6) {
+        setProfileErrorMsg("A nova senha deve ter no mínimo 6 caracteres.");
+        return;
+      }
+      if (editNewPassword !== editConfirmPassword) {
+        setProfileErrorMsg("A nova senha e a confirmação de senha não coincidem.");
+        return;
+      }
+
+      setPasswordLoading(true);
+      try {
+        const passRes = await fetch("/api/auth/change-password", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+          },
+          body: JSON.stringify({
+            currentPassword: editCurrentPassword,
+            newPassword: editNewPassword,
+            email: user?.email,
+          }),
+        });
+
+        const data = await passRes.json();
+        setPasswordLoading(false);
+
+        if (!data.success) {
+          setProfileErrorMsg(data.error || "Erro ao alterar a senha.");
+          return;
+        }
+      } catch (err) {
+        setPasswordLoading(false);
+        setProfileErrorMsg("Erro de comunicação ao alterar senha.");
+        return;
+      }
+    }
+
+    setEditCurrentPassword("");
+    setEditNewPassword("");
+    setEditConfirmPassword("");
+    setProfileMsg("Perfil administrativo e senha atualizados com sucesso!");
+    setTimeout(() => setProfileMsg(""), 5000);
   };
 
   // Export Filtered Orders to CSV
@@ -520,6 +588,11 @@ function AdminDashboardContent() {
             setEditFirstName(user.firstName);
             setEditLastName(user.lastName);
             setEditPhone(user.phone);
+            setEditCurrentPassword("");
+            setEditNewPassword("");
+            setEditConfirmPassword("");
+            setProfileMsg("");
+            setProfileErrorMsg("");
           }}
           className={`flex items-center gap-2 py-3 px-5 font-bold uppercase transition-colors border-b-2 shrink-0 ${
             activeTab === "profile"
@@ -1159,6 +1232,12 @@ function AdminDashboardContent() {
             </div>
           )}
 
+          {profileErrorMsg && (
+            <div className="rounded-xl bg-red-500/10 p-3 font-mono text-xs font-semibold text-red-500 border border-red-500/20">
+              ⚠️ {profileErrorMsg}
+            </div>
+          )}
+
           <form onSubmit={handleSaveAdminProfile} className="rounded-2xl border border-[#C59D3F]/30 bg-card p-6 space-y-4 shadow-xl">
             <h3 className="font-display text-lg font-bold text-content">
               Atualizar Perfil do Administrador
@@ -1205,11 +1284,54 @@ function AdminDashboardContent() {
               />
             </div>
 
+            {/* ALTERAÇÃO DE SENHA DO ADMIN */}
+            <div className="border-t border-content/12 pt-4 space-y-3">
+              <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-[#C59D3F] uppercase">
+                <Lock className="h-3.5 w-3.5" />
+                <span>Alterar Senha de Acesso (Opcional)</span>
+              </div>
+
+              <div>
+                <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">Senha Atual</label>
+                <input
+                  type="password"
+                  placeholder="Digite sua senha atual"
+                  value={editCurrentPassword}
+                  onChange={(e) => setEditCurrentPassword(e.target.value)}
+                  className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-[#C59D3F]"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">Nova Senha</label>
+                  <input
+                    type="password"
+                    placeholder="Mínimo 6 caracteres"
+                    value={editNewPassword}
+                    onChange={(e) => setEditNewPassword(e.target.value)}
+                    className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-[#C59D3F]"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">Confirmar Nova Senha</label>
+                  <input
+                    type="password"
+                    placeholder="Repita a nova senha"
+                    value={editConfirmPassword}
+                    onChange={(e) => setEditConfirmPassword(e.target.value)}
+                    className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-[#C59D3F]"
+                  />
+                </div>
+              </div>
+            </div>
+
             <button
               type="submit"
-              className="w-full rounded-xl bg-[#C59D3F] py-3 text-xs font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99]"
+              disabled={passwordLoading}
+              className="w-full rounded-xl bg-[#C59D3F] py-3 text-xs font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99] disabled:opacity-50"
             >
-              Salvar Dados Admin →
+              {passwordLoading ? "Verificando..." : "Salvar Alterações e Senha →"}
             </button>
           </form>
         </div>
