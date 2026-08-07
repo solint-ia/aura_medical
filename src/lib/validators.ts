@@ -1,3 +1,5 @@
+import { toISODateString } from "@/lib/format";
+
 /**
  * Validates e-mail format. Lightweight "user@domain.tld" shape check, no
  * external dependency — the same pattern every form in the app used to
@@ -149,15 +151,19 @@ export function formatPhone(value: string): string {
 
 /**
  * Formats YYYY-MM-DD or ISO string to Brazilian format DD/MM/YYYY.
+ *
+ * Passa por `toISODateString` para também dar conta de datas legadas em inglês
+ * ainda guardadas no localStorage de quem já estava logado — antes elas caíam
+ * no retorno bruto e apareciam como "Fri Apr 23 2004 00:00:00 GM" na tela.
  */
 export function formatDateBR(dateStr?: string): string {
   if (!dateStr) return "";
-  const clean = dateStr.split("T")[0];
-  const parts = clean.split("-");
-  if (parts.length === 3) {
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
-  }
-  return dateStr;
+
+  const iso = toISODateString(dateStr);
+  if (iso === "") return "";
+
+  const [year, month, day] = iso.split("-");
+  return `${day}/${month}/${year}`;
 }
 
 export type CardBrand = "visa" | "master" | "amex" | "elo" | "hipercard";

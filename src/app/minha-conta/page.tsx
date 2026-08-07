@@ -32,7 +32,7 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { TabNav } from "@/components/ui/TabNav";
 import { Order, UserAddress, useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
-import { formatBRL } from "@/lib/format";
+import { formatBRL, toISODateString } from "@/lib/format";
 import { formatDateBR, formatCep, formatCpfOrCnpj, formatPhone, validatePhone } from "@/lib/validators";
 
 const PROTOCOL_IMAGE_MAP: Record<string, string> = {
@@ -291,7 +291,7 @@ function CustomerPortalContent() {
     setEditFirstName(user.firstName);
     setEditLastName(user.lastName);
     setEditPhone(user.phone);
-    setEditBirthDate(user.birthDate || "");
+    setEditBirthDate(toISODateString(user.birthDate));
     setEditCurrentPassword("");
     setEditNewPassword("");
     setEditConfirmPassword("");

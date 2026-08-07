@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { dbPool } from "@/lib/db";
+import { toISODateString } from "@/lib/format";
 
 const JWT_SECRET = process.env.SUPABASE_SERVICE_ROLE_KEY || "aura-jwt-secret-key-2026-secure";
 
@@ -82,7 +83,7 @@ export async function POST(req: Request) {
       cpfCnpj: u.cpf_cnpj,
       firstName: u.first_name,
       lastName: u.last_name,
-      birthDate: u.birth_date ? String(u.birth_date).split("T")[0] : "",
+      birthDate: toISODateString(u.birth_date),
       email: u.email,
       phone: u.phone,
       role: u.role || "USER",

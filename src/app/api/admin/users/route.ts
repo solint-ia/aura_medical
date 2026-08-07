@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { dbPool } from "@/lib/db";
+import { toISODateString } from "@/lib/format";
 import { validateEmail, validatePhone } from "@/lib/validators";
 import { verifyAdminToken } from "@/lib/auth";
 
@@ -46,7 +47,7 @@ export async function GET(req: Request) {
           cpfCnpj: u.cpfCnpj,
           firstName: u.firstName,
           lastName: u.lastName,
-          birthDate: u.birthDate ? u.birthDate.toISOString().split("T")[0] : "",
+          birthDate: toISODateString(u.birthDate),
           email: u.email,
           phone: u.phone,
           role: (u as any).role || "USER",
@@ -93,7 +94,7 @@ export async function GET(req: Request) {
         cpfCnpj: u.cpf_cnpj,
         firstName: u.first_name,
         lastName: u.last_name,
-        birthDate: u.birth_date ? String(u.birth_date).split("T")[0] : "",
+        birthDate: toISODateString(u.birth_date),
         email: u.email,
         phone: u.phone,
         role: u.role || "USER",

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { dbPool } from "@/lib/db";
+import { toISODateString } from "@/lib/format";
 import { verifyAuthToken } from "@/lib/auth";
 import { validatePhone } from "@/lib/validators";
 
@@ -56,7 +57,7 @@ export async function PUT(req: Request) {
         firstName: updated.firstName,
         lastName: updated.lastName,
         phone: updated.phone,
-        birthDate: updated.birthDate ? updated.birthDate.toISOString().split("T")[0] : "",
+        birthDate: toISODateString(updated.birthDate),
       };
     } catch (prismaErr) {
       console.warn("Prisma profile update fallback dbPool:", prismaErr);
@@ -79,7 +80,7 @@ export async function PUT(req: Request) {
         firstName: u.first_name,
         lastName: u.last_name,
         phone: u.phone,
-        birthDate: u.birth_date ? String(u.birth_date).split("T")[0] : "",
+        birthDate: toISODateString(u.birth_date),
       };
     }
 

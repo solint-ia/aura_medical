@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
 import { dbPool } from "@/lib/db";
+import { toISODateString } from "@/lib/format";
 
 const JWT_SECRET = process.env.SUPABASE_SERVICE_ROLE_KEY || "aura-jwt-secret-key-2026-secure";
 const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "contato@auraregenera.com").toLowerCase().trim();
@@ -243,7 +244,7 @@ export async function POST(req: Request) {
       cpfCnpj: dbUser.cpfCnpj,
       firstName: dbUser.firstName,
       lastName: dbUser.lastName,
-      birthDate: dbUser.birthDate ? String(dbUser.birthDate).split("T")[0] : "",
+      birthDate: toISODateString(dbUser.birthDate),
       email: dbUser.email,
       phone: dbUser.phone,
       role: dbUser.role,

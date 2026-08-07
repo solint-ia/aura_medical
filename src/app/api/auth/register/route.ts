@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
 import { dbPool } from "@/lib/db";
+import { toISODateString } from "@/lib/format";
 import { validateCpfOrCnpj, validateEmail, validatePhone } from "@/lib/validators";
 
 const JWT_SECRET = process.env.SUPABASE_SERVICE_ROLE_KEY || "aura-jwt-secret-key-2026-secure";
@@ -151,7 +152,7 @@ export async function POST(req: Request) {
         cpfCnpj: created.cpfCnpj,
         firstName: created.firstName,
         lastName: created.lastName,
-        birthDate: created.birthDate ? created.birthDate.toISOString().split("T")[0] : "",
+        birthDate: toISODateString(created.birthDate),
         email: created.email,
         phone: created.phone,
       };
@@ -213,7 +214,7 @@ export async function POST(req: Request) {
         cpfCnpj: u.cpf_cnpj,
         firstName: u.first_name,
         lastName: u.last_name,
-        birthDate: u.birth_date ? String(u.birth_date).split("T")[0] : "",
+        birthDate: toISODateString(u.birth_date),
         email: u.email,
         phone: u.phone,
       };
