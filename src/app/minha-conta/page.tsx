@@ -29,6 +29,7 @@ import {
 import { AccreditationProvider } from "@/components/accreditation/AccreditationProvider";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { TabNav } from "@/components/ui/TabNav";
 import { Order, UserAddress, useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { formatBRL } from "@/lib/format";
@@ -423,46 +424,15 @@ function CustomerPortalContent() {
       </div>
 
       {/* Tabs Navigation */}
-      <div className="mb-8 flex border-b border-content/12 font-mono text-xs overflow-x-auto">
-        <button
-          type="button"
-          onClick={() => setActiveTab("pedidos")}
-          className={`flex items-center gap-2 py-3 px-5 font-bold uppercase transition-colors border-b-2 shrink-0 ${
-            activeTab === "pedidos"
-              ? "border-[#C59D3F] text-[#C59D3F]"
-              : "border-transparent text-content/60 hover:text-content"
-          }`}
-        >
-          <PackageCheck className="h-4 w-4" />
-          <span>Meus Pedidos ({orders.length})</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("enderecos")}
-          className={`flex items-center gap-2 py-3 px-5 font-bold uppercase transition-colors border-b-2 shrink-0 ${
-            activeTab === "enderecos"
-              ? "border-[#C59D3F] text-[#C59D3F]"
-              : "border-transparent text-content/60 hover:text-content"
-          }`}
-        >
-          <MapPin className="h-4 w-4" />
-          <span>Meus Endereços ({addresses.length})</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("perfil")}
-          className={`flex items-center gap-2 py-3 px-5 font-bold uppercase transition-colors border-b-2 shrink-0 ${
-            activeTab === "perfil"
-              ? "border-[#C59D3F] text-[#C59D3F]"
-              : "border-transparent text-content/60 hover:text-content"
-          }`}
-        >
-          <User className="h-4 w-4" />
-          <span>Meus Dados Cadastrais</span>
-        </button>
-      </div>
+      <TabNav
+        items={[
+          { id: "pedidos", label: `Meus Pedidos (${orders.length})`, icon: PackageCheck },
+          { id: "enderecos", label: `Meus Endereços (${addresses.length})`, icon: MapPin },
+          { id: "perfil", label: "Meus Dados Cadastrais", icon: User },
+        ] as const}
+        active={activeTab}
+        onChange={setActiveTab}
+      />
 
       {/* TAB 1: MEUS PEDIDOS */}
       {activeTab === "pedidos" && (

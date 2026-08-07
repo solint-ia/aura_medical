@@ -31,12 +31,14 @@ import { AccreditationProvider } from "@/components/accreditation/AccreditationP
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { BuyNowButton } from "@/components/ui/BuyNowButton";
+import { TabNav } from "@/components/ui/TabNav";
 import { useAuth } from "@/context/AuthContext";
 import { PROTOCOLS } from "@/data/protocols";
 import { formatBRL } from "@/lib/format";
 import { formatCep, formatCpfOrCnpj, formatPhone, validateEmail, validatePhone } from "@/lib/validators";
 
 type AdminTab = "stats" | "orders" | "users" | "profile" | "tests";
+type PeriodFilter = "all" | "today" | "week" | "month";
 
 const TEST_PROTOCOLS = PROTOCOLS.filter((p) => p.hidden);
 
@@ -143,7 +145,7 @@ function AdminDashboardContent() {
   // Orders State & Filters
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
-  const [periodFilter, setPeriodFilter] = useState<"all" | "today" | "week" | "month">("all");
+  const [periodFilter, setPeriodFilter] = useState<PeriodFilter>("all");
   const [ufFilter, setUfFilter] = useState("ALL");
   const [orderQuery, setOrderQuery] = useState("");
 
@@ -570,50 +572,20 @@ function AdminDashboardContent() {
       </div>
 
       {/* Tabs Navigation */}
-      <div className="mb-8 flex border-b border-content/12 font-mono text-xs overflow-x-auto">
-        <button
-          type="button"
-          onClick={() => setActiveTab("stats")}
-          className={`flex items-center gap-2 py-3 px-5 font-bold uppercase transition-colors border-b-2 shrink-0 ${
-            activeTab === "stats"
-              ? "border-[#C59D3F] text-[#C59D3F]"
-              : "border-transparent text-content/60 hover:text-content"
-          }`}
-        >
-          <BarChart3 className="h-4 w-4" />
-          <span>Visão Geral & Métricas</span>
-        </button>
+      <TabNav
+        items={[
+          { id: "stats", label: "Visão Geral & Métricas", icon: BarChart3 },
+          { id: "orders", label: `Gestão de Pedidos (${orders.length})`, icon: ShoppingBag },
+          { id: "users", label: `Gestão de Clientes (${users.length})`, icon: Users },
+          { id: "profile", label: "Meus Dados Admin", icon: User },
+          { id: "tests", label: "Testes de Pagamento", icon: FlaskConical },
+        ] as const}
+        active={activeTab}
+        onChange={(tab) => {
+          setActiveTab(tab);
 
-        <button
-          type="button"
-          onClick={() => setActiveTab("orders")}
-          className={`flex items-center gap-2 py-3 px-5 font-bold uppercase transition-colors border-b-2 shrink-0 ${
-            activeTab === "orders"
-              ? "border-[#C59D3F] text-[#C59D3F]"
-              : "border-transparent text-content/60 hover:text-content"
-          }`}
-        >
-          <ShoppingBag className="h-4 w-4" />
-          <span>Gestão de Pedidos ({orders.length})</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("users")}
-          className={`flex items-center gap-2 py-3 px-5 font-bold uppercase transition-colors border-b-2 shrink-0 ${
-            activeTab === "users"
-              ? "border-[#C59D3F] text-[#C59D3F]"
-              : "border-transparent text-content/60 hover:text-content"
-          }`}
-        >
-          <Users className="h-4 w-4" />
-          <span>Gestão de Clientes ({users.length})</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            setActiveTab("profile");
+          // Entrar em "Meus Dados" recarrega o formulário com os dados atuais.
+          if (tab === "profile") {
             setEditFirstName(user.firstName);
             setEditLastName(user.lastName);
             setEditPhone(user.phone);
@@ -622,30 +594,9 @@ function AdminDashboardContent() {
             setEditConfirmPassword("");
             setProfileMsg("");
             setProfileErrorMsg("");
-          }}
-          className={`flex items-center gap-2 py-3 px-5 font-bold uppercase transition-colors border-b-2 shrink-0 ${
-            activeTab === "profile"
-              ? "border-[#C59D3F] text-[#C59D3F]"
-              : "border-transparent text-content/60 hover:text-content"
-          }`}
-        >
-          <User className="h-4 w-4" />
-          <span>Meus Dados Admin</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("tests")}
-          className={`flex items-center gap-2 py-3 px-5 font-bold uppercase transition-colors border-b-2 shrink-0 ${
-            activeTab === "tests"
-              ? "border-[#C59D3F] text-[#C59D3F]"
-              : "border-transparent text-content/60 hover:text-content"
-          }`}
-        >
-          <FlaskConical className="h-4 w-4" />
-          <span>Testes de Pagamento</span>
-        </button>
-      </div>
+          }
+        }}
+      />
 
       {/* TAB 1: VISÃO GERAL & MÉTRICAS (COM FILTRO DE ESTADO/UF) */}
       {activeTab === "stats" && (
@@ -662,12 +613,12 @@ function AdminDashboardContent() {
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-xs font-bold text-content/60">Estado:</span>
+            <div className="flex w-full items-center gap-2 sm:w-auto">
+              <span className="shrink-0 font-mono text-xs font-bold text-content/60">Estado:</span>
               <select
                 value={ufFilter}
                 onChange={(e) => setUfFilter(e.target.value)}
-                className="rounded-lg border border-content/20 bg-canvas px-3 py-2 font-mono text-xs font-bold text-content outline-none focus:border-[#C59D3F]"
+                className="w-full min-w-0 rounded-lg border border-content/20 bg-canvas px-3 py-2 font-mono text-xs font-bold text-content outline-none focus:border-[#C59D3F] sm:w-auto"
               >
                 <option value="ALL">🇧🇷 Todos os Estados do Brasil</option>
                 {BRAZIL_STATES.filter((st) => st !== "ALL").map((st) => (
@@ -726,9 +677,9 @@ function AdminDashboardContent() {
       {activeTab === "orders" && (
         <div className="space-y-6">
           {/* Controls & Filters Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-content/12 bg-card p-5">
+          <div className="space-y-3 rounded-2xl border border-content/12 bg-card p-4 sm:p-5">
             {/* Search Query */}
-            <div className="relative flex-1 min-w-[240px]">
+            <div className="relative">
               <input
                 type="text"
                 placeholder="Buscar por Nº do Pedido, Nome do Cliente ou E-mail..."
@@ -739,80 +690,49 @@ function AdminDashboardContent() {
               <Search className="absolute left-3.5 top-3 h-4 w-4 text-content/40" />
             </div>
 
-            {/* Period Filter */}
-            <div className="flex items-center gap-1.5 font-mono text-xs">
-              <span className="text-content/60 font-bold">Período:</span>
+            {/* Filtros: dropdowns lado a lado no mobile, linha única no desktop */}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto] lg:items-end">
+              {/* Period Filter */}
+              <label className="flex flex-col gap-1.5 font-mono text-xs">
+                <span className="font-bold uppercase text-content/60">Período</span>
+                <select
+                  value={periodFilter}
+                  onChange={(e) => setPeriodFilter(e.target.value as PeriodFilter)}
+                  className="w-full rounded-xl border border-content/20 bg-canvas px-3 py-2.5 font-mono text-xs font-bold text-content outline-none focus:border-[#C59D3F]"
+                >
+                  <option value="all">Todos os períodos</option>
+                  <option value="month">Último Mês</option>
+                  <option value="week">Última Semana</option>
+                  <option value="today">Hoje</option>
+                </select>
+              </label>
+
+              {/* State (UF) Filter */}
+              <label className="flex flex-col gap-1.5 font-mono text-xs">
+                <span className="font-bold uppercase text-content/60">Estado (UF)</span>
+                <select
+                  value={ufFilter}
+                  onChange={(e) => setUfFilter(e.target.value)}
+                  className="w-full rounded-xl border border-content/20 bg-canvas px-3 py-2.5 font-mono text-xs font-bold text-content outline-none focus:border-[#C59D3F]"
+                >
+                  {BRAZIL_STATES.map((st) => (
+                    <option key={st} value={st}>
+                      {st === "ALL" ? "Todos os Estados" : st}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              {/* Export CSV Button */}
               <button
                 type="button"
-                onClick={() => setPeriodFilter("all")}
-                className={`px-3 py-1.5 rounded-lg font-bold transition-colors ${
-                  periodFilter === "all"
-                    ? "bg-[#C59D3F] text-[#0D1B2A]"
-                    : "border border-content/15 text-content/70 hover:text-content"
-                }`}
+                onClick={handleExportCSV}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#C59D3F] px-4 py-2.5 font-mono text-xs font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md sm:col-span-2 lg:col-span-1 lg:w-auto"
               >
-                Todos
-              </button>
-              <button
-                type="button"
-                onClick={() => setPeriodFilter("month")}
-                className={`px-3 py-1.5 rounded-lg font-bold transition-colors ${
-                  periodFilter === "month"
-                    ? "bg-[#C59D3F] text-[#0D1B2A]"
-                    : "border border-content/15 text-content/70 hover:text-content"
-                }`}
-              >
-                Último Mês
-              </button>
-              <button
-                type="button"
-                onClick={() => setPeriodFilter("week")}
-                className={`px-3 py-1.5 rounded-lg font-bold transition-colors ${
-                  periodFilter === "week"
-                    ? "bg-[#C59D3F] text-[#0D1B2A]"
-                    : "border border-content/15 text-content/70 hover:text-content"
-                }`}
-              >
-                Última Semana
-              </button>
-              <button
-                type="button"
-                onClick={() => setPeriodFilter("today")}
-                className={`px-3 py-1.5 rounded-lg font-bold transition-colors ${
-                  periodFilter === "today"
-                    ? "bg-[#C59D3F] text-[#0D1B2A]"
-                    : "border border-content/15 text-content/70 hover:text-content"
-                }`}
-              >
-                Hoje
+                <Download className="h-4 w-4" />
+                <span>Exportar CSV</span>
               </button>
             </div>
-
-            {/* State (UF) Filter */}
-            <div className="flex items-center gap-1.5 font-mono text-xs">
-              <span className="text-content/60 font-bold">UF:</span>
-              <select
-                value={ufFilter}
-                onChange={(e) => setUfFilter(e.target.value)}
-                className="rounded-lg border border-content/20 bg-canvas px-3 py-1.5 font-mono text-xs font-bold text-content outline-none focus:border-[#C59D3F]"
-              >
-                {BRAZIL_STATES.map((st) => (
-                  <option key={st} value={st}>
-                    {st === "ALL" ? "Todos os Estados" : st}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Export CSV Button */}
-            <button
-              type="button"
-              onClick={handleExportCSV}
-              className="inline-flex items-center gap-2 rounded-xl bg-[#C59D3F] px-4 py-2 font-mono text-xs font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md"
-            >
-              <Download className="h-4 w-4" />
-              <span>Exportar CSV</span>
-            </button>
           </div>
 
           {/* Orders List */}
@@ -846,7 +766,7 @@ function AdminDashboardContent() {
                     </div>
 
                     {/* Status inline selector */}
-                    <div className="flex items-center gap-3">
+                    <div className="flex w-full flex-wrap items-center gap-x-3 gap-y-2 sm:w-auto">
                       <span className="text-content/60 font-bold">Status:</span>
                       <select
                         value={o.status}
@@ -871,7 +791,7 @@ function AdminDashboardContent() {
                         <option value="cancelado">❌ Cancelado</option>
                       </select>
 
-                      <span className="font-display text-lg font-bold text-[#C59D3F]">
+                      <span className="ml-auto font-display text-lg font-bold text-[#C59D3F] sm:ml-0">
                         {formatBRL(o.totalPrice)}
                       </span>
                     </div>
@@ -1050,88 +970,162 @@ function AdminDashboardContent() {
               Nenhum cliente cadastrado no momento.
             </div>
           ) : (
-            <div className="rounded-2xl border border-content/12 bg-card overflow-hidden shadow-xs">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left font-mono text-xs">
-                  <thead className="border-b border-content/10 bg-canvas uppercase text-content/60">
-                    <tr>
-                      <th className="p-4">Cliente</th>
-                      <th className="p-4">CPF / CNPJ</th>
-                      <th className="p-4">E-mail</th>
-                      <th className="p-4">Telefone</th>
-                      <th className="p-4">Endereço Principal</th>
-                      <th className="p-4">Regra</th>
-                      <th className="p-4">Compras</th>
-                      <th className="p-4 text-right">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-content/10">
-                    {users.map((u) => (
-                      <tr key={u.id} className="hover:bg-content/5 transition-colors">
-                        <td className="p-4 font-bold text-content">
+            <>
+              {/* Mobile: um card por cliente — a tabela larga exigia scroll lateral
+                  para chegar até as ações de editar/excluir. */}
+              <div className="space-y-3 lg:hidden">
+                {users.map((u) => (
+                  <div
+                    key={u.id}
+                    className="rounded-2xl border border-content/12 bg-card p-4 shadow-xs space-y-3 font-mono text-xs"
+                  >
+                    <div className="flex items-start justify-between gap-3 border-b border-content/10 pb-3">
+                      <div className="min-w-0">
+                        <p className="font-display text-sm font-bold text-content break-words">
                           {u.firstName} {u.lastName}
-                        </td>
-                        <td className="p-4 text-content/80">{formatCpfOrCnpj(u.cpfCnpj)}</td>
-                        <td className="p-4 text-content/80">{u.email}</td>
-                        <td className="p-4 text-content/80">{formatPhone(u.phone)}</td>
-                        <td className="p-4 text-content/80 min-w-[220px]">
-                          {u.address ? (
-                            <>
-                              <p>
-                                {u.address.street}, {u.address.number}
-                                {u.address.complement ? ` - ${u.address.complement}` : ""}
-                              </p>
-                              <p className="text-[10px] text-content/50">
-                                {u.address.neighborhood} · {u.address.city}/{u.address.uf} · CEP{" "}
-                                {formatCep(u.address.cep)}
-                              </p>
-                            </>
-                          ) : (
-                            <span className="text-content/40">Sem endereço cadastrado</span>
-                          )}
-                        </td>
-                        <td className="p-4">
-                          <span
-                            className={`rounded-full px-2.5 py-0.5 font-bold text-[10px] ${
-                              u.role === "ADMIN"
-                                ? "bg-[#C59D3F]/20 text-[#C59D3F]"
-                                : "bg-content/10 text-content/70"
-                            }`}
-                          >
-                            {u.role === "ADMIN" ? "ADMIN 👑" : "CLIENTE"}
+                        </p>
+                        <p className="text-content/60">{formatCpfOrCnpj(u.cpfCnpj)}</p>
+                      </div>
+                      <span
+                        className={`shrink-0 rounded-full px-2.5 py-0.5 font-bold text-[10px] ${
+                          u.role === "ADMIN"
+                            ? "bg-[#C59D3F]/20 text-[#C59D3F]"
+                            : "bg-content/10 text-content/70"
+                        }`}
+                      >
+                        {u.role === "ADMIN" ? "ADMIN 👑" : "CLIENTE"}
+                      </span>
+                    </div>
+  
+                    <div className="space-y-1.5 text-content/80">
+                      <p className="break-all">📧 {u.email}</p>
+                      <p>📱 {formatPhone(u.phone)}</p>
+                      {u.address ? (
+                        <p>
+                          📍 {u.address.street}, {u.address.number}
+                          {u.address.complement ? ` - ${u.address.complement}` : ""}
+                          <span className="block text-[10px] text-content/50">
+                            {u.address.neighborhood} · {u.address.city}/{u.address.uf} · CEP{" "}
+                            {formatCep(u.address.cep)}
                           </span>
-                        </td>
-                        <td className="p-4">
-                          <span className="font-bold text-[#C59D3F]">{u.totalOrders} pedido(s)</span>
-                          <p className="text-[10px] text-content/50">{formatBRL(u.totalSpent)}</p>
-                        </td>
-                        <td className="p-4 text-right">
-                          <div className="flex items-center justify-end gap-3">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setEditingUser(u);
-                                setEditUserErrorMsg("");
-                              }}
-                              className="text-[#C59D3F] hover:underline font-bold"
-                            >
-                              Editar
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setDeletingUser(u)}
-                              className="text-red-500 hover:underline font-bold"
-                            >
-                              Excluir
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </p>
+                      ) : (
+                        <p className="text-content/40">📍 Sem endereço cadastrado</p>
+                      )}
+                    </div>
+  
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-content/10 pt-3">
+                      <div>
+                        <span className="font-bold text-[#C59D3F]">{u.totalOrders} pedido(s)</span>
+                        <p className="text-[10px] text-content/50">{formatBRL(u.totalSpent)}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingUser(u);
+                            setEditUserErrorMsg("");
+                          }}
+                          className="rounded-lg border border-[#C59D3F]/40 px-3 py-1.5 font-bold text-[#C59D3F] transition-colors hover:bg-[#C59D3F]/10"
+                        >
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDeletingUser(u)}
+                          className="rounded-lg border border-red-500/40 px-3 py-1.5 font-bold text-red-500 transition-colors hover:bg-red-500/10"
+                        >
+                          Excluir
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
+  
+              <div className="hidden rounded-2xl border border-content/12 bg-card overflow-hidden shadow-xs lg:block">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left font-mono text-xs">
+                    <thead className="border-b border-content/10 bg-canvas uppercase text-content/60">
+                      <tr>
+                        <th className="p-4">Cliente</th>
+                        <th className="p-4">CPF / CNPJ</th>
+                        <th className="p-4">E-mail</th>
+                        <th className="p-4">Telefone</th>
+                        <th className="p-4">Endereço Principal</th>
+                        <th className="p-4">Regra</th>
+                        <th className="p-4">Compras</th>
+                        <th className="p-4 text-right">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-content/10">
+                      {users.map((u) => (
+                        <tr key={u.id} className="hover:bg-content/5 transition-colors">
+                          <td className="p-4 font-bold text-content">
+                            {u.firstName} {u.lastName}
+                          </td>
+                          <td className="p-4 text-content/80">{formatCpfOrCnpj(u.cpfCnpj)}</td>
+                          <td className="p-4 text-content/80">{u.email}</td>
+                          <td className="p-4 text-content/80">{formatPhone(u.phone)}</td>
+                          <td className="p-4 text-content/80 min-w-[220px]">
+                            {u.address ? (
+                              <>
+                                <p>
+                                  {u.address.street}, {u.address.number}
+                                  {u.address.complement ? ` - ${u.address.complement}` : ""}
+                                </p>
+                                <p className="text-[10px] text-content/50">
+                                  {u.address.neighborhood} · {u.address.city}/{u.address.uf} · CEP{" "}
+                                  {formatCep(u.address.cep)}
+                                </p>
+                              </>
+                            ) : (
+                              <span className="text-content/40">Sem endereço cadastrado</span>
+                            )}
+                          </td>
+                          <td className="p-4">
+                            <span
+                              className={`rounded-full px-2.5 py-0.5 font-bold text-[10px] ${
+                                u.role === "ADMIN"
+                                  ? "bg-[#C59D3F]/20 text-[#C59D3F]"
+                                  : "bg-content/10 text-content/70"
+                              }`}
+                            >
+                              {u.role === "ADMIN" ? "ADMIN 👑" : "CLIENTE"}
+                            </span>
+                          </td>
+                          <td className="p-4">
+                            <span className="font-bold text-[#C59D3F]">{u.totalOrders} pedido(s)</span>
+                            <p className="text-[10px] text-content/50">{formatBRL(u.totalSpent)}</p>
+                          </td>
+                          <td className="p-4 text-right">
+                            <div className="flex items-center justify-end gap-3">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingUser(u);
+                                  setEditUserErrorMsg("");
+                                }}
+                                className="text-[#C59D3F] hover:underline font-bold"
+                              >
+                                Editar
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setDeletingUser(u)}
+                                className="text-red-500 hover:underline font-bold"
+                              >
+                                Excluir
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
           )}
 
           {/* Modal Editar Usuário pelo Admin */}
