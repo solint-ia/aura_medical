@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-
-const MERCADO_PAGO_ACCESS_TOKEN = process.env.MERCADO_PAGO_ACCESS_TOKEN || "";
+import { fetchMercadoPagoPayment } from "@/lib/mercadopago";
 
 export async function GET(req: Request) {
   try {
@@ -11,37 +10,21 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "paymentId é obrigatório." }, { status: 400 });
     }
 
-    if (paymentId.startsWith("PIX-TEST-") || paymentId.startsWith("CARD-APPROVED-")) {
-      return NextResponse.json({
-        success: true,
-        status: "approved",
-        statusDetail: "accredited",
-        isMock: true,
-      });
+    const lookup = await fetchMercadoPagoPayment(paymentId);
+
+    if (!lookup.ok) {
+      return NextResponse.json({ error: lookup.error }, { status: lookup.httpStatus });
     }
 
-    const res = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
-      headers: {
-        Authorization: `Bearer ${MERCADO_PAGO_ACCESS_TOKEN}`,
-      },
+    return NextResponse.json({
+      success: true,
+      status: lookup.payment.status,
+      statusDetail: lookup.payment.statusDetail,
+      amount: lookup.payment.amount,
+      paymentMethod: lookup.payment.paymentMethod,
+      externalReference: lookup.payment.externalReference,
+      ...(lookup.payment.isMock ? { isMock: true } : {}),
     });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      return NextResponse.json({
-        success: true,
-        status: data.status,
-        statusDetail: data.status_detail,
-        amount: data.transaction_amount,
-        paymentMethod: data.payment_method_id,
-      });
-    }
-
-    return NextResponse.json(
-      { error: data.message || "Erro ao consultar status do pagamento." },
-      { status: res.status }
-    );
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Erro ao consultar status.";
     console.error("Erro em /api/payment/status:", err);

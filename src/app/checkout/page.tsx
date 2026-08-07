@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
@@ -93,6 +93,35 @@ interface ShippingOption {
   logo?: string;
 }
 
+interface OrderEmailPayload {
+  customerName: string;
+  customerEmail: string;
+  orderNumber: string;
+  paymentMethod: string;
+  shippingAddress: string;
+  items: { name: string; quantity: number; unitPrice: number }[];
+  subtotal: number;
+  shippingCost: number;
+  totalPrice: number;
+}
+
+/**
+ * Tudo o que é preciso para gravar o pedido DEPOIS que o Mercado Pago aprovar
+ * o pagamento. Capturado antes do `clearCart()`, porque nesse momento o
+ * carrinho já estará vazio.
+ */
+interface PendingOrderSnapshot {
+  address: UserAddress;
+  shippingMethod: string;
+  shippingCost: number;
+  subtotal: number;
+  totalPrice: number;
+  paymentMethod: string;
+  items: { id: string; name: string; quantity: number; unitPrice: number; imagePath?: string }[];
+  orderNumber: string;
+  email: OrderEmailPayload | null;
+}
+
 function formatExpiry(value: string) {
   const digits = value.replace(/\D/g, "").slice(0, 4);
   if (digits.length <= 2) return digits;
@@ -130,23 +159,24 @@ function CheckoutContent() {
     qrCodeBase64?: string;
   } | null>(null);
   const [pixCopied, setPixCopied] = useState(false);
-  const [pixPaid, setPixPaid] = useState(false);
+
+  /** Id do pagamento no Mercado Pago que está sendo acompanhado em tempo real. */
+  const [trackedPaymentId, setTrackedPaymentId] = useState<string | null>(null);
+  /** Vira `true` só quando o Mercado Pago retorna `approved`. */
+  const [paymentApproved, setPaymentApproved] = useState(false);
+  /** Falha ao gravar o pedido DEPOIS do pagamento aprovado (dinheiro entrou). */
+  const [orderRegistrationError, setOrderRegistrationError] = useState("");
+  const [registeringOrder, setRegisteringOrder] = useState(false);
+
   /**
-   * Snapshot dos dados do pedido PIX, capturado ANTES do `clearCart()`, para
-   * poder notificar o cliente por e-mail só quando o pagamento for confirmado
-   * (o carrinho já estará vazio nesse momento).
+   * Snapshot do pedido enquanto o pagamento não é confirmado. Fica em ref
+   * porque o polling precisa lê-lo sem re-assinar o intervalo a cada render.
    */
-  const [pixEmailPayload, setPixEmailPayload] = useState<{
-    customerName: string;
-    customerEmail: string;
-    orderNumber: string;
-    paymentMethod: string;
-    shippingAddress: string;
-    items: { name: string; quantity: number; unitPrice: number }[];
-    subtotal: number;
-    shippingCost: number;
-    totalPrice: number;
-  } | null>(null);
+  const pendingOrderRef = useRef<PendingOrderSnapshot | null>(null);
+  /** Trava de idempotência: o pedido só é gravado uma vez por pagamento. */
+  const registrationDoneRef = useRef(false);
+  /** Tentativas automáticas de gravação após o pagamento aprovado. */
+  const registrationRetriesRef = useRef(0);
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -158,38 +188,115 @@ function CheckoutContent() {
     shippingName: string;
   }>({ total: 0, itemsCount: 0, shippingCost: 0, shippingName: "Frete Padrão" });
 
-  // Real-time PIX Payment Status Polling via /api/payment/status
+  /**
+   * Único caminho que grava a compra no banco. Roda só depois que o Mercado
+   * Pago confirmou o pagamento (`approved`) — nem o QR gerado nem o cartão em
+   * análise chegam aqui. A rota /api/orders reconfere o status no Mercado Pago
+   * antes de inserir, então o registro não depende só desta checagem no cliente.
+   */
+  const registerConfirmedOrder = useCallback(
+    async (paymentId: string) => {
+      const snapshot = pendingOrderRef.current;
+      if (!snapshot || registrationDoneRef.current) return;
+
+      registrationDoneRef.current = true;
+      setRegisteringOrder(true);
+      setOrderRegistrationError("");
+
+      try {
+        const created = await createOrder({
+          address: snapshot.address,
+          shippingMethod: snapshot.shippingMethod,
+          shippingCost: snapshot.shippingCost,
+          subtotal: snapshot.subtotal,
+          totalPrice: snapshot.totalPrice,
+          paymentMethod: snapshot.paymentMethod,
+          items: snapshot.items,
+          orderNumber: snapshot.orderNumber,
+          paymentId,
+        });
+
+        setSubmittedOrderNumber(created?.orderNumber || snapshot.orderNumber);
+      } catch (err) {
+        // Pagamento aprovado mas pedido não gravado: libera nova tentativa e
+        // avisa o cliente na tela — o dinheiro dele já entrou.
+        registrationDoneRef.current = false;
+        console.error("Erro ao registrar pedido confirmado:", err);
+        setOrderRegistrationError(
+          err instanceof Error ? err.message : "Erro ao registrar o pedido confirmado."
+        );
+      } finally {
+        setRegisteringOrder(false);
+      }
+    },
+    [createOrder]
+  );
+
+  /**
+   * Confirmação do pagamento: libera a tela de sucesso, envia o e-mail de
+   * compra e grava o pedido. `emailAlreadySent` cobre o cartão aprovado no ato,
+   * cujo e-mail já sai de dentro de /api/payment/process.
+   */
+  const handlePaymentApproved = useCallback(
+    async (paymentId: string, emailAlreadySent = false) => {
+      setPaymentApproved(true);
+
+      const snapshot = pendingOrderRef.current;
+      if (snapshot?.email && !emailAlreadySent) {
+        fetch("/api/payment/confirm-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paymentId, ...snapshot.email }),
+        }).catch((mailErr) => console.warn("Aviso ao confirmar e-mail do pagamento:", mailErr));
+      }
+
+      await registerConfirmedOrder(paymentId);
+    },
+    [registerConfirmedOrder]
+  );
+
+  // Checagem em tempo real do pagamento (PIX aguardando transferência e cartão
+  // em análise) via /api/payment/status.
   useEffect(() => {
-    if (!isSubmitted || paymentMethod !== "pix" || !pixData?.paymentId || pixPaid) {
+    if (!isSubmitted || !trackedPaymentId || paymentApproved) {
       return;
     }
 
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(`/api/payment/status?paymentId=${pixData.paymentId}`);
+        const res = await fetch(`/api/payment/status?paymentId=${trackedPaymentId}`);
         const data = await res.json();
         if (data.success && data.status === "approved") {
-          setPixPaid(true);
           clearInterval(interval);
-
-          // Pagamento confirmado agora: só aqui o cliente deve ser notificado
-          // por e-mail. O carrinho já foi limpo, por isso usamos o snapshot
-          // capturado em handleFinalizeOrder antes do clearCart().
-          if (pixEmailPayload) {
-            fetch("/api/payment/confirm-email", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ paymentId: pixData.paymentId, ...pixEmailPayload }),
-            }).catch((mailErr) => console.warn("Aviso ao confirmar e-mail de pagamento PIX:", mailErr));
-          }
+          handlePaymentApproved(trackedPaymentId);
         }
       } catch (err) {
-        console.warn("Aviso ao checar status do PIX:", err);
+        console.warn("Aviso ao checar status do pagamento:", err);
       }
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [isSubmitted, paymentMethod, pixData, pixPaid, pixEmailPayload]);
+  }, [isSubmitted, trackedPaymentId, paymentApproved, handlePaymentApproved]);
+
+  // Pagamento aprovado mas gravação do pedido falhou: tenta de novo sozinho
+  // algumas vezes antes de depender do botão manual. /api/orders é idempotente.
+  useEffect(() => {
+    if (!paymentApproved || !orderRegistrationError || !trackedPaymentId || registeringOrder) return;
+    if (registrationRetriesRef.current >= 3) return;
+
+    const timer = setTimeout(() => {
+      registrationRetriesRef.current += 1;
+      registerConfirmedOrder(trackedPaymentId);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [
+    paymentApproved,
+    orderRegistrationError,
+    trackedPaymentId,
+    registeringOrder,
+    registerConfirmedOrder,
+  ]);
 
   // Dynamic Shipping Calculation via /api/frete/calcular
   // TEMPORARIAMENTE DESATIVADO: Melhor Envio ainda em modo sandbox (sem credenciais
@@ -378,10 +485,18 @@ function CheckoutContent() {
         return; // Payment failed or rejected! Do NOT create order, items remain in cart!
       }
 
-      // 2. Payment succeeded! NOW create the order in DB & user's order history
-      const created = await createOrder({
+      // 2. Cobrança criada. O pedido NÃO vai para o banco agora: PIX nasce
+      //    "pending" (QR apenas gerado) e cartão pode voltar "in_process".
+      //    Guardamos o snapshot e só gravamos quando o Mercado Pago aprovar.
+      const paymentId = String(payData.paymentId);
+      const shippingName = selectedShippingOption
+        ? selectedShippingOption.name
+        : "Frete Padrão";
+      const cepDigits = selectedAddress.cep.replace(/\D/g, "");
+
+      pendingOrderRef.current = {
         address: selectedAddress,
-        shippingMethod: selectedShippingOption ? selectedShippingOption.name : "Frete Padrão",
+        shippingMethod: shippingName,
         shippingCost,
         subtotal,
         totalPrice,
@@ -394,14 +509,22 @@ function CheckoutContent() {
           imagePath: i.imagePath,
         })),
         orderNumber,
-      });
+        email: {
+          customerName: `${user?.firstName || "Cliente"} ${user?.lastName || "Aura"}`.trim(),
+          customerEmail: user?.email || "",
+          orderNumber,
+          paymentMethod:
+            paymentMethod === "pix" ? "PIX à Vista (Mercado Pago)" : "Cartão de Crédito (Mercado Pago)",
+          shippingAddress: `${selectedAddress.street}, ${selectedAddress.number} ${selectedAddress.complement ? `- ${selectedAddress.complement}` : ""} - ${selectedAddress.neighborhood}, ${selectedAddress.city}/${selectedAddress.uf} (CEP ${cepDigits})`.trim(),
+          items: items.map((i) => ({ name: i.name, quantity: i.quantity, unitPrice: i.unitPrice })),
+          subtotal,
+          shippingCost,
+          totalPrice,
+        },
+      };
+      registrationDoneRef.current = false;
 
-      const finalOrderNumber = created?.orderNumber || orderNumber;
-      const shippingName = selectedShippingOption
-        ? selectedShippingOption.name
-        : "Frete Padrão";
-
-      setSubmittedOrderNumber(finalOrderNumber);
+      setSubmittedOrderNumber(orderNumber);
       setSubmittedOrderSummary({
         total: totalPrice,
         itemsCount: items.reduce((s, i) => s + i.quantity, 0),
@@ -411,29 +534,22 @@ function CheckoutContent() {
 
       if (paymentMethod === "pix" && payData.qrCode) {
         setPixData({
-          paymentId: String(payData.paymentId),
+          paymentId,
           qrCode: payData.qrCode,
           qrCodeBase64: payData.qrCodeBase64,
-        });
-
-        // Snapshot para o e-mail de confirmação, disparado só quando o
-        // polling acima detectar o pagamento aprovado (carrinho já estará vazio).
-        const cepDigits = selectedAddress.cep.replace(/\D/g, "");
-        setPixEmailPayload({
-          customerName: `${user?.firstName || "Cliente"} ${user?.lastName || "Aura"}`.trim(),
-          customerEmail: user?.email || "",
-          orderNumber: finalOrderNumber,
-          paymentMethod: "PIX à Vista (Mercado Pago)",
-          shippingAddress: `${selectedAddress.street}, ${selectedAddress.number} ${selectedAddress.complement ? `- ${selectedAddress.complement}` : ""} - ${selectedAddress.neighborhood}, ${selectedAddress.city}/${selectedAddress.uf} (CEP ${cepDigits})`.trim(),
-          items: items.map((i) => ({ name: i.name, quantity: i.quantity, unitPrice: i.unitPrice })),
-          subtotal,
-          shippingCost,
-          totalPrice,
         });
       }
 
       setIsSubmitted(true);
       clearCart();
+
+      // 3. Cartão já aprovado no ato: confirma na hora (o e-mail já saiu de
+      //    /api/payment/process). Nos demais casos (PIX pendente, cartão em
+      //    análise) quem confirma é o polling em tempo real.
+      setTrackedPaymentId(paymentId);
+      if (payData.status === "approved") {
+        await handlePaymentApproved(paymentId, paymentMethod === "card");
+      }
     } catch {
       setProcessingPayment(false);
       setPaymentError("Erro de comunicação ao processar pagamento com o Mercado Pago.");
@@ -513,13 +629,12 @@ function CheckoutContent() {
     );
   }
 
-  // ORDER CONFIRMED STATE
+  // PAYMENT TRACKING / ORDER CONFIRMED STATE
   if (isSubmitted) {
-    const shippingName = selectedShippingOption
-      ? selectedShippingOption.name
-      : "Frete Padrão";
-
-    const isPixPending = paymentMethod === "pix" && !pixPaid;
+    /** Cobrança criada mas ainda não paga: nada foi gravado no banco. */
+    const isAwaitingPayment = !paymentApproved;
+    const isPixPending = paymentMethod === "pix" && isAwaitingPayment;
+    const isCardUnderReview = paymentMethod === "card" && isAwaitingPayment;
 
     return (
       <div className="mx-auto flex min-h-[75vh] max-w-2xl flex-col items-center justify-center px-4 py-8 text-center">
@@ -537,34 +652,91 @@ function CheckoutContent() {
           height={64}
           className="hidden dark:block h-12 w-auto object-contain"
         />
-        <div className="mx-auto mt-6 mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#C59D3F]/20 text-[#C59D3F]">
-          <Check className="h-10 w-10" />
+        <div
+          className={`mx-auto mt-6 mb-6 flex h-20 w-20 items-center justify-center rounded-full ${
+            isAwaitingPayment
+              ? "bg-[#C59D3F]/15 text-[#C59D3F]"
+              : "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+          }`}
+        >
+          {isAwaitingPayment ? <QrCode className="h-10 w-10" /> : <Check className="h-10 w-10" />}
         </div>
         <h1 className="font-display text-3xl font-bold text-content mb-1">
-          {paymentMethod === "pix"
-            ? pixPaid
-              ? "🎉 Pagamento PIX Confirmado com Sucesso!"
-              : "Pedido Registrado — Pagamento via PIX"
-            : "🎉 Pedido Confirmado com Sucesso!"}
+          {isAwaitingPayment
+            ? paymentMethod === "pix"
+              ? "Aguardando o Pagamento via PIX"
+              : "Aguardando a Confirmação do Cartão"
+            : "🎉 Pagamento Confirmado com Sucesso!"}
         </h1>
         <p className="font-mono text-sm font-bold text-[#C59D3F] mb-4">
           Código do Pedido: {submittedOrderNumber}
         </p>
         <p className="text-base text-content/75 mb-6">
-          Obrigado, <strong className="text-content">{user.firstName} {user.lastName}</strong>. Seu pedido de{" "}
-          <strong className="text-[#C59D3F]">{submittedOrderSummary.itemsCount} kit(s)</strong> foi registrado em nosso sistema.
+          {isAwaitingPayment ? (
+            <>
+              <strong className="text-content">{user.firstName}</strong>, seus{" "}
+              <strong className="text-[#C59D3F]">{submittedOrderSummary.itemsCount} kit(s)</strong> ficam reservados até
+              a confirmação do pagamento. O pedido é registrado assim que o Mercado Pago aprovar a transação.
+            </>
+          ) : (
+            <>
+              Obrigado, <strong className="text-content">{user.firstName} {user.lastName}</strong>. Seu pedido de{" "}
+              <strong className="text-[#C59D3F]">{submittedOrderSummary.itemsCount} kit(s)</strong> foi registrado em nosso sistema.
+            </>
+          )}
         </p>
 
+        {/* CARTÃO EM ANÁLISE — pagamento criado, ainda não aprovado */}
+        {isCardUnderReview && (
+          <div className="w-full rounded-2xl border-2 border-[#C59D3F] bg-card p-6 mb-8 text-center space-y-3 shadow-xl">
+            <span className="inline-block rounded-full bg-[#C59D3F]/15 px-3.5 py-1 font-mono text-xs font-bold text-[#C59D3F]">
+              ⏳ Pagamento em análise pelo Mercado Pago
+            </span>
+            <p className="text-xs text-content/80 font-mono">
+              O emissor do cartão ainda está processando a cobrança de{" "}
+              <strong>{formatBRL(submittedOrderSummary.total)}</strong>. Não feche esta página: estamos checando o
+              resultado em tempo real.
+            </p>
+            <div className="flex items-center justify-center gap-2 font-mono text-xs text-[#C59D3F] pt-1">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C59D3F] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#C59D3F]"></span>
+              </span>
+              Aguardando confirmação do pagamento em tempo real...
+            </div>
+          </div>
+        )}
+
         {/* CARD APPROVED BANNER */}
-        {paymentMethod === "card" && (
+        {paymentMethod === "card" && paymentApproved && (
           <div className="w-full rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 mb-6 text-center text-xs font-mono text-emerald-700 dark:text-emerald-300 space-y-1">
             <p>✓ Pagamento via Cartão de Crédito aprovado e confirmado pelo Mercado Pago.</p>
             <p className="text-[11px] text-content/75">📩 Enviamos os detalhes resumidos da compra para o seu e-mail (<strong>{user.email}</strong>).</p>
           </div>
         )}
 
+        {/* PEDIDO NÃO GRAVADO APÓS PAGAMENTO APROVADO */}
+        {paymentApproved && orderRegistrationError && (
+          <div className="w-full rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 mb-6 text-center text-xs font-mono text-amber-700 dark:text-amber-300 space-y-2">
+            <p>
+              ⚠️ Seu pagamento foi aprovado, mas houve uma falha ao registrar o pedido em nosso sistema. Nenhum valor
+              adicional será cobrado.
+            </p>
+            <button
+              type="button"
+              disabled={registeringOrder}
+              onClick={() => {
+                if (trackedPaymentId) registerConfirmedOrder(trackedPaymentId);
+              }}
+              className="rounded-lg bg-[#C59D3F] px-4 py-2 font-mono text-xs font-bold text-[#0D1B2A] transition-colors hover:bg-[#d4ac4c] disabled:opacity-60"
+            >
+              {registeringOrder ? "Registrando..." : "Tentar registrar novamente"}
+            </button>
+          </div>
+        )}
+
         {/* PIX CONFIRMED SUCCESS BANNER */}
-        {paymentMethod === "pix" && pixPaid && (
+        {paymentMethod === "pix" && paymentApproved && (
           <div className="w-full rounded-2xl border-2 border-emerald-500 bg-emerald-500/10 p-6 mb-8 text-center space-y-3 shadow-xl">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500 text-white font-bold text-xl shadow-md">
               ✓
@@ -656,16 +828,21 @@ function CheckoutContent() {
         )}
 
         <p className="text-sm text-content/60 mb-8">
-          Nosso time comercial entrará em contato via WhatsApp ({formatPhone(user.phone)}) para confirmação de entrega e emissão de nota fiscal.
+          {isAwaitingPayment
+            ? "Assim que o pagamento for identificado, o pedido entra no sistema e nosso time comercial entra em contato para confirmar a entrega."
+            : `Nosso time comercial entrará em contato via WhatsApp (${formatPhone(user.phone)}) para confirmação de entrega e emissão de nota fiscal.`}
         </p>
 
         <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <Link
-            href="/minha-conta"
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#C59D3F] px-8 py-3.5 font-semibold text-[#0D1B2A] transition-colors hover:bg-[#d4ac4c] shadow-md"
-          >
-            Ver Pedido na Minha Conta →
-          </Link>
+          {/* O pedido só existe em "Minha Conta" depois do pagamento aprovado. */}
+          {paymentApproved && (
+            <Link
+              href="/minha-conta"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#C59D3F] px-8 py-3.5 font-semibold text-[#0D1B2A] transition-colors hover:bg-[#d4ac4c] shadow-md"
+            >
+              Ver Pedido na Minha Conta →
+            </Link>
+          )}
           <Link
             href="/"
             className="inline-flex items-center justify-center gap-2 rounded-lg border border-content/20 bg-canvas px-6 py-3.5 font-semibold text-content hover:bg-content/5"

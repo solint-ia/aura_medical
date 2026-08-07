@@ -83,6 +83,8 @@ interface AuthContextType {
     paymentMethod: string;
     items: Array<{ id: string; name: string; quantity: number; unitPrice: number; imagePath?: string }>;
     orderNumber?: string;
+    /** Id do pagamento no Mercado Pago — o servidor recusa o pedido sem ele. */
+    paymentId: string;
   }) => Promise<Order>;
   logout: () => void;
 }
@@ -328,90 +330,67 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     paymentMethod: string;
     items: Array<{ id: string; name: string; quantity: number; unitPrice: number; imagePath?: string }>;
     orderNumber?: string;
+    paymentId: string;
   }) => {
     const addressSummary = `${orderPayload.address.street}, ${orderPayload.address.number} ${orderPayload.address.complement || ""} - ${orderPayload.address.neighborhood}, ${orderPayload.address.city} (${orderPayload.address.uf}) CEP: ${orderPayload.address.cep}`;
 
-    let newOrder: Order;
-
-    try {
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: user?.id || null,
-          addressId: orderPayload.address.id || null,
-          addressSummary,
-          shippingMethod: orderPayload.shippingMethod,
-          shippingCost: orderPayload.shippingCost,
-          subtotal: orderPayload.subtotal,
-          totalPrice: orderPayload.totalPrice,
-          paymentMethod: orderPayload.paymentMethod,
-          items: orderPayload.items,
-          orderNumber: orderPayload.orderNumber,
-        }),
-      });
-
-      const data = await res.json();
-      if (data.success && data.order) {
-        newOrder = {
-          id: data.order.id,
-          orderNumber: data.order.orderNumber || data.order.order_number,
-          userId: user?.id || "guest",
-          addressId: orderPayload.address.id,
-          addressSummary,
-          shippingMethod: orderPayload.shippingMethod,
-          shippingCost: orderPayload.shippingCost,
-          subtotal: orderPayload.subtotal,
-          totalPrice: orderPayload.totalPrice,
-          paymentMethod: orderPayload.paymentMethod,
-          status: "pago",
-          trackingCode: data.order.trackingCode || data.order.tracking_code || "",
-          invoiceUrl: data.order.invoiceUrl || data.order.invoice_url || "",
-          createdAt: data.order.createdAt || new Date().toISOString(),
-          items: orderPayload.items.map((i) => ({
-            id: `item-${Date.now()}-${i.id}`,
-            productId: i.id,
-            productName: i.name,
-            quantity: i.quantity,
-            unitPrice: i.unitPrice,
-            totalPrice: i.unitPrice * i.quantity,
-            imagePath: i.imagePath,
-          })),
-        };
-      } else {
-        throw new Error(data.error || "Erro ao salvar pedido no servidor.");
-      }
-    } catch (err) {
-      console.warn("Erro ao salvar pedido via API, utilizando fallback local:", err);
-      const orderNumber = orderPayload.orderNumber || `AUR-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-      newOrder = {
-        id: `ord-${Date.now()}`,
-        orderNumber,
-        userId: user?.id || "guest",
-        addressId: orderPayload.address.id,
+    // Sem fallback local: o servidor só grava o pedido depois de confirmar o
+    // pagamento no Mercado Pago. Se a chamada falhar, o erro sobe para o
+    // checkout — nada de pedido "pago" fantasma no histórico do cliente.
+    const res = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: user?.id || null,
+        addressId: orderPayload.address.id || null,
         addressSummary,
         shippingMethod: orderPayload.shippingMethod,
         shippingCost: orderPayload.shippingCost,
         subtotal: orderPayload.subtotal,
         totalPrice: orderPayload.totalPrice,
         paymentMethod: orderPayload.paymentMethod,
-        status: "pago",
-        trackingCode: "",
-        invoiceUrl: "",
-        createdAt: new Date().toISOString(),
-        items: orderPayload.items.map((i) => ({
-          id: `item-${Date.now()}-${i.id}`,
-          productId: i.id,
-          productName: i.name,
-          quantity: i.quantity,
-          unitPrice: i.unitPrice,
-          totalPrice: i.unitPrice * i.quantity,
-          imagePath: i.imagePath,
-        })),
-      };
+        items: orderPayload.items,
+        orderNumber: orderPayload.orderNumber,
+        paymentId: orderPayload.paymentId,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.success || !data.order) {
+      throw new Error(data.error || "Erro ao registrar o pedido confirmado.");
     }
 
-    const updatedOrders = [newOrder, ...orders];
+    const newOrder: Order = {
+      id: data.order.id,
+      orderNumber: data.order.orderNumber || data.order.order_number,
+      userId: user?.id || "guest",
+      addressId: orderPayload.address.id,
+      addressSummary,
+      shippingMethod: orderPayload.shippingMethod,
+      shippingCost: orderPayload.shippingCost,
+      subtotal: orderPayload.subtotal,
+      totalPrice: orderPayload.totalPrice,
+      paymentMethod: orderPayload.paymentMethod,
+      status: data.order.status || "pago",
+      trackingCode: data.order.trackingCode || data.order.tracking_code || "",
+      invoiceUrl: data.order.invoiceUrl || data.order.invoice_url || "",
+      createdAt: data.order.createdAt || data.order.created_at || new Date().toISOString(),
+      items: orderPayload.items.map((i) => ({
+        id: `item-${Date.now()}-${i.id}`,
+        productId: i.id,
+        productName: i.name,
+        quantity: i.quantity,
+        unitPrice: i.unitPrice,
+        totalPrice: i.unitPrice * i.quantity,
+        imagePath: i.imagePath,
+      })),
+    };
+
+    // Idempotência no histórico local: o polling pode confirmar o mesmo
+    // pagamento mais de uma vez e o servidor devolve o pedido já gravado.
+    const withoutDuplicate = orders.filter((o) => o.orderNumber !== newOrder.orderNumber);
+    const updatedOrders = [newOrder, ...withoutDuplicate];
     setOrders(updatedOrders);
     localStorage.setItem(LOCAL_STORAGE_ORDERS_KEY, JSON.stringify(updatedOrders));
 

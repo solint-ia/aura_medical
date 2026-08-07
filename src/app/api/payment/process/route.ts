@@ -457,7 +457,12 @@ export async function POST(req: Request) {
       const payData = await payRes.json();
 
       if (payRes.ok && (payData.status === "approved" || payData.status === "in_process")) {
-        await triggerOrderEmail();
+        // E-mail só para aprovação imediata. Em "in_process" o dinheiro ainda
+        // não entrou: o checkout acompanha por /api/payment/status e o e-mail
+        // sai por /api/payment/confirm-email quando (e se) virar "approved".
+        if (payData.status === "approved") {
+          await triggerOrderEmail();
+        }
         return NextResponse.json({
           success: true,
           paymentId: payData.id,

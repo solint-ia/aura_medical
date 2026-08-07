@@ -1,6 +1,36 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { dbPool } from "@/lib/db";
+import { fetchMercadoPagoPayment } from "@/lib/mercadopago";
+
+/** Tolerância na comparação de valores (centavos de arredondamento). */
+const AMOUNT_TOLERANCE = 0.02;
+
+/**
+ * Pedido já gravado com este `order_number`? O polling do checkout pode
+ * detectar a aprovação mais de uma vez (duas abas, re-render, retry de rede),
+ * então a gravação precisa ser idempotente.
+ */
+async function findExistingOrder(orderNumber: string) {
+  try {
+    return await prisma.order.findUnique({
+      where: { orderNumber },
+      include: { items: true },
+    });
+  } catch (prismaErr) {
+    console.warn("Prisma indisponível ao checar pedido existente, tentando dbPool:", prismaErr);
+    try {
+      const res = await dbPool.query(
+        `SELECT * FROM public.orders WHERE order_number = $1 LIMIT 1`,
+        [orderNumber]
+      );
+      return res.rows[0] || null;
+    } catch (sqlErr) {
+      console.warn("Aviso ao checar pedido existente no dbPool:", sqlErr);
+      return null;
+    }
+  }
+}
 
 export async function POST(req: Request) {
   try {
@@ -16,6 +46,7 @@ export async function POST(req: Request) {
       paymentMethod,
       items,
       orderNumber: customOrderNumber,
+      paymentId,
     } = body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -25,8 +56,73 @@ export async function POST(req: Request) {
       );
     }
 
-    const orderNumber = customOrderNumber || `AUR-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-    const trackingCode = "";
+    // ----------------------------------------------------
+    // GATE DE PAGAMENTO — o pedido só existe no banco depois que o Mercado
+    // Pago confirma que o dinheiro entrou. O status vem da API do MP (com o
+    // access token do servidor), nunca do que o navegador afirma.
+    // ----------------------------------------------------
+    if (!paymentId) {
+      return NextResponse.json(
+        { error: "Pedido só pode ser registrado após a confirmação do pagamento." },
+        { status: 400 }
+      );
+    }
+
+    const lookup = await fetchMercadoPagoPayment(String(paymentId));
+
+    if (!lookup.ok) {
+      return NextResponse.json({ error: lookup.error }, { status: lookup.httpStatus });
+    }
+
+    const payment = lookup.payment;
+
+    if (payment.status !== "approved") {
+      return NextResponse.json(
+        {
+          error: "Pagamento ainda não aprovado pelo Mercado Pago — pedido não registrado.",
+          paymentStatus: payment.status,
+          statusDetail: payment.statusDetail,
+        },
+        { status: 409 }
+      );
+    }
+
+    // `external_reference` é o número de pedido enviado na criação da cobrança:
+    // é ele quem manda, para um paymentId aprovado não ser reaproveitado em
+    // outro pedido.
+    const orderNumber =
+      payment.externalReference || customOrderNumber || `AUR-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    if (
+      payment.externalReference &&
+      customOrderNumber &&
+      String(customOrderNumber) !== payment.externalReference
+    ) {
+      return NextResponse.json(
+        { error: "Pagamento não corresponde ao pedido informado." },
+        { status: 409 }
+      );
+    }
+
+    // Valor pago tem que bater com o total do pedido.
+    if (typeof payment.amount === "number") {
+      const requested = Number(totalPrice || 0);
+      if (Math.abs(payment.amount - requested) > AMOUNT_TOLERANCE) {
+        return NextResponse.json(
+          { error: "Valor do pedido diverge do valor pago no Mercado Pago." },
+          { status: 409 }
+        );
+      }
+    }
+
+    const existing = await findExistingOrder(orderNumber);
+    if (existing) {
+      return NextResponse.json({
+        success: true,
+        alreadyRegistered: true,
+        order: existing,
+      });
+    }
 
     let createdOrder: any = null;
 

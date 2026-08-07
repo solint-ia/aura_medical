@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { sendOrderConfirmationEmail } from "@/lib/orderEmail";
 import type { OrderEmailItem } from "@/lib/maileroo";
-
-const MERCADO_PAGO_ACCESS_TOKEN = process.env.MERCADO_PAGO_ACCESS_TOKEN || "";
+import { fetchMercadoPagoPayment } from "@/lib/mercadopago";
 
 /**
  * Disparado pelo checkout somente depois que o polling de /api/payment/status
@@ -30,20 +29,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "paymentId é obrigatório." }, { status: 400 });
     }
 
-    const isMockPayment = String(paymentId).startsWith("PIX-TEST-");
+    const lookup = await fetchMercadoPagoPayment(String(paymentId));
 
-    if (!isMockPayment) {
-      const mpRes = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
-        headers: { Authorization: `Bearer ${MERCADO_PAGO_ACCESS_TOKEN}` },
-      });
-      const mpData = await mpRes.json();
-
-      if (!mpRes.ok || mpData.status !== "approved") {
-        return NextResponse.json(
-          { success: false, error: "Pagamento ainda não confirmado pelo Mercado Pago." },
-          { status: 409 }
-        );
-      }
+    if (!lookup.ok || lookup.payment.status !== "approved") {
+      return NextResponse.json(
+        { success: false, error: "Pagamento ainda não confirmado pelo Mercado Pago." },
+        { status: 409 }
+      );
     }
 
     await sendOrderConfirmationEmail({
