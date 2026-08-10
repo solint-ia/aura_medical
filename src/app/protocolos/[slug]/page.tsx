@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `Protocolo ${protocol.title} · pbserum Plus | Aura Regenera`,
-    description: `Detalhamento clínico do protocolo de ${protocol.title}: composição enzimática, reconstituição, frequência de sessões e técnica de uso.`,
+    description: `Detalhamento clínico do protocolo de ${protocol.title}: composição de bioregenerativos recombinantes, reconstituição, frequência de sessões e técnica de uso.`,
   };
 }
 
@@ -155,7 +155,7 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                         <span className="font-mono text-sm font-bold text-content">{protocol.frequency}</span>
                       </div>
                       <div className="flex items-start justify-between">
-                        <span className="text-sm font-medium text-content/70">Total de Enzimas</span>
+                        <span className="text-sm font-medium text-content/70">Bioregenerativos</span>
                         <span className="font-mono text-sm font-bold text-[#C59D3F]">
                           {protocol.composition.length} Recombinantes
                         </span>
@@ -389,7 +389,7 @@ export default async function ProtocolDetailPage({ params }: PageProps) {
                     Adquira este Protocolo de Alta Performance
                   </h3>
                   <p className="text-sm text-on-panel/75 mb-6 max-w-xl">
-                    Tenha acesso direto aos bio-remodeladores enzimáticos recombinantes pbserum Plus com suporte técnico especializado.
+                    Tenha acesso direto aos bioregenerativos recombinantes pbserum Plus com suporte técnico especializado.
                   </p>
                   <div className="flex flex-wrap items-center gap-4">
                     <AccreditationButton

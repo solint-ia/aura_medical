@@ -31,7 +31,7 @@ export function ProtocolsSection() {
           tone="dark"
           titleId="protocolos-title"
           eyebrow="Protocolos · Configurador Interativo"
-          title="Seis protocolos prontos. A proporção enzimática certa para cada indicação."
+          title="Seis protocolos prontos. A proporção de bioregenerativos recombinantes certa para cada indicação."
           lead="Selecione um protocolo ao lado para ver a composição exata e o investimento."
           className="mb-14"
         />

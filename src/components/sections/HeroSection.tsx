@@ -38,7 +38,7 @@ export function HeroSection() {
             wrapper reforms and the copy stacks in its own column. */}
         <div className="contents hero:block hero:max-w-[560px]">
           <p className="order-1 mb-5 animate-fade-up font-mono text-[12.5px] tracking-[0.14em] text-accent uppercase">
-            pbserum Plus · Enzimas Recombinantes
+            pbserum Plus · Bioregenerativos Recombinantes
           </p>
           <h1
             id="hero-title"
@@ -48,7 +48,7 @@ export function HeroSection() {
             pele.
           </h1>
           <p className="order-3 mb-9 animate-fade-up text-[clamp(16px,1.4vw,18.5px)] leading-[1.6] text-content/72 [animation-delay:160ms]">
-            Slim+, Smooth+ e Drain+ são três bio-remodeladores enzimáticos
+            Slim+, Smooth+ e Drain+ são três bioregenerativos
             recombinantes que atuam na matriz extracelular para tratar flacidez,
             gordura localizada, celulite, fibrose e cicatrizes, com a segurança
             e o controle que sua prática clínica exige.

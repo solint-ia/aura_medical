@@ -629,7 +629,7 @@ export function renderOrderSuccessEmailTemplate({
 
           <div class="positive-message">
             ✨ <strong>Parabéns por escolher a excelência em biotecnologia estética!</strong><br>
-            Seu pedido foi registrado com sucesso e nossa equipe já está preparando o envio dos seus protocolos enzimáticos.
+            Seu pedido foi registrado com sucesso e nossa equipe já está preparando o envio dos seus bioregenerativos recombinantes.
           </div>
 
           <div class="info-card">

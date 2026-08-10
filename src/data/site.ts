@@ -17,7 +17,7 @@ export const NAV_LINKS: NavLink[] = [
   { href: "/", label: "Home" },
   { href: "/#protocolos", label: "Protocolos" },
   { href: "/#casos", label: "Casos Clínicos" },
-  { href: "/enzimas", label: "Enzimas" },
+  { href: "/enzimas", label: "Bioregenerativos" },
 ];
 
 export const HEADER_ACCREDITATION_CTA_LABEL = "Fale Conosco";

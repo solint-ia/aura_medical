@@ -41,12 +41,12 @@ export async function generateMetadata({
 
   if (!enzyme) {
     return {
-      title: "Enzima não encontrada · Aura Regenera",
+      title: "Bioregenerativo não encontrado · Aura Regenera",
     };
   }
 
   return {
-    title: `${enzyme.name} (${enzyme.activeIngredient}) · Bioremodelação Enzimática | Aura Regenera`,
+    title: `${enzyme.name} (${enzyme.activeIngredient}) · Bioregenerativos Recombinantes | Aura Regenera`,
     description: enzyme.shortDescription,
   };
 }
@@ -94,7 +94,7 @@ export default async function EnzymeDetailPage({ params }: EnzymePageProps) {
               <div className="lg:col-span-7 space-y-6">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="font-mono text-xs font-semibold tracking-[0.18em] text-[#C59D3F] uppercase">
-                    Bioremodelador Enzimático Recombinante
+                    Bioregenerativo Recombinante
                   </span>
                   {enzyme.patented ? (
                     <span className="inline-flex items-center gap-1 rounded-full border border-[#C59D3F]/40 bg-[#C59D3F]/15 px-3 py-1 font-mono text-[11px] font-semibold text-[#C59D3F]">

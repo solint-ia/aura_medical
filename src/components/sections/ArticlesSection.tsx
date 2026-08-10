@@ -14,8 +14,8 @@ export function ArticlesSection() {
           tone="light"
           titleId="artigos-title"
           eyebrow="Artigos Científicos · Evidência"
-          title="A base científica das enzimas recombinantes pbserum."
-          lead="Índice de referência com publicação de estudos científicos, ensaios clínicos e avaliações de eficácia e segurança no uso dermatológico de enzimas recombinantes."
+          title="A base científica dos bioregenerativos recombinantes pbserum."
+          lead="Índice de referência com publicação de estudos científicos, ensaios clínicos e avaliações de eficácia e segurança no uso dermatológico de bioregenerativos recombinantes."
           className="mb-11"
         />
 

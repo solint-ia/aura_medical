@@ -617,7 +617,7 @@ function CheckoutContent() {
           Seu carrinho está vazio
         </h1>
         <p className="text-base text-content/75 mb-8 max-w-md mx-auto">
-          Adicione ao menos um protocolo enzimático ao seu carrinho antes de acessar o checkout.
+          Adicione ao menos um protocolo de bioregenerativos recombinantes ao seu carrinho antes de acessar o checkout.
         </p>
         <Link
           href="/carrinho"

@@ -15,7 +15,7 @@ export function PartnershipCtaSection() {
 
       <div className="relative z-10 mx-auto max-w-4xl text-center">
         <span className="font-mono text-xs font-semibold tracking-[0.2em] text-[#C59D3F] uppercase md:text-sm">
-          Tecnologia Enzimática de Alta Performance
+          Bioregenerativos Recombinantes de Alta Performance
         </span>
 
         <h2 className="mt-3 font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-content leading-[1.12]">
@@ -23,7 +23,7 @@ export function PartnershipCtaSection() {
         </h2>
 
         <p className="mt-4 text-base sm:text-lg text-content/80 max-w-2xl mx-auto leading-relaxed">
-          Resultados comprovados e tecnologia enzimática avançada para a bioremodelação e regeneração tecidual.
+          Resultados comprovados e tecnologia avançada de bioregenerativos recombinantes para a bioremodelação e regeneração tecidual.
         </p>
 
         <div className="mt-7 flex items-center justify-center gap-4 flex-wrap">

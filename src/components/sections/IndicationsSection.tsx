@@ -14,9 +14,9 @@ export function IndicationsSection() {
         <SectionIntro
           tone="dark"
           titleId="indicacoes-title"
-          eyebrow="Indicações · Protocolos Enzimáticos"
-          title="Seis indicações. Um protocolo enzimático específico para cada uma."
-          lead="Da adiposidade localizada à fibrose pós-cirúrgica, identifique a indicação e as enzimas envolvidas em cada protocolo."
+          eyebrow="Indicações · Bioregenerativos Recombinantes"
+          title="Seis indicações. Um protocolo de bioregenerativos recombinantes específico para cada uma."
+          lead="Da adiposidade localizada à fibrose pós-cirúrgica, identifique a indicação e os bioregenerativos recombinantes envolvidos em cada protocolo."
           className="mb-12"
         />
 

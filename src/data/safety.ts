@@ -22,7 +22,7 @@ export const SAFETY_NOTES: SafetyNote[] = [
   },
   {
     label: "Precauções gerais",
-    body: "Gravidez, amamentação ou alergia conhecida a componentes enzimáticos. Em caso de dúvidas, consulte nosso suporte especializado.",
+    body: "Gravidez, amamentação ou alergia conhecida aos componentes da fórmula. Em caso de dúvidas, consulte nosso suporte especializado.",
   },
   {
     label: "Cuidados pós-uso",
@@ -39,7 +39,7 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     question: "Existe pedido mínimo?",
     answer:
-      "Não há valor mínimo de pedido. Você pode adquirir desde enzimas individuais até protocolos completos.",
+      "Não há valor mínimo de pedido. Você pode adquirir desde ampolas avulsas de bioregenerativos recombinantes até protocolos completos.",
   },
   {
     question: "Quais os prazos de entrega?",
@@ -48,7 +48,7 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     question: "Os produtos possuem registro e comprovação?",
     answer:
-      "Sim. Cada enzima da linha pbserum Plus possui registro na ANVISA, além do registro cosmético conforme o Regulamento (CE) 1223/2009. Os números de processo de Slim+, Smooth+ e Drain+ estão no link abaixo:",
+      "Sim. Cada bioregenerativo da linha pbserum Plus possui registro na ANVISA, além do registro cosmético conforme o Regulamento (CE) 1223/2009. Os números de processo de Slim+, Smooth+ e Drain+ estão no link abaixo:",
     links: [
       { href: "/enzimas#registro-anvisa", label: "Registro ANVISA" },
     ],

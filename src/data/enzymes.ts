@@ -80,7 +80,7 @@ export const enzymesData: EnzymeDetail[] = [
     origin: "S. pyogenes + C. histolyticum",
     targetSubstrate: "Colágeno fibrótico e septos fibrosos",
     shortDescription: "Cliva os pontos de ligação do colágeno desorganizado, liberando estruturas retraídas sem agredir o tecido saudável.",
-    fullDescription: "A dupla ação patenteada das colagenases G e H atua especificamente clivando os pontos de ligação expostos no colágeno desorganizado, característico de cicatrizes e septos fibróticos da celulite. Essa ação enzimática inteligente libera as estruturas retraídas, promovendo a reorganização do tecido sem agredir o colágeno saudável ao redor.",
+    fullDescription: "A dupla ação patenteada das colagenases G e H atua especificamente clivando os pontos de ligação expostos no colágeno desorganizado, característico de cicatrizes e septos fibróticos da celulite. Essa ação bioregenerativa inteligente libera as estruturas retraídas, promovendo a reorganização do tecido sem agredir o colágeno saudável ao redor.",
     indications: ["Fibrose", "Cicatrizes", "Celulite"],
     presentation: "10 ampolas liofilizadas",
     anvisaProduct: "PBSerum SMOOTH+ Professional",
@@ -94,7 +94,7 @@ export const enzymesData: EnzymeDetail[] = [
     origin: "Bacteriana recombinante",
     targetSubstrate: "Polissacarídeos da matriz extracelular",
     shortDescription: "Degrada polissacarídeos responsáveis pela retenção de fluidos, reduzindo edemas e potencializando a difusão de ativos.",
-    fullDescription: "A Hialuronidase PB3000 atua degradando os polissacarídeos que causam a retenção de fluidos na matriz extracelular. Isso não apenas melhora a permeabilidade tecidual e reduz o edema (inchaço), como atua como um poderoso agente de difusão, potencializando a penetração e eficácia das outras enzimas quando combinadas em protocolo.",
+    fullDescription: "A Hialuronidase PB3000 atua degradando os polissacarídeos que causam a retenção de fluidos na matriz extracelular. Isso não apenas melhora a permeabilidade tecidual e reduz o edema (inchaço), como atua como um poderoso agente de difusão, potencializando a penetração e eficácia dos outros bioregenerativos recombinantes quando combinados em protocolo.",
     indications: ["Drenagem", "Edema", "Difusão de Ativos"],
     presentation: "10 ampolas liofilizadas",
     anvisaProduct: "PBSerum DRAIN+ Professional",
@@ -108,7 +108,7 @@ export const safetyInformation = {
   contraindications: [
     "Gravidez e amamentação",
     "Doença local ativa de pele",
-    "Alergia a ácido hialurônico ou enzimas",
+    "Alergia a ácido hialurônico ou bioregenerativos recombinantes",
     "Alergia severa a picadas de insetos (reação cruzada)"
   ],
   recommendations: [

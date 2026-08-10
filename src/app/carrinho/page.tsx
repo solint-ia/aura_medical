@@ -41,7 +41,7 @@ function CartContent() {
           Seu carrinho está vazio
         </h1>
         <p className="text-base text-content/75 mb-8 max-w-md mx-auto">
-          Você ainda não adicionou nenhum protocolo enzimático ao seu carrinho. Explore nosso catálogo clínico e monte seu pedido.
+          Você ainda não adicionou nenhum protocolo de bioregenerativos recombinantes ao seu carrinho. Explore nosso catálogo clínico e monte seu pedido.
         </p>
         <Link
           href="/#protocolos"

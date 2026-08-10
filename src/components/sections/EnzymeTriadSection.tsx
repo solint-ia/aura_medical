@@ -62,7 +62,7 @@ export function EnzymeTriadSection() {
             id="triade-title"
             className="mt-3 font-display text-3xl font-bold leading-[1.12] tracking-tight text-[#0A1622] sm:text-4xl md:text-5xl"
           >
-            A Tríade de Enzimas Recombinantes.
+            A Tríade de Bioregenerativos Recombinantes.
           </h2>
           <p className="mt-4 text-base text-[#0A1622]/75 sm:text-lg leading-relaxed">
             Três ativos de altíssima pureza que atuam em sinergia para remodelar, drenar e firmar os tecidos.

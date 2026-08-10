@@ -32,7 +32,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Aura Regenera",
   description:
-    "Slim+, Smooth+ e Drain+: bio-remodeladores enzimáticos recombinantes de alta performance para flacidez, gordura localizada, celulite, fibrose e cicatrizes. Resultados comprovados para a bioremodelação e regeneração tecidual.",
+    "Slim+, Smooth+ e Drain+: bioregenerativos recombinantes de alta performance para flacidez, gordura localizada, celulite, fibrose e cicatrizes. Resultados comprovados para a bioremodelação e regeneração tecidual.",
   metadataBase: new URL(SITE_URL),
   icons: {
     icon: "/logos/AR-favicon.png",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Aura Regenera",
     description:
-      "Enzimas recombinantes para bioremodelação da matriz extracelular. Tecnologia avançada de alta performance no Brasil.",
+      "Bioregenerativos recombinantes para bioremodelação da matriz extracelular. Tecnologia avançada de alta performance no Brasil.",
     locale: "pt_BR",
     type: "website",
   },

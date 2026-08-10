@@ -66,7 +66,7 @@ export function ScienceSection() {
                     <span>Tecnologia pbserum</span>
                   </h4>
                   <p className="font-mono text-xs text-[#C59D3F] mt-1">
-                    Enzimas Recombinantes de 2ª Geração
+                    Bioregenerativos Recombinantes de 2ª Geração
                   </p>
                 </div>
               </div>

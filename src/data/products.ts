@@ -47,7 +47,7 @@ export const PRODUCTS: Product[] = [
     origin: "Bacteriana recombinante",
     substrate: "Polissacarídeos da matriz extracelular",
     mechanism:
-      "Degrada os polissacarídeos responsáveis pela retenção de fluidos na matriz extracelular, melhorando a permeabilidade tecidual e reduzindo edema; potencializa a difusão das demais enzimas quando combinada em protocolo.",
+      "Degrada os polissacarídeos responsáveis pela retenção de fluidos na matriz extracelular, melhorando a permeabilidade tecidual e reduzindo edema; potencializa a difusão dos demais bioregenerativos recombinantes quando combinada em protocolo.",
     indications: ["Drenagem · Edema"],
     packaging: "10 ampolas liofilizadas",
     imageSrc: "/images/products/pbserum-drain-plus.png",

@@ -444,7 +444,7 @@ function CustomerPortalContent() {
                 Nenhum pedido realizado ainda
               </h3>
               <p className="text-sm text-content/70 max-w-md mx-auto mt-2 mb-6">
-                Explore nosso catálogo de bio-remodeladores enzimáticos e monte seu primeiro pedido.
+                Explore nosso catálogo de bioregenerativos recombinantes e monte seu primeiro pedido.
               </p>
               <Link
                 href="/#protocolos"

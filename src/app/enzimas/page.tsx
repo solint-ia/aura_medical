@@ -9,7 +9,7 @@ import { ProductsSection } from "@/components/sections/ProductsSection";
 import { ScienceSection } from "@/components/sections/ScienceSection";
 
 export const metadata: Metadata = {
-  title: "Enzimas & Bioremodelação pbserum · Aura Regenera",
+  title: "Bioregenerativos Recombinantes pbserum · Aura Regenera",
   description:
     "Conceito, biotecnologia recombinante, linha profissional pbserum Plus e detalhamento científico para bioremodelação tecidual.",
 };

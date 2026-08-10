@@ -159,7 +159,7 @@ export async function POST(req: Request) {
     const customerFullName = `${payer?.firstName || "Cliente"} ${payer?.lastName || "Aura"}`.trim();
     const itemListNames = Array.isArray(items) && items.length > 0
       ? items.map((i: { name: string; quantity: number }) => `${i.quantity}x ${i.name}`).join(", ")
-      : "Protocolos Enzimáticos";
+      : "Bioregenerativos Recombinantes";
 
     const stateStr = address?.state ? String(address.state).trim() : "SP";
     const cityStr = address?.city ? String(address.city).trim() : "São Paulo";

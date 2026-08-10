@@ -89,7 +89,7 @@ export function ClinicalMappingSection() {
           <div className="w-full mt-6 md:mt-8 flex justify-center">
             <Image
               src="/mapeamento-clinico/tecnica-aplicacao.png"
-              alt="Técnica de Aplicação das Enzimas Recombinantes"
+              alt="Técnica de Aplicação dos Bioregenerativos Recombinantes"
               width={1100}
               height={650}
               priority

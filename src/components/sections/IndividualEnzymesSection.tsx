@@ -117,11 +117,11 @@ export function IndividualEnzymesSection() {
             id="enzimas-avulsas-title"
             className="font-display text-[clamp(28px,4vw,44px)] font-bold tracking-tight text-white mb-4"
           >
-            Ampolas de Enzimas Recombinantes
+            Ampolas de Bioregenerativos Recombinantes
           </h2>
 
           <p className="mx-auto max-w-2xl text-base text-slate-300">
-            Adquira ampolas avulsas de alta concentração para compor sessões sob medida ou repor enzimas específicas em sua clínica médica com entrega rápida.
+            Adquira ampolas avulsas de alta concentração para compor sessões sob medida ou repor bioregenerativos recombinantes específicos em sua clínica médica com entrega rápida.
           </p>
         </div>
 

@@ -6,17 +6,17 @@ export interface ScientificArticle {
 
 export const scientificArticles: ScientificArticle[] = [
   {
-    title: "Produtos Recombinantes Enzimáticos na Dermatologia",
+    title: "Bioregenerativos Recombinantes na Dermatologia",
     fileUrl: "/artigos/efetividade-dermatologia.pdf",
     category: "Dermatologia & Eficácia",
   },
   {
     title: "Avaliação da Deposição e Permeabilidade da Queratinase na Pele",
     fileUrl: "/artigos/efetividade-keratinase.pdf",
-    category: "Enzimas Recombinantes",
+    category: "Bioregenerativos Recombinantes",
   },
   {
-    title: "Ácido Hialurônico e Enzimas Recombinantes Pbserum Low para o Tratamento da Flacidez Corporal",
+    title: "Ácido Hialurônico e Bioregenerativos Recombinantes pbserum Low para Flacidez Corporal",
     fileUrl: "/artigos/tratamento-flacidez.pdf",
     category: "Remodelação Corporal",
   },
@@ -31,32 +31,32 @@ export const scientificArticles: ScientificArticle[] = [
     category: "Qualidade de Pele",
   },
   {
-    title: "Fundamentos do Uso de Enzimas Recombinantes na Dermatologia",
+    title: "Fundamentos do Uso de Bioregenerativos Recombinantes na Dermatologia",
     fileUrl: "/artigos/fundamentos-dermatologia.pdf",
     category: "Fundamentos Científicos",
   },
   {
-    title: "Enzimas Recombinantes: Um Novo Caminho para a Remodelação Facial e Rejuvenescimento da Pele",
+    title: "Bioregenerativos Recombinantes: Um Novo Caminho para a Remodelação Facial e Rejuvenescimento da Pele",
     fileUrl: "/artigos/remodelacao-facial.pdf",
     category: "Remodelação Facial",
   },
   {
-    title: "Eficácia e Segurança da Mistura Enzimática: Lipase, Colagenase e Hialuronidase",
+    title: "Eficácia e Segurança da Associação de Bioregenerativos: Lipase, Colagenase e Hialuronidase",
     fileUrl: "/artigos/remodelacao-corporal.pdf",
     category: "Segurança & Eficácia",
   },
   {
-    title: "Tratamento de Granulomas de Corpo Estranho com Terapia Enzimática Combinada",
+    title: "Tratamento de Granulomas de Corpo Estranho com Bioregenerativos Recombinantes",
     fileUrl: "/artigos/resolucao-granulomas.pdf",
     category: "Casos Clínicos & Resolução",
   },
   {
-    title: "Grau de Satisfação de Pacientes Tratados Esteticamente com Enzimas Recombinantes: Experiência Clínica",
+    title: "Grau de Satisfação de Pacientes Tratados Esteticamente com Bioregenerativos Recombinantes: Experiência Clínica",
     fileUrl: "/artigos/satisfacao-pacientes.pdf",
     category: "Estudos Clínicos",
   },
   {
-    title: "Eficácia do Tratamento da Celulite com Terapia Enzimática Combinada",
+    title: "Eficácia do Tratamento da Celulite com Bioregenerativos Recombinantes",
     fileUrl: "/artigos/tratamento-celulite.pdf",
     category: "Tratamento de Celulite",
   },

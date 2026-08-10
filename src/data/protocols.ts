@@ -149,7 +149,7 @@ export const protocolsData: ProtocolDetail[] = [
     title: "Queixo Duplo (Papada)",
     imagePath1: "/images/fotos-protocolos/queixoduplo-1.png",
     imagePath2: "/images/fotos-protocolos/queixoduplo-2.png",
-    introduction: "Protocolo indicado para remodelação da gordura submentoniana, promovendo melhora do contorno mandibular por meio da associação das enzimas recombinantes Slim+, Smooth+ e Drain+.",
+    introduction: "Protocolo indicado para remodelação da gordura submentoniana, promovendo melhora do contorno mandibular por meio da associação dos bioregenerativos recombinantes Slim+, Smooth+ e Drain+.",
     composition: [
       { name: "1 Smooth+ (Colagenase)", description: "Remodelação do colágeno" },
       { name: "1 Drain+ (Hialuronidase)", description: "Drenagem e difusão" },
@@ -172,7 +172,7 @@ export const protocolsData: ProtocolDetail[] = [
     title: "Perfilamento Facial",
     imagePath1: "/images/fotos-protocolos/perfilamento-1.png",
     imagePath2: "/images/fotos-protocolos/perfilamento-2.png",
-    introduction: "O protocolo de Perfilamento Facial foi desenvolvido para promover a remodelação dos tecidos da face, melhorando a definição do contorno mandibular e proporcionando um perfil facial mais harmônico por meio da ação sinérgica das enzimas recombinantes Slim+, Smooth+ e Drain+.",
+    introduction: "O protocolo de Perfilamento Facial foi desenvolvido para promover a remodelação dos tecidos da face, melhorando a definição do contorno mandibular e proporcionando um perfil facial mais harmônico por meio da ação sinérgica dos bioregenerativos recombinantes Slim+, Smooth+ e Drain+.",
     composition: [
       { name: "1 Smooth+ (Colagenase)", description: "Remodelação das fibras de colágeno e melhora da firmeza dos tecidos." },
       { name: "1 Drain+ (Hialuronidase)", description: "Favorece a drenagem dos líquidos intersticiais e otimiza a difusão dos ativos." },
@@ -182,7 +182,7 @@ export const protocolsData: ProtocolDetail[] = [
     frequency: "A cada 2 semanas",
     reconstitution: ["Adicione 3 ml de solução salina estéril em cada ampola.", "Adicione 1 ml de lidocaína simples a 2%."],
     application: ["Aplicar 0,5 ml por ponto.", "Volume final do protocolo: 12 ml."],
-    marking: "A marcação deve seguir uma malha com espaçamento aproximado de 1 a 1,5 cm entre os pontos de tratamento. O produto deve ser distribuído no centro de cada quadrado da malha, respeitando a anatomia da região mandibular para uma distribuição homogênea do coquetel enzimático.",
+    marking: "A marcação deve seguir uma malha com espaçamento aproximado de 1 a 1,5 cm entre os pontos de tratamento. O produto deve ser distribuído no centro de cada quadrado da malha, respeitando a anatomia da região mandibular para uma distribuição homogênea dos bioregenerativos recombinantes.",
     expectedResults: [
       "Maior definição do contorno mandibular",
       "Remodelação do perfil facial",
@@ -197,17 +197,17 @@ export const protocolsData: ProtocolDetail[] = [
     title: "Gordura Localizada",
     imagePath1: "/images/fotos-protocolos/gorduralocalizada-1.png",
     imagePath2: "/images/fotos-protocolos/gorduralocalizada-2.png",
-    introduction: "O protocolo de Adiposidade Localizada foi desenvolvido para promover a remodelação dos tecidos e auxiliar na redução de depósitos de gordura localizada por meio da ação combinada das enzimas recombinantes Slim+, Smooth+ e Drain+. O tratamento oferece uma abordagem minimamente invasiva para melhorar o contorno corporal de forma progressiva.",
+    introduction: "O protocolo de Adiposidade Localizada foi desenvolvido para promover a remodelação dos tecidos e auxiliar na redução de depósitos de gordura localizada por meio da ação combinada dos bioregenerativos recombinantes Slim+, Smooth+ e Drain+. O tratamento oferece uma abordagem minimamente invasiva para melhorar o contorno corporal de forma progressiva.",
     composition: [
       { name: "1 Smooth+ (Colagenase)", description: "Promove a remodelação das fibras de colágeno, favorecendo uma melhor organização dos tecidos." },
-      { name: "1 Drain+ (Hialuronidase)", description: "Auxilia na drenagem dos líquidos intersticiais e melhora a difusão do coquetel enzimático." },
+      { name: "1 Drain+ (Hialuronidase)", description: "Auxilia na drenagem dos líquidos intersticiais e melhora a difusão dos ativos." },
       { name: "2 Slim+ (Lipase)", description: "Atua seletivamente sobre o tecido adiposo, auxiliando na redução da gordura localizada e na remodelação do contorno corporal." }
     ],
     sessions: "2-8",
     frequency: "A cada 2 semanas",
     reconstitution: ["Adicione 3 ml de solução salina estéril em cada ampola.", "Adicione 1 ml de lidocaína simples a 2%."],
     application: ["Aplicar 1 ml por ponto.", "O volume total deverá ser distribuído uniformemente conforme a área tratada."],
-    marking: "A área deve ser marcada formando uma malha com espaçamento aproximado de 1 a 1,5 cm entre os pontos de tratamento. O produto deve ser distribuído no centro de cada quadrado da malha, garantindo uma distribuição homogênea do coquetel enzimático em toda a região tratada.",
+    marking: "A área deve ser marcada formando uma malha com espaçamento aproximado de 1 a 1,5 cm entre os pontos de tratamento. O produto deve ser distribuído no centro de cada quadrado da malha, garantindo uma distribuição homogênea dos bioregenerativos recombinantes em toda a região tratada.",
     expectedResults: [
       "Redução da gordura localizada",
       "Remodelação do contorno corporal",
@@ -222,18 +222,18 @@ export const protocolsData: ProtocolDetail[] = [
     title: "Celulite",
     imagePath1: "/images/fotos-protocolos/celulite-1.png",
     imagePath2: "/images/fotos-protocolos/celulite-2.png",
-    introduction: "O protocolo para Celulite foi desenvolvido para promover a remodelação dos tecidos acometidos, atuando sobre os septos fibróticos, a gordura localizada e a drenagem do tecido. A combinação das enzimas recombinantes proporciona melhora progressiva da textura da pele e do contorno corporal de forma minimamente invasiva.",
+    introduction: "O protocolo para Celulite foi desenvolvido para promover a remodelação dos tecidos acometidos, atuando sobre os septos fibróticos, a gordura localizada e a drenagem do tecido. A combinação dos bioregenerativos recombinantes proporciona melhora progressiva da textura da pele e do contorno corporal de forma minimamente invasiva.",
     note: "Tratamento para ambas as pernas",
     composition: [
       { name: "4 Smooth+ (Colagenase)", description: "Promove a remodelação das fibras de colágeno e dos septos fibróticos, contribuindo para uma pele mais uniforme." },
-      { name: "2 Drain+ (Hialuronidase)", description: "Favorece a drenagem dos líquidos intersticiais e melhora a difusão do coquetel enzimático." },
+      { name: "2 Drain+ (Hialuronidase)", description: "Favorece a drenagem dos líquidos intersticiais e melhora a difusão dos ativos." },
       { name: "4 Slim+ (Lipase)", description: "Auxilia na redução da gordura localizada, melhorando o relevo da pele e o contorno corporal." }
     ],
     sessions: "2-4",
     frequency: "A cada 2 semanas",
     reconstitution: ["Adicione 3 ml de solução salina estéril em cada ampola.", "Adicione 1 ml de lidocaína simples a 2%."],
     application: ["Aplicar 1 ml por ponto.", "O protocolo foi desenvolvido para tratamento de ambas as pernas."],
-    marking: "A região tratada deve ser marcada em forma de malha, mantendo espaçamento aproximado de 1 a 1,5 cm entre os pontos de tratamento. O coquetel enzimático deve ser distribuído no centro de cada quadrado da malha para proporcionar distribuição uniforme em toda a área tratada.",
+    marking: "A região tratada deve ser marcada em forma de malha, mantendo espaçamento aproximado de 1 a 1,5 cm entre os pontos de tratamento. O produto deve ser distribuído no centro de cada quadrado da malha para proporcionar distribuição uniforme em toda a área tratada.",
     expectedResults: [
       "Melhora da aparência da celulite",
       "Remodelação dos septos fibróticos",
@@ -248,16 +248,16 @@ export const protocolsData: ProtocolDetail[] = [
     title: "Cicatrizes",
     imagePath1: "/images/fotos-protocolos/cicatrizes-1.png",
     imagePath2: "/images/fotos-protocolos/cicatrizes-2.png",
-    introduction: "O protocolo para Cicatrizes foi desenvolvido para promover a remodelação dos tecidos cicatriciais por meio da ação das enzimas recombinantes Smooth+ and Drain+. O tratamento auxilia na reorganização das fibras de colágeno, contribuindo para uma aparência mais uniforme da pele e melhor integração da cicatriz aos tecidos adjacentes.",
+    introduction: "O protocolo para Cicatrizes foi desenvolvido para promover a remodelação dos tecidos cicatriciais por meio da ação dos bioregenerativos recombinantes Smooth+ e Drain+. O tratamento auxilia na reorganização das fibras de colágeno, contribuindo para uma aparência mais uniforme da pele e melhor integração da cicatriz aos tecidos adjacentes.",
     composition: [
       { name: "3 Smooth+ (Colagenase)", description: "Atuam na remodelação das fibras de colágeno da cicatriz, favorecendo uma reorganização mais uniforme do tecido." },
-      { name: "1 Drain+ (Hialuronidase)", description: "Melhora a difusão do coquetel enzimático e auxilia na remodelação do microambiente tecidual." }
+      { name: "1 Drain+ (Hialuronidase)", description: "Melhora a difusão dos ativos e auxilia na remodelação do microambiente tecidual." }
     ],
     sessions: "4",
     frequency: "A cada 2 a 3 semanas",
     reconstitution: ["Adicione 1,5 ml de solução salina estéril em cada ampola.", "Adicione 1 ml de lidocaína simples a 2%."],
     application: ["Aplicar diretamente sobre a cicatriz.", "Em cicatrizes atróficas, recomenda-se também a aplicação do coquetel simples 1-1-1 no tecido ao redor da cicatriz, conforme protocolo do fabricante."],
-    marking: "A marcação varia conforme o formato, extensão e características da cicatriz. O planejamento do tratamento deve ser individualizado para garantir uma distribuição adequada do coquetel enzimático em toda a área tratada.",
+    marking: "A marcação varia conforme o formato, extensão e características da cicatriz. O planejamento do tratamento deve ser individualizado para garantir uma distribuição adequada dos bioregenerativos recombinantes em toda a área tratada.",
     expectedResults: [
       "Remodelação do tecido cicatricial",
       "Melhora da textura da pele",
@@ -271,16 +271,16 @@ export const protocolsData: ProtocolDetail[] = [
     title: "Fibrose Pós-Cirúrgica",
     imagePath1: "/images/fotos-protocolos/fibrose-1.png",
     imagePath2: "/images/fotos-protocolos/fibrose-2.png",
-    introduction: "O protocolo para Fibrose foi desenvolvido para auxiliar na remodelação de tecidos fibróticos, aderências e nódulos pós-cirúrgicos por meio da ação combinada das enzimas recombinantes Smooth+, Drain+ e Slim+. O tratamento favorece a reorganização do tecido, contribuindo para uma recuperação mais uniforme e para a melhora da mobilidade e do aspecto da região tratada.",
+    introduction: "O protocolo para Fibrose foi desenvolvido para auxiliar na remodelação de tecidos fibróticos, aderências e nódulos pós-cirúrgicos por meio da ação combinada dos bioregenerativos recombinantes Smooth+, Drain+ e Slim+. O tratamento favorece a reorganização do tecido, contribuindo para uma recuperação mais uniforme e para a melhora da mobilidade e do aspecto da região tratada.",
     composition: [
       { name: "3 Smooth+ (Colagenase)", description: "Atuam na remodelação das fibras de colágeno, auxiliando na reorganização dos tecidos fibróticos e na redução das aderências." },
-      { name: "1 Drain+ (Hialuronidase)", description: "Favorece a drenagem dos líquidos intersticiais e melhora a difusão do coquetel enzimático na área tratada." },
+      { name: "1 Drain+ (Hialuronidase)", description: "Favorece a drenagem dos líquidos intersticiais e melhora a difusão dos ativos na área tratada." },
       { name: "1 Slim+ (Lipase)", description: "Auxilia na remodelação de áreas com acúmulo de tecido adiposo associado à fibrose, complementando a ação do protocolo." }
     ],
     sessions: "6",
     frequency: "A cada 2 a 3 semanas",
     reconstitution: ["Adicione 1,5 ml de solução salina estéril em cada ampola.", "Adicione 1 ml de lidocaína simples a 2%."],
-    application: ["Aplicação intralesional.", "Realizar aplicações em múltiplos ângulos para melhor distribuição do coquetel enzimático.", "Volume final aproximado: 7,5 a 25 ml, conforme a extensão da área tratada."],
+    application: ["Aplicação intralesional.", "Realizar aplicações em múltiplos ângulos para melhor distribuição dos bioregenerativos recombinantes.", "Volume final aproximado: 7,5 a 25 ml, conforme a extensão da área tratada."],
     marking: "Antes do procedimento, devem ser identificados e marcados os nódulos fibróticos, aderências ou áreas de fibrose. O planejamento do tratamento deve ser individualizado conforme a localização e a extensão da fibrose, permitindo uma distribuição homogênea do tratamento.",
     expectedResults: [
       "Remodelação do tecido fibrótico",

@@ -50,7 +50,7 @@ export function ClinicalCasesSection() {
           titleId="casos-title"
           eyebrow="Casos Clínicos · Evidência Real"
           title="Resultados comprovados em fotos de antes e depois."
-          lead="Explore os resultados reais obtidos com o uso de enzimas recombinantes pbserum Plus em diferentes indicações estéticas e dermatológicas."
+          lead="Explore os resultados reais obtidos com o uso de bioregenerativos recombinantes pbserum Plus em diferentes indicações estéticas e dermatológicas."
           tone="dark"
           className="mb-9"
         />

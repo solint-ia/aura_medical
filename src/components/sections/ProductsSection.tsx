@@ -19,8 +19,8 @@ export function ProductsSection() {
         <SectionIntro
           titleId="produtos-title"
           eyebrow="pbserum Plus · Linha Profissional"
-          title="Três enzimas recombinantes. Um mecanismo específico para cada tecido."
-          lead="Cada bio-remodelador atua sobre um substrato distinto (gordura, colágeno fibrótico ou polissacarídeos da matriz) e pode ser combinado em protocolo conforme a indicação clínica."
+          title="Três bioregenerativos recombinantes. Um mecanismo específico para cada tecido."
+          lead="Cada bioregenerativo recombinante atua sobre um substrato distinto (gordura, colágeno fibrótico ou polissacarídeos da matriz) e pode ser combinado em protocolo conforme a indicação clínica."
           className="mb-14"
         />
 
@@ -31,7 +31,7 @@ export function ProductsSection() {
         </div>
 
         <p className="mt-7 font-mono text-[11px] text-content/60">
-          * Enzima patenteada.
+          * Bioregenerativo recombinante patenteado.
         </p>
       </div>
     </section>

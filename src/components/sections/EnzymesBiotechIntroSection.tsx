@@ -48,11 +48,11 @@ const BIOTECH_CHAPTERS: BiotechChapter[] = [
     stepNumber: "01",
     navTitle: "O Conceito",
     subtitleTag: "Fundamentos",
-    title: "O que são Enzimas Recombinantes?",
+    title: "O que são Bioregenerativos Recombinantes?",
     body1:
-      "As enzimas são proteínas que atuam como catalisadores biológicos, acelerando reações químicas essenciais sem serem consumidas.",
+      "As enzimas e proteínas recombinantes atuam como catalisadores biológicos e agentes de regeneração tecidual, acelerando processos celulares essenciais com máxima especificidade.",
     body2:
-      "As enzimas recombinantes da pbserum são concebidas utilizando a tecnologia de ADN recombinante, permitindo a produção em grande escala com qualidade consistente. Desenvolvidas através de investigação biotecnológica avançada em Albacete, Espanha, utilizam uma biotecnologia única para melhorar os tratamentos regenerativos de várias patologias da pele.",
+      "Os bioregenerativos recombinantes da pbserum são concebidos utilizando a tecnologia de ADN recombinante, permitindo a produção em grande escala com qualidade consistente. Desenvolvidos através de investigação biotecnológica avançada em Albacete, Espanha, utilizam uma biotecnologia única para potencializar os tratamentos regenerativos de várias patologias e necessidades da pele.",
   },
   {
     id: "tecnologia",
@@ -61,18 +61,18 @@ const BIOTECH_CHAPTERS: BiotechChapter[] = [
     subtitleTag: "Inovação Biotecnológica",
     title: "Biotecnologia Única de Duas Gerações",
     subtitle:
-      "A pbserum utiliza ADN recombinante para criar enzimas de origem bacteriana que imitam com precisão as enzimas humanas.",
+      "A pbserum utiliza ADN recombinante para criar proteínas e enzimas de origem bacteriana que imitam com precisão as moléculas humanas.",
     highlights: [
       {
         title: "Eficácia & Seletividade",
         description:
-          "Elevada especificidade do substrato para tratamento eficaz de rugas, cicatrizes, celulite e gordura localizada.",
+          "Elevada especificidade do substrato para tratamento eficaz de flacidez, cicatrizes, celulite e gordura localizada.",
         icon: Dna,
       },
       {
         title: "Pureza & Estabilidade (Liofilização)",
         description:
-          "Processo de congelação rápida e sublimação que mantém 100% da atividade enzimática sem necessidade de conservantes.",
+          "Processo de congelação rápida e sublimação que mantém 100% da atividade biológica sem necessidade de conservantes.",
         icon: Snowflake,
       },
       {
@@ -88,9 +88,9 @@ const BIOTECH_CHAPTERS: BiotechChapter[] = [
     stepNumber: "03",
     navTitle: "Origem & Produção",
     subtitleTag: "Excelência Farmacêutica",
-    title: "Quem produz as Enzimas Recombinantes?",
+    title: "Quem produz os Bioregenerativos Recombinantes?",
     body1:
-      "Fundada em 2010, a Proteos Biotech é especializada na investigação e produção de enzimas recombinantes para biomedicina e cosmética em Albacete, Espanha.",
+      "Fundada em 2010, a Proteos Biotech é especializada na investigação e produção de bioregenerativos recombinantes para biomedicina e cosmética em Albacete, Espanha.",
     body2:
       "Garantia dos mais rigorosos padrões de qualidade e certificações internacionais no fabrico e fornecimento de produtos farmacêuticos estéreis e dispositivos médicos.",
     factoryDetails: {
@@ -107,7 +107,7 @@ const BIOTECH_CHAPTERS: BiotechChapter[] = [
     subtitleTag: "Regularização Sanitária",
     title: "Registro ANVISA da linha pbserum Professional",
     subtitle:
-      "Cada enzima da linha possui processo próprio junto à ANVISA — Agência Nacional de Vigilância Sanitária.",
+      "Cada bioregenerativo da linha possui processo próprio junto à ANVISA — Agência Nacional de Vigilância Sanitária.",
     body1:
       "A regularização sanitária no Brasil é individual por produto: Slim+, Smooth+ e Drain+ têm cada um o seu número de processo, listados abaixo junto ao nome exato sob o qual foram registrados.",
     anvisaRecords: true,
