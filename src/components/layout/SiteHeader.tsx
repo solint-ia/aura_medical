@@ -37,7 +37,7 @@ export function SiteHeader() {
     }
 
     const handleScroll = () => {
-      const sectionIds = ["protocolos", "casos"];
+      const sectionIds = ["protocolos"];
       const scrollPos = window.scrollY + 220;
 
       let current = "";

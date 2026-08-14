@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Lock, User, X } from "lucide-react";
+import { Eye, EyeOff, Lock, User, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import {
   formatCep,
@@ -31,6 +31,11 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
   const [generalError, setGeneralError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+
+  // Password visibility toggles
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegPassword, setShowRegPassword] = useState(false);
+  const [showRegConfirmPassword, setShowRegConfirmPassword] = useState(false);
 
   // Login form state
   const [loginEmailOrCpf, setLoginEmailOrCpf] = useState("");
@@ -236,12 +241,23 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
 
         {/* Modal Header */}
         <div className="mb-3 text-center shrink-0">
+          {/* Light Mode Logo */}
           <Image
-            src="/logos/logo-vertical-3.png"
+            src="/logos/logo-login-light.png"
             alt="Aura Regenera"
             width={260}
             height={260}
-            className="h-24 sm:h-28 w-auto object-contain mx-auto mb-2 drop-shadow-md"
+            priority
+            className="h-24 sm:h-28 w-auto object-contain mx-auto mb-2 drop-shadow-md dark:hidden"
+          />
+          {/* Dark Mode Logo */}
+          <Image
+            src="/logos/logo-login-dark.png"
+            alt="Aura Regenera"
+            width={260}
+            height={260}
+            priority
+            className="h-24 sm:h-28 w-auto object-contain mx-auto mb-2 drop-shadow-md hidden dark:block"
           />
           <h2 className="font-display text-xl font-bold text-content">
             Minha Área
@@ -325,16 +341,28 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                 </label>
                 <div className="relative">
                   <input
-                    type="password"
+                    type={showLoginPassword ? "text" : "password"}
                     placeholder="••••••••"
                     value={loginPassword}
                     onChange={(e) => {
                       setLoginPassword(e.target.value);
                       setFieldErrors((prev) => ({ ...prev, loginPassword: "" }));
                     }}
-                    className={inputClass(!!fieldErrors.loginPassword)}
+                    className={`${inputClass(!!fieldErrors.loginPassword)} pr-9`}
                   />
-                  <Lock className="absolute right-2.5 top-2.5 h-3.5 w-3.5 text-content/40" />
+                  <button
+                    type="button"
+                    onClick={() => setShowLoginPassword((prev) => !prev)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-content/50 hover:text-content transition-colors focus:outline-none p-1"
+                    tabIndex={-1}
+                    aria-label={showLoginPassword ? "Ocultar senha" : "Ver senha"}
+                  >
+                    {showLoginPassword ? (
+                      <EyeOff className="h-3.5 w-3.5" />
+                    ) : (
+                      <Eye className="h-3.5 w-3.5" />
+                    )}
+                  </button>
                 </div>
                 {fieldErrors.loginPassword && (
                   <p className="mt-0.5 font-mono text-[10px] text-red-500">{fieldErrors.loginPassword}</p>
@@ -523,16 +551,31 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                       <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
                         Senha * (mín. 6 chars)
                       </label>
-                      <input
-                        type="password"
-                        placeholder="••••••••"
-                        value={regPassword}
-                        onChange={(e) => {
-                          setRegPassword(e.target.value);
-                          setFieldErrors((prev) => ({ ...prev, password: "" }));
-                        }}
-                        className={inputClass(!!fieldErrors.password)}
-                      />
+                      <div className="relative">
+                        <input
+                          type={showRegPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          value={regPassword}
+                          onChange={(e) => {
+                            setRegPassword(e.target.value);
+                            setFieldErrors((prev) => ({ ...prev, password: "" }));
+                          }}
+                          className={`${inputClass(!!fieldErrors.password)} pr-8`}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowRegPassword((prev) => !prev)}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-content/50 hover:text-content transition-colors focus:outline-none p-0.5"
+                          tabIndex={-1}
+                          aria-label={showRegPassword ? "Ocultar senha" : "Ver senha"}
+                        >
+                          {showRegPassword ? (
+                            <EyeOff className="h-3.5 w-3.5" />
+                          ) : (
+                            <Eye className="h-3.5 w-3.5" />
+                          )}
+                        </button>
+                      </div>
                       {fieldErrors.password && (
                         <p className="mt-0.5 font-mono text-[10px] text-red-500">{fieldErrors.password}</p>
                       )}
@@ -541,16 +584,31 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                       <label className="block mb-0.5 font-mono text-[10px] uppercase text-content/70">
                         Confirmar Senha *
                       </label>
-                      <input
-                        type="password"
-                        placeholder="••••••••"
-                        value={regConfirmPassword}
-                        onChange={(e) => {
-                          setRegConfirmPassword(e.target.value);
-                          setFieldErrors((prev) => ({ ...prev, confirmPassword: "" }));
-                        }}
-                        className={inputClass(!!fieldErrors.confirmPassword)}
-                      />
+                      <div className="relative">
+                        <input
+                          type={showRegConfirmPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          value={regConfirmPassword}
+                          onChange={(e) => {
+                            setRegConfirmPassword(e.target.value);
+                            setFieldErrors((prev) => ({ ...prev, confirmPassword: "" }));
+                          }}
+                          className={`${inputClass(!!fieldErrors.confirmPassword)} pr-8`}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowRegConfirmPassword((prev) => !prev)}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-content/50 hover:text-content transition-colors focus:outline-none p-0.5"
+                          tabIndex={-1}
+                          aria-label={showRegConfirmPassword ? "Ocultar senha" : "Ver senha"}
+                        >
+                          {showRegConfirmPassword ? (
+                            <EyeOff className="h-3.5 w-3.5" />
+                          ) : (
+                            <Eye className="h-3.5 w-3.5" />
+                          )}
+                        </button>
+                      </div>
                       {fieldErrors.confirmPassword && (
                         <p className="mt-0.5 font-mono text-[10px] text-red-500">{fieldErrors.confirmPassword}</p>
                       )}

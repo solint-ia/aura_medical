@@ -50,7 +50,7 @@ const BIOTECH_CHAPTERS: BiotechChapter[] = [
     subtitleTag: "Fundamentos",
     title: "O que são Bioregenerativos Recombinantes?",
     body1:
-      "As enzimas e proteínas recombinantes atuam como catalisadores biológicos e agentes de regeneração tecidual, acelerando processos celulares essenciais com máxima especificidade.",
+      "Os bioregenerativos recombinantes e proteínas atuam como catalisadores biológicos e agentes de regeneração tecidual, acelerando processos celulares essenciais com máxima especificidade.",
     body2:
       "Os bioregenerativos recombinantes da pbserum são concebidos utilizando a tecnologia de ADN recombinante, permitindo a produção em grande escala com qualidade consistente. Desenvolvidos através de investigação biotecnológica avançada em Albacete, Espanha, utilizam uma biotecnologia única para potencializar os tratamentos regenerativos de várias patologias e necessidades da pele.",
   },
@@ -59,9 +59,9 @@ const BIOTECH_CHAPTERS: BiotechChapter[] = [
     stepNumber: "02",
     navTitle: "Tecnologia Recombinante",
     subtitleTag: "Inovação Biotecnológica",
-    title: "Biotecnologia Única de Duas Gerações",
+    title: "Biotecnologia Recombinante Exclusiva",
     subtitle:
-      "A pbserum utiliza ADN recombinante para criar proteínas e enzimas de origem bacteriana que imitam com precisão as moléculas humanas.",
+      "A pbserum utiliza ADN recombinante para criar bioregenerativos recombinantes e proteínas de origem bacteriana que imitam com precisão as moléculas humanas.",
     highlights: [
       {
         title: "Eficácia & Seletividade",

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Check, KeyRound, Lock, Mail, MapPin, RefreshCw, ShieldCheck, User } from "lucide-react";
+import { ArrowLeft, Check, Eye, EyeOff, KeyRound, Lock, Mail, MapPin, RefreshCw, ShieldCheck, User } from "lucide-react";
 
 import { AccreditationProvider } from "@/components/accreditation/AccreditationProvider";
 import { SiteFooter } from "@/components/layout/SiteFooter";
@@ -32,6 +32,13 @@ function AuthPageContent() {
   const [successMsg, setSuccessMsg] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+
+  // Password visibility toggles
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegPassword, setShowRegPassword] = useState(false);
+  const [showRegConfirmPassword, setShowRegConfirmPassword] = useState(false);
+  const [showForgotNewPassword, setShowForgotNewPassword] = useState(false);
+  const [showForgotConfirmPassword, setShowForgotConfirmPassword] = useState(false);
 
   // Login form state
   const [loginEmailOrCpf, setLoginEmailOrCpf] = useState("");
@@ -553,12 +560,23 @@ function AuthPageContent() {
     <div className="mx-auto max-w-3xl px-[clamp(20px,4vw,56px)] py-12 space-y-8">
       {/* Header Section */}
       <div className="text-center space-y-3">
+        {/* Light Mode Logo */}
         <Image
-          src="/logos/logo-vertical-3.png"
+          src="/logos/logo-login-light.png"
           alt="Aura Regenera"
           width={280}
           height={280}
-          className="h-32 sm:h-40 md:h-44 w-auto object-contain mx-auto drop-shadow-md"
+          priority
+          className="h-32 sm:h-40 md:h-44 w-auto object-contain mx-auto drop-shadow-md dark:hidden"
+        />
+        {/* Dark Mode Logo */}
+        <Image
+          src="/logos/logo-login-dark.png"
+          alt="Aura Regenera"
+          width={280}
+          height={280}
+          priority
+          className="h-32 sm:h-40 md:h-44 w-auto object-contain mx-auto drop-shadow-md hidden dark:block"
         />
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-content">
           {tab === "login"
@@ -590,7 +608,7 @@ function AuthPageContent() {
               : "border-transparent text-content/60 hover:text-content"
           }`}
         >
-          🔑 Entrar na Conta
+          Entrar na Conta
         </button>
         <button
           type="button"
@@ -607,7 +625,7 @@ function AuthPageContent() {
               : "border-transparent text-content/60 hover:text-content"
           }`}
         >
-          ✨ Criar Nova Conta
+          Criar Nova Conta
         </button>
       </div>
 
@@ -667,16 +685,28 @@ function AuthPageContent() {
               </div>
               <div className="relative">
                 <input
-                  type="password"
+                  type={showLoginPassword ? "text" : "password"}
                   placeholder="••••••••"
                   value={loginPassword}
                   onChange={(e) => {
                     setLoginPassword(e.target.value);
                     setFieldErrors((prev) => ({ ...prev, loginPassword: "" }));
                   }}
-                  className={inputClass(!!fieldErrors.loginPassword)}
+                  className={`${inputClass(!!fieldErrors.loginPassword)} pr-11`}
                 />
-                <Lock className="absolute right-3.5 top-3.5 h-4 w-4 text-content/40" />
+                <button
+                  type="button"
+                  onClick={() => setShowLoginPassword((prev) => !prev)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-content/50 hover:text-content transition-colors focus:outline-none p-1"
+                  tabIndex={-1}
+                  aria-label={showLoginPassword ? "Ocultar senha" : "Ver senha"}
+                >
+                  {showLoginPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
               </div>
               {fieldErrors.loginPassword && (
                 <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.loginPassword}</p>
@@ -865,16 +895,31 @@ function AuthPageContent() {
                   <label className="block mb-1.5 font-mono text-xs uppercase text-content/80 font-semibold">
                     Criar Senha *
                   </label>
-                  <input
-                    type="password"
-                    placeholder="Mínimo 6 caracteres"
-                    value={regPassword}
-                    onChange={(e) => {
-                      setRegPassword(e.target.value);
-                      setFieldErrors((prev) => ({ ...prev, password: "" }));
-                    }}
-                    className={inputClass(!!fieldErrors.password)}
-                  />
+                  <div className="relative">
+                    <input
+                      type={showRegPassword ? "text" : "password"}
+                      placeholder="Mínimo 6 caracteres"
+                      value={regPassword}
+                      onChange={(e) => {
+                        setRegPassword(e.target.value);
+                        setFieldErrors((prev) => ({ ...prev, password: "" }));
+                      }}
+                      className={`${inputClass(!!fieldErrors.password)} pr-11`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowRegPassword((prev) => !prev)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-content/50 hover:text-content transition-colors focus:outline-none p-1"
+                      tabIndex={-1}
+                      aria-label={showRegPassword ? "Ocultar senha" : "Ver senha"}
+                    >
+                      {showRegPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
                   {fieldErrors.password && (
                     <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.password}</p>
                   )}
@@ -884,16 +929,31 @@ function AuthPageContent() {
                   <label className="block mb-1.5 font-mono text-xs uppercase text-content/80 font-semibold">
                     Confirmar Senha *
                   </label>
-                  <input
-                    type="password"
-                    placeholder="Repita sua senha"
-                    value={regConfirmPassword}
-                    onChange={(e) => {
-                      setRegConfirmPassword(e.target.value);
-                      setFieldErrors((prev) => ({ ...prev, confirmPassword: "" }));
-                    }}
-                    className={inputClass(!!fieldErrors.confirmPassword)}
-                  />
+                  <div className="relative">
+                    <input
+                      type={showRegConfirmPassword ? "text" : "password"}
+                      placeholder="Repita sua senha"
+                      value={regConfirmPassword}
+                      onChange={(e) => {
+                        setRegConfirmPassword(e.target.value);
+                        setFieldErrors((prev) => ({ ...prev, confirmPassword: "" }));
+                      }}
+                      className={`${inputClass(!!fieldErrors.confirmPassword)} pr-11`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowRegConfirmPassword((prev) => !prev)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-content/50 hover:text-content transition-colors focus:outline-none p-1"
+                      tabIndex={-1}
+                      aria-label={showRegConfirmPassword ? "Ocultar senha" : "Ver senha"}
+                    >
+                      {showRegConfirmPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
                   {fieldErrors.confirmPassword && (
                     <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.confirmPassword}</p>
                   )}
@@ -1245,26 +1305,56 @@ function AuthPageContent() {
                   <label className="block mb-1.5 font-mono text-xs uppercase text-content/80 font-semibold">
                     Nova Senha *
                   </label>
-                  <input
-                    type="password"
-                    placeholder="Mínimo 6 caracteres"
-                    value={forgotNewPassword}
-                    onChange={(e) => setForgotNewPassword(e.target.value)}
-                    className={inputClass(false)}
-                  />
+                  <div className="relative">
+                    <input
+                      type={showForgotNewPassword ? "text" : "password"}
+                      placeholder="Mínimo 6 caracteres"
+                      value={forgotNewPassword}
+                      onChange={(e) => setForgotNewPassword(e.target.value)}
+                      className={`${inputClass(false)} pr-11`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowForgotNewPassword((prev) => !prev)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-content/50 hover:text-content transition-colors focus:outline-none p-1"
+                      tabIndex={-1}
+                      aria-label={showForgotNewPassword ? "Ocultar senha" : "Ver senha"}
+                    >
+                      {showForgotNewPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 <div>
                   <label className="block mb-1.5 font-mono text-xs uppercase text-content/80 font-semibold">
                     Confirmar Nova Senha *
                   </label>
-                  <input
-                    type="password"
-                    placeholder="Repita a nova senha"
-                    value={forgotConfirmPassword}
-                    onChange={(e) => setForgotConfirmPassword(e.target.value)}
-                    className={inputClass(false)}
-                  />
+                  <div className="relative">
+                    <input
+                      type={showForgotConfirmPassword ? "text" : "password"}
+                      placeholder="Repita a nova senha"
+                      value={forgotConfirmPassword}
+                      onChange={(e) => setForgotConfirmPassword(e.target.value)}
+                      className={`${inputClass(false)} pr-11`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowForgotConfirmPassword((prev) => !prev)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-content/50 hover:text-content transition-colors focus:outline-none p-1"
+                      tabIndex={-1}
+                      aria-label={showForgotConfirmPassword ? "Ocultar senha" : "Ver senha"}
+                    >
+                      {showForgotConfirmPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
 

@@ -93,4 +93,11 @@ export const ENZYME_COMPARISON: EnzymeComparisonRow[] = [
     animal:
       "Resposta clínica variável, frequentemente exigindo múltiplas sessões para resultados iniciais.",
   },
+  {
+    attribute: "Pós-Aplicação & Manchas Roxas",
+    recombinant:
+      "Excelente tolerância biológica e recuperação imediata: não deixam manchas roxas nem hematomas agressivos nos pacientes após a aplicação.",
+    animal:
+      "Frequente surgimento de manchas roxas (hematomas/equimoses) e edema prolongado decorrentes de impurezas e ação não seletiva.",
+  },
 ];

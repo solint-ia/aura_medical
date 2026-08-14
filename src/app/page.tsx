@@ -1,7 +1,6 @@
 import { AccreditationProvider } from "@/components/accreditation/AccreditationProvider";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
-import { ClinicalCasesSection } from "@/components/sections/ClinicalCasesSection";
 import { ClinicalMappingSection } from "@/components/sections/ClinicalMappingSection";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { MosaicSection } from "@/components/sections/MosaicSection";
@@ -17,7 +16,6 @@ export default function LandingPage() {
       <main>
         <HeroSection />
         <MosaicSection />
-        <ClinicalCasesSection />
         <ClinicalMappingSection />
         <ProtocolsSection />
         <IndividualEnzymesSection />

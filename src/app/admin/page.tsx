@@ -10,6 +10,8 @@ import {
   Check,
   Download,
   Edit2,
+  Eye,
+  EyeOff,
   FlaskConical,
   Filter,
   Globe,
@@ -169,6 +171,9 @@ function AdminDashboardContent() {
   const [editCurrentPassword, setEditCurrentPassword] = useState("");
   const [editNewPassword, setEditNewPassword] = useState("");
   const [editConfirmPassword, setEditConfirmPassword] = useState("");
+  const [showEditCurrentPassword, setShowEditCurrentPassword] = useState(false);
+  const [showEditNewPassword, setShowEditNewPassword] = useState(false);
+  const [showEditConfirmPassword, setShowEditConfirmPassword] = useState(false);
   const [profileMsg, setProfileMsg] = useState("");
   const [profileErrorMsg, setProfileErrorMsg] = useState("");
   const [passwordLoading, setPasswordLoading] = useState(false);
@@ -1327,35 +1332,80 @@ function AdminDashboardContent() {
 
               <div>
                 <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">Senha Atual</label>
-                <input
-                  type="password"
-                  placeholder="Digite sua senha atual"
-                  value={editCurrentPassword}
-                  onChange={(e) => setEditCurrentPassword(e.target.value)}
-                  className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-[#C59D3F]"
-                />
+                <div className="relative">
+                  <input
+                    type={showEditCurrentPassword ? "text" : "password"}
+                    placeholder="Digite sua senha atual"
+                    value={editCurrentPassword}
+                    onChange={(e) => setEditCurrentPassword(e.target.value)}
+                    className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 pr-9 text-sm text-content outline-none focus:border-[#C59D3F]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowEditCurrentPassword((prev) => !prev)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-content/50 hover:text-content transition-colors focus:outline-none p-1"
+                    tabIndex={-1}
+                    aria-label={showEditCurrentPassword ? "Ocultar senha" : "Ver senha"}
+                  >
+                    {showEditCurrentPassword ? (
+                      <EyeOff className="h-3.5 w-3.5" />
+                    ) : (
+                      <Eye className="h-3.5 w-3.5" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
                   <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">Nova Senha</label>
-                  <input
-                    type="password"
-                    placeholder="Mínimo 6 caracteres"
-                    value={editNewPassword}
-                    onChange={(e) => setEditNewPassword(e.target.value)}
-                    className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-[#C59D3F]"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showEditNewPassword ? "text" : "password"}
+                      placeholder="Mínimo 6 caracteres"
+                      value={editNewPassword}
+                      onChange={(e) => setEditNewPassword(e.target.value)}
+                      className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 pr-9 text-sm text-content outline-none focus:border-[#C59D3F]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowEditNewPassword((prev) => !prev)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-content/50 hover:text-content transition-colors focus:outline-none p-1"
+                      tabIndex={-1}
+                      aria-label={showEditNewPassword ? "Ocultar senha" : "Ver senha"}
+                    >
+                      {showEditNewPassword ? (
+                        <EyeOff className="h-3.5 w-3.5" />
+                      ) : (
+                        <Eye className="h-3.5 w-3.5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">Confirmar Nova Senha</label>
-                  <input
-                    type="password"
-                    placeholder="Repita a nova senha"
-                    value={editConfirmPassword}
-                    onChange={(e) => setEditConfirmPassword(e.target.value)}
-                    className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-[#C59D3F]"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showEditConfirmPassword ? "text" : "password"}
+                      placeholder="Repita a nova senha"
+                      value={editConfirmPassword}
+                      onChange={(e) => setEditConfirmPassword(e.target.value)}
+                      className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 pr-9 text-sm text-content outline-none focus:border-[#C59D3F]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowEditConfirmPassword((prev) => !prev)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-content/50 hover:text-content transition-colors focus:outline-none p-1"
+                      tabIndex={-1}
+                      aria-label={showEditConfirmPassword ? "Ocultar senha" : "Ver senha"}
+                    >
+                      {showEditConfirmPassword ? (
+                        <EyeOff className="h-3.5 w-3.5" />
+                      ) : (
+                        <Eye className="h-3.5 w-3.5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
