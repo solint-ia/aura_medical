@@ -144,11 +144,26 @@ export function SiteFooter() {
         </div>
       </div>
 
-      {/* Direitos Autorais no Final */}
-      <div className="mx-auto mt-6 max-w-[1280px] text-center">
+      {/* Direitos Autorais e Links Legais no Final */}
+      <div className="mx-auto mt-6 flex max-w-[1280px] flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
         <p className="font-mono text-xs text-on-panel/60">
           © 2026 Aura Regenera · CNPJ {COMPANY_CNPJ}
         </p>
+        <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-on-panel/75">
+          <Link
+            href="/termos-de-uso"
+            className="transition-colors hover:text-[#C59D3F] hover:underline underline-offset-4"
+          >
+            Termos de Uso
+          </Link>
+          <span className="text-on-panel/30 hidden sm:inline" aria-hidden="true">·</span>
+          <Link
+            href="/politica-de-privacidade"
+            className="transition-colors hover:text-[#C59D3F] hover:underline underline-offset-4"
+          >
+            Políticas de Privacidade
+          </Link>
+        </div>
       </div>
     </footer>
   );
