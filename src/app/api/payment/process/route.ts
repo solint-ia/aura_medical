@@ -32,7 +32,7 @@ async function fetchIssuerId(brand: string, bin: string): Promise<string | undef
 // ----------------------------------------------------
 
 // Categoria do catálogo oficial do Mercado Pago. Kits de protocolo e ampolas
-// avulsas são todos dispositivos médico-estéticos.
+// individuais são todos dispositivos médico-estéticos.
 const MP_ITEM_CATEGORY_ID = "health";
 
 /** Limite do campo `description` de cada item na API do Mercado Pago. */
@@ -48,7 +48,7 @@ function truncateForMp(text: string): string {
 /**
  * Reaproveita a descrição já escrita para as páginas de catálogo: introdução do
  * protocolo (`protocolsData`) ou descrição curta da enzima (`enzymesData`).
- * Itens de protocolo usam o próprio slug como id no carrinho; ampolas avulsas
+ * Itens de protocolo usam o próprio slug como id no carrinho; ampolas individuais
  * usam `enz-<enzima>` (ver `BuyEnzymeVialButton`).
  */
 function findItemDescription(itemId: string): string | undefined {

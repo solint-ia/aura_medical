@@ -5,12 +5,18 @@ import Link from "next/link";
 
 import { FAQ_ITEMS } from "@/data/safety";
 
-export function FaqAccordion() {
+interface FaqAccordionProps {
+  tone?: "light" | "dark";
+}
+
+export function FaqAccordion({ tone = "dark" }: FaqAccordionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const baseId = useId();
 
   const toggle = (index: number) =>
     setOpenIndex((current) => (current === index ? null : index));
+
+  const isDark = tone === "dark";
 
   return (
     <div className="flex flex-col gap-2.5">
@@ -20,7 +26,12 @@ export function FaqAccordion() {
         const buttonId = `${baseId}-button-${index}`;
 
         return (
-          <div key={item.question} className="border-b border-content/10 pb-3">
+          <div
+            key={item.question}
+            className={`border-b pb-3 transition-colors ${
+              isDark ? "border-white/10" : "border-content/10"
+            }`}
+          >
             <h3>
               <button
                 id={buttonId}
@@ -28,12 +39,16 @@ export function FaqAccordion() {
                 aria-expanded={isOpen}
                 aria-controls={panelId}
                 onClick={() => toggle(index)}
-                className="flex w-full items-center justify-between gap-4 py-2.5 text-left font-display text-[15.5px] font-semibold text-content"
+                className={`flex w-full items-center justify-between gap-4 py-2.5 text-left font-display text-[15.5px] font-semibold transition-colors ${
+                  isDark
+                    ? "text-[#F6F3EC] hover:text-[#C59D3F]"
+                    : "text-content hover:text-accent"
+                }`}
               >
                 <span>{item.question}</span>
                 <span
                   aria-hidden="true"
-                  className="flex-none text-xl text-accent"
+                  className="flex-none text-xl font-mono text-[#C59D3F]"
                 >
                   {isOpen ? "–" : "+"}
                 </span>
@@ -44,7 +59,9 @@ export function FaqAccordion() {
                 id={panelId}
                 role="region"
                 aria-labelledby={buttonId}
-                className="pb-1.5 text-[14.5px] leading-[1.6] text-content/75"
+                className={`pb-1.5 text-[14.5px] leading-[1.6] ${
+                  isDark ? "text-[#F6F3EC]/80" : "text-content/75"
+                }`}
               >
                 <p>{item.answer}</p>
                 {item.links ? (

@@ -39,7 +39,7 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     question: "Existe pedido mínimo?",
     answer:
-      "Não há valor mínimo de pedido. Você pode adquirir desde ampolas avulsas de bioregenerativos recombinantes até protocolos completos.",
+      "Não há valor mínimo de pedido. Você pode adquirir desde ampolas individuais de bioregenerativos recombinantes até protocolos completos.",
   },
   {
     question: "Quais os prazos de entrega?",

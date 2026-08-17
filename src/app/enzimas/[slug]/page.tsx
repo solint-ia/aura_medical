@@ -192,7 +192,7 @@ export default async function EnzymeDetailPage({ params }: EnzymePageProps) {
 
               {/*
                 "Apresentação: 10 ampolas liofilizadas" saiu daqui porque esta página
-                vende a ampola avulsa — informar a caixa fechada confundia o que o
+                vende a ampola individual — informar a caixa fechada confundia o que o
                 cliente está comprando. O dado segue em `enzyme.presentation`.
               */}
 
