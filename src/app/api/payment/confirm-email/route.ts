@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { sendOrderConfirmationEmail } from "@/lib/orderEmail";
 import type { OrderEmailItem } from "@/lib/maileroo";
+import { verifyAuthToken } from "@/lib/auth";
 import { fetchMercadoPagoPayment } from "@/lib/mercadopago";
 
 /**
@@ -11,6 +12,11 @@ import { fetchMercadoPagoPayment } from "@/lib/mercadopago";
  */
 export async function POST(req: Request) {
   try {
+    const auth = verifyAuthToken(req);
+    if (!auth) {
+      return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+    }
+
     const body = await req.json();
     const {
       paymentId,
@@ -38,9 +44,16 @@ export async function POST(req: Request) {
       );
     }
 
+    if (
+      !lookup.payment.isMock &&
+      lookup.payment.authenticatedUserId !== auth.userId
+    ) {
+      return NextResponse.json({ error: "Pagamento não pertence a esta conta." }, { status: 403 });
+    }
+
     await sendOrderConfirmationEmail({
-      customerName: customerName || "Cliente Aura",
-      customerEmail: customerEmail || "",
+      customerName: auth.name || customerName || "Cliente Aura",
+      customerEmail: auth.email || customerEmail || "",
       orderNumber: String(orderNumber || paymentId),
       paymentMethod: paymentMethod || "PIX à Vista (Mercado Pago)",
       shippingAddress: shippingAddress || "Endereço Cadastrado na Conta",

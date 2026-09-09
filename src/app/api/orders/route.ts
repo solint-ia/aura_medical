@@ -1,10 +1,27 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { dbPool } from "@/lib/db";
+import { verifyAuthToken } from "@/lib/auth";
+import { calculateCheckoutTotal, verifyCheckoutItems } from "@/lib/checkoutPricing";
 import { fetchMercadoPagoPayment } from "@/lib/mercadopago";
 
 /** Tolerância na comparação de valores (centavos de arredondamento). */
 const AMOUNT_TOLERANCE = 0.02;
+
+async function findOwnedAddress(userId: string, addressId: string) {
+  try {
+    return await prisma.userAddress.findFirst({
+      where: { id: addressId, userId },
+    });
+  } catch (prismaErr) {
+    console.warn("Prisma indisponível ao validar endereço do pedido, tentando dbPool:", prismaErr);
+    const res = await dbPool.query(
+      `SELECT * FROM public.user_addresses WHERE id = $1 AND user_id = $2 LIMIT 1`,
+      [addressId, userId]
+    );
+    return res.rows[0] || null;
+  }
+}
 
 /**
  * Pedido já gravado com este `order_number`? O polling do checkout pode
@@ -34,27 +51,51 @@ async function findExistingOrder(orderNumber: string) {
 
 export async function POST(req: Request) {
   try {
+    const auth = verifyAuthToken(req);
+    if (!auth) {
+      return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+    }
+
     const body = await req.json();
     const {
-      userId,
       addressId,
-      addressSummary,
       shippingMethod,
-      shippingCost,
-      subtotal,
-      totalPrice,
+      totalPrice: requestedTotalPrice,
       paymentMethod,
       items,
       orderNumber: customOrderNumber,
       paymentId,
     } = body;
 
-    if (!items || !Array.isArray(items) || items.length === 0) {
+    const verifiedCart = verifyCheckoutItems(items, auth.role === "ADMIN");
+    if (!verifiedCart.ok) {
       return NextResponse.json(
-        { error: "Nenhum item informado para o pedido." },
+        { error: verifiedCart.error },
         { status: 400 }
       );
     }
+
+    const pricingMethod = paymentMethod === "pix" ? "pix" : paymentMethod === "credito" ? "card" : null;
+    if (!pricingMethod) {
+      return NextResponse.json({ error: "Forma de pagamento inválida." }, { status: 400 });
+    }
+
+    const shippingCost = 0;
+    const subtotal = verifiedCart.subtotal;
+    const totalPrice = calculateCheckoutTotal(subtotal, pricingMethod, shippingCost);
+    if (Math.abs(Number(requestedTotalPrice) - totalPrice) > AMOUNT_TOLERANCE) {
+      return NextResponse.json({ error: "Valor do pedido inválido." }, { status: 409 });
+    }
+
+    if (typeof addressId !== "string" || !addressId) {
+      return NextResponse.json({ error: "Endereço inválido." }, { status: 400 });
+    }
+    const address = await findOwnedAddress(auth.userId, addressId);
+    if (!address) {
+      return NextResponse.json({ error: "Endereço não pertence a esta conta." }, { status: 403 });
+    }
+    const addressUf = address.uf || "";
+    const addressSummary = `${address.street}, ${address.number} ${address.complement || ""} - ${address.neighborhood}, ${address.city} (${addressUf}) CEP: ${address.cep}`;
 
     // ----------------------------------------------------
     // GATE DE PAGAMENTO — o pedido só existe no banco depois que o Mercado
@@ -75,6 +116,10 @@ export async function POST(req: Request) {
     }
 
     const payment = lookup.payment;
+
+    if (!payment.isMock && payment.authenticatedUserId !== auth.userId) {
+      return NextResponse.json({ error: "Pagamento não pertence a esta conta." }, { status: 403 });
+    }
 
     if (payment.status !== "approved") {
       return NextResponse.json(
@@ -106,8 +151,7 @@ export async function POST(req: Request) {
 
     // Valor pago tem que bater com o total do pedido.
     if (typeof payment.amount === "number") {
-      const requested = Number(totalPrice || 0);
-      if (Math.abs(payment.amount - requested) > AMOUNT_TOLERANCE) {
+      if (Math.abs(payment.amount - totalPrice) > AMOUNT_TOLERANCE) {
         return NextResponse.json(
           { error: "Valor do pedido diverge do valor pago no Mercado Pago." },
           { status: 409 }
@@ -124,14 +168,14 @@ export async function POST(req: Request) {
       });
     }
 
-    let createdOrder: any = null;
+    let createdOrder: unknown = null;
 
     // 1. Primary insertion via Prisma ORM
     try {
       createdOrder = await prisma.order.create({
         data: {
           orderNumber,
-          userId: userId || null,
+          userId: auth.userId,
           addressId: addressId || null,
           shippingMethod: shippingMethod || "Frete Padrão",
           shippingCost: Number(shippingCost || 0),
@@ -143,13 +187,13 @@ export async function POST(req: Request) {
           invoiceUrl: "",
           notes: addressSummary || null,
           items: {
-            create: items.map((i: any) => ({
-              productId: String(i.id || i.productId || "prod-unknown"),
-              productName: i.name || i.productName || "Produto Aura",
-              quantity: Number(i.quantity || 1),
-              unitPrice: Number(i.unitPrice || 0),
-              totalPrice: Number((i.unitPrice || 0) * (i.quantity || 1)),
-              imagePath: i.imagePath || null,
+            create: verifiedCart.items.map((item) => ({
+              productId: item.id,
+              productName: item.name,
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+              totalPrice: item.unitPrice * item.quantity,
+              imagePath: item.imagePath || null,
             })),
           },
         },
@@ -168,7 +212,7 @@ export async function POST(req: Request) {
          RETURNING *`,
         [
           orderNumber,
-          userId || null,
+          auth.userId,
           addressId || null,
           shippingMethod || "Frete Padrão",
           Number(shippingCost || 0),
@@ -184,8 +228,16 @@ export async function POST(req: Request) {
 
       const dbOrder = orderInsRes.rows[0];
 
-      const insertedItems: any[] = [];
-      for (const item of items) {
+      const insertedItems: Array<{
+        id: string;
+        product_id: string;
+        product_name: string;
+        quantity: number;
+        unit_price: number | string;
+        total_price: number | string;
+        image_path?: string | null;
+      }> = [];
+      for (const item of verifiedCart.items) {
         const itemRes = await dbPool.query(
           `INSERT INTO public.order_items
            (order_id, product_id, product_name, quantity, unit_price, total_price, image_path)
@@ -193,11 +245,11 @@ export async function POST(req: Request) {
            RETURNING *`,
           [
             dbOrder.id,
-            String(item.id || item.productId || "prod-unknown"),
-            item.name || item.productName || "Produto Aura",
-            Number(item.quantity || 1),
-            Number(item.unitPrice || 0),
-            Number((item.unitPrice || 0) * (item.quantity || 1)),
+            item.id,
+            item.name,
+            item.quantity,
+            item.unitPrice,
+            item.unitPrice * item.quantity,
             item.imagePath || null,
           ]
         );

@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
+import { verifyAuthToken } from "@/lib/auth";
 import { fetchMercadoPagoPayment } from "@/lib/mercadopago";
 
 export async function GET(req: Request) {
   try {
+    const auth = verifyAuthToken(req);
+    if (!auth) {
+      return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+    }
+
     const { searchParams } = new URL(req.url);
     const paymentId = searchParams.get("paymentId");
 
@@ -14,6 +20,13 @@ export async function GET(req: Request) {
 
     if (!lookup.ok) {
       return NextResponse.json({ error: lookup.error }, { status: lookup.httpStatus });
+    }
+
+    if (
+      !lookup.payment.isMock &&
+      lookup.payment.authenticatedUserId !== auth.userId
+    ) {
+      return NextResponse.json({ error: "Pagamento não pertence a esta conta." }, { status: 403 });
     }
 
     return NextResponse.json({

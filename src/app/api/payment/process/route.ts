@@ -4,7 +4,15 @@ import { prisma } from "@/lib/prisma";
 import { dbPool } from "@/lib/db";
 import { enzymesData } from "@/data/enzymes";
 import { protocolsData } from "@/data/protocols";
-import { detectCardBrand } from "@/lib/validators";
+import { verifyAuthToken } from "@/lib/auth";
+import { calculateCheckoutTotal, verifyCheckoutItems } from "@/lib/checkoutPricing";
+import {
+  cardFingerprint,
+  checkAndRecordPaymentAttempt,
+  markHighRiskAttempt,
+  paymentAttemptKey,
+} from "@/lib/paymentAttemptGuard";
+import { validateCpf } from "@/lib/validators";
 
 const MERCADO_PAGO_ACCESS_TOKEN = process.env.MERCADO_PAGO_ACCESS_TOKEN || "";
 const MERCADO_PAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY || "";
@@ -85,120 +93,202 @@ function resolveRequestOrigin(req: Request): string {
   return `${proto}://${host}`;
 }
 
-/**
- * Data de criação da conta (`user_profiles.created_at`) em ISO-8601, enviada
- * como `registration_date` para o antifraude reconhecer clientes antigos.
- * Segue o mesmo padrão do resto do projeto: Prisma com fallback no dbPool.
- * Qualquer falha apenas omite o campo — nunca interrompe o pagamento.
- */
-async function fetchPayerRegistrationDate(
-  email?: string,
-  cpfCnpj?: string
-): Promise<string | undefined> {
-  const cleanEmail = (email || "").toLowerCase().trim();
-  const cleanDoc = (cpfCnpj || "").replace(/\D/g, "");
-  if (!cleanEmail && !cleanDoc) return undefined;
+interface CheckoutCustomer {
+  id: string;
+  cpfCnpj: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  createdAt: Date | string | null;
+  address: {
+    id: string;
+    cep: string;
+    street: string;
+    number: string;
+    complement?: string | null;
+    neighborhood: string;
+    city: string;
+    uf: string;
+  };
+}
 
+/** Busca comprador e endereço no banco para não confiar em PII enviada pelo navegador. */
+async function fetchCheckoutCustomer(
+  userId: string,
+  addressId: string
+): Promise<CheckoutCustomer | null> {
   try {
-    const found = await prisma.userProfile.findFirst({
-      where: {
-        OR: [
-          ...(cleanEmail ? [{ email: cleanEmail }] : []),
-          ...(cleanDoc ? [{ cpfCnpj: cleanDoc }] : []),
-        ],
+    const found = await prisma.userProfile.findUnique({
+      where: { id: userId },
+      include: {
+        addresses: { where: { id: addressId }, take: 1 },
       },
-      select: { createdAt: true },
     });
-
-    return found?.createdAt ? found.createdAt.toISOString() : undefined;
+    const address = found?.addresses[0];
+    if (!found || !address) return null;
+    return { ...found, address };
   } catch (prismaErr) {
-    console.warn("Prisma indisponível ao buscar created_at do cliente, tentando dbPool:", prismaErr);
+    console.warn("Prisma indisponível ao buscar dados do checkout, tentando dbPool:", prismaErr);
 
     try {
       const sqlRes = await dbPool.query(
-        `SELECT created_at FROM public.user_profiles
-         WHERE (LOWER(email) = $1 AND $1 != '') OR (cpf_cnpj = $2 AND $2 != '')
-         LIMIT 1`,
-        [cleanEmail, cleanDoc]
+        `SELECT u.id, u.cpf_cnpj, u.first_name, u.last_name, u.email, u.phone,
+                u.created_at, a.id AS address_id, a.cep, a.street, a.number,
+                a.complement, a.neighborhood, a.city, a.uf
+           FROM public.user_profiles u
+           JOIN public.user_addresses a ON a.user_id = u.id
+          WHERE u.id = $1 AND a.id = $2
+          LIMIT 1`,
+        [userId, addressId]
       );
-
-      const createdAt = sqlRes.rows[0]?.created_at;
-      return createdAt ? new Date(createdAt).toISOString() : undefined;
+      const row = sqlRes.rows[0];
+      if (!row) return null;
+      return {
+        id: row.id,
+        cpfCnpj: row.cpf_cnpj,
+        firstName: row.first_name,
+        lastName: row.last_name,
+        email: row.email,
+        phone: row.phone,
+        createdAt: row.created_at,
+        address: {
+          id: row.address_id,
+          cep: row.cep,
+          street: row.street,
+          number: row.number,
+          complement: row.complement,
+          neighborhood: row.neighborhood,
+          city: row.city,
+          uf: row.uf,
+        },
+      };
     } catch (sqlErr) {
-      console.warn("Aviso ao buscar data de cadastro do cliente para o Mercado Pago:", sqlErr);
-      return undefined;
+      console.warn("Aviso ao buscar dados do checkout no dbPool:", sqlErr);
+      return null;
     }
   }
 }
 
+function getClientIp(req: Request): string {
+  return (
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    req.headers.get("x-real-ip") ||
+    "unknown"
+  );
+}
+
 export async function POST(req: Request) {
   try {
+    const auth = verifyAuthToken(req);
+    if (!auth) {
+      return NextResponse.json(
+        { error: "Sessão inválida ou expirada. Entre novamente antes de pagar." },
+        { status: 401 }
+      );
+    }
+
+    if (!MERCADO_PAGO_ACCESS_TOKEN || !MERCADO_PAGO_PUBLIC_KEY) {
+      return NextResponse.json(
+        { error: "Credenciais do Mercado Pago não configuradas no servidor." },
+        { status: 503 }
+      );
+    }
+
     const body = await req.json();
     const {
       paymentMethod,
-      amount,
-      subtotal,
-      shippingCost,
+      amount: requestedAmount,
       orderNumber,
-      payer,
-      address,
+      addressId,
       items,
       cardData,
       deviceId,
+      idempotencyKey,
     } = body;
 
-    if (!paymentMethod || !amount) {
+    if (paymentMethod !== "card" && paymentMethod !== "pix") {
       return NextResponse.json(
-        { error: "Dados incompletos para processar pagamento." },
+        { error: "Forma de pagamento inválida." },
         { status: 400 }
       );
     }
 
-    const cleanCpf = (payer?.cpfCnpj || "00000000000").replace(/\D/g, "");
-    const cleanPhone = (payer?.phone || "79999999999").replace(/\D/g, "");
-    const customerFullName = `${payer?.firstName || "Cliente"} ${payer?.lastName || "Aura"}`.trim();
-    const itemListNames = Array.isArray(items) && items.length > 0
-      ? items.map((i: { name: string; quantity: number }) => `${i.quantity}x ${i.name}`).join(", ")
-      : "Bioregenerativos Recombinantes";
+    if (
+      typeof idempotencyKey !== "string" ||
+      !/^[a-zA-Z0-9-]{16,128}$/.test(idempotencyKey)
+    ) {
+      return NextResponse.json({ error: "Identificador da tentativa inválido." }, { status: 400 });
+    }
 
-    const stateStr = address?.state ? String(address.state).trim() : "SP";
-    const cityStr = address?.city ? String(address.city).trim() : "São Paulo";
-    const streetStr = address?.street ? String(address.street).trim() : "Rua";
-    const numberNum = parseInt(address?.number || "1", 10) || 1;
-    const cepClean = address?.cep ? address.cep.replace(/\D/g, "") : "01001000";
+    if (typeof orderNumber !== "string" || !/^[A-Z0-9-]{8,20}$/.test(orderNumber)) {
+      return NextResponse.json({ error: "Número do pedido inválido." }, { status: 400 });
+    }
 
-    const formattedAddress = address
-      ? `${streetStr}, ${address.number || "1"} ${address.complement ? `- ${address.complement}` : ""} - ${address.neighborhood || ""}, ${cityStr}/${stateStr} (CEP ${cepClean})`.trim()
-      : "Endereço Cadastrado na Conta";
+    if (typeof addressId !== "string" || !addressId) {
+      return NextResponse.json({ error: "Selecione um endereço válido." }, { status: 400 });
+    }
 
-    // Evita o antifraude do Mercado Pago sinalizar autoteste da própria loja
-    // (nome/e-mail do lojista identificáveis na descrição enviada ao MP).
-    const isSelfTest =
-      payer?.email?.toLowerCase().includes("andrefelipe") ||
-      payer?.email?.toLowerCase().includes("auraregenera");
-    const mpDescriptionName = isSelfTest ? "Cliente Aura Regenera" : customerFullName;
-    const mpDescriptionEmail = isSelfTest ? "cliente@aura-regenera-pedido.com" : (payer?.email || "N/I");
+    const customer = await fetchCheckoutCustomer(auth.userId, addressId);
+    if (!customer) {
+      return NextResponse.json(
+        { error: "Comprador ou endereço não encontrado para esta conta." },
+        { status: 403 }
+      );
+    }
 
-    const detailedDescription = `Aura Regenera - Pedido #${orderNumber || Date.now()} | ${itemListNames} | Cliente: ${mpDescriptionName} (${mpDescriptionEmail})`;
+    const verifiedCart = verifyCheckoutItems(items, auth.role === "ADMIN");
+    if (!verifiedCart.ok) {
+      return NextResponse.json({ error: verifiedCart.error }, { status: 400 });
+    }
+
+    // Frete está desativado no checkout atual; preço e desconto são sempre
+    // recalculados no servidor, sem confiar nos números enviados pelo browser.
+    const subtotal = verifiedCart.subtotal;
+    const shippingCost = 0;
+    const amount = calculateCheckoutTotal(subtotal, paymentMethod, shippingCost);
+    if (
+      !Number.isFinite(Number(requestedAmount)) ||
+      Math.abs(Number(requestedAmount) - amount) > 0.02
+    ) {
+      return NextResponse.json(
+        { error: "O valor do carrinho mudou. Atualize a página antes de pagar." },
+        { status: 409 }
+      );
+    }
+
+    const address = customer.address;
+    const cleanCpf = customer.cpfCnpj.replace(/\D/g, "");
+    const cleanPhone = customer.phone.replace(/\D/g, "");
+    const customerFullName = `${customer.firstName} ${customer.lastName}`.trim();
+    const itemListNames = verifiedCart.items
+      .map((item) => `${item.quantity}x ${item.name}`)
+      .join(", ");
+
+    const stateStr = address.uf.trim().toUpperCase();
+    const cityStr = address.city.trim();
+    const streetStr = address.street.trim();
+    const numberNum = parseInt(address.number, 10) || 1;
+    const cepClean = address.cep.replace(/\D/g, "");
+
+    const formattedAddress = `${streetStr}, ${address.number} ${address.complement ? `- ${address.complement}` : ""} - ${address.neighborhood}, ${cityStr}/${stateStr} (CEP ${cepClean})`.trim();
+    const detailedDescription = `Aura Regenera - Pedido #${orderNumber} | ${itemListNames}`;
 
     const mpMetadata = {
-      order_number: String(orderNumber || ""),
-      customer_name: mpDescriptionName,
-      customer_email: mpDescriptionEmail,
-      customer_phone: payer?.phone || "",
-      customer_cpf_cnpj: cleanCpf,
+      order_number: orderNumber,
+      authenticated_user_id: customer.id,
       items_summary: itemListNames,
-      shipping_address: formattedAddress,
     };
 
     // Dados extras do additional_info (categoria, descrição, foto e data de
     // cadastro). Só entram no payload quando existem de fato.
     const requestOrigin = resolveRequestOrigin(req);
-    const payerRegistrationDate = await fetchPayerRegistrationDate(payer?.email, payer?.cpfCnpj);
+    const payerRegistrationDate = customer.createdAt
+      ? new Date(customer.createdAt).toISOString()
+      : undefined;
 
     const mpAdditionalInfo = {
-      items: Array.isArray(items)
-        ? items.map((i: { id: string; name: string; quantity: number; unitPrice: number; imagePath?: string }) => {
+      items: verifiedCart.items.map((i) => {
             const description = findItemDescription(String(i.id));
             const pictureUrl = toAbsoluteImageUrl(i.imagePath, requestOrigin);
 
@@ -211,42 +301,31 @@ export async function POST(req: Request) {
               ...(description ? { description } : {}),
               ...(pictureUrl ? { picture_url: pictureUrl } : {}),
             };
-          })
-        : [
-            {
-              id: "item-default",
-              title: itemListNames,
-              quantity: 1,
-              unit_price: Number(amount),
-              category_id: MP_ITEM_CATEGORY_ID,
-            },
-          ],
+          }),
       payer: {
-        first_name: payer?.firstName || "Cliente",
-        last_name: payer?.lastName || "Aura",
+        first_name: customer.firstName,
+        last_name: customer.lastName,
         phone: {
-          area_code: cleanPhone.slice(0, 2) || "79",
-          number: cleanPhone.slice(2) || "999999999",
+          area_code: cleanPhone.slice(0, 2),
+          number: cleanPhone.slice(2),
         },
         // NÃO adicionar `identification` aqui: a API responde
         // HTTP 400 "The name of the following parameters is wrong :
         // [additional_info.payer.identification]" (verificado em 06/08/2026).
         // O CPF/CNPJ do comprador já vai no `payer.identification` do nível
-        // raiz do payload e em `metadata.customer_cpf_cnpj`.
+        // raiz do payload.
         ...(payerRegistrationDate ? { registration_date: payerRegistrationDate } : {}),
       },
-      shipments: address
-        ? {
-            receiver_address: {
-              zip_code: cepClean,
-              street_name: streetStr,
-              street_number: numberNum,
-              floor: address.complement || "",
-              city_name: cityStr,
-              state_name: stateStr,
-            },
-          }
-        : undefined,
+      shipments: {
+        receiver_address: {
+          zip_code: cepClean,
+          street_name: streetStr,
+          street_number: numberNum,
+          floor: address.complement || "",
+          city_name: cityStr,
+          state_name: stateStr,
+        },
+      },
     };
 
     // Só é chamado para pagamentos JÁ confirmados: cartão aprovado (abaixo) ou,
@@ -254,17 +333,16 @@ export async function POST(req: Request) {
     // do checkout detecta status "approved". Nunca no momento em que a cobrança
     // é apenas criada/pendente.
     const triggerOrderEmail = async () => {
-      if (!payer?.email) return;
       await sendOrderConfirmationEmail({
         customerName: customerFullName,
-        customerEmail: payer.email,
-        orderNumber: String(orderNumber || Date.now()),
+        customerEmail: customer.email,
+        orderNumber,
         paymentMethod: paymentMethod === "pix" ? "PIX à Vista (Mercado Pago)" : "Cartão de Crédito (Mercado Pago)",
         shippingAddress: formattedAddress,
-        items: Array.isArray(items) ? items : [{ name: "Kit Protocolos Aura Regenera", quantity: 1, unitPrice: Number(amount) }],
-        subtotal: Number(subtotal || amount),
-        shippingCost: Number(shippingCost || 0),
-        totalPrice: Number(amount),
+        items: verifiedCart.items,
+        subtotal,
+        shippingCost,
+        totalPrice: amount,
       });
     };
 
@@ -272,19 +350,28 @@ export async function POST(req: Request) {
     // 1. PROCESS PIX PAYMENT VIA MERCADO PAGO
     // ----------------------------------------------------
     if (paymentMethod === "pix") {
+      const attemptKey = paymentAttemptKey(auth.userId, getClientIp(req));
+      const attempt = checkAndRecordPaymentAttempt(attemptKey);
+      if (!attempt.allowed) {
+        return NextResponse.json(
+          { error: attempt.error },
+          { status: 429, headers: { "Retry-After": String(attempt.retryAfterSeconds) } }
+        );
+      }
+
       const pixPayload = {
-        transaction_amount: Number(amount),
+        transaction_amount: amount,
         description: detailedDescription,
         statement_descriptor: "AURA REGENERA",
-        external_reference: String(orderNumber || Date.now()),
+        external_reference: orderNumber,
         payment_method_id: "pix",
         payer: {
-          email: payer?.email || "contato@auraregenera.com",
-          first_name: payer?.firstName || "Cliente",
-          last_name: payer?.lastName || "Aura",
+          email: customer.email,
+          first_name: customer.firstName,
+          last_name: customer.lastName,
           identification: {
             type: cleanCpf.length > 11 ? "CNPJ" : "CPF",
-            number: cleanCpf || "19119119100",
+            number: cleanCpf,
           },
         },
         additional_info: mpAdditionalInfo,
@@ -292,13 +379,18 @@ export async function POST(req: Request) {
       };
 
       try {
+        const pixHeaders: Record<string, string> = {
+          "Authorization": `Bearer ${MERCADO_PAGO_ACCESS_TOKEN}`,
+          "Content-Type": "application/json",
+          "X-Idempotency-Key": idempotencyKey,
+        };
+        if (typeof deviceId === "string" && deviceId.trim()) {
+          pixHeaders["X-Meli-Session-Id"] = deviceId.trim();
+        }
+
         const mpRes = await fetch("https://api.mercadopago.com/v1/payments", {
           method: "POST",
-          headers: {
-            "Authorization": `Bearer ${MERCADO_PAGO_ACCESS_TOKEN}`,
-            "Content-Type": "application/json",
-            "X-Idempotency-Key": `pix-${orderNumber || Date.now()}-${Date.now()}`,
-          },
+          headers: pixHeaders,
           body: JSON.stringify(pixPayload),
         });
 
@@ -323,23 +415,10 @@ export async function POST(req: Request) {
         }
 
         console.warn("Mercado Pago PIX API Warning/Error:", mpData);
-
-        const formattedAmount = Number(amount).toFixed(2);
-        const validPixCopiaECola = `00020126580014BR.GOV.BCB.PIX0136contato@auraregenera.com520400005303986540${formattedAmount.length.toString().padStart(2, "0")}${formattedAmount}5802BR5913AURA REGENERA6008ARACAJU62070503***630489A1`;
-
-        // Idem: modo de testes ainda não confirmou o pagamento, e-mail sai só
-        // quando /api/payment/status reportar "approved" para este PIX-TEST-*.
-
-        return NextResponse.json({
-          success: true,
-          paymentId: `PIX-TEST-${Date.now()}`,
-          status: "pending",
-          statusDetail: "pending_waiting_transfer",
-          qrCode: validPixCopiaECola,
-          qrCodeBase64: null,
-          isMock: true,
-          message: "PIX gerado em modo de testes Mercado Pago.",
-        });
+        return NextResponse.json(
+          { error: mpData.message || "O Mercado Pago não conseguiu gerar o PIX." },
+          { status: mpRes.status >= 400 ? mpRes.status : 502 }
+        );
       } catch (pixErr) {
         console.error("Erro na requisição PIX Mercado Pago:", pixErr);
         return NextResponse.json({ error: "Erro de comunicação ao gerar PIX." }, { status: 500 });
@@ -350,103 +429,102 @@ export async function POST(req: Request) {
     // 2. PROCESS CARD PAYMENT VIA MERCADO PAGO
     // ----------------------------------------------------
     if (paymentMethod === "card") {
-      if (!cardData || !cardData.number || !cardData.cvv || !cardData.expiry) {
+      if (
+        !cardData ||
+        !cardData.token ||
+        !cardData.paymentMethodId ||
+        !cardData.bin ||
+        !cardData.lastFour ||
+        !cardData.holderName ||
+        !cardData.cpf
+      ) {
         return NextResponse.json(
           { error: "Informe todos os dados do cartão de crédito." },
           { status: 400 }
         );
       }
 
-      const cleanCardNumber = cardData.number.replace(/\D/g, "");
-      const bin = cleanCardNumber.slice(0, 6);
-      const [expMonth, expYear] = cardData.expiry.split("/").map((s: string) => s.trim());
-      const fullYear = expYear.length === 2 ? `20${expYear}` : expYear;
-      const brand = detectCardBrand(cleanCardNumber);
+      const cardCpf = cardData.cpf.replace(/\D/g, "");
+      const installments = Number(cardData.installments || 1);
+      if (
+        !validateCpf(cardCpf) ||
+        !/^\d{6,8}$/.test(String(cardData.bin)) ||
+        !/^\d{4}$/.test(String(cardData.lastFour)) ||
+        !/^[a-z0-9_-]{2,30}$/i.test(String(cardData.paymentMethodId)) ||
+        !Number.isInteger(installments) ||
+        installments < 1 ||
+        installments > 10
+      ) {
+        return NextResponse.json({ error: "Dados do cartão inválidos." }, { status: 400 });
+      }
 
-      // Tokenize card via Mercado Pago Card Token API
-      const tokenPayload = {
-        card_number: cleanCardNumber,
-        expiration_month: parseInt(expMonth, 10),
-        expiration_year: parseInt(fullYear, 10),
-        security_code: cardData.cvv.replace(/\D/g, ""),
-        cardholder: {
-          name: cardData.holderName.toUpperCase().trim(),
-          identification: {
-            type: "CPF",
-            number: (cardData.cpf || cleanCpf).replace(/\D/g, ""),
-          },
-        },
-      };
-
-      const tokenRes = await fetch(
-        `https://api.mercadopago.com/v1/card_tokens?public_key=${MERCADO_PAGO_PUBLIC_KEY}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(tokenPayload),
-        }
-      );
-
-      const tokenData = await tokenRes.json();
-
-      if (!tokenRes.ok || !tokenData.id) {
-        console.error("Erro ao tokenizar cartão Mercado Pago:", tokenData);
+      if (typeof deviceId !== "string" || deviceId.trim().length < 8) {
         return NextResponse.json(
-          { error: tokenData.message || "Dados do cartão recusados pelo Mercado Pago." },
-          { status: 400 }
+          { error: "A validação de segurança não foi carregada. Atualize a página e tente novamente." },
+          { status: 409 }
         );
       }
 
-      // Automatically resolve Issuer ID based on BIN
-      const issuerId = await fetchIssuerId(brand, bin);
+      const attemptKey = paymentAttemptKey(
+        auth.userId,
+        getClientIp(req),
+        cardFingerprint(`${cardData.bin}:${cardData.lastFour}`)
+      );
+      const attempt = checkAndRecordPaymentAttempt(attemptKey);
+      if (!attempt.allowed) {
+        return NextResponse.json(
+          { error: attempt.error },
+          { status: 429, headers: { "Retry-After": String(attempt.retryAfterSeconds) } }
+        );
+      }
 
-      const cardCpf = (cardData.cpf || cleanCpf).replace(/\D/g, "");
+      // O token é gerado diretamente no navegador pela API do Mercado Pago;
+      // número, validade e CVV nunca trafegam pelo backend da loja.
+      const paymentMethodId = String(cardData.paymentMethodId);
+      const issuerId = cardData.issuerId
+        ? String(cardData.issuerId)
+        : await fetchIssuerId(paymentMethodId, String(cardData.bin).slice(0, 6));
+
       const holderParts = cardData.holderName ? cardData.holderName.trim().split(" ") : [];
-      const holderFirstName = holderParts[0] || payer?.firstName || "Cliente";
-      const holderLastName = holderParts.slice(1).join(" ") || payer?.lastName || "Aura";
-
-      const mpPayerEmail = isSelfTest ? `cliente.${Date.now()}@exemplo-teste.com` : (payer?.email || "cliente.teste@exemplo.com");
-
-      const paymentMethodId = tokenData.payment_method_id || tokenData.payment_method?.id || brand;
-      const finalIssuerId = tokenData.issuer?.id ? String(tokenData.issuer.id) : issuerId;
+      const holderFirstName = holderParts[0];
+      const holderLastName = holderParts.slice(1).join(" ") || holderParts[0];
 
       // Process payment with card token
       const cardPaymentPayload: Record<string, unknown> = {
         transaction_amount: Number(amount),
-        token: tokenData.id,
+        token: String(cardData.token),
         description: detailedDescription,
         statement_descriptor: "AURA REGENERA",
-        external_reference: String(orderNumber || Date.now()),
-        installments: Number(cardData.installments || 1),
+        external_reference: orderNumber,
+        installments,
         payment_method_id: paymentMethodId,
         payer: {
-          email: mpPayerEmail,
+          email: customer.email,
           first_name: holderFirstName,
           last_name: holderLastName,
           entity_type: "individual",
           identification: {
             type: cardCpf.length > 11 ? "CNPJ" : "CPF",
-            number: cardCpf || "19119119100",
+            number: cardCpf,
           },
         },
-        binary_mode: true,
+        capture: true,
+        binary_mode: false,
+        three_d_secure_mode: "optional",
         additional_info: mpAdditionalInfo,
         metadata: mpMetadata,
       };
 
-      if (finalIssuerId) {
-        cardPaymentPayload.issuer_id = finalIssuerId;
+      if (issuerId) {
+        cardPaymentPayload.issuer_id = issuerId;
       }
 
       const mpHeaders: Record<string, string> = {
         "Authorization": `Bearer ${MERCADO_PAGO_ACCESS_TOKEN}`,
         "Content-Type": "application/json",
-        "X-Idempotency-Key": `card-${orderNumber || Date.now()}-${Date.now()}`,
+        "X-Idempotency-Key": idempotencyKey,
+        "X-Meli-Session-Id": deviceId.trim(),
       };
-
-      if (deviceId) {
-        mpHeaders["X-Meli-Session-Id"] = deviceId;
-      }
 
       const payRes = await fetch("https://api.mercadopago.com/v1/payments", {
         method: "POST",
@@ -456,7 +534,12 @@ export async function POST(req: Request) {
 
       const payData = await payRes.json();
 
-      if (payRes.ok && (payData.status === "approved" || payData.status === "in_process")) {
+      if (
+        payRes.ok &&
+        (payData.status === "approved" ||
+          payData.status === "in_process" ||
+          payData.status === "pending")
+      ) {
         // E-mail só para aprovação imediata. Em "in_process" o dinheiro ainda
         // não entrou: o checkout acompanha por /api/payment/status e o e-mail
         // sai por /api/payment/confirm-email quando (e se) virar "approved".
@@ -470,6 +553,7 @@ export async function POST(req: Request) {
           statusDetail: payData.status_detail,
           installments: payData.installments,
           brand: paymentMethodId,
+          threeDsInfo: payData.three_ds_info,
         });
       }
 
@@ -483,11 +567,12 @@ export async function POST(req: Request) {
       } else if (payData.status_detail === "cc_rejected_bad_filled_security_code") {
         userMessage = "Código de segurança (CVV) incorreto.";
       } else if (payData.status_detail === "cc_rejected_high_risk") {
+        markHighRiskAttempt(attemptKey);
         // Recusa pelo antifraude: repetir com o mesmo cartão tende a ser recusado
         // de novo, então a mensagem orienta outro cartão ou Pix (a UI do checkout
         // reconhece este status_detail e mostra o atalho para o Pix).
         userMessage =
-          "O pagamento não pôde ser aprovado por critérios de segurança do emissor. Para concluir sua compra, utilize outro cartão ou escolha o pagamento via Pix.";
+          "O pagamento não pôde ser aprovado pela análise de segurança do Mercado Pago. Aguarde antes de repetir ou utilize outro cartão ou Pix.";
       } else if (payData.message === "Invalid payment_method_id" || payData.cause?.some((c: { code?: string }) => c.code === "205")) {
         userMessage = "Bandeira do cartão não reconhecida pelo Mercado Pago. Verifique os dados digitados.";
       }

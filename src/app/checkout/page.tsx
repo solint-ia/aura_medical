@@ -128,10 +128,68 @@ function formatExpiry(value: string) {
   return `${digits.slice(0, 2)}/${digits.slice(2)}`;
 }
 
+interface MercadoPagoCardToken {
+  id: string;
+  payment_method_id?: string;
+  payment_method?: { id?: string };
+  issuer?: { id?: string | number };
+  first_six_digits?: string;
+  last_four_digits?: string;
+}
+
+const MERCADO_PAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY || "";
+
+async function waitForMercadoPagoDeviceId(timeoutMs = 3000): Promise<string> {
+  const startedAt = Date.now();
+  while (Date.now() - startedAt < timeoutMs) {
+    const globalId = (window as unknown as { MP_DEVICE_SESSION_ID?: string })
+      .MP_DEVICE_SESSION_ID;
+    const inputId = (document.getElementById("deviceId") as HTMLInputElement | null)?.value;
+    const deviceId = globalId || inputId || "";
+    if (deviceId) return deviceId;
+    await new Promise((resolve) => window.setTimeout(resolve, 100));
+  }
+  return "";
+}
+
+async function tokenizeCardWithMercadoPago(card: CardForm): Promise<MercadoPagoCardToken> {
+  if (!MERCADO_PAGO_PUBLIC_KEY) {
+    throw new Error("Chave pública do Mercado Pago não configurada.");
+  }
+
+  const [expirationMonth, shortYear] = card.expiry.split("/");
+  const expirationYear = shortYear.length === 2 ? `20${shortYear}` : shortYear;
+  const response = await fetch(
+    `https://api.mercadopago.com/v1/card_tokens?public_key=${encodeURIComponent(MERCADO_PAGO_PUBLIC_KEY)}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        card_number: card.number.replace(/\D/g, ""),
+        expiration_month: Number(expirationMonth),
+        expiration_year: Number(expirationYear),
+        security_code: card.cvv.replace(/\D/g, ""),
+        cardholder: {
+          name: card.name.toUpperCase().trim(),
+          identification: {
+            type: "CPF",
+            number: card.cpf.replace(/\D/g, ""),
+          },
+        },
+      }),
+    }
+  );
+  const data = await response.json();
+  if (!response.ok || !data.id) {
+    throw new Error(data.message || "O Mercado Pago não aceitou os dados do cartão.");
+  }
+  return data as MercadoPagoCardToken;
+}
+
 function CheckoutContent() {
   const router = useRouter();
   const { items, subtotal, clearCart, isHydrated } = useCart();
-  const { user, addresses, selectedAddress, setSelectedAddress, createOrder } = useAuth();
+  const { user, authToken, addresses, selectedAddress, setSelectedAddress, createOrder } = useAuth();
 
   const [step, setStep] = useState<Step>(1);
 
@@ -153,6 +211,11 @@ function CheckoutContent() {
   const [paymentError, setPaymentError] = useState("");
   /** `status_detail` da recusa do Mercado Pago, para orientar o usuário por caso. */
   const [paymentErrorDetail, setPaymentErrorDetail] = useState("");
+  const [threeDsInfo, setThreeDsInfo] = useState<{
+    externalResourceUrl: string;
+    creq: string;
+  } | null>(null);
+  const threeDsFormRef = useRef<HTMLFormElement | null>(null);
   const [pixData, setPixData] = useState<{
     paymentId: string;
     qrCode: string;
@@ -240,20 +303,30 @@ function CheckoutContent() {
   const handlePaymentApproved = useCallback(
     async (paymentId: string, emailAlreadySent = false) => {
       setPaymentApproved(true);
+      setThreeDsInfo(null);
+      clearCart();
 
       const snapshot = pendingOrderRef.current;
       if (snapshot?.email && !emailAlreadySent) {
         fetch("/api/payment/confirm-email", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+          },
           body: JSON.stringify({ paymentId, ...snapshot.email }),
         }).catch((mailErr) => console.warn("Aviso ao confirmar e-mail do pagamento:", mailErr));
       }
 
       await registerConfirmedOrder(paymentId);
     },
-    [registerConfirmedOrder]
+    [authToken, clearCart, registerConfirmedOrder]
   );
+
+  useEffect(() => {
+    if (!isSubmitted || !threeDsInfo || !threeDsFormRef.current) return;
+    threeDsFormRef.current.submit();
+  }, [isSubmitted, threeDsInfo]);
 
   // Checagem em tempo real do pagamento (PIX aguardando transferência e cartão
   // em análise) via /api/payment/status.
@@ -264,11 +337,29 @@ function CheckoutContent() {
 
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(`/api/payment/status?paymentId=${trackedPaymentId}`);
+        const res = await fetch(`/api/payment/status?paymentId=${trackedPaymentId}`, {
+          headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
+        });
         const data = await res.json();
         if (data.success && data.status === "approved") {
           clearInterval(interval);
           handlePaymentApproved(trackedPaymentId);
+        } else if (
+          data.success &&
+          (data.status === "rejected" ||
+            data.status === "cancelled" ||
+            data.status === "refunded")
+        ) {
+          clearInterval(interval);
+          setTrackedPaymentId(null);
+          setThreeDsInfo(null);
+          setIsSubmitted(false);
+          setPaymentErrorDetail(data.statusDetail || "");
+          setPaymentError(
+            data.statusDetail === "cc_rejected_high_risk"
+              ? "O pagamento não pôde ser aprovado pela análise de segurança do Mercado Pago. Aguarde antes de repetir ou utilize outro cartão ou Pix."
+              : "O cartão não aprovou o pagamento. Revise os dados ou utilize outro meio de pagamento."
+          );
         }
       } catch (err) {
         console.warn("Aviso ao checar status do pagamento:", err);
@@ -276,7 +367,7 @@ function CheckoutContent() {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [isSubmitted, trackedPaymentId, paymentApproved, handlePaymentApproved]);
+  }, [isSubmitted, trackedPaymentId, paymentApproved, handlePaymentApproved, authToken]);
 
   // Pagamento aprovado mas gravação do pedido falhou: tenta de novo sozinho
   // algumas vezes antes de depender do botão manual. /api/orders é idempotente.
@@ -431,48 +522,72 @@ function CheckoutContent() {
     setProcessingPayment(true);
 
     try {
-      const orderNumber = `AUR-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+      if (!authToken) {
+        setProcessingPayment(false);
+        setPaymentError("Sua sessão expirou. Entre novamente antes de finalizar a compra.");
+        return;
+      }
 
-      const deviceId =
-        (window as unknown as { MP_DEVICE_SESSION_ID?: string }).MP_DEVICE_SESSION_ID ||
-        (document.getElementById("deviceId") as HTMLInputElement)?.value ||
-        "";
+      const orderNumber = `AUR-${new Date().getFullYear()}-${crypto.randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase()}`;
+      const idempotencyKey = crypto.randomUUID();
+      const deviceId = await waitForMercadoPagoDeviceId(paymentMethod === "card" ? 3000 : 500);
+
+      if (paymentMethod === "card" && !deviceId) {
+        setProcessingPayment(false);
+        setPaymentError(
+          "A validação de segurança do Mercado Pago não carregou. Atualize a página e tente novamente."
+        );
+        return;
+      }
+
+      let tokenizedCardData:
+        | {
+            token: string;
+            paymentMethodId: string;
+            issuerId?: string;
+            bin: string;
+            lastFour: string;
+            holderName: string;
+            cpf: string;
+            installments: number;
+          }
+        | undefined;
+
+      if (paymentMethod === "card") {
+        const token = await tokenizeCardWithMercadoPago(card);
+        const cleanNumber = card.number.replace(/\D/g, "");
+        tokenizedCardData = {
+          token: token.id,
+          paymentMethodId:
+            token.payment_method_id || token.payment_method?.id || detectCardBrand(cleanNumber),
+          issuerId: token.issuer?.id ? String(token.issuer.id) : undefined,
+          bin: token.first_six_digits || cleanNumber.slice(0, 6),
+          lastFour: token.last_four_digits || cleanNumber.slice(-4),
+          holderName: card.name,
+          cpf: card.cpf,
+          installments: card.installments,
+        };
+      }
 
       // 1. Call Mercado Pago Process Payment API FIRST
       const payRes = await fetch("/api/payment/process", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
         body: JSON.stringify({
           paymentMethod,
           amount: totalPrice,
-          subtotal,
-          shippingCost,
-          description: `Aura Regenera - Pedido #${orderNumber}`,
           orderNumber,
+          idempotencyKey,
           deviceId,
-          payer: {
-            email: user?.email,
-            firstName: user?.firstName,
-            lastName: user?.lastName,
-            cpfCnpj: user?.cpfCnpj,
-            phone: user?.phone,
-          },
-          address: selectedAddress,
+          addressId: selectedAddress.id,
           items: items.map((i) => ({
             id: i.id,
-            name: i.name,
             quantity: i.quantity,
-            unitPrice: i.unitPrice,
-            imagePath: i.imagePath,
           })),
-          cardData: paymentMethod === "card" ? {
-            number: card.number,
-            holderName: card.name,
-            expiry: card.expiry,
-            cvv: card.cvv,
-            cpf: card.cpf,
-            installments: card.installments,
-          } : undefined,
+          cardData: tokenizedCardData,
         }),
       });
 
@@ -540,8 +655,20 @@ function CheckoutContent() {
         });
       }
 
+      if (
+        paymentMethod === "card" &&
+        payData.status === "pending" &&
+        payData.statusDetail === "pending_challenge" &&
+        payData.threeDsInfo?.external_resource_url &&
+        payData.threeDsInfo?.creq
+      ) {
+        setThreeDsInfo({
+          externalResourceUrl: payData.threeDsInfo.external_resource_url,
+          creq: payData.threeDsInfo.creq,
+        });
+      }
+
       setIsSubmitted(true);
-      clearCart();
 
       // 3. Cartão já aprovado no ato: confirma na hora (o e-mail já saiu de
       //    /api/payment/process). Nos demais casos (PIX pendente, cartão em
@@ -550,13 +677,17 @@ function CheckoutContent() {
       if (payData.status === "approved") {
         await handlePaymentApproved(paymentId, paymentMethod === "card");
       }
-    } catch {
+    } catch (err) {
       setProcessingPayment(false);
-      setPaymentError("Erro de comunicação ao processar pagamento com o Mercado Pago.");
+      setPaymentError(
+        err instanceof Error
+          ? err.message
+          : "Erro de comunicação ao processar pagamento com o Mercado Pago."
+      );
     }
   };
 
-  // Recusa por antifraude do emissor: nova tentativa com o MESMO cartão tende a
+  // Recusa pela análise de risco: nova tentativa com o MESMO cartão tende a
   // ser recusada igual, então a UI orienta trocar de cartão ou pagar via Pix.
   const isHighRiskRejection = paymentErrorDetail === "cc_rejected_high_risk";
 
@@ -690,13 +821,36 @@ function CheckoutContent() {
         {isCardUnderReview && (
           <div className="w-full rounded-2xl border-2 border-[#C59D3F] bg-card p-6 mb-8 text-center space-y-3 shadow-xl">
             <span className="inline-block rounded-full bg-[#C59D3F]/15 px-3.5 py-1 font-mono text-xs font-bold text-[#C59D3F]">
-              ⏳ Pagamento em análise pelo Mercado Pago
+              {threeDsInfo ? "🔐 Confirme sua identidade com o banco" : "⏳ Pagamento em análise pelo Mercado Pago"}
             </span>
-            <p className="text-xs text-content/80 font-mono">
-              O emissor do cartão ainda está processando a cobrança de{" "}
-              <strong>{formatBRL(submittedOrderSummary.total)}</strong>. Não feche esta página: estamos checando o
-              resultado em tempo real.
-            </p>
+            {threeDsInfo ? (
+              <>
+                <p className="text-xs text-content/80 font-mono">
+                  Conclua abaixo a autenticação de <strong>{formatBRL(submittedOrderSummary.total)}</strong>. Depois da
+                  confirmação, o resultado será atualizado automaticamente.
+                </p>
+                <iframe
+                  name="mercado-pago-3ds-challenge"
+                  title="Autenticação segura do cartão"
+                  className="h-[440px] w-full rounded-xl border border-content/15 bg-white sm:h-[600px]"
+                />
+                <form
+                  ref={threeDsFormRef}
+                  method="post"
+                  action={threeDsInfo.externalResourceUrl}
+                  target="mercado-pago-3ds-challenge"
+                  className="hidden"
+                >
+                  <input type="hidden" name="creq" value={threeDsInfo.creq} />
+                </form>
+              </>
+            ) : (
+              <p className="text-xs text-content/80 font-mono">
+                O Mercado Pago está processando a cobrança de{" "}
+                <strong>{formatBRL(submittedOrderSummary.total)}</strong>. Não feche esta página: estamos checando o
+                resultado em tempo real.
+              </p>
+            )}
             <div className="flex items-center justify-center gap-2 font-mono text-xs text-[#C59D3F] pt-1">
               <span className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C59D3F] opacity-75"></span>
@@ -1356,8 +1510,8 @@ function CheckoutContent() {
               </p>
               <p className="text-xs leading-relaxed text-content/85">{paymentError}</p>
               <p className="text-xs leading-relaxed text-content/70">
-                Não é necessário tentar de novo com o mesmo cartão: a análise de risco do emissor
-                se repetiria. Informe os dados de <strong className="text-content">outro cartão</strong>{" "}
+                Não tente novamente de imediato com o mesmo cartão: a análise de risco pode
+                se repetir. Aguarde ou informe os dados de <strong className="text-content">outro cartão</strong>{" "}
                 ou finalize por <strong className="text-content">Pix</strong>, com aprovação
                 instantânea. Nenhum valor foi cobrado e seu carrinho continua salvo.
               </p>

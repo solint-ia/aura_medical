@@ -332,6 +332,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     orderNumber?: string;
     paymentId: string;
   }) => {
+    if (!authToken) throw new Error("Sessão expirada. Faça login novamente.");
     const addressSummary = `${orderPayload.address.street}, ${orderPayload.address.number} ${orderPayload.address.complement || ""} - ${orderPayload.address.neighborhood}, ${orderPayload.address.city} (${orderPayload.address.uf}) CEP: ${orderPayload.address.cep}`;
 
     // Sem fallback local: o servidor só grava o pedido depois de confirmar o
@@ -339,7 +340,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // checkout — nada de pedido "pago" fantasma no histórico do cliente.
     const res = await fetch("/api/orders", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
       body: JSON.stringify({
         userId: user?.id || null,
         addressId: orderPayload.address.id || null,

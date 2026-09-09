@@ -25,6 +25,8 @@ export interface MercadoPagoPayment {
   paymentMethod?: string;
   /** Número do pedido enviado como `external_reference` na criação da cobrança. */
   externalReference?: string;
+  /** Usuário autenticado vinculado à cobrança em `metadata`. */
+  authenticatedUserId?: string;
   isMock: boolean;
 }
 
@@ -87,6 +89,9 @@ export async function fetchMercadoPagoPayment(paymentId: string): Promise<Mercad
         amount: typeof data.transaction_amount === "number" ? data.transaction_amount : undefined,
         paymentMethod: data.payment_method_id,
         externalReference: data.external_reference ? String(data.external_reference) : undefined,
+        authenticatedUserId: data.metadata?.authenticated_user_id
+          ? String(data.metadata.authenticated_user_id)
+          : undefined,
         isMock: false,
       },
     };
