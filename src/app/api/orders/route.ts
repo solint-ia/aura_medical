@@ -60,6 +60,7 @@ export async function POST(req: Request) {
     const {
       addressId,
       shippingMethod,
+      shippingCost: requestedShippingCost,
       totalPrice: requestedTotalPrice,
       paymentMethod,
       items,
@@ -80,11 +81,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Forma de pagamento inválida." }, { status: 400 });
     }
 
-    const shippingCost = 0;
-    const subtotal = verifiedCart.subtotal;
-    const totalPrice = calculateCheckoutTotal(subtotal, pricingMethod, shippingCost);
-    if (Math.abs(Number(requestedTotalPrice) - totalPrice) > AMOUNT_TOLERANCE) {
-      return NextResponse.json({ error: "Valor do pedido inválido." }, { status: 409 });
+    if (!Number.isFinite(Number(requestedTotalPrice))) {
+      return NextResponse.json({ error: "Valor do pedido inválido." }, { status: 400 });
     }
 
     if (typeof addressId !== "string" || !addressId) {
@@ -149,6 +147,32 @@ export async function POST(req: Request) {
       );
     }
 
+    const subtotal = verifiedCart.subtotal;
+    const metadataShippingCost = payment.shippingCost;
+    const paidShippingCost = typeof payment.amount === "number"
+      ? pricingMethod === "pix"
+        ? payment.amount / 0.95 - subtotal
+        : payment.amount - subtotal
+      : Number(requestedShippingCost);
+    const shippingCost = Math.round(
+      ((metadataShippingCost ?? paidShippingCost) + Number.EPSILON) * 100
+    ) / 100;
+
+    if (!Number.isFinite(shippingCost) || shippingCost < 0 || shippingCost > 10_000) {
+      return NextResponse.json({ error: "Valor do frete inválido." }, { status: 409 });
+    }
+
+    const verifiedShippingMethod =
+      payment.shippingMethod ||
+      (typeof shippingMethod === "string" && shippingMethod.trim()
+        ? shippingMethod.trim()
+        : "Frete Melhor Envio");
+    const totalPrice = calculateCheckoutTotal(subtotal, pricingMethod, shippingCost);
+
+    if (Math.abs(Number(requestedTotalPrice) - totalPrice) > AMOUNT_TOLERANCE) {
+      return NextResponse.json({ error: "Valor do pedido inválido." }, { status: 409 });
+    }
+
     // Valor pago tem que bater com o total do pedido.
     if (typeof payment.amount === "number") {
       if (Math.abs(payment.amount - totalPrice) > AMOUNT_TOLERANCE) {
@@ -177,10 +201,10 @@ export async function POST(req: Request) {
           orderNumber,
           userId: auth.userId,
           addressId: addressId || null,
-          shippingMethod: shippingMethod || "Frete Padrão",
-          shippingCost: Number(shippingCost || 0),
-          subtotal: Number(subtotal || 0),
-          totalPrice: Number(totalPrice || 0),
+          shippingMethod: verifiedShippingMethod,
+          shippingCost,
+          subtotal,
+          totalPrice,
           paymentMethod: paymentMethod || "pix",
           status: "pago",
           trackingCode: "",
@@ -214,10 +238,10 @@ export async function POST(req: Request) {
           orderNumber,
           auth.userId,
           addressId || null,
-          shippingMethod || "Frete Padrão",
-          Number(shippingCost || 0),
-          Number(subtotal || 0),
-          Number(totalPrice || 0),
+          verifiedShippingMethod,
+          shippingCost,
+          subtotal,
+          totalPrice,
           paymentMethod || "pix",
           "pago",
           "",

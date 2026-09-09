@@ -7,6 +7,10 @@ import { protocolsData } from "@/data/protocols";
 import { verifyAuthToken } from "@/lib/auth";
 import { calculateCheckoutTotal, verifyCheckoutItems } from "@/lib/checkoutPricing";
 import {
+  calculateMelhorEnvioShipping,
+  MelhorEnvioError,
+} from "@/lib/melhorEnvio";
+import {
   cardFingerprint,
   checkAndRecordPaymentAttempt,
   markHighRiskAttempt,
@@ -201,6 +205,7 @@ export async function POST(req: Request) {
       amount: requestedAmount,
       orderNumber,
       addressId,
+      shippingOptionId,
       items,
       cardData,
       deviceId,
@@ -242,10 +247,38 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: verifiedCart.error }, { status: 400 });
     }
 
-    // Frete está desativado no checkout atual; preço e desconto são sempre
-    // recalculados no servidor, sem confiar nos números enviados pelo browser.
     const subtotal = verifiedCart.subtotal;
-    const shippingCost = 0;
+    if (
+      (typeof shippingOptionId !== "string" && typeof shippingOptionId !== "number") ||
+      String(shippingOptionId).trim() === ""
+    ) {
+      return NextResponse.json({ error: "Selecione uma opção de frete válida." }, { status: 400 });
+    }
+
+    let shippingOptions;
+    try {
+      shippingOptions = await calculateMelhorEnvioShipping(
+        customer.address.cep,
+        verifiedCart.items
+      );
+    } catch (error) {
+      if (error instanceof MelhorEnvioError) {
+        return NextResponse.json({ error: error.message }, { status: error.status });
+      }
+      throw error;
+    }
+
+    const selectedShipping = shippingOptions.find(
+      (option) => option.id === String(shippingOptionId)
+    );
+    if (!selectedShipping) {
+      return NextResponse.json(
+        { error: "A opção de frete expirou. Volte e calcule o frete novamente." },
+        { status: 409 }
+      );
+    }
+
+    const shippingCost = selectedShipping.price;
     const amount = calculateCheckoutTotal(subtotal, paymentMethod, shippingCost);
     if (
       !Number.isFinite(Number(requestedAmount)) ||
@@ -278,6 +311,9 @@ export async function POST(req: Request) {
       order_number: orderNumber,
       authenticated_user_id: customer.id,
       items_summary: itemListNames,
+      shipping_option_id: selectedShipping.id,
+      shipping_method: selectedShipping.name,
+      shipping_cost: shippingCost,
     };
 
     // Dados extras do additional_info (categoria, descrição, foto e data de
@@ -317,6 +353,7 @@ export async function POST(req: Request) {
         ...(payerRegistrationDate ? { registration_date: payerRegistrationDate } : {}),
       },
       shipments: {
+        cost: shippingCost,
         receiver_address: {
           zip_code: cepClean,
           street_name: streetStr,
@@ -406,11 +443,13 @@ export async function POST(req: Request) {
           return NextResponse.json({
             success: true,
             paymentId: mpData.id,
+            amount,
             status: mpData.status,
             statusDetail: mpData.status_detail,
             qrCode: transData.qr_code,
             qrCodeBase64: transData.qr_code_base64,
             ticketUrl: transData.ticket_url,
+            shippingOption: selectedShipping,
           });
         }
 
@@ -554,10 +593,12 @@ export async function POST(req: Request) {
         return NextResponse.json({
           success: true,
           paymentId: payData.id,
+          amount,
           status: payData.status,
           statusDetail: payData.status_detail,
           installments: payData.installments,
           brand: paymentMethodId,
+          shippingOption: selectedShipping,
           threeDsInfo: payData.three_ds_info,
         });
       }

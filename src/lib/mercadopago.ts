@@ -27,6 +27,9 @@ export interface MercadoPagoPayment {
   externalReference?: string;
   /** Usuário autenticado vinculado à cobrança em `metadata`. */
   authenticatedUserId?: string;
+  shippingOptionId?: string;
+  shippingMethod?: string;
+  shippingCost?: number;
   isMock: boolean;
 }
 
@@ -91,6 +94,15 @@ export async function fetchMercadoPagoPayment(paymentId: string): Promise<Mercad
         externalReference: data.external_reference ? String(data.external_reference) : undefined,
         authenticatedUserId: data.metadata?.authenticated_user_id
           ? String(data.metadata.authenticated_user_id)
+          : undefined,
+        shippingOptionId: data.metadata?.shipping_option_id
+          ? String(data.metadata.shipping_option_id)
+          : undefined,
+        shippingMethod: data.metadata?.shipping_method
+          ? String(data.metadata.shipping_method)
+          : undefined,
+        shippingCost: Number.isFinite(Number(data.metadata?.shipping_cost))
+          ? Number(data.metadata.shipping_cost)
           : undefined,
         isMock: false,
       },

@@ -206,6 +206,7 @@ function CheckoutContent() {
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
   const [selectedShippingOption, setSelectedShippingOption] = useState<ShippingOption | null>(null);
   const [shippingLoading, setShippingLoading] = useState(false);
+  const [shippingError, setShippingError] = useState("");
 
   const [processingPayment, setProcessingPayment] = useState(false);
   const [paymentError, setPaymentError] = useState("");
@@ -389,85 +390,90 @@ function CheckoutContent() {
     registerConfirmedOrder,
   ]);
 
-  // Dynamic Shipping Calculation via /api/frete/calcular
-  // TEMPORARIAMENTE DESATIVADO: Melhor Envio ainda em modo sandbox (sem credenciais
-  // de produção). Frete grátis para todos os protocolos enquanto isso. O código real
-  // de cálculo fica comentado abaixo pronto para reativar.
-  const fetchShippingRates = useCallback(async (cleanCep: string, currentItems: typeof items) => {
-    if (cleanCep.length !== 8) return;
+  // Cotação real em produção. O servidor recupera o CEP pelo addressId e
+  // resolve os produtos pelo catálogo; preço, dimensões e destino enviados pelo
+  // navegador nunca são usados como fonte de verdade.
+  const fetchShippingRates = useCallback(async (
+    cleanCep: string,
+    addressId: string,
+    currentItems: typeof items
+  ) => {
+    if (cleanCep.length !== 8 || !authToken || currentItems.length === 0) return;
 
-    const freeShipping: ShippingOption = {
-      id: "frete-gratis",
-      name: "Frete Grátis",
-      price: 0,
-      deliveryTime: 7,
-      company: "Aura Regenera",
-      logo: "",
-    };
-    setShippingOptions([freeShipping]);
-    setSelectedShippingOption(freeShipping);
-
-    /* ---- Cálculo real via Melhor Envio (reativar quando houver credenciais de produção) ----
     setShippingLoading(true);
+    setShippingError("");
+    setShippingOptions([]);
+    setSelectedShippingOption(null);
 
     try {
       const res = await fetch("/api/frete/calcular", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
         body: JSON.stringify({
-          destinationCep: cleanCep,
-          items: currentItems.map((i) => ({ id: i.id, quantity: i.quantity, price: i.unitPrice })),
+          addressId,
+          items: currentItems.map((item) => ({
+            id: item.id,
+            quantity: item.quantity,
+          })),
         }),
       });
 
       const data = await res.json();
-      if (data.options && Array.isArray(data.options) && data.options.length > 0) {
-        setShippingOptions(data.options);
-        setSelectedShippingOption(data.options[0]);
+      if (!res.ok || !data.success || !Array.isArray(data.options) || data.options.length === 0) {
+        throw new Error(data.error || "Nenhuma opção de entrega foi encontrada.");
       }
-    } catch (err) {
-      console.error("Erro ao calcular frete dinâmico:", err);
+
+      setShippingOptions(data.options);
+      setSelectedShippingOption(data.options[0]);
+    } catch (error) {
+      console.error("Erro ao calcular frete dinâmico:", error);
+      setShippingError(
+        error instanceof Error ? error.message : "Não foi possível calcular o frete."
+      );
     } finally {
       setShippingLoading(false);
     }
-    */
-  }, []);
+  }, [authToken]);
 
   // Calculate freight when selectedAddress changes
   useEffect(() => {
-    if (selectedAddress?.cep) {
-      const cleanCep = selectedAddress.cep.replace(/\D/g, "");
-      fetchShippingRates(cleanCep, items);
-    }
+    const timer = window.setTimeout(() => {
+      if (selectedAddress?.cep) {
+        const cleanCep = selectedAddress.cep.replace(/\D/g, "");
+        void fetchShippingRates(cleanCep, selectedAddress.id, items);
+      } else {
+        setShippingOptions([]);
+        setSelectedShippingOption(null);
+        setShippingError("");
+      }
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, [selectedAddress, items, fetchShippingRates]);
 
-  // Shipping Fee & Total Calculation
-  // TEMPORARIAMENTE: frete grátis para todos os protocolos (Melhor Envio desativado, ver acima).
-  // Lógica original de precificação preservada em comentário para reativação futura.
-  const shippingCost = 0;
-  /*
-  const hasTestProtocol = items.some((i) => i.id === "teste-pix" || i.id === "teste-cartao");
-  const shippingCost = items.length === 0
-    ? 0
-    : hasTestProtocol
-      ? (selectedShippingOption ? selectedShippingOption.price : 0)
-      : selectedShippingOption
-        ? selectedShippingOption.price
-        : 25;
-  */
+  const shippingCost = selectedShippingOption?.price ?? 0;
 
   const orderTotalBeforeDiscount = subtotal + shippingCost;
   /** Incentivo para pagamento à vista: 5% de desconto no valor total pago via Pix. */
   const PIX_DISCOUNT_RATE = 0.05;
-  const pixDiscountAmount = orderTotalBeforeDiscount * PIX_DISCOUNT_RATE;
+  const pixDiscountAmount = Math.round(orderTotalBeforeDiscount * PIX_DISCOUNT_RATE * 100) / 100;
   const totalPrice =
-    paymentMethod === "pix" ? orderTotalBeforeDiscount - pixDiscountAmount : orderTotalBeforeDiscount;
+    Math.round(
+      (paymentMethod === "pix" ? orderTotalBeforeDiscount - pixDiscountAmount : orderTotalBeforeDiscount) * 100
+    ) / 100;
 
   // Step 1 Validation: Must have a selected address
   const handleContinueToPayment = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedAddress) {
       alert("Selecione um endereço cadastrado para entrega antes de prosseguir.");
+      return;
+    }
+    if (shippingLoading || !selectedShippingOption) {
+      alert(shippingError || "Aguarde o cálculo e selecione uma opção de frete.");
       return;
     }
     setStep(2);
@@ -583,6 +589,7 @@ function CheckoutContent() {
           idempotencyKey,
           deviceId,
           addressId: selectedAddress.id,
+          shippingOptionId: selectedShippingOption?.id,
           items: items.map((i) => ({
             id: i.id,
             quantity: i.quantity,
@@ -604,17 +611,19 @@ function CheckoutContent() {
       //    "pending" (QR apenas gerado) e cartão pode voltar "in_process".
       //    Guardamos o snapshot e só gravamos quando o Mercado Pago aprovar.
       const paymentId = String(payData.paymentId);
-      const shippingName = selectedShippingOption
-        ? selectedShippingOption.name
-        : "Frete Padrão";
+      const confirmedShippingOption: ShippingOption =
+        payData.shippingOption || selectedShippingOption;
+      const confirmedShippingCost = Number(confirmedShippingOption.price);
+      const confirmedTotal = Number(payData.amount);
+      const shippingName = confirmedShippingOption.name;
       const cepDigits = selectedAddress.cep.replace(/\D/g, "");
 
       pendingOrderRef.current = {
         address: selectedAddress,
         shippingMethod: shippingName,
-        shippingCost,
+        shippingCost: confirmedShippingCost,
         subtotal,
-        totalPrice,
+        totalPrice: confirmedTotal,
         paymentMethod: paymentMethod === "pix" ? "pix" : "credito",
         items: items.map((i) => ({
           id: i.id,
@@ -633,17 +642,17 @@ function CheckoutContent() {
           shippingAddress: `${selectedAddress.street}, ${selectedAddress.number} ${selectedAddress.complement ? `- ${selectedAddress.complement}` : ""} - ${selectedAddress.neighborhood}, ${selectedAddress.city}/${selectedAddress.uf} (CEP ${cepDigits})`.trim(),
           items: items.map((i) => ({ name: i.name, quantity: i.quantity, unitPrice: i.unitPrice })),
           subtotal,
-          shippingCost,
-          totalPrice,
+          shippingCost: confirmedShippingCost,
+          totalPrice: confirmedTotal,
         },
       };
       registrationDoneRef.current = false;
 
       setSubmittedOrderNumber(orderNumber);
       setSubmittedOrderSummary({
-        total: totalPrice,
+        total: confirmedTotal,
         itemsCount: items.reduce((s, i) => s + i.quantity, 0),
-        shippingCost,
+        shippingCost: confirmedShippingCost,
         shippingName,
       });
 
@@ -1161,6 +1170,21 @@ function CheckoutContent() {
                 <div className="py-4 text-center font-mono text-xs text-[#C59D3F] animate-pulse">
                   Calculando frete em tempo real para o CEP {formatCep(selectedAddress.cep)}...
                 </div>
+              ) : shippingError ? (
+                <div className="space-y-3 rounded-lg border border-red-500/25 bg-red-500/5 p-4 text-xs text-red-600 dark:text-red-400">
+                  <p>{shippingError}</p>
+                  <button
+                    type="button"
+                    onClick={() => fetchShippingRates(
+                      selectedAddress.cep.replace(/\D/g, ""),
+                      selectedAddress.id,
+                      items
+                    )}
+                    className="font-mono font-bold underline underline-offset-4"
+                  >
+                    Tentar calcular novamente
+                  </button>
+                </div>
               ) : shippingOptions.length > 0 ? (
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {shippingOptions.map((opt) => {
@@ -1194,7 +1218,7 @@ function CheckoutContent() {
                 </div>
               ) : (
                 <div className="p-3 rounded-lg border border-content/10 bg-canvas text-xs font-mono text-content/70">
-                  Frete Padrão R$ 25,00 (Prazo estimado de 3 a 7 dias úteis).
+                  Nenhuma opção de frete disponível para este endereço.
                 </div>
               )}
             </div>
@@ -1214,7 +1238,7 @@ function CheckoutContent() {
 
             <button
               type="submit"
-              disabled={!selectedAddress}
+              disabled={!selectedAddress || shippingLoading || !selectedShippingOption}
               className="rounded-xl bg-[#C59D3F] px-8 py-3.5 font-bold text-xs text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99] disabled:opacity-50"
             >
               Continuar para Pagamento →
