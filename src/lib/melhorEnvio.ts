@@ -2,6 +2,7 @@ import type { VerifiedCheckoutItem } from "@/lib/checkoutPricing";
 
 const PRODUCTION_API_URL = "https://melhorenvio.com.br/api/v2";
 const REQUEST_TIMEOUT_MS = 12_000;
+const ALLOWED_CORREIOS_SERVICE_IDS = new Set(["1", "2"]); // PAC e SEDEX
 
 export interface MelhorEnvioShippingOption {
   id: string;
@@ -89,6 +90,7 @@ export async function calculateMelhorEnvioShipping(
       insurance_value: item.unitPrice,
       quantity: item.quantity,
     })),
+    services: Array.from(ALLOWED_CORREIOS_SERVICE_IDS).join(","),
   };
 
   let response: Response;
@@ -125,6 +127,7 @@ export async function calculateMelhorEnvioShipping(
   const options = data
     .filter((raw): raw is Record<string, unknown> => Boolean(raw && typeof raw === "object"))
     .filter((raw) => !raw.error)
+    .filter((raw) => ALLOWED_CORREIOS_SERVICE_IDS.has(String(raw.id)))
     .map<MelhorEnvioShippingOption | null>((raw) => {
       const company =
         raw.company && typeof raw.company === "object"
