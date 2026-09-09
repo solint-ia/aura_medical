@@ -415,8 +415,13 @@ export async function POST(req: Request) {
         }
 
         console.warn("Mercado Pago PIX API Warning/Error:", mpData);
+        let pixError = mpData.message || "O Mercado Pago não conseguiu gerar o PIX.";
+        if (typeof pixError === "string" && pixError.toLowerCase().includes("collector user without key")) {
+          pixError = "A chave Pix da loja ainda não está configurada no Mercado Pago. Por favor, utilize Cartão de Crédito ou tente novamente em instantes.";
+        }
+
         return NextResponse.json(
-          { error: mpData.message || "O Mercado Pago não conseguiu gerar o PIX." },
+          { error: pixError },
           { status: mpRes.status >= 400 ? mpRes.status : 502 }
         );
       } catch (pixErr) {
