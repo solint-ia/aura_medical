@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { dbPool } from "@/lib/db";
+import { requireAdmin } from "@/lib/adminGuard";
 
 function extractUf(order: any): string {
   if (order.address?.uf) return order.address.uf.toUpperCase();
@@ -13,6 +14,9 @@ function extractUf(order: any): string {
 
 export async function GET(req: Request) {
   try {
+    const admin = await requireAdmin(req);
+    if (!admin.ok) return admin.response;
+
     const { searchParams } = new URL(req.url);
     const ufFilter = (searchParams.get("uf") || "ALL").toUpperCase();
 

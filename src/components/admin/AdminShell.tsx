@@ -1,0 +1,4 @@
+import Link from "next/link";
+
+const links = [["Visão geral", "/admin"], ["Pedidos", "/admin/pedidos"], ["Clientes", "/admin/clientes"], ["Produtos", "/admin/produtos"], ["Protocolos", "/admin/protocolos"], ["Casos", "/admin/casos"], ["Linhas", "/admin/linhas"], ["Categorias", "/admin/categorias"], ["Conteúdo", "/admin/conteudo"], ["Mídia", "/admin/midia"], ["Testes", "/admin/testes"], ["Auditoria", "/admin/auditoria"]];
+export function AdminShell({ children }: { children: React.ReactNode }) { return <div className="mx-auto max-w-[1440px] px-4 py-6"><nav className="no-scrollbar mb-6 flex gap-2 overflow-x-auto" aria-label="Administração do catálogo">{links.map(([label, href]) => <Link key={href} href={href} className="whitespace-nowrap rounded-full border border-content/15 bg-card px-4 py-2 text-sm font-semibold">{label}</Link>)}</nav>{children}</div>; }

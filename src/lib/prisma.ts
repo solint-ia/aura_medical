@@ -5,10 +5,10 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function getDatabaseUrl() {
-  let url =
-    process.env.DATABASE_URL ||
-    process.env.SUPABASE_DIRECT_URL ||
-    "postgresql://postgres:%40Auraregenera%401%40@db.pwqnrdnjgemglpfgetii.supabase.co:5432/postgres";
+  let url = process.env.DATABASE_URL;
+  if (!url) {
+    throw new Error("DATABASE_URL is required to initialize Prisma.");
+  }
 
   // Ensure SSL and connection timeout parameters for Vercel Serverless
   if (!url.includes("sslmode=") && !url.includes("pgbouncer=")) {

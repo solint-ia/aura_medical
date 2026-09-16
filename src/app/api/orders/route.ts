@@ -68,11 +68,11 @@ export async function POST(req: Request) {
       paymentId,
     } = body;
 
-    const verifiedCart = verifyCheckoutItems(items, auth.role === "ADMIN");
+    const verifiedCart = await verifyCheckoutItems(items, { allowInternal: auth.role === "ADMIN" });
     if (!verifiedCart.ok) {
       return NextResponse.json(
         { error: verifiedCart.error },
-        { status: 400 }
+        { status: verifiedCart.status || 400 }
       );
     }
 
@@ -192,11 +192,17 @@ export async function POST(req: Request) {
       });
     }
 
-    let createdOrder: unknown = null;
-
-    // 1. Primary insertion via Prisma ORM
+    let createdOrder: unknown;
     try {
-      createdOrder = await prisma.order.create({
+      createdOrder = await prisma.$transaction(async (tx) => {
+        for (const item of verifiedCart.items.filter((entry) => entry.trackStock)) {
+          const changed = await tx.sku.updateMany({
+            where: { code: item.skuCode, trackStock: true, stockQuantity: { gte: item.quantity } },
+            data: { stockQuantity: { decrement: item.quantity } },
+          });
+          if (changed.count !== 1) throw new Error(`Estoque insuficiente para ${item.name}.`);
+        }
+        return tx.order.create({
         data: {
           orderNumber,
           userId: auth.userId,
@@ -224,87 +230,11 @@ export async function POST(req: Request) {
         include: {
           items: true,
         },
+        });
       });
-    } catch (prismaErr) {
-      console.warn("Prisma order create fallback dbPool:", prismaErr);
-
-      // Fallback: Direct PostgreSQL Query via pg Driver
-      const orderInsRes = await dbPool.query(
-        `INSERT INTO public.orders 
-         (order_number, user_id, address_id, shipping_method, shipping_cost, subtotal, total_price, payment_method, status, tracking_code, invoice_url, notes)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-         RETURNING *`,
-        [
-          orderNumber,
-          auth.userId,
-          addressId || null,
-          verifiedShippingMethod,
-          shippingCost,
-          subtotal,
-          totalPrice,
-          paymentMethod || "pix",
-          "pago",
-          "",
-          "",
-          addressSummary || null,
-        ]
-      );
-
-      const dbOrder = orderInsRes.rows[0];
-
-      const insertedItems: Array<{
-        id: string;
-        product_id: string;
-        product_name: string;
-        quantity: number;
-        unit_price: number | string;
-        total_price: number | string;
-        image_path?: string | null;
-      }> = [];
-      for (const item of verifiedCart.items) {
-        const itemRes = await dbPool.query(
-          `INSERT INTO public.order_items
-           (order_id, product_id, product_name, quantity, unit_price, total_price, image_path)
-           VALUES ($1, $2, $3, $4, $5, $6, $7)
-           RETURNING *`,
-          [
-            dbOrder.id,
-            item.id,
-            item.name,
-            item.quantity,
-            item.unitPrice,
-            item.unitPrice * item.quantity,
-            item.imagePath || null,
-          ]
-        );
-        insertedItems.push(itemRes.rows[0]);
-      }
-
-      createdOrder = {
-        id: dbOrder.id,
-        orderNumber: dbOrder.order_number,
-        userId: dbOrder.user_id,
-        addressId: dbOrder.address_id,
-        addressSummary: dbOrder.notes || addressSummary,
-        shippingMethod: dbOrder.shipping_method,
-        shippingCost: Number(dbOrder.shipping_cost),
-        subtotal: Number(dbOrder.subtotal),
-        totalPrice: Number(dbOrder.total_price),
-        paymentMethod: dbOrder.payment_method,
-        status: dbOrder.status,
-        trackingCode: dbOrder.tracking_code,
-        invoiceUrl: dbOrder.invoice_url,
-        createdAt: dbOrder.created_at,
-        items: insertedItems.map((i) => ({
-          id: i.id,
-          productId: i.product_id,
-          productName: i.product_name,
-          quantity: i.quantity,
-          unitPrice: Number(i.unit_price),
-          totalPrice: Number(i.total_price),
-          imagePath: i.image_path,
-        })),
-      };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Falha ao registrar o pedido.";
+      return NextResponse.json({ error: message }, { status: message.includes("Estoque insuficiente") ? 409 : 503 });
     }
 
     return NextResponse.json({

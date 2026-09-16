@@ -179,17 +179,22 @@ function AdminDashboardContent() {
   const [passwordLoading, setPasswordLoading] = useState(false);
 
   // Check Admin Authorization
-  const isAdmin =
-    user &&
-    (user.role === "ADMIN" ||
-      user.email.toLowerCase() === "contato@auraregenera.com" ||
-      user.email.toLowerCase().includes("admin"));
+  const isAdmin = user?.role === "ADMIN";
+
+  const adminHeaders = useCallback(
+    (json = false): HeadersInit => ({
+      ...(json ? { "Content-Type": "application/json" } : {}),
+      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+    }),
+    [authToken],
+  );
 
   // Fetch Dashboard Stats
   const fetchStats = useCallback(async (uf: string) => {
     setLoadingStats(true);
     try {
-      const res = await fetch(`/api/admin/stats?uf=${uf}`);
+      const res = await fetch(`/api/admin/stats?uf=${uf}`, { headers: adminHeaders() });
+      if (res.status === 401 || res.status === 403) window.location.assign("/entrar");
       const data = await res.json();
       if (!data.error) {
         setStats(data);
@@ -199,15 +204,17 @@ function AdminDashboardContent() {
     } finally {
       setLoadingStats(false);
     }
-  }, []);
+  }, [adminHeaders]);
 
   // Fetch Orders
   const fetchOrders = useCallback(async () => {
     setLoadingOrders(true);
     try {
       const res = await fetch(
-        `/api/admin/orders?period=${periodFilter}&uf=${ufFilter}&query=${encodeURIComponent(orderQuery)}`
+        `/api/admin/orders?period=${periodFilter}&uf=${ufFilter}&query=${encodeURIComponent(orderQuery)}`,
+        { headers: adminHeaders() },
       );
+      if (res.status === 401 || res.status === 403) window.location.assign("/entrar");
       const data = await res.json();
       if (data.orders) {
         setOrders(data.orders);
@@ -217,14 +224,14 @@ function AdminDashboardContent() {
     } finally {
       setLoadingOrders(false);
     }
-  }, [periodFilter, ufFilter, orderQuery]);
+  }, [periodFilter, ufFilter, orderQuery, adminHeaders]);
 
   // Fetch Users
   const fetchUsers = useCallback(async () => {
     setLoadingUsers(true);
     try {
       const res = await fetch(`/api/admin/users?query=${encodeURIComponent(userQuery)}`, {
-        headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
+        headers: adminHeaders(),
       });
       const data = await res.json();
       if (data.users) {
@@ -235,13 +242,15 @@ function AdminDashboardContent() {
     } finally {
       setLoadingUsers(false);
     }
-  }, [userQuery, authToken]);
+  }, [userQuery, adminHeaders]);
 
   useEffect(() => {
     if (isAdmin) {
-      fetchStats(ufFilter);
-      fetchOrders();
-      fetchUsers();
+      queueMicrotask(() => {
+        void fetchStats(ufFilter);
+        void fetchOrders();
+        void fetchUsers();
+      });
     }
   }, [isAdmin, ufFilter, fetchStats, fetchOrders, fetchUsers]);
 
@@ -250,7 +259,7 @@ function AdminDashboardContent() {
     try {
       const res = await fetch("/api/admin/orders", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: adminHeaders(true),
         body: JSON.stringify({ id: orderId, status: newStatus }),
       });
       const data = await res.json();
@@ -273,7 +282,7 @@ function AdminDashboardContent() {
     try {
       const res = await fetch("/api/admin/orders", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: adminHeaders(true),
         body: JSON.stringify({
           id: editingTrackingOrder.id,
           trackingCode: newTrackingCode,
@@ -308,6 +317,7 @@ function AdminDashboardContent() {
     try {
       const res = await fetch(`/api/admin/orders?id=${deletingOrder.id}`, {
         method: "DELETE",
+        headers: adminHeaders(),
       });
       const data = await res.json();
       if (data.success) {

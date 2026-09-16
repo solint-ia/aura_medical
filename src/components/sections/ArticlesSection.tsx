@@ -29,7 +29,7 @@ export function ArticlesSection() {
                 className="flex flex-col items-start justify-between gap-4 py-5 px-3 transition-colors rounded-xl hover:bg-card/60 sm:flex-row sm:items-center"
               >
                 <div className="flex items-start gap-3.5 flex-1 min-w-0">
-                  <div className="mt-1 flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-[#C59D3F]/12 text-[#C59D3F]">
+                  <div className="mt-1 flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-accent/12 text-accent">
                     <FileText className="h-4 w-4" />
                   </div>
                   <div className="min-w-0">
@@ -44,7 +44,7 @@ export function ArticlesSection() {
                   </div>
                 </div>
 
-                <div className="inline-flex items-center gap-1.5 rounded-lg border border-[#C59D3F]/30 bg-[#C59D3F]/10 px-3.5 py-2 font-mono text-[12px] font-semibold tracking-[0.04em] text-[#C59D3F] transition-all group-hover:bg-[#C59D3F] group-hover:text-[#0D1B2A] shrink-0 self-end sm:self-auto">
+                <div className="inline-flex items-center gap-1.5 rounded-lg border border-accent/30 bg-accent/10 px-3.5 py-2 font-mono text-[12px] font-semibold tracking-[0.04em] text-accent transition-all group-hover:bg-accent group-hover:text-accent-fg shrink-0 self-end sm:self-auto">
                   <span>Visualizar PDF</span>
                   <ExternalLink className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </div>

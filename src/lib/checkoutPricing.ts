@@ -1,107 +1,69 @@
-import { enzymesData, PRICE_PER_VIAL } from "@/data/enzymes";
-import { PROTOCOLS } from "@/data/protocols";
+import { MAX_DISTINCT_ITEMS, MAX_QUANTITY_PER_ITEM } from "@/lib/checkoutLimits";
+import { roundMoney } from "@/lib/money";
 
-export interface CheckoutItemInput {
-  id?: unknown;
-  quantity?: unknown;
-}
+export interface CheckoutItemInput { id?: unknown; quantity?: unknown }
+export interface VerifiedCheckoutItem { id: string; skuCode: string; name: string; quantity: number; unitPrice: number; imagePath?: string; trackStock: boolean }
+export type VerifiedCheckout = { ok: true; items: VerifiedCheckoutItem[]; subtotal: number } | { ok: false; error: string; status?: number };
 
-export interface VerifiedCheckoutItem {
-  id: string;
+export interface ResolvedCheckoutSku {
+  requestedCode: string;
+  skuCode: string;
   name: string;
-  quantity: number;
   unitPrice: number;
   imagePath?: string;
+  isActive: boolean;
+  status?: string;
+  visibility?: string;
+  lineStatus?: string;
+  trackStock: boolean;
+  stockQuantity?: number | null;
 }
 
-export type VerifiedCheckout =
-  | { ok: true; items: VerifiedCheckoutItem[]; subtotal: number }
-  | { ok: false; error: string };
+export type CheckoutSkuResolver = (codes: string[]) => Promise<(ResolvedCheckoutSku | null)[]>;
 
-const MAX_DISTINCT_ITEMS = 25;
-const MAX_QUANTITY_PER_ITEM = 20;
-
-function roundMoney(value: number): number {
-  return Math.round((value + Number.EPSILON) * 100) / 100;
+async function defaultResolver(codes: string[]) {
+  const { resolveSkus } = await import("@/server/catalog/repository");
+  return resolveSkus(codes);
 }
 
-function resolveCatalogItem(id: string, allowTestProducts: boolean) {
-  const protocol = PROTOCOLS.find((item) => item.id === id);
-  if (protocol) {
-    if (protocol.hidden && !allowTestProducts) return null;
-    return {
-      id: protocol.id,
-      name: protocol.name,
-      unitPrice: protocol.totalPrice,
-      imagePath: protocol.image,
-    };
-  }
-
-  if (id.startsWith("enz-")) {
-    const slug = id.slice(4);
-    const enzyme = enzymesData.find(
-      (item) => item.slug === slug || item.slug === `${slug}-plus`
-    );
-    if (enzyme) {
-      return {
-        id,
-        name: `Ampola Individual ${enzyme.name} (${enzyme.activeIngredient})`,
-        unitPrice: PRICE_PER_VIAL,
-        imagePath: `/frascos/${enzyme.slug.replace(/-plus$/, "")}.png`,
-      };
-    }
-  }
-
-  return null;
-}
-
-/**
- * Resolve nomes e preços exclusivamente pelo catálogo do servidor. Dados de
- * preço enviados pelo navegador nunca são usados para criar cobranças/pedidos.
- */
-export function verifyCheckoutItems(
+export async function verifyCheckoutItems(
   rawItems: unknown,
-  allowTestProducts = false
-): VerifiedCheckout {
-  if (!Array.isArray(rawItems) || rawItems.length === 0) {
-    return { ok: false, error: "Nenhum item válido foi informado." };
+  options: { allowInternal?: boolean; resolver?: CheckoutSkuResolver } = {},
+): Promise<VerifiedCheckout> {
+  if (!Array.isArray(rawItems) || rawItems.length === 0) return { ok: false, error: "Nenhum item válido foi informado." };
+  if (rawItems.length > MAX_DISTINCT_ITEMS) return { ok: false, error: "Quantidade de itens acima do limite permitido." };
+
+  const parsed = (rawItems as CheckoutItemInput[]).map((raw) => ({
+    id: typeof raw.id === "string" ? raw.id.trim() : "",
+    quantity: Number(raw.quantity),
+  }));
+  for (const item of parsed) {
+    if (!item.id) return { ok: false, error: "Produto inválido ou indisponível: sem código." };
+    if (!Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > MAX_QUANTITY_PER_ITEM) return { ok: false, error: `Quantidade inválida para o produto ${item.id}.` };
   }
 
-  if (rawItems.length > MAX_DISTINCT_ITEMS) {
-    return { ok: false, error: "Quantidade de itens acima do limite permitido." };
+  let resolved;
+  try {
+    resolved = await (options.resolver || defaultResolver)(parsed.map((item) => item.id));
+  } catch (error) {
+    console.error("Falha ao resolver catálogo do checkout:", error);
+    return { ok: false, error: "Catálogo temporariamente indisponível.", status: 503 };
   }
 
   const items: VerifiedCheckoutItem[] = [];
-
-  for (const raw of rawItems as CheckoutItemInput[]) {
-    const id = typeof raw.id === "string" ? raw.id.trim() : "";
-    const quantity = Number(raw.quantity);
-    const catalogItem = resolveCatalogItem(id, allowTestProducts);
-
-    if (!catalogItem) {
-      return { ok: false, error: `Produto inválido ou indisponível: ${id || "sem código"}.` };
-    }
-
-    if (!Number.isInteger(quantity) || quantity < 1 || quantity > MAX_QUANTITY_PER_ITEM) {
-      return { ok: false, error: `Quantidade inválida para o produto ${id}.` };
-    }
-
-    items.push({ ...catalogItem, quantity });
+  for (const [index, input] of parsed.entries()) {
+    const sku = resolved[index];
+    if (!sku || !sku.isActive || sku.status !== "PUBLISHED" || sku.lineStatus !== "PUBLISHED") return { ok: false, error: `Produto inválido ou indisponível: ${input.id}.` };
+    if (sku.visibility === "INTERNAL" && !options.allowInternal) return { ok: false, error: `Produto inválido ou indisponível: ${input.id}.` };
+    if (sku.trackStock && input.quantity > (sku.stockQuantity || 0)) return { ok: false, error: `Estoque insuficiente para ${sku.name}.` };
+    items.push({ id: input.id, skuCode: sku.skuCode, name: sku.name, quantity: input.quantity, unitPrice: sku.unitPrice, imagePath: sku.imagePath, trackStock: sku.trackStock });
   }
 
-  const subtotal = roundMoney(
-    items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
-  );
-
+  const subtotal = roundMoney(items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0));
   return { ok: true, items, subtotal };
 }
 
-export function calculateCheckoutTotal(
-  subtotal: number,
-  paymentMethod: "card" | "pix",
-  shippingCost = 0
-): number {
+export function calculateCheckoutTotal(subtotal: number, paymentMethod: "card" | "pix", shippingCost = 0): number {
   const totalBeforeDiscount = subtotal + shippingCost;
-  const total = paymentMethod === "pix" ? totalBeforeDiscount * 0.95 : totalBeforeDiscount;
-  return roundMoney(total);
+  return roundMoney(paymentMethod === "pix" ? totalBeforeDiscount * 0.95 : totalBeforeDiscount);
 }

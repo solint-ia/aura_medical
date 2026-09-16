@@ -22,7 +22,7 @@ export function ProductCard({ product }: { product: Product }) {
   const vialImage = VIAL_IMAGE_MAP[product.id];
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-content/12 bg-card px-7 py-8 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#C59D3F]/50 hover:shadow-xl">
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-content/12 bg-card px-7 py-8 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent/50 hover:shadow-xl">
       <div
         aria-hidden="true"
         className={`absolute inset-x-0 top-0 h-1.5 ${enzyme.barClass}`}
@@ -55,7 +55,7 @@ export function ProductCard({ product }: { product: Product }) {
         <h3 className="font-display text-[26px] font-bold tracking-[-0.01em] text-content">
           {product.name}
         </h3>
-        <p className="mt-0.5 font-mono text-[10.5px] font-semibold tracking-[0.08em] text-[#C59D3F] uppercase">
+        <p className="mt-0.5 font-mono text-[10.5px] font-semibold tracking-[0.08em] text-accent uppercase">
           Alta Performance
         </p>
       </div>
@@ -77,7 +77,7 @@ export function ProductCard({ product }: { product: Product }) {
         {(detail?.indications || product.indications).map((indication) => (
           <li
             key={indication}
-            className="rounded-full border border-[#C59D3F]/30 bg-[#C59D3F]/10 px-3 py-1 font-mono text-[11px] font-semibold text-[#C59D3F] uppercase tracking-[0.04em]"
+            className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1 font-mono text-[11px] font-semibold text-accent uppercase tracking-[0.04em]"
           >
             {indication}
           </li>
@@ -91,11 +91,11 @@ export function ProductCard({ product }: { product: Product }) {
           <span className="font-semibold text-content/85">{detail?.presentation || product.packaging}</span>
         </div>
         <Link
-          href={`/enzimas/${slug}`}
-          className="group/btn flex w-full items-center justify-center gap-2 rounded-xl border border-[#C59D3F]/40 bg-transparent py-3 px-4 font-mono text-xs font-bold text-content uppercase transition-all duration-300 hover:border-[#C59D3F] hover:bg-[#C59D3F] hover:text-[#0D1B2A] shadow-xs active:scale-[0.99]"
+          href={`/produtos/${slug}`}
+          className="group/btn flex w-full items-center justify-center gap-2 rounded-xl border border-accent/40 bg-transparent py-3 px-4 font-mono text-xs font-bold text-content uppercase transition-all duration-300 hover:border-accent hover:bg-accent hover:text-accent-fg shadow-xs active:scale-[0.99]"
         >
           <span>Explorar {product.name}</span>
-          <ArrowRight className="h-4 w-4 text-[#C59D3F] group-hover/btn:text-[#0D1B2A] transition-all group-hover/btn:translate-x-1" />
+          <ArrowRight className="h-4 w-4 text-accent group-hover/btn:text-accent-fg transition-all group-hover/btn:translate-x-1" />
         </Link>
       </div>
     </article>

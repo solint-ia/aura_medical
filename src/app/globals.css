@@ -68,15 +68,18 @@
 :root {
   color-scheme: light;
 
-  --surface-canvas: #f6f3ec; /* page ground */
+  --surface-canvas: #eef1f5; /* neutral porcelain page ground */
   --surface-panel: #12283c; /* banded sections */
   --surface-card: #ffffff; /* raised cards on the canvas */
+  --surface-raised: #f7f8fa;
+  --surface-chrome: #0d1b2a;
 
   --content-primary: #12283c; /* type and hairlines on canvas/card */
   --content-on-panel: #f6f3ec; /* type on a banded section */
 
   --accent-canvas: #b8823a; /* eyebrows and links on the canvas */
   --accent-panel: #c9a63e; /* eyebrows on a banded section */
+  --accent-foreground: #0d1b2a;
 
   --action-bg: #12283c; /* primary button */
   --action-fg: #f6f3ec;
@@ -89,6 +92,8 @@
   --surface-canvas: #0a1622;
   --surface-panel: #112233;
   --surface-card: #16293b;
+  --surface-raised: #112233;
+  --surface-chrome: #0f2131;
 
   --content-primary: #f7f5f0;
   --content-on-panel: #f7f5f0;
@@ -97,6 +102,7 @@
      same family, so the accent simply stays gold in both themes. */
   --accent-canvas: #c9a63e;
   --accent-panel: #c9a63e;
+  --accent-foreground: #0d1b2a;
 
   --action-bg: #f6f3ec;
   --action-fg: #12283c;
@@ -109,13 +115,69 @@
   --color-canvas: var(--surface-canvas);
   --color-panel: var(--surface-panel);
   --color-card: var(--surface-card);
+  --color-raised: var(--surface-raised);
+  --color-chrome: var(--surface-chrome);
   --color-content: var(--content-primary);
   --color-on-panel: var(--content-on-panel);
   --color-accent: var(--accent-canvas);
   --color-accent-panel: var(--accent-panel);
+  --color-accent-fg: var(--accent-foreground);
   --color-action: var(--action-bg);
   --color-action-fg: var(--action-fg);
   --color-action-hover: var(--action-bg-hover);
+}
+
+.line-scope {
+  --line-surface: var(--line-surface-light);
+  --line-accent: var(--line-accent-light);
+  --line-ink: var(--line-ink-light);
+}
+.dark .line-scope {
+  --line-surface: var(--line-surface-dark);
+  --line-accent: var(--line-accent-dark);
+  --line-ink: var(--line-ink-dark);
+}
+.product-halo {
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--line-surface) 70%, transparent), transparent);
+}
+
+.line-product-rise {
+  animation: line-product-rise 500ms ease-out both;
+}
+
+@keyframes line-product-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Hero da Home: cada camada desloca conforme o ponteiro (--px/--py, de -1 a 1)
+   multiplicado pela profundidade; camadas próximas andam mais que as distantes. */
+.hero-layer {
+  transform: translate3d(calc(var(--px, 0) * var(--depth, 0) * 1px), calc(var(--py, 0) * var(--depth, 0) * 0.6px), 0);
+  transition: transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  will-change: transform;
+}
+.hero-float {
+  animation: hero-float 7s ease-in-out infinite;
+}
+@keyframes hero-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+/* Luz difusa atrás dos frascos do Hero: descola os rótulos da arte de fundo
+   sem virar um halo visível de borda dura. */
+.hero-backlight {
+  background: radial-gradient(60% 55% at 50% 58%, rgba(255, 255, 255, 0.55), transparent 70%);
+}
+.dark .hero-backlight {
+  background: radial-gradient(60% 55% at 50% 58%, rgba(201, 166, 62, 0.16), rgba(120, 180, 230, 0.08) 45%, transparent 72%);
+}
+
+.hero-contact-shadow {
+  background: radial-gradient(closest-side, rgba(10, 28, 44, 0.3), transparent);
+}
+.dark .hero-contact-shadow {
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.6), transparent);
 }
 
 body {

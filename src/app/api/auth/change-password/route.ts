@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { getAuthJwtSecret } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { dbPool } from "@/lib/db";
 
-const JWT_SECRET = process.env.SUPABASE_SERVICE_ROLE_KEY || "aura-jwt-secret-key-2026-secure";
 
 export async function POST(req: Request) {
   try {
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     if (authHeader && authHeader.startsWith("Bearer ")) {
       const token = authHeader.substring(7);
       try {
-        const decoded = jwt.verify(token, JWT_SECRET) as any;
+        const decoded = jwt.verify(token, getAuthJwtSecret()) as jwt.JwtPayload;
         userId = decoded.userId;
         userEmail = decoded.email;
       } catch {

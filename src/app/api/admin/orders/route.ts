@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/adminGuard";
 import { prisma } from "@/lib/prisma";
 import { dbPool } from "@/lib/db";
 import { sendMailerooEmail, renderShippingUpdateEmailTemplate } from "@/lib/maileroo";
@@ -41,6 +42,9 @@ function extractUf(order: any): string {
 
 export async function GET(req: Request) {
   try {
+    const admin = await requireAdmin(req);
+    if (!admin.ok) return admin.response;
+
     const { searchParams } = new URL(req.url);
     const period = searchParams.get("period") || "all";
     const ufFilter = (searchParams.get("uf") || "ALL").toUpperCase();
@@ -170,6 +174,9 @@ export async function GET(req: Request) {
 
 export async function PUT(req: Request) {
   try {
+    const admin = await requireAdmin(req);
+    if (!admin.ok) return admin.response;
+
     const body = await req.json();
     const { id, status, trackingCode } = body;
 
@@ -181,13 +188,19 @@ export async function PUT(req: Request) {
     const shouldNotifyTracking = !!cleanTrackingCode;
 
     try {
-      const updated = await prisma.order.update({
-        where: { id },
-        data: {
-          status: status || undefined,
-          trackingCode: cleanTrackingCode,
-        },
-        include: { user: true, address: true },
+      const updated = await prisma.$transaction(async (tx) => {
+        const previous = await tx.order.findUnique({ where: { id }, include: { items: true } });
+        if (!previous) throw new Error("Pedido não encontrado.");
+        if (status === "cancelado" && previous.status !== "cancelado") {
+          for (const item of previous.items) {
+            await tx.sku.updateMany({ where: { OR: [{ code: item.productId }, { aliases: { some: { alias: item.productId } } }], trackStock: true }, data: { stockQuantity: { increment: item.quantity } } });
+          }
+        }
+        return tx.order.update({
+          where: { id },
+          data: { status: status || undefined, trackingCode: cleanTrackingCode },
+          include: { user: true, address: true },
+        });
       });
 
       if (shouldNotifyTracking && updated.user?.email) {
@@ -257,6 +270,9 @@ export async function PUT(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
+    const admin = await requireAdmin(req);
+    if (!admin.ok) return admin.response;
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
 

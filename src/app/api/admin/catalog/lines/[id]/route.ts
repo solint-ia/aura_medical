@@ -1,0 +1,10 @@
+import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/adminGuard";
+import { prisma } from "@/lib/prisma";
+import { linePatchSchema } from "@/lib/validation/catalog";
+import { audit, validationError } from "@/server/admin/mutation";
+
+type Context = { params: Promise<{ id: string }> };
+export async function GET(req: Request, { params }: Context) { const admin = await requireAdmin(req); if (!admin.ok) return admin.response; const line = await prisma.line.findUnique({ where: { id: (await params).id }, include: { media: { include: { asset: true } } } }); return line ? NextResponse.json({ line }) : NextResponse.json({ error: "Linha não encontrada." }, { status: 404 }); }
+export async function PATCH(req: Request, { params }: Context) { const admin = await requireAdmin(req); if (!admin.ok) return admin.response; const parsed = linePatchSchema.safeParse(await req.json()); if (!parsed.success) return NextResponse.json(validationError(parsed.error), { status: 400 }); const id = (await params).id; const before = await prisma.line.findUnique({ where: { id } }); if (!before) return NextResponse.json({ error: "Linha não encontrada." }, { status: 404 }); const line = await prisma.line.update({ where: { id }, data: parsed.data }); await audit(admin.user.userId, "Line", id, "update", { before, after: line }); return NextResponse.json({ line }); }
+export async function DELETE(req: Request, { params }: Context) { const admin = await requireAdmin(req); if (!admin.ok) return admin.response; const id = (await params).id; const count = await prisma.product.count({ where: { lineId: id } }); if (count) { const line = await prisma.line.update({ where: { id }, data: { status: "ARCHIVED" } }); await audit(admin.user.userId, "Line", id, "archive", { status: "ARCHIVED" }); return NextResponse.json({ line, archived: true }); } await prisma.line.delete({ where: { id } }); await audit(admin.user.userId, "Line", id, "delete", {}); return NextResponse.json({ success: true }); }

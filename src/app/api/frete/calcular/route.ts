@@ -37,9 +37,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Endereço inválido." }, { status: 400 });
     }
 
-    const verifiedCart = verifyCheckoutItems(items, auth.role === "ADMIN");
+    const verifiedCart = await verifyCheckoutItems(items, { allowInternal: auth.role === "ADMIN" });
     if (!verifiedCart.ok) {
-      return NextResponse.json({ error: verifiedCart.error }, { status: 400 });
+      return NextResponse.json({ error: verifiedCart.error }, { status: verifiedCart.status || 400 });
     }
 
     const destinationCep = await findOwnedAddressCep(auth.userId, addressId);

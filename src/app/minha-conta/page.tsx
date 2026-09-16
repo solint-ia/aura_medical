@@ -150,7 +150,7 @@ function CustomerPortalContent() {
   if (!user) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#C59D3F]/15 text-[#C59D3F]">
+        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-accent/15 text-accent">
           <User className="h-10 w-10" />
         </div>
         <h1 className="font-display text-3xl font-bold text-content mb-3">
@@ -162,7 +162,7 @@ function CustomerPortalContent() {
         <div className="flex justify-center gap-4">
           <Link
             href="/entrar"
-            className="rounded-xl bg-[#C59D3F] px-8 py-3.5 font-bold text-xs text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99]"
+            className="rounded-xl bg-accent px-8 py-3.5 font-bold text-xs text-accent-fg transition-all hover:bg-accent shadow-md active:scale-[0.99]"
           >
             Entrar na Conta ou Criar Cadastro →
           </Link>
@@ -407,7 +407,7 @@ function CustomerPortalContent() {
       {/* Top Welcome Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-content/12 pb-6">
         <div>
-          <span className="font-mono text-xs font-semibold text-[#C59D3F] uppercase tracking-wider">
+          <span className="font-mono text-xs font-semibold text-accent uppercase tracking-wider">
             Área do Cliente
           </span>
           <h1 className="font-display text-3xl font-bold text-content mt-1">
@@ -452,8 +452,8 @@ function CustomerPortalContent() {
                 Explore nosso catálogo de bioregenerativos recombinantes e monte seu primeiro pedido.
               </p>
               <Link
-                href="/#protocolos"
-                className="inline-flex items-center gap-2 rounded-lg bg-[#C59D3F] px-6 py-3 font-semibold text-[#0D1B2A] transition-colors hover:bg-[#d4ac4c]"
+                href="/catalogo"
+                className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 font-semibold text-accent-fg transition-colors hover:bg-accent"
               >
                 Explorar Protocolos
               </Link>
@@ -462,7 +462,7 @@ function CustomerPortalContent() {
             orders.map((order) => (
               <div
                 key={order.id}
-                className="rounded-2xl border border-content/12 bg-card p-6 shadow-xs transition-all hover:border-[#C59D3F]/40"
+                className="rounded-2xl border border-content/12 bg-card p-6 shadow-xs transition-all hover:border-accent/40"
               >
                 {/* Order Header */}
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-content/10 pb-4 mb-4 font-mono text-xs">
@@ -479,7 +479,7 @@ function CustomerPortalContent() {
                   </div>
                   <div className="flex items-center gap-3">
                     {getStatusBadge(order.status)}
-                    <span className="font-bold text-sm text-[#C59D3F]">
+                    <span className="font-bold text-sm text-accent">
                       {formatBRL(order.totalPrice)}
                     </span>
                   </div>
@@ -493,7 +493,7 @@ function CustomerPortalContent() {
                     return (
                       <div key={item.id} className="flex items-center justify-between py-3">
                         <div className="flex items-center gap-3">
-                          <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#C59D3F]/40 shadow-xs ring-2 ring-[#C59D3F]/10">
+                          <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-accent/40 shadow-xs ring-2 ring-[#C59D3F]/10">
                             <Image
                               src={itemImg}
                               alt={item.productName}
@@ -525,7 +525,7 @@ function CustomerPortalContent() {
                     <p>📍 <strong className="text-content">Endereço:</strong> {order.addressSummary}</p>
                     <p>🚚 <strong className="text-content">Frete:</strong> {order.shippingMethod} ({formatBRL(order.shippingCost)})</p>
                     {order.trackingCode && order.trackingCode.trim() !== "" && !order.trackingCode.startsWith("ME-") ? (
-                      <p>📦 <strong className="text-content">Rastreio:</strong> <span className="text-[#C59D3F] font-bold">{order.trackingCode}</span></p>
+                      <p>📦 <strong className="text-content">Rastreio:</strong> <span className="text-accent font-bold">{order.trackingCode}</span></p>
                     ) : (
                       <p>📦 <strong className="text-content">Rastreio:</strong> <span className="text-content/50 italic">Em preparação para envio</span></p>
                     )}
@@ -535,7 +535,7 @@ function CustomerPortalContent() {
                     <button
                       type="button"
                       onClick={() => setReorderOrder(order)}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-[#C59D3F] px-5 py-2 font-semibold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-sm"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-5 py-2 font-semibold text-accent-fg transition-all hover:bg-accent shadow-sm"
                     >
                       <RefreshCw className="h-4 w-4" />
                       <span>Comprar Novamente</span>
@@ -558,7 +558,7 @@ function CustomerPortalContent() {
             <button
               type="button"
               onClick={handleOpenNewAddressModal}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#C59D3F] px-4 py-2 font-mono text-xs font-bold text-[#0D1B2A] hover:bg-[#d4ac4c]"
+              className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 font-mono text-xs font-bold text-accent-fg hover:bg-accent"
             >
               <Plus className="h-4 w-4" />
               <span>Adicionar Novo Endereço</span>
@@ -573,18 +573,18 @@ function CustomerPortalContent() {
                   key={addr.id}
                   className={`rounded-2xl border p-5 transition-all space-y-3 ${
                     isSelected
-                      ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content shadow-sm"
+                      ? "border-accent bg-accent/10 text-content shadow-sm"
                       : "border-content/12 bg-card hover:border-content/30"
                   }`}
                 >
                   <div className="flex items-center justify-between font-mono text-xs border-b border-content/10 pb-2">
-                    <span className="font-bold text-[#C59D3F] uppercase">
+                    <span className="font-bold text-accent uppercase">
                       {addr.isDefault ? "📍 Endereço Padrão" : "Endereço Cadastrado"}
                     </span>
                     <button
                       type="button"
                       onClick={() => setSelectedAddress(addr)}
-                      className="text-[#C59D3F] underline font-bold"
+                      className="text-accent underline font-bold"
                     >
                       {isSelected ? "Selecionado" : "Usar no Checkout"}
                     </button>
@@ -607,7 +607,7 @@ function CustomerPortalContent() {
                     <button
                       type="button"
                       onClick={() => handleOpenEditAddressModal(addr)}
-                      className="inline-flex items-center gap-1 text-[#C59D3F] hover:underline font-semibold"
+                      className="inline-flex items-center gap-1 text-accent hover:underline font-semibold"
                     >
                       <Edit2 className="h-3.5 w-3.5" />
                       <span>Editar</span>
@@ -650,9 +650,9 @@ function CustomerPortalContent() {
                       setAddressCep(formatted);
                       handleViaCep(formatted);
                     }}
-                    className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-[#C59D3F]"
+                    className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-accent"
                   />
-                  {cepLoading && <span className="text-[10px] font-mono text-[#C59D3F]">Buscando CEP...</span>}
+                  {cepLoading && <span className="text-[10px] font-mono text-accent">Buscando CEP...</span>}
                 </div>
                 <div>
                   <label className="block mb-1 font-mono text-[11px] uppercase text-content/70">Número *</label>
@@ -661,7 +661,7 @@ function CustomerPortalContent() {
                     placeholder="1000"
                     value={addressNumber}
                     onChange={(e) => setAddressNumber(e.target.value)}
-                    className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-[#C59D3F]"
+                    className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-accent"
                   />
                 </div>
               </div>
@@ -672,7 +672,7 @@ function CustomerPortalContent() {
                   placeholder="Av. Paulista"
                   value={addressStreet}
                   onChange={(e) => setAddressStreet(e.target.value)}
-                  className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-[#C59D3F]"
+                  className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-accent"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -683,7 +683,7 @@ function CustomerPortalContent() {
                     placeholder="Sala 402"
                     value={addressComplement}
                     onChange={(e) => setAddressComplement(e.target.value)}
-                    className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-[#C59D3F]"
+                    className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-accent"
                   />
                 </div>
                 <div>
@@ -693,7 +693,7 @@ function CustomerPortalContent() {
                     placeholder="Bela Vista"
                     value={addressNeighborhood}
                     onChange={(e) => setAddressNeighborhood(e.target.value)}
-                    className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-[#C59D3F]"
+                    className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-accent"
                   />
                 </div>
               </div>
@@ -704,7 +704,7 @@ function CustomerPortalContent() {
                   placeholder="São Paulo - SP"
                   value={addressCity}
                   onChange={(e) => setAddressCity(e.target.value)}
-                  className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-[#C59D3F]"
+                  className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-accent"
                 />
               </div>
               <div className="flex gap-3 pt-2">
@@ -721,7 +721,7 @@ function CustomerPortalContent() {
                 </button>
                 <button
                   type="submit"
-                  className="w-1/2 rounded-lg bg-[#C59D3F] py-2.5 font-mono text-xs font-bold text-[#0D1B2A]"
+                  className="w-1/2 rounded-lg bg-accent py-2.5 font-mono text-xs font-bold text-accent-fg"
                 >
                   {editingAddressId ? "Salvar Alterações" : "Salvar Endereço"}
                 </button>
@@ -791,13 +791,13 @@ function CustomerPortalContent() {
           {!isEditingProfile ? (
             <div className="rounded-2xl border border-content/12 bg-card p-6 space-y-4 shadow-xs">
               <div className="flex items-center justify-between border-b border-content/10 pb-3">
-                <h3 className="font-mono text-xs font-bold text-[#C59D3F] uppercase tracking-wider">
+                <h3 className="font-mono text-xs font-bold text-accent uppercase tracking-wider">
                   Dados Cadastrais do Cliente
                 </h3>
                 <button
                   type="button"
                   onClick={handleStartEditProfile}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#C59D3F]/40 bg-[#C59D3F]/10 px-3 py-1.5 font-mono text-xs font-bold text-[#C59D3F] hover:bg-[#C59D3F]/20"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-accent/40 bg-accent/10 px-3 py-1.5 font-mono text-xs font-bold text-accent hover:bg-accent/20"
                 >
                   <Edit2 className="h-3.5 w-3.5" />
                   <span>Editar Informações</span>
@@ -807,7 +807,7 @@ function CustomerPortalContent() {
               <div className="space-y-3 font-mono text-xs text-content/80">
                 <div className="flex justify-between border-b border-content/10 pb-2">
                   <span className="text-content/50">Nome Completo:</span>
-                  <strong className="text-[#C59D3F] font-bold">{user.firstName} {user.lastName}</strong>
+                  <strong className="text-accent font-bold">{user.firstName} {user.lastName}</strong>
                 </div>
                 <div className="flex justify-between border-b border-content/10 pb-2">
                   <span className="text-content/50 flex items-center gap-1">
@@ -836,7 +836,7 @@ function CustomerPortalContent() {
               </div>
             </div>
           ) : (
-            <form onSubmit={handleSaveProfile} className="rounded-2xl border border-[#C59D3F]/30 bg-card p-6 space-y-4 shadow-xl">
+            <form onSubmit={handleSaveProfile} className="rounded-2xl border border-accent/30 bg-card p-6 space-y-4 shadow-xl">
               <h3 className="font-display text-lg font-bold text-content">Editar Informações Pessoais</h3>
 
               {profileErrorMsg && (
@@ -852,7 +852,7 @@ function CustomerPortalContent() {
                     type="text"
                     value={editFirstName}
                     onChange={(e) => setEditFirstName(e.target.value)}
-                    className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-[#C59D3F]"
+                    className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-accent"
                   />
                 </div>
                 <div>
@@ -861,7 +861,7 @@ function CustomerPortalContent() {
                     type="text"
                     value={editLastName}
                     onChange={(e) => setEditLastName(e.target.value)}
-                    className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-[#C59D3F]"
+                    className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-accent"
                   />
                 </div>
               </div>
@@ -872,7 +872,7 @@ function CustomerPortalContent() {
                   type="tel"
                   value={editPhone}
                   onChange={(e) => setEditPhone(formatPhone(e.target.value))}
-                  className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-[#C59D3F]"
+                  className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-accent"
                 />
               </div>
 
@@ -883,14 +883,14 @@ function CustomerPortalContent() {
                     type="date"
                     value={editBirthDate ? editBirthDate.split("T")[0] : ""}
                     onChange={(e) => setEditBirthDate(e.target.value)}
-                    className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-[#C59D3F]"
+                    className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 text-sm text-content outline-none focus:border-accent"
                   />
                 </div>
               )}
 
               {/* ALTERAÇÃO DE SENHA */}
               <div className="border-t border-content/12 pt-4 space-y-3">
-                <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-[#C59D3F] uppercase">
+                <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-accent uppercase">
                   <Lock className="h-3.5 w-3.5" />
                   <span>Alterar Senha de Acesso (Opcional)</span>
                 </div>
@@ -903,7 +903,7 @@ function CustomerPortalContent() {
                       placeholder="Digite sua senha atual"
                       value={editCurrentPassword}
                       onChange={(e) => setEditCurrentPassword(e.target.value)}
-                      className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 pr-9 text-sm text-content outline-none focus:border-[#C59D3F]"
+                      className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 pr-9 text-sm text-content outline-none focus:border-accent"
                     />
                     <button
                       type="button"
@@ -930,7 +930,7 @@ function CustomerPortalContent() {
                         placeholder="Mínimo 6 caracteres"
                         value={editNewPassword}
                         onChange={(e) => setEditNewPassword(e.target.value)}
-                        className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 pr-9 text-sm text-content outline-none focus:border-[#C59D3F]"
+                        className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 pr-9 text-sm text-content outline-none focus:border-accent"
                       />
                       <button
                         type="button"
@@ -955,7 +955,7 @@ function CustomerPortalContent() {
                         placeholder="Repita a nova senha"
                         value={editConfirmPassword}
                         onChange={(e) => setEditConfirmPassword(e.target.value)}
-                        className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 pr-9 text-sm text-content outline-none focus:border-[#C59D3F]"
+                        className="w-full rounded-lg border border-content/18 bg-canvas px-3 py-2 pr-9 text-sm text-content outline-none focus:border-accent"
                       />
                       <button
                         type="button"
@@ -989,7 +989,7 @@ function CustomerPortalContent() {
                 <button
                   type="submit"
                   disabled={passwordLoading}
-                  className="w-1/2 rounded-lg bg-[#C59D3F] py-2.5 font-mono text-xs font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c]"
+                  className="w-1/2 rounded-lg bg-accent py-2.5 font-mono text-xs font-bold text-accent-fg transition-all hover:bg-accent"
                 >
                   {passwordLoading ? "Verificando..." : "Salvar Alterações"}
                 </button>
@@ -1004,7 +1004,7 @@ function CustomerPortalContent() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
           <div className="w-full max-w-md rounded-2xl border border-content/12 bg-card p-6 shadow-2xl space-y-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#C59D3F]/15 text-[#C59D3F]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/15 text-accent">
                 <RefreshCw className="h-5 w-5" />
               </div>
               <div>
@@ -1021,7 +1021,7 @@ function CustomerPortalContent() {
               <button
                 type="button"
                 onClick={() => executeReorder(true)}
-                className="w-full rounded-xl bg-[#C59D3F] py-3 text-sm font-bold text-[#0D1B2A] hover:bg-[#d4ac4c]"
+                className="w-full rounded-xl bg-accent py-3 text-sm font-bold text-accent-fg hover:bg-accent"
               >
                 Substituir Carrinho Atual & Ir para Checkout
               </button>

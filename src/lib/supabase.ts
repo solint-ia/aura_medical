@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://pwqnrdnjgemglpfgetii.supabase.co";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "https://pwqnrdnjgemglpfgetii.supabase.co/rest/v1/";
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+if (!supabaseUrl || !supabaseAnonKey) throw new Error("Configuração pública do Supabase ausente.");
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);

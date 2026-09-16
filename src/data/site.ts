@@ -15,9 +15,9 @@ export interface NavLink {
 // scrolls to the section.
 export const NAV_LINKS: NavLink[] = [
   { href: "/", label: "Home" },
-  { href: "/#protocolos", label: "Protocolos" },
-  { href: "/casos-clinicos", label: "Casos Clínicos" },
-  { href: "/enzimas", label: "Bioregenerativos" },
+  { href: "/catalogo", label: "Catálogo" },
+  { href: "/linhas/pbserum", label: "PBSerum" },
+  { href: "/linhas/la-cutanee", label: "La Cutanée" },
 ];
 
 export const HEADER_ACCREDITATION_CTA_LABEL = "Fale Conosco";

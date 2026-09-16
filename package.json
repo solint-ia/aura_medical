@@ -7,7 +7,15 @@
     "build": "prisma generate && next build",
     "postinstall": "prisma generate",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:migrate": "prisma migrate deploy",
+    "db:seed": "tsx --env-file=.env.local prisma/seed.ts",
+    "db:parity": "tsx --env-file=.env.local scripts/verify-catalog-parity.ts",
+    "storage:migrate": "tsx --env-file=.env.local scripts/migrate-catalog-images.ts",
+    "images:trim": "tsx scripts/trim-product-images.ts",
+    "check:colors": "node scripts/check-hardcoded-colors.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.4.0",
@@ -15,24 +23,35 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
     "bcryptjs": "^3.0.3",
+    "jose": "^6.1.0",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.26.0",
     "next": "16.2.11",
     "next-themes": "^0.4.6",
     "prisma": "^6.4.0",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "server-only": "^0.0.1",
+    "sharp": "^0.35.4",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^20",
     "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^4.7.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.11",
+    "jsdom": "^26.1.0",
     "pg": "^8.22.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "tsx": "^4.20.6",
+    "typescript": "^5",
+    "vitest": "^3.2.4"
   }
 }

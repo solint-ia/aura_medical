@@ -224,7 +224,7 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
     `w-full rounded-lg border px-3 py-2 text-xs transition-colors outline-none ${
       hasError
         ? "border-red-500 bg-red-500/5 text-red-900 dark:text-red-200 focus:border-red-600"
-        : "border-content/18 bg-canvas dark:bg-card text-content focus:border-[#C59D3F]"
+        : "border-content/18 bg-canvas dark:bg-card text-content focus:border-accent"
     }`;
 
   return (
@@ -278,7 +278,7 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
             }}
             className={`flex-1 py-2 font-bold uppercase transition-colors border-b-2 ${
               tab === "login"
-                ? "border-[#C59D3F] text-[#C59D3F]"
+                ? "border-accent text-accent"
                 : "border-transparent text-content/60 hover:text-content"
             }`}
           >
@@ -294,7 +294,7 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
             }}
             className={`flex-1 py-2 font-bold uppercase transition-colors border-b-2 ${
               tab === "register"
-                ? "border-[#C59D3F] text-[#C59D3F]"
+                ? "border-accent text-accent"
                 : "border-transparent text-content/60 hover:text-content"
             }`}
           >
@@ -372,7 +372,7 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-xl bg-[#C59D3F] py-2.5 font-bold text-xs text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99] mt-2"
+                className="w-full rounded-xl bg-accent py-2.5 font-bold text-xs text-accent-fg transition-all hover:bg-accent shadow-md active:scale-[0.99] mt-2"
               >
                 {loading ? "Entrando..." : "Entrar na Conta →"}
               </button>
@@ -384,11 +384,11 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
             <div>
               {/* Step Tracker for Registration */}
               <div className="mb-3 flex items-center justify-between font-mono text-[10px] border-b border-content/10 pb-2 uppercase">
-                <span className={`font-bold ${regStep === 1 ? "text-[#C59D3F]" : "text-content/50"}`}>
+                <span className={`font-bold ${regStep === 1 ? "text-accent" : "text-content/50"}`}>
                   1. Dados & Acesso
                 </span>
                 <span className="text-content/30">➔</span>
-                <span className={`font-bold ${regStep === 2 ? "text-[#C59D3F]" : "text-content/50"}`}>
+                <span className={`font-bold ${regStep === 2 ? "text-accent" : "text-content/50"}`}>
                   2. Endereço de Entrega
                 </span>
               </div>
@@ -452,7 +452,7 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                           }}
                           className={`px-2 py-0.5 rounded font-bold transition-colors ${
                             docType === "cpf"
-                              ? "bg-[#C59D3F] text-[#0D1B2A]"
+                              ? "bg-accent text-accent-fg"
                               : "bg-content/10 text-content/60 hover:text-content"
                           }`}
                         >
@@ -467,7 +467,7 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                           }}
                           className={`px-2 py-0.5 rounded font-bold transition-colors ${
                             docType === "cnpj"
-                              ? "bg-[#C59D3F] text-[#0D1B2A]"
+                              ? "bg-accent text-accent-fg"
                               : "bg-content/10 text-content/60 hover:text-content"
                           }`}
                         >
@@ -617,7 +617,7 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
 
                   <button
                     type="submit"
-                    className="w-full rounded-xl bg-[#C59D3F] py-2.5 font-bold text-xs text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99] mt-2"
+                    className="w-full rounded-xl bg-accent py-2.5 font-bold text-xs text-accent-fg transition-all hover:bg-accent shadow-md active:scale-[0.99] mt-2"
                   >
                     Continuar →
                   </button>
@@ -645,7 +645,7 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                         }}
                         className={inputClass(!!fieldErrors.cep)}
                       />
-                      {cepLoading && <span className="font-mono text-[9px] text-[#C59D3F]">Buscando CEP...</span>}
+                      {cepLoading && <span className="font-mono text-[9px] text-accent">Buscando CEP...</span>}
                       {fieldErrors.cep && (
                         <p className="mt-0.5 font-mono text-[10px] text-red-500">{fieldErrors.cep}</p>
                       )}
@@ -753,7 +753,7 @@ export function AuthModal({ isOpen, onClose, initialTab = "login", onSuccess }: 
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-2/3 rounded-xl bg-[#C59D3F] py-2.5 font-bold text-xs text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99]"
+                      className="w-2/3 rounded-xl bg-accent py-2.5 font-bold text-xs text-accent-fg transition-all hover:bg-accent shadow-md active:scale-[0.99]"
                     >
                       {loading ? "Cadastrando..." : "Concluir Cadastro & Acessar →"}
                     </button>

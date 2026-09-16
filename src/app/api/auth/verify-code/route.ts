@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import { getAuthJwtSecret } from "@/lib/auth";
 import { dbPool } from "@/lib/db";
 import { toISODateString } from "@/lib/format";
 
-const JWT_SECRET = process.env.SUPABASE_SERVICE_ROLE_KEY || "aura-jwt-secret-key-2026-secure";
 
 export async function POST(req: Request) {
   try {
@@ -74,7 +74,7 @@ export async function POST(req: Request) {
         name: `${u.first_name} ${u.last_name}`,
         role: u.role || "USER",
       },
-      JWT_SECRET,
+      getAuthJwtSecret(),
       { expiresIn: "30d" }
     );
 

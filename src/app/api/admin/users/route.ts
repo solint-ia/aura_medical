@@ -3,13 +3,12 @@ import { prisma } from "@/lib/prisma";
 import { dbPool } from "@/lib/db";
 import { toISODateString } from "@/lib/format";
 import { validateEmail, validatePhone } from "@/lib/validators";
-import { verifyAdminToken } from "@/lib/auth";
+import { requireAdmin } from "@/lib/adminGuard";
 
 export async function GET(req: Request) {
   try {
-    if (!verifyAdminToken(req)) {
-      return NextResponse.json({ error: "Acesso restrito a administradores." }, { status: 401 });
-    }
+    const admin = await requireAdmin(req);
+    if (!admin.ok) return admin.response;
 
     const { searchParams } = new URL(req.url);
     const query = (searchParams.get("query") || "").toLowerCase().trim();
@@ -124,9 +123,8 @@ export async function GET(req: Request) {
 
 export async function PUT(req: Request) {
   try {
-    if (!verifyAdminToken(req)) {
-      return NextResponse.json({ error: "Acesso restrito a administradores." }, { status: 401 });
-    }
+    const admin = await requireAdmin(req);
+    if (!admin.ok) return admin.response;
 
     const body = await req.json();
     const { id, firstName, lastName, phone, email, cpfCnpj, role } = body;
@@ -189,9 +187,8 @@ export async function PUT(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
-    if (!verifyAdminToken(req)) {
-      return NextResponse.json({ error: "Acesso restrito a administradores." }, { status: 401 });
-    }
+    const admin = await requireAdmin(req);
+    if (!admin.ok) return admin.response;
 
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");

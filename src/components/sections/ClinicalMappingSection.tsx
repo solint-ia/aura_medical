@@ -5,7 +5,7 @@ export function ClinicalMappingSection() {
     <section
       id="mapeamento"
       aria-labelledby="mapeamento-title"
-      className="relative overflow-hidden bg-[#F7F5F0] px-[clamp(20px,4vw,56px)] py-16 md:py-24 text-[#0A1622]"
+      className="relative overflow-hidden bg-raised px-[clamp(20px,4vw,56px)] py-16 md:py-24 text-content"
     >
       {/* Ambient background glow */}
       <div
@@ -16,16 +16,16 @@ export function ClinicalMappingSection() {
       <div className="relative z-10 mx-auto max-w-[1360px]">
         {/* Section Header */}
         <div className="mx-auto mb-10 max-w-3xl text-center md:mb-14">
-          <span className="font-mono text-xs font-semibold tracking-[0.18em] text-[#C59D3F] uppercase md:text-sm">
+          <span className="font-mono text-xs font-semibold tracking-[0.18em] text-accent uppercase md:text-sm">
             Mapeamento Clínico Interativo
           </span>
           <h2
             id="mapeamento-title"
-            className="mt-3 font-display text-3xl font-bold leading-[1.12] tracking-tight text-[#0A1622] sm:text-4xl md:text-5xl"
+            className="mt-3 font-display text-3xl font-bold leading-[1.12] tracking-tight text-content sm:text-4xl md:text-5xl"
           >
             Identifique a indicação ideal para a sua necessidade.
           </h2>
-          <p className="mt-4 text-base text-[#0A1622]/75 sm:text-lg leading-relaxed">
+          <p className="mt-4 text-base text-content/75 sm:text-lg leading-relaxed">
             Visualização 3D das zonas de tratamento facial e corporal para bioremodelação tecidual.
           </p>
         </div>
@@ -45,8 +45,8 @@ export function ClinicalMappingSection() {
                 className="h-auto w-full max-w-2xl lg:max-w-3xl mx-auto object-contain transform transition-all duration-700 ease-out [transform-style:preserve-3d] [transform:rotateY(8deg)] hover:[transform:rotateY(0deg)] hover:scale-105 md:hover:scale-110 drop-shadow-xl hover:drop-shadow-2xl cursor-pointer"
               />
             </div>
-            <div className="mt-5 rounded-xl border border-[#0A1622]/12 bg-white px-6 py-3 shadow-xs">
-              <span className="font-mono text-xs font-bold tracking-[0.12em] text-[#0A1622] uppercase">
+            <div className="mt-5 rounded-xl border border-content/12 bg-card px-6 py-3 shadow-xs">
+              <span className="font-mono text-xs font-bold tracking-[0.12em] text-content uppercase">
                 Mapeamento Facial · Contorno & Reestruturação
               </span>
             </div>
@@ -65,8 +65,8 @@ export function ClinicalMappingSection() {
                 className="h-auto w-full max-w-2xl lg:max-w-3xl mx-auto object-contain transform transition-all duration-700 ease-out [transform-style:preserve-3d] [transform:rotateY(-8deg)] hover:[transform:rotateY(0deg)] hover:scale-105 md:hover:scale-110 drop-shadow-xl hover:drop-shadow-2xl cursor-pointer"
               />
             </div>
-            <div className="mt-5 rounded-xl border border-[#0A1622]/12 bg-white px-6 py-3 shadow-xs">
-              <span className="font-mono text-xs font-bold tracking-[0.12em] text-[#0A1622] uppercase">
+            <div className="mt-5 rounded-xl border border-content/12 bg-card px-6 py-3 shadow-xs">
+              <span className="font-mono text-xs font-bold tracking-[0.12em] text-content uppercase">
                 Mapeamento Corporal · Firmeza, Contorno & Celulite
               </span>
             </div>
@@ -79,10 +79,10 @@ export function ClinicalMappingSection() {
           propósito; para reexibir, basta remover este comentário.
 
         <div className="w-full max-w-4xl lg:max-w-5xl mx-auto mt-12 md:mt-16 text-center">
-          <span className="font-mono text-xs font-semibold tracking-[0.18em] text-[#C59D3F] uppercase md:text-sm">
+          <span className="font-mono text-xs font-semibold tracking-[0.18em] text-accent uppercase md:text-sm">
             Técnica de Aplicação
           </span>
-          <h3 className="mt-2 font-display text-2xl md:text-3xl font-bold leading-tight text-[#0A1622]">
+          <h3 className="mt-2 font-display text-2xl md:text-3xl font-bold leading-tight text-content">
             Esquema Técnico & Malha de Aplicação
           </h3>
 

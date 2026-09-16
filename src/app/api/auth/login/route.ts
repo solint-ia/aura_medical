@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { getAuthJwtSecret } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { dbPool } from "@/lib/db";
 import { toISODateString } from "@/lib/format";
 
-const JWT_SECRET = process.env.SUPABASE_SERVICE_ROLE_KEY || "aura-jwt-secret-key-2026-secure";
 const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "contato@auraregenera.com").toLowerCase().trim();
 
 export async function POST(req: Request) {
@@ -235,7 +235,7 @@ export async function POST(req: Request) {
         name: `${dbUser.firstName} ${dbUser.lastName}`,
         role: dbUser.role,
       },
-      JWT_SECRET,
+      getAuthJwtSecret(),
       { expiresIn: "30d" }
     );
 

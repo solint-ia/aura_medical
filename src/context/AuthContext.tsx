@@ -106,27 +106,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Hydrate auth session state
   useEffect(() => {
-    try {
-      const savedUser = localStorage.getItem(LOCAL_STORAGE_USER_KEY);
-      const savedToken = localStorage.getItem(LOCAL_STORAGE_TOKEN_KEY);
-      const savedAddresses = localStorage.getItem(LOCAL_STORAGE_ADDRESSES_KEY);
-      const savedOrders = localStorage.getItem(LOCAL_STORAGE_ORDERS_KEY);
+    queueMicrotask(() => {
+      try {
+        const savedUser = localStorage.getItem(LOCAL_STORAGE_USER_KEY);
+        const savedToken = localStorage.getItem(LOCAL_STORAGE_TOKEN_KEY);
+        const savedAddresses = localStorage.getItem(LOCAL_STORAGE_ADDRESSES_KEY);
+        const savedOrders = localStorage.getItem(LOCAL_STORAGE_ORDERS_KEY);
 
-      if (savedUser) setUser(JSON.parse(savedUser));
-      if (savedToken) setAuthToken(savedToken);
+        if (savedUser) setUser(JSON.parse(savedUser));
+        if (savedToken) setAuthToken(savedToken);
 
-      if (savedAddresses) {
-        const parsedAddresses = JSON.parse(savedAddresses);
-        setAddresses(parsedAddresses);
-        if (parsedAddresses.length > 0) setSelectedAddress(parsedAddresses[0]);
+        if (savedAddresses) {
+          const parsedAddresses = JSON.parse(savedAddresses);
+          setAddresses(parsedAddresses);
+          if (parsedAddresses.length > 0) setSelectedAddress(parsedAddresses[0]);
+        }
+
+        if (savedOrders) setOrders(JSON.parse(savedOrders));
+      } catch (err) {
+        console.error("Erro ao carregar sessão de autenticação:", err);
+      } finally {
+        setIsHydrated(true);
       }
-
-      if (savedOrders) setOrders(JSON.parse(savedOrders));
-    } catch (err) {
-      console.error("Erro ao carregar sessão de autenticação:", err);
-    } finally {
-      setIsHydrated(true);
-    }
+    });
   }, []);
 
   const syncState = (

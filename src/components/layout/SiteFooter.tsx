@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Mail } from "lucide-react";
-import { AccreditationButton } from "@/components/accreditation/AccreditationButton";
 import {
   COMPANY_CNPJ,
   CONTACT_EMAIL,
@@ -49,8 +48,9 @@ function WhatsAppIcon() {
 
 export function SiteFooter() {
   return (
-    <footer className="bg-panel px-[clamp(20px,4vw,56px)] pt-10 pb-8 text-on-panel">
-      <div className="mx-auto flex max-w-[1280px] flex-col items-center gap-8 border-b border-on-panel/12 pb-8 text-center sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:text-left">
+    <footer className="bg-canvas px-[clamp(16px,4vw,48px)] py-6 text-on-panel">
+      <div className="mx-auto max-w-[1280px] rounded-[32px] bg-panel px-[clamp(24px,4vw,48px)] pb-8 pt-10">
+      <div className="flex flex-col items-center gap-8 border-b border-on-panel/12 pb-8 text-center sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:text-left">
         {/* Logo centralizada em telas mobile */}
         <div className="flex flex-col items-center sm:items-start">
           <Image
@@ -145,7 +145,7 @@ export function SiteFooter() {
       </div>
 
       {/* Direitos Autorais e Links Legais no Final */}
-      <div className="mx-auto mt-6 flex max-w-[1280px] flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
+      <div className="mt-6 flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
         <p className="font-mono text-xs text-on-panel/60">
           © 2026 Aura Regenera · CNPJ {COMPANY_CNPJ}
         </p>
@@ -164,6 +164,7 @@ export function SiteFooter() {
             Políticas de Privacidade
           </Link>
         </div>
+      </div>
       </div>
     </footer>
   );

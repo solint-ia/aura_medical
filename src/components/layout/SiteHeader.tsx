@@ -3,287 +3,90 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { LogOut, MapPin, PackageCheck, ShieldCheck, ShoppingCart, User } from "lucide-react";
-
+import { useState } from "react";
+import { ChevronDown, LogOut, Menu, PackageCheck, ShoppingCart, User, X } from "lucide-react";
 import { AccreditationButton } from "@/components/accreditation/AccreditationButton";
-
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { HEADER_ACCREDITATION_CTA_LABEL, NAV_LINKS } from "@/data/site";
+import { LINE_LIST } from "@/data/lines";
+import { HEADER_ACCREDITATION_CTA_LABEL } from "@/data/site";
 
-export function SiteHeader() {
+export interface HeaderLine { slug: string; name: string; descriptor: string }
+
+/** Botões redondos de ícone: mesma borda e mesma tinta em cada tema. */
+const ICON_BUTTON =
+  "flex items-center justify-center rounded-full border border-black/10 text-slate-800 transition-colors hover:border-[#C59D3F] hover:text-[#C59D3F] dark:border-white/20 dark:text-white dark:hover:border-[#D8B657] dark:hover:text-[#D8B657]";
+
+/** Painéis suspensos: dropdown de linhas, menu da conta e menu mobile. */
+const PANEL =
+  "border border-black/8 bg-white/95 text-slate-900 shadow-[0_18px_50px_rgba(12,24,39,.14)] backdrop-blur-xl dark:border-white/10 dark:bg-[#102438]/95 dark:text-white dark:shadow-2xl";
+
+export function SiteHeader({ lines = LINE_LIST.map((line) => ({ slug: line.id, name: line.name, descriptor: line.descriptor })) }: { lines?: HeaderLine[] }) {
   const pathname = usePathname();
-  const [isMenuRequested, setIsMenuRequested] = useState(false);
-  const isWideViewport = useMediaQuery("(min-width: 1180px)", true);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const { totalItems, isHydrated } = useCart();
   const { user, logout } = useAuth();
-  const [activeHash, setActiveHash] = useState<string>("");
-
-  // Auth modal state
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-
-  const isMenuOpen = isMenuRequested && !isWideViewport;
-  const closeMenu = () => setIsMenuRequested(false);
-
-  // Active section scroll spy for homepage anchor links
-  useEffect(() => {
-    if (pathname !== "/") {
-      setActiveHash("");
-      return;
-    }
-
-    const handleScroll = () => {
-      const sectionIds = ["protocolos"];
-      const scrollPos = window.scrollY + 220;
-
-      let current = "";
-      for (const id of sectionIds) {
-        const el = document.getElementById(id);
-        if (el) {
-          const top = el.offsetTop;
-          const height = el.offsetHeight;
-          if (scrollPos >= top && scrollPos < top + height) {
-            current = `#${id}`;
-            break;
-          }
-        }
-      }
-      setActiveHash(current);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [pathname]);
-
-  const isLinkActive = (href: string) => {
-    if (href === "/") {
-      return pathname === "/" && activeHash === "";
-    }
-    if (href.startsWith("/#")) {
-      const hash = href.replace("/", "");
-      return pathname === "/" && activeHash === hash;
-    }
-    return pathname.startsWith(href);
-  };
-
-  const userInitials = user
-    ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
-    : "";
+  const initials = user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : "";
+  const active = (href: string) => href === "/" ? pathname === "/" : pathname.startsWith(href.split("#")[0]);
 
   return (
-    <>
-      <header className="sticky top-0 z-50 flex items-center justify-between gap-6 bg-[#0D1B2A]/95 px-[clamp(20px,4vw,56px)] py-5 md:py-[21px] backdrop-blur-[14px] text-[#F6F3EC] shadow-[0_10px_35px_rgba(10,22,34,0.3)] relative">
-        {/* Soft Fading Gold Gradient Line */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#C59D3F]/40 to-transparent"
-        />
-        <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-90">
-          <Image
-            src="/logos/logo-aura-horizontal.png"
-            alt="Aura Regenera"
-            width={280}
-            height={70}
-            className="h-12 sm:h-14 md:h-16 w-auto object-contain drop-shadow-sm"
-            priority
-          />
+    <header className="sticky top-0 z-50 w-full border-b border-content/8 bg-canvas/80 backdrop-blur-xl transition-colors duration-300">
+      <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-6 px-4 py-4 sm:px-8 sm:py-5 lg:py-6">
+        {/* O lockup horizontal padrão tem o texto em branco e só se sustenta sobre o vidro
+            escuro; no tema claro entra a versão dourada, legível sobre o vidro branco. */}
+        <Link href="/" className="shrink-0" aria-label="Aura Regenera — início">
+          <Image src="/logos/logo-header-light.png" alt="Aura Regenera" width={300} height={75} priority className="h-12 w-auto object-contain sm:h-15 lg:h-[4.5rem] dark:hidden" />
+          <Image src="/logos/logo-aura-horizontal.png" alt="" aria-hidden="true" width={300} height={75} priority className="hidden h-12 w-auto object-contain sm:h-15 lg:h-[4.5rem] dark:block" />
         </Link>
 
-        <nav
-          aria-label="Seções da página"
-          className="hidden items-center gap-[22px] wide:flex"
-        >
-          {NAV_LINKS.map((link) => {
-            const active = isLinkActive(link.href);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`text-[14.5px] whitespace-nowrap transition-colors ${
-                  active
-                    ? "font-bold text-[#C59D3F] border-b-2 border-[#C59D3F] pb-0.5"
-                    : "font-medium text-white/85 hover:text-[#C59D3F]"
-                }`}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-          <AccreditationButton className="rounded-[7px] bg-[#C59D3F] px-[22px] py-[11px] text-sm font-semibold whitespace-nowrap text-[#0D1B2A] transition-colors hover:bg-[#d4ac4c] shadow-md active:scale-[0.99]">
-            {HEADER_ACCREDITATION_CTA_LABEL}
-          </AccreditationButton>
-
-          {/* User Profile Circular Icon / Avatar & Dropdown */}
-          <div className="relative">
-            {user ? (
-              <button
-                type="button"
-                onClick={() => setIsProfileDropdownOpen((prev) => !prev)}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-[#C59D3F] font-mono text-xs font-bold text-[#0D1B2A] ring-2 ring-[#C59D3F]/40 transition-all hover:scale-105"
-                title={`Perfil de ${user.firstName}`}
-              >
-                {userInitials}
-              </button>
-            ) : (
-              <Link
-                href="/entrar"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-white transition-colors hover:border-[#C59D3F] hover:text-[#C59D3F]"
-                title="Entrar na Conta / Cadastrar"
-              >
-                <User className="h-4.5 w-4.5" />
-              </Link>
-            )}
-
-            {/* Profile Dropdown Menu */}
-            {isProfileDropdownOpen && user && (
-              <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-white/15 bg-[#0D1B2A] p-2 shadow-2xl text-xs font-mono">
-                <div className="border-b border-white/10 px-3 py-2">
-                  <p className="font-bold text-white text-sm">{user.firstName} {user.lastName}</p>
-                  <p className="text-[11px] text-white/60 truncate">{user.email}</p>
-                </div>
-                <div className="py-1">
-                  {user.role === "ADMIN" || user.email.toLowerCase() === "contato@auraregenera.com" ? (
-                    <Link
-                      href="/admin"
-                      onClick={() => setIsProfileDropdownOpen(false)}
-                      className="flex items-center gap-2 rounded-lg px-3 py-2 font-bold text-[#C59D3F] hover:bg-[#C59D3F]/20"
-                    >
-                      <ShieldCheck className="h-4 w-4 text-[#C59D3F]" />
-                      <span>Painel Admin 👑</span>
-                    </Link>
-                  ) : (
-                    <Link
-                      href="/minha-conta"
-                      onClick={() => setIsProfileDropdownOpen(false)}
-                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-white/90 hover:bg-[#C59D3F]/15 hover:text-[#C59D3F]"
-                    >
-                      <PackageCheck className="h-4 w-4" />
-                      <span>Minha Área</span>
-                    </Link>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsProfileDropdownOpen(false);
-                      logout();
-                    }}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-red-400 hover:bg-red-500/10"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    <span>Sair da Conta</span>
-                  </button>
-                </div>
-              </div>
-            )}
+        <nav aria-label="Navegação principal" className="hidden items-center gap-8 lg:flex">
+          <NavLink href="/" current={active("/")}>Home</NavLink>
+          <NavLink href="/catalogo" current={pathname === "/catalogo"}>Catálogo</NavLink>
+          <div className="group relative">
+            <button type="button" className={`inline-flex items-center gap-1.5 py-3 text-sm font-medium transition-colors hover:text-[#C59D3F] dark:hover:text-[#D8B657] ${pathname.startsWith("/linhas") ? "text-[#C59D3F] dark:text-[#D8B657]" : "text-slate-700 dark:text-white/82"}`}>Linhas <ChevronDown className="h-3.5 w-3.5 transition-transform group-hover:rotate-180" /></button>
+            <div className={`invisible absolute left-1/2 top-full w-[360px] -translate-x-1/2 translate-y-2 rounded-[20px] p-2 opacity-0 transition-all group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 ${PANEL}`}>
+              {lines.map((line) => <Link key={line.slug} href={`/linhas/${line.slug}`} className="flex gap-3 rounded-[15px] p-3.5 hover:bg-black/4 dark:hover:bg-white/7"><span><strong className="block text-sm font-semibold">{line.name}</strong><span className="mt-0.5 block text-xs text-slate-500 dark:text-white/55">{line.descriptor}</span></span></Link>)}
+              <Link href="/catalogo" className="mt-1 block rounded-[14px] border-t border-black/6 px-4 py-3 text-center text-xs font-semibold text-[#A8801F] hover:bg-black/4 dark:border-white/8 dark:text-[#D8B657] dark:hover:bg-white/5">Ver catálogo completo</Link>
+            </div>
           </div>
-
-          <Link
-            href="/carrinho"
-            aria-label={`Carrinho de compras (${isHydrated ? totalItems : 0} itens)`}
-            className="relative flex h-10 w-10 items-center justify-center rounded-lg border border-white/20 text-white transition-colors hover:border-[#C59D3F] hover:text-[#C59D3F]"
-          >
-            <ShoppingCart className="h-4.5 w-4.5" />
-            {isHydrated && totalItems > 0 ? (
-              <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#C59D3F] font-mono text-[10.5px] font-bold text-[#0D1B2A] shadow-md animate-scale-up">
-                {totalItems}
-              </span>
-            ) : null}
-          </Link>
-          <ThemeToggle className="border-white/20 text-white hover:border-[#C59D3F] hover:text-[#C59D3F]" />
         </nav>
 
-        {/* Mobile nav toggle */}
-        <div className="flex items-center gap-2 wide:hidden">
-          {/* Mobile Profile Icon */}
-          {user && (
-            <Link
-              href="/minha-conta"
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-[#C59D3F] font-mono text-xs font-bold text-[#0D1B2A]"
-            >
-              {userInitials}
-            </Link>
-          )}
-          {!user && (
-            <Link
-              href="/entrar"
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-white"
-              title="Entrar na Conta / Cadastrar"
-            >
-              <User className="h-5 w-5" />
-            </Link>
-          )}
-
-          <Link
-            href="/carrinho"
-            aria-label={`Carrinho de compras (${isHydrated ? totalItems : 0} itens)`}
-            className="relative flex h-11 w-11 items-center justify-center rounded-lg border border-white/20 text-white transition-colors hover:border-[#C59D3F] hover:text-[#C59D3F]"
-          >
-            <ShoppingCart className="h-5 w-5" />
-            {isHydrated && totalItems > 0 ? (
-              <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#C59D3F] font-mono text-[10.5px] font-bold text-[#0D1B2A] shadow-md animate-scale-up">
-                {totalItems}
-              </span>
-            ) : null}
-          </Link>
-          <ThemeToggle className="h-11 w-11 border-white/20 text-white hover:border-[#C59D3F] hover:text-[#C59D3F]" />
-
-          <button
-            type="button"
-            onClick={() => setIsMenuRequested((open) => !open)}
-            aria-expanded={isMenuOpen}
-            aria-controls="menu-mobile"
-            aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
-            className="flex h-11 w-11 flex-col items-center justify-center gap-[5px] rounded-lg border border-white/20 text-white wide:hidden"
-          >
-            {isMenuOpen ? (
-              <>
-                <span className="h-0.5 w-[18px] translate-y-px rotate-45 bg-[#C59D3F]" />
-                <span className="-mt-0.5 h-0.5 w-[18px] -translate-y-px -rotate-45 bg-[#C59D3F]" />
-              </>
-            ) : (
-              <>
-                <span className="h-0.5 w-[18px] bg-white" />
-                <span className="h-0.5 w-[18px] bg-white" />
-                <span className="h-0.5 w-[18px] bg-white" />
-              </>
-            )}
-          </button>
+        <div className="hidden items-center gap-2 lg:flex">
+          <AccreditationButton className="rounded-full bg-[#C59D3F] px-5 py-2.5 text-sm font-semibold text-[#0D1B2A] shadow-[0_6px_18px_rgba(197,157,63,.28)] hover:bg-[#D4AC4C]">{HEADER_ACCREDITATION_CTA_LABEL}</AccreditationButton>
+          <AccountControl user={user} initials={initials} open={profileOpen} setOpen={setProfileOpen} logout={logout} />
+          <CartLink count={isHydrated ? totalItems : 0} />
+          {/* O ThemeToggle já se apoia nos tokens `content`, que viram com o tema. */}
+          <ThemeToggle className="h-10 w-10" />
         </div>
 
-        {isMenuOpen ? (
-          <div
-            id="menu-mobile"
-            className="absolute top-full right-0 left-0 flex flex-col gap-[18px] border-b border-white/10 bg-[#0D1B2A] px-[clamp(20px,4vw,56px)] pt-5 pb-7 shadow-2xl wide:hidden text-[#F6F3EC]"
-          >
-            {NAV_LINKS.map((link) => {
-              const active = isLinkActive(link.href);
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={closeMenu}
-                  className={`text-base transition-colors ${
-                    active ? "font-bold text-[#C59D3F]" : "font-medium text-white/90 hover:text-[#C59D3F]"
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-            <AccreditationButton
-              onActivate={closeMenu}
-              className="rounded-[7px] bg-[#C59D3F] px-[22px] py-3.5 text-[15px] font-semibold text-[#0D1B2A]"
-            >
-              {HEADER_ACCREDITATION_CTA_LABEL}
-            </AccreditationButton>
+        <div className="flex items-center gap-1.5 lg:hidden">
+          <CartLink count={isHydrated ? totalItems : 0} />
+          <button type="button" onClick={() => setMobileOpen((value) => !value)} aria-expanded={mobileOpen} aria-label={mobileOpen ? "Fechar menu" : "Abrir menu"} className={`h-10 w-10 ${ICON_BUTTON}`}>{mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}</button>
+        </div>
+
+        {mobileOpen ? (
+          <div className={`absolute left-4 right-4 top-[calc(100%+8px)] rounded-[22px] p-4 lg:hidden ${PANEL}`}>
+            <div className="flex flex-col gap-1"><Link href="/" onClick={() => setMobileOpen(false)} className="rounded-xl px-3 py-3 text-sm font-semibold hover:bg-black/4 dark:hover:bg-white/5">Home</Link><Link href="/catalogo" onClick={() => setMobileOpen(false)} className="rounded-xl px-3 py-3 text-sm font-semibold hover:bg-black/4 dark:hover:bg-white/5">Catálogo</Link></div>
+            <div className="my-2 border-y border-black/6 py-2 dark:border-white/8"><p className="px-3 py-2 font-mono text-[11px] uppercase tracking-wider text-slate-500 dark:text-white/45">Linhas</p>{lines.map((line) => <Link key={line.slug} href={`/linhas/${line.slug}`} onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 hover:bg-black/4 dark:hover:bg-white/5"><span><strong className="block text-sm">{line.name}</strong><span className="block text-xs text-slate-500 dark:text-white/50">{line.descriptor}</span></span></Link>)}</div>
+            <div className="grid grid-cols-[auto_1fr] gap-2 sm:grid-cols-[auto_1fr_1fr]"><ThemeToggle className="h-11 w-11" />{user ? <Link href="/minha-conta" onClick={() => setMobileOpen(false)} className={`gap-2 px-4 py-3 text-sm font-semibold ${ICON_BUTTON}`}><User className="h-4 w-4" />Minha conta</Link> : <Link href="/entrar" onClick={() => setMobileOpen(false)} className={`gap-2 px-4 py-3 text-sm font-semibold ${ICON_BUTTON}`}><User className="h-4 w-4" />Entrar</Link>}<AccreditationButton onActivate={() => setMobileOpen(false)} className="col-span-2 rounded-full bg-[#C59D3F] px-4 py-3 text-sm font-semibold text-[#0D1B2A] sm:col-span-1">{HEADER_ACCREDITATION_CTA_LABEL}</AccreditationButton></div>
           </div>
         ) : null}
-      </header>
-    </>
+      </div>
+    </header>
   );
+}
+
+function NavLink({ href, current, children }: { href: string; current: boolean; children: React.ReactNode }) {
+  return <Link href={href} className={`py-3 text-[15px] font-medium transition-colors hover:text-[#C59D3F] dark:hover:text-[#D8B657] ${current ? "text-[#C59D3F] dark:text-[#D8B657]" : "text-slate-700 dark:text-white/90"}`}>{children}</Link>;
+}
+
+function CartLink({ count }: { count: number }) {
+  return <Link href="/carrinho" aria-label={`Carrinho (${count} itens)`} className={`relative h-11 w-11 ${ICON_BUTTON}`}><ShoppingCart className="h-4.5 w-4.5" />{count > 0 ? <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#C59D3F] px-1 font-mono text-[10px] font-bold text-[#0D1B2A]">{count}</span> : null}</Link>;
+}
+
+function AccountControl({ user, initials, open, setOpen, logout }: { user: ReturnType<typeof useAuth>["user"]; initials: string; open: boolean; setOpen: (value: boolean) => void; logout: () => void }) {
+  if (!user) return <Link href="/entrar" aria-label="Entrar" className={`h-10 w-10 ${ICON_BUTTON}`}><User className="h-4.5 w-4.5" /></Link>;
+  return <div className="relative"><button type="button" onClick={() => setOpen(!open)} className="flex h-10 w-10 items-center justify-center rounded-full bg-[#C59D3F] font-mono text-xs font-bold text-[#0D1B2A]">{initials}</button>{open ? <div className={`absolute right-0 top-full mt-2 w-56 rounded-[16px] p-2 ${PANEL}`}><p className="truncate border-b border-black/6 px-3 py-2 text-xs text-slate-500 dark:border-white/8 dark:text-white/60">{user.email}</p><Link href={user.role === "ADMIN" ? "/admin" : "/minha-conta"} onClick={() => setOpen(false)} className="mt-1 flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs hover:bg-black/4 dark:hover:bg-white/6"><PackageCheck className="h-4 w-4" />{user.role === "ADMIN" ? "Painel admin" : "Minha conta"}</Link><button type="button" onClick={() => { setOpen(false); logout(); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-xs text-red-600 hover:bg-red-500/10 dark:text-red-300"><LogOut className="h-4 w-4" />Sair</button></div> : null}</div>;
 }

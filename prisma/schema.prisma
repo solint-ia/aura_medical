@@ -1,6 +1,7 @@
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("SUPABASE_DIRECT_URL")
 }
 
 generator client {
@@ -8,15 +9,15 @@ generator client {
 }
 
 model UserProfile {
-  id           String        @id @default(uuid()) @map("id") @db.Uuid
-  userId       String?       @unique @map("user_id") @db.Uuid
-  cpfCnpj      String        @unique @map("cpf_cnpj") @db.VarChar(20)
-  firstName    String        @map("first_name") @db.VarChar(100)
-  lastName     String        @map("last_name") @db.VarChar(100)
-  birthDate    DateTime?     @map("birth_date") @db.Date
-  email        String        @unique @map("email") @db.VarChar(255)
-  phone        String        @map("phone") @db.VarChar(20)
-  passwordHash String?       @map("password_hash") @db.Text
+  id                   String        @id @default(uuid()) @map("id") @db.Uuid
+  userId               String?       @unique @map("user_id") @db.Uuid
+  cpfCnpj              String        @unique @map("cpf_cnpj") @db.VarChar(20)
+  firstName            String        @map("first_name") @db.VarChar(100)
+  lastName             String        @map("last_name") @db.VarChar(100)
+  birthDate            DateTime?     @map("birth_date") @db.Date
+  email                String        @unique @map("email") @db.VarChar(255)
+  phone                String        @map("phone") @db.VarChar(20)
+  passwordHash         String?       @map("password_hash") @db.Text
   role                 String        @default("USER") @map("role") @db.VarChar(20)
   emailVerified        Boolean       @default(false) @map("email_verified")
   verificationCode     String?       @map("verification_code") @db.VarChar(10)
@@ -74,15 +75,364 @@ model Order {
 }
 
 model OrderItem {
-  id          String   @id @default(uuid()) @map("id") @db.Uuid
-  orderId     String?  @map("order_id") @db.Uuid
-  order       Order?   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId   String   @map("product_id") @db.VarChar(100)
-  productName String   @map("product_name") @db.VarChar(255)
-  quantity    Int      @map("quantity")
-  unitPrice   Decimal  @map("unit_price") @db.Decimal(10, 2)
-  totalPrice  Decimal  @map("total_price") @db.Decimal(10, 2)
-  imagePath   String?  @map("image_path") @db.VarChar(500)
+  id          String  @id @default(uuid()) @map("id") @db.Uuid
+  orderId     String? @map("order_id") @db.Uuid
+  order       Order?  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String  @map("product_id") @db.VarChar(100)
+  productName String  @map("product_name") @db.VarChar(255)
+  quantity    Int     @map("quantity")
+  unitPrice   Decimal @map("unit_price") @db.Decimal(10, 2)
+  totalPrice  Decimal @map("total_price") @db.Decimal(10, 2)
+  imagePath   String? @map("image_path") @db.VarChar(500)
 
   @@map("order_items")
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum Visibility {
+  PUBLIC
+  INTERNAL
+}
+
+enum MediaProvider {
+  LOCAL
+  SUPABASE
+}
+
+enum LineMediaRole {
+  LOGO
+  HERO
+  BANNER
+}
+
+enum FaqScope {
+  GLOBAL
+  LINE
+}
+
+model Line {
+  id            String         @id @default(uuid()) @db.Uuid
+  slug          String         @unique @db.VarChar(80)
+  name          String         @db.VarChar(120)
+  descriptor    String         @db.VarChar(160)
+  tagline       String         @db.Text
+  surfaceLight  String         @map("surface_light") @db.VarChar(9)
+  surfaceDark   String         @map("surface_dark") @db.VarChar(9)
+  accentLight   String         @map("accent_light") @db.VarChar(9)
+  accentDark    String         @map("accent_dark") @db.VarChar(9)
+  inkLight      String         @map("ink_light") @db.VarChar(9)
+  inkDark       String         @map("ink_dark") @db.VarChar(9)
+  mission       String?        @db.Text
+  vision        String?        @db.Text
+  values        String?        @db.Text
+  differentials String[]
+  commitments   String[]
+  status        PublishStatus  @default(DRAFT)
+  sortOrder     Int            @default(0) @map("sort_order")
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime       @updatedAt @map("updated_at") @db.Timestamptz
+  media         LineMedia[]
+  categories    Category[]
+  products      Product[]
+  protocols     Protocol[]
+  cases         ClinicalCase[]
+  faqs          FaqItem[]
+  safetyNotes   SafetyNote[]
+  blocks        ContentBlock[]
+
+  @@map("catalog_lines")
+}
+
+model LineMedia {
+  lineId    String        @map("line_id") @db.Uuid
+  assetId   String        @map("asset_id") @db.Uuid
+  role      LineMediaRole
+  sortOrder Int           @default(0) @map("sort_order")
+  line      Line          @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  asset     MediaAsset    @relation(fields: [assetId], references: [id], onDelete: Restrict)
+
+  @@id([lineId, assetId, role])
+  @@map("catalog_line_media")
+}
+
+model Category {
+  id        String    @id @default(uuid()) @db.Uuid
+  lineId    String?   @map("line_id") @db.Uuid
+  slug      String    @unique @db.VarChar(80)
+  name      String    @db.VarChar(80)
+  sortOrder Int       @default(0) @map("sort_order")
+  line      Line?     @relation(fields: [lineId], references: [id])
+  products  Product[]
+
+  @@map("catalog_categories")
+}
+
+model Product {
+  id               String              @id @default(uuid()) @db.Uuid
+  lineId           String              @map("line_id") @db.Uuid
+  categoryId       String?             @map("category_id") @db.Uuid
+  slug             String              @unique @db.VarChar(120)
+  name             String              @db.VarChar(160)
+  eyebrow          String              @db.VarChar(160)
+  collection       String?             @db.VarChar(80)
+  summary          String              @db.Text
+  presentation     String              @db.VarChar(160)
+  netContent       String?             @map("net_content") @db.VarChar(40)
+  highlights       String[]
+  variantName      String?             @map("variant_name") @db.VarChar(40)
+  specs            Json                @default("[]")
+  regulatoryName   String?             @map("regulatory_name") @db.VarChar(160)
+  regulatoryNumber String?             @map("regulatory_number") @db.VarChar(60)
+  weightGrams      Int?                @map("weight_grams")
+  lengthCm         Decimal?            @map("length_cm") @db.Decimal(6, 1)
+  widthCm          Decimal?            @map("width_cm") @db.Decimal(6, 1)
+  heightCm         Decimal?            @map("height_cm") @db.Decimal(6, 1)
+  status           PublishStatus       @default(DRAFT)
+  visibility       Visibility          @default(PUBLIC)
+  featured         Boolean             @default(false)
+  featuredOrder    Int?                @map("featured_order")
+  sortOrder        Int                 @default(0) @map("sort_order")
+  publishedAt      DateTime?           @map("published_at") @db.Timestamptz
+  createdAt        DateTime            @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime            @updatedAt @map("updated_at") @db.Timestamptz
+  line             Line                @relation(fields: [lineId], references: [id])
+  category         Category?           @relation(fields: [categoryId], references: [id])
+  images           ProductImage[]
+  sections         ProductSection[]
+  pending          PendingField[]
+  skus             Sku[]
+  protocolUses     ProtocolComponent[]
+
+  @@index([lineId, status])
+  @@index([featured, featuredOrder])
+  @@map("catalog_products")
+}
+
+model ProductImage {
+  productId String     @map("product_id") @db.Uuid
+  assetId   String     @map("asset_id") @db.Uuid
+  sortOrder Int        @default(0) @map("sort_order")
+  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  asset     MediaAsset @relation(fields: [assetId], references: [id], onDelete: Restrict)
+
+  @@id([productId, assetId])
+  @@map("catalog_product_images")
+}
+
+model ProductSection {
+  id        String   @id @default(uuid()) @db.Uuid
+  productId String   @map("product_id") @db.Uuid
+  title     String   @db.VarChar(80)
+  body      String?  @db.Text
+  items     String[]
+  sortOrder Int      @default(0) @map("sort_order")
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("catalog_product_sections")
+}
+
+model PendingField {
+  id         String    @id @default(uuid()) @db.Uuid
+  productId  String    @map("product_id") @db.Uuid
+  label      String    @db.VarChar(120)
+  isPublic   Boolean   @default(true) @map("is_public")
+  resolvedAt DateTime? @map("resolved_at") @db.Timestamptz
+  product    Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("catalog_pending_fields")
+}
+
+model Sku {
+  id            String      @id @default(uuid()) @db.Uuid
+  code          String      @unique @db.VarChar(100)
+  productId     String?     @map("product_id") @db.Uuid
+  protocolId    String?     @map("protocol_id") @db.Uuid
+  label         String?     @db.VarChar(60)
+  price         Decimal     @db.Decimal(10, 2)
+  imageId       String?     @map("image_id") @db.Uuid
+  trackStock    Boolean     @default(false) @map("track_stock")
+  stockQuantity Int?        @map("stock_quantity")
+  isActive      Boolean     @default(true) @map("is_active")
+  sortOrder     Int         @default(0) @map("sort_order")
+  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+  product       Product?    @relation(fields: [productId], references: [id])
+  protocol      Protocol?   @relation(fields: [protocolId], references: [id])
+  image         MediaAsset? @relation(fields: [imageId], references: [id])
+  aliases       SkuAlias[]
+
+  @@map("catalog_skus")
+}
+
+model SkuAlias {
+  alias String @id @db.VarChar(100)
+  skuId String @map("sku_id") @db.Uuid
+  sku   Sku    @relation(fields: [skuId], references: [id], onDelete: Restrict)
+
+  @@map("catalog_sku_aliases")
+}
+
+model Protocol {
+  id              String              @id @default(uuid()) @db.Uuid
+  lineId          String              @map("line_id") @db.Uuid
+  slug            String              @unique @db.VarChar(120)
+  name            String              @db.VarChar(160)
+  introduction    String              @db.Text
+  note            String?             @db.Text
+  indications     String[]
+  sessions        String              @db.VarChar(40)
+  frequency       String              @db.VarChar(60)
+  reconstitution  String[]
+  application     String[]
+  marking         String              @db.Text
+  expectedResults String[]            @map("expected_results")
+  coverImageId    String?             @map("cover_image_id") @db.Uuid
+  mappingImageId  String?             @map("mapping_image_id") @db.Uuid
+  status          PublishStatus       @default(DRAFT)
+  visibility      Visibility          @default(PUBLIC)
+  sortOrder       Int                 @default(0) @map("sort_order")
+  createdAt       DateTime            @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime            @updatedAt @map("updated_at") @db.Timestamptz
+  line            Line                @relation(fields: [lineId], references: [id])
+  coverImage      MediaAsset?         @relation("ProtocolCover", fields: [coverImageId], references: [id])
+  mappingImage    MediaAsset?         @relation("ProtocolMapping", fields: [mappingImageId], references: [id])
+  components      ProtocolComponent[]
+  skus            Sku[]
+  cases           ClinicalCase[]
+
+  @@map("catalog_protocols")
+}
+
+model ProtocolComponent {
+  id         String   @id @default(uuid()) @db.Uuid
+  protocolId String   @map("protocol_id") @db.Uuid
+  productId  String   @map("product_id") @db.Uuid
+  quantity   Int
+  role       String   @db.Text
+  sortOrder  Int      @default(0) @map("sort_order")
+  protocol   Protocol @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@unique([protocolId, productId])
+  @@map("catalog_protocol_components")
+}
+
+model ClinicalCase {
+  id                   String        @id @default(uuid()) @db.Uuid
+  lineId               String        @map("line_id") @db.Uuid
+  protocolId           String?       @map("protocol_id") @db.Uuid
+  slug                 String        @unique @db.VarChar(120)
+  title                String        @db.VarChar(160)
+  description          String?       @db.Text
+  professional         String        @db.VarChar(160)
+  country              String?       @db.VarChar(60)
+  sessions             Int
+  parameters           Json          @default("[]")
+  beforeImageId        String        @map("before_image_id") @db.Uuid
+  afterImageId         String        @map("after_image_id") @db.Uuid
+  imageRightsConfirmed Boolean       @default(false) @map("image_rights_confirmed")
+  imageRightsNote      String?       @map("image_rights_note") @db.Text
+  status               PublishStatus @default(DRAFT)
+  sortOrder            Int           @default(0) @map("sort_order")
+  createdAt            DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt            DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+  line                 Line          @relation(fields: [lineId], references: [id])
+  protocol             Protocol?     @relation(fields: [protocolId], references: [id])
+  beforeImage          MediaAsset    @relation("CaseBefore", fields: [beforeImageId], references: [id])
+  afterImage           MediaAsset    @relation("CaseAfter", fields: [afterImageId], references: [id])
+
+  @@map("catalog_clinical_cases")
+}
+
+model FaqItem {
+  id          String   @id @default(uuid()) @db.Uuid
+  scope       FaqScope @default(GLOBAL)
+  lineId      String?  @map("line_id") @db.Uuid
+  question    String   @db.Text
+  answer      String   @db.Text
+  links       Json     @default("[]")
+  isPublished Boolean  @default(false) @map("is_published")
+  sortOrder   Int      @default(0) @map("sort_order")
+  line        Line?    @relation(fields: [lineId], references: [id])
+
+  @@map("content_faq_items")
+}
+
+model SafetyNote {
+  id          String  @id @default(uuid()) @db.Uuid
+  lineId      String? @map("line_id") @db.Uuid
+  label       String  @db.VarChar(120)
+  body        String  @db.Text
+  isPublished Boolean @default(false) @map("is_published")
+  sortOrder   Int     @default(0) @map("sort_order")
+  line        Line?   @relation(fields: [lineId], references: [id])
+
+  @@map("content_safety_notes")
+}
+
+model ContentBlock {
+  id          String  @id @default(uuid()) @db.Uuid
+  key         String  @unique @db.VarChar(100)
+  lineId      String? @map("line_id") @db.Uuid
+  eyebrow     String? @db.VarChar(120)
+  title       String? @db.Text
+  body        String? @db.Text
+  items       Json    @default("[]")
+  ctaLabel    String? @map("cta_label") @db.VarChar(60)
+  ctaHref     String? @map("cta_href") @db.VarChar(300)
+  isPublished Boolean @default(false) @map("is_published")
+  line        Line?   @relation(fields: [lineId], references: [id])
+
+  @@map("content_blocks")
+}
+
+model MediaAsset {
+  id               String         @id @default(uuid()) @db.Uuid
+  provider         MediaProvider
+  bucket           String?        @db.VarChar(60)
+  path             String         @db.VarChar(500)
+  alt              String         @db.VarChar(300)
+  width            Int
+  height           Int
+  mimeType         String         @map("mime_type") @db.VarChar(40)
+  sizeBytes        Int            @map("size_bytes")
+  hasAlpha         Boolean        @default(false) @map("has_alpha")
+  createdById      String?        @map("created_by_id") @db.Uuid
+  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  lineMedia        LineMedia[]
+  productImages    ProductImage[]
+  skus             Sku[]
+  protocolCovers   Protocol[]     @relation("ProtocolCover")
+  protocolMappings Protocol[]     @relation("ProtocolMapping")
+  casesBefore      ClinicalCase[] @relation("CaseBefore")
+  casesAfter       ClinicalCase[] @relation("CaseAfter")
+
+  @@unique([provider, bucket, path])
+  @@map("media_assets")
+}
+
+model SlugRedirect {
+  fromPath  String   @id @map("from_path") @db.VarChar(300)
+  toPath    String   @map("to_path") @db.VarChar(300)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("slug_redirects")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  actorId   String   @map("actor_id") @db.Uuid
+  entity    String   @db.VarChar(40)
+  entityId  String   @map("entity_id") @db.VarChar(100)
+  action    String   @db.VarChar(20)
+  diff      Json
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([entity, entityId])
+  @@map("audit_logs")
 }

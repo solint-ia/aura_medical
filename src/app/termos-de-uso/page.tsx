@@ -56,7 +56,7 @@ const SECTIONS = [
 export default function TermosDeUsoPage() {
   return (
     <AccreditationProvider>
-      <div className="min-h-screen bg-[#0D1B2A] text-[#F6F3EC]">
+      <div className="min-h-screen bg-panel text-on-panel">
         <SiteHeader />
 
         <main className="relative overflow-hidden pb-24">
@@ -65,23 +65,23 @@ export default function TermosDeUsoPage() {
             aria-hidden="true"
             className="pointer-events-none absolute top-0 left-1/2 -z-0 h-[600px] w-full max-w-7xl -translate-x-1/2 overflow-hidden blur-3xl opacity-30"
           >
-            <div className="absolute -top-32 left-1/4 h-[420px] w-[420px] rounded-full bg-[#C59D3F]/25" />
-            <div className="absolute top-20 right-1/4 h-[450px] w-[450px] rounded-full bg-[#162A3D]" />
+            <div className="absolute -top-32 left-1/4 h-[420px] w-[420px] rounded-full bg-accent/25" />
+            <div className="absolute top-20 right-1/4 h-[450px] w-[450px] rounded-full bg-card" />
           </div>
 
           <div className="relative z-10 mx-auto max-w-[1280px] px-[clamp(20px,4vw,56px)] pt-8 md:pt-12">
             {/* Breadcrumbs */}
             <nav aria-label="Navegação estrutural" className="mb-8">
-              <ol className="flex items-center gap-2 font-mono text-xs text-[#F6F3EC]/60">
+              <ol className="flex items-center gap-2 font-mono text-xs text-on-panel/60">
                 <li>
-                  <Link href="/" className="transition-colors hover:text-[#C59D3F]">
+                  <Link href="/" className="transition-colors hover:text-accent">
                     Home
                   </Link>
                 </li>
                 <li>
                   <ChevronRight className="h-3.5 w-3.5 text-white/40" />
                 </li>
-                <li className="font-semibold text-[#C59D3F]">
+                <li className="font-semibold text-accent">
                   Termos de Uso
                 </li>
               </ol>
@@ -89,10 +89,10 @@ export default function TermosDeUsoPage() {
 
             {/* Header Hero */}
             <div className="mb-12 max-w-3xl">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#C59D3F]/40 bg-[#C59D3F]/10 px-4 py-1.5 font-mono text-xs font-semibold tracking-widest text-[#C59D3F] uppercase backdrop-blur-sm">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-1.5 font-mono text-xs font-semibold tracking-widest text-accent uppercase backdrop-blur-sm">
                 <FileCheck2 className="h-3.5 w-3.5" />
                 <span>Condições Gerais · Credenciamento Profissional</span>
-                <span className="h-1 w-1 rounded-full bg-[#C59D3F]" />
+                <span className="h-1 w-1 rounded-full bg-accent" />
                 <span>Vigente</span>
               </div>
 
@@ -100,12 +100,12 @@ export default function TermosDeUsoPage() {
                 Termos de Uso
               </h1>
 
-              <p className="mt-4 text-base sm:text-lg text-[#F6F3EC]/80 leading-relaxed">
+              <p className="mt-4 text-base sm:text-lg text-on-panel/80 leading-relaxed">
                 Bem-vindo à <strong className="text-white font-semibold">Aura Regenera</strong>. Estes Termos de Uso estabelecem as regras, condições e diretrizes aplicáveis ao acesso e utilização do nosso site, catálogo digital, plataforma de credenciamento e pedidos de bioregenerativos recombinantes.
               </p>
 
-              <div className="mt-6 flex flex-wrap items-center gap-4 text-xs font-mono text-[#F6F3EC]/60 border-t border-white/10 pt-4">
-                <span>Última atualização: <strong className="text-[#C59D3F]">14 de agosto de 2026</strong></span>
+              <div className="mt-6 flex flex-wrap items-center gap-4 text-xs font-mono text-on-panel/60 border-t border-white/10 pt-4">
+                <span>Última atualização: <strong className="text-accent">14 de agosto de 2026</strong></span>
                 <span>·</span>
                 <span>CNPJ: <strong className="text-white">{COMPANY_CNPJ}</strong></span>
               </div>
@@ -114,31 +114,31 @@ export default function TermosDeUsoPage() {
             {/* Destaques Rápidos / Pillars */}
             <div className="mb-14 grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#C59D3F]/15 text-[#C59D3F]">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15 text-accent">
                   <Stethoscope className="h-5 w-5" />
                 </div>
                 <h2 className="text-sm font-semibold text-white">Uso Profissional Exclusivo</h2>
-                <p className="mt-1.5 text-xs text-[#F6F3EC]/70 leading-relaxed">
+                <p className="mt-1.5 text-xs text-on-panel/70 leading-relaxed">
                   Aquisição de produtos e protocolos restritos a profissionais de saúde legalmente habilitados.
                 </p>
               </div>
 
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#C59D3F]/15 text-[#C59D3F]">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15 text-accent">
                   <Truck className="h-5 w-5" />
                 </div>
                 <h2 className="text-sm font-semibold text-white">Garantia & Rastreabilidade</h2>
-                <p className="mt-1.5 text-xs text-[#F6F3EC]/70 leading-relaxed">
+                <p className="mt-1.5 text-xs text-on-panel/70 leading-relaxed">
                   Insumos biotecnológicos originais com rigoroso controle de lote, conservação e transporte.
                 </p>
               </div>
 
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#C59D3F]/15 text-[#C59D3F]">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15 text-accent">
                   <Scale className="h-5 w-5" />
                 </div>
                 <h2 className="text-sm font-semibold text-white">Autonomia Clínica</h2>
-                <p className="mt-1.5 text-xs text-[#F6F3EC]/70 leading-relaxed">
+                <p className="mt-1.5 text-xs text-on-panel/70 leading-relaxed">
                   Conteúdos científicos orientativos que não substituem o diagnóstico e a conduta soberana do profissional.
                 </p>
               </div>
@@ -148,8 +148,8 @@ export default function TermosDeUsoPage() {
             <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
               {/* Sidebar: Índice */}
               <aside className="lg:col-span-4">
-                <div className="sticky top-28 max-h-[calc(100vh-140px)] overflow-y-auto rounded-2xl border border-white/10 bg-[#12283C]/70 p-6 backdrop-blur-md scrollbar-thin">
-                  <p className="font-mono text-xs font-semibold tracking-wider text-[#C59D3F] uppercase mb-4">
+                <div className="sticky top-28 max-h-[calc(100vh-140px)] overflow-y-auto rounded-2xl border border-white/10 bg-panel/70 p-6 backdrop-blur-md scrollbar-thin">
+                  <p className="font-mono text-xs font-semibold tracking-wider text-accent uppercase mb-4">
                     Índice dos Termos
                   </p>
                   <nav aria-label="Seções dos termos de uso" className="space-y-1 text-xs">
@@ -157,7 +157,7 @@ export default function TermosDeUsoPage() {
                       <a
                         key={sec.id}
                         href={`#${sec.id}`}
-                        className="block rounded-lg px-3 py-1.5 text-[#F6F3EC]/75 transition-colors hover:bg-white/[0.06] hover:text-[#C59D3F]"
+                        className="block rounded-lg px-3 py-1.5 text-on-panel/75 transition-colors hover:bg-white/[0.06] hover:text-accent"
                       >
                         {sec.title}
                       </a>
@@ -165,12 +165,12 @@ export default function TermosDeUsoPage() {
                   </nav>
 
                   <div className="mt-6 border-t border-white/10 pt-4">
-                    <p className="text-xs text-[#F6F3EC]/60 mb-2">Precisa de assessoria?</p>
+                    <p className="text-xs text-on-panel/60 mb-2">Precisa de assessoria?</p>
                     <a
                       href={WHATSAPP_URL}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-xs font-semibold text-[#C59D3F] hover:underline"
+                      className="inline-flex items-center gap-2 text-xs font-semibold text-accent hover:underline"
                     >
                       WhatsApp: {WHATSAPP_NUMBER_DISPLAY}
                     </a>
@@ -179,7 +179,7 @@ export default function TermosDeUsoPage() {
               </aside>
 
               {/* Corpo Principal dos Termos */}
-              <article className="space-y-12 text-[#F6F3EC]/85 lg:col-span-8 leading-relaxed">
+              <article className="space-y-12 text-on-panel/85 lg:col-span-8 leading-relaxed">
                 {/* Introdução e Declaração */}
                 <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
                   <p className="text-sm sm:text-base leading-relaxed">
@@ -187,7 +187,7 @@ export default function TermosDeUsoPage() {
                   </p>
                   <p className="mt-4 text-sm sm:text-base leading-relaxed">
                     Ao acessar, navegar ou efetuar cadastros em nosso site, o usuário declara ter lido, compreendido e concordado integralmente com as condições dispostas nestes Termos e na nossa{" "}
-                    <Link href="/politica-de-privacidade" className="text-[#C59D3F] underline underline-offset-4 hover:opacity-80">
+                    <Link href="/politica-de-privacidade" className="text-accent underline underline-offset-4 hover:opacity-80">
                       Política de Privacidade
                     </Link>. Caso não concorde com qualquer disposição, solicitamos que não prossiga com a utilização da plataforma.
                   </p>
@@ -196,7 +196,7 @@ export default function TermosDeUsoPage() {
                 {/* Seção 1 */}
                 <section id="sobre" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       01
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -211,20 +211,20 @@ export default function TermosDeUsoPage() {
                 {/* Seção 2 */}
                 <section id="publico-alvo" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       02
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
                       Destinação Exclusiva a Profissionais da Saúde Habilitados
                     </h2>
                   </div>
-                  <div className="rounded-xl border border-[#C59D3F]/30 bg-[#C59D3F]/10 p-5 text-sm sm:text-base text-white">
-                    <p className="flex items-center gap-2 font-bold text-[#C59D3F] mb-2">
+                  <div className="rounded-xl border border-accent/30 bg-accent/10 p-5 text-sm sm:text-base text-white">
+                    <p className="flex items-center gap-2 font-bold text-accent mb-2">
                       <AlertTriangle className="h-5 w-5 shrink-0" />
                       Aviso Regulatório Importante
                     </p>
                     <p className="leading-relaxed">
-                      A aquisição comercial de bioregenerativos recombinantes e a aplicação prática dos protocolos clínicos apresentados neste site são <strong className="text-[#C59D3F]">estritamente reservadas a profissionais de saúde devidamente habilitados</strong> e registrados em seus respectivos conselhos de classe profissionais no Brasil (CRM, CRBM, CRO, CRF e demais categorias legalmente autorizadas pelos órgãos competentes).
+                      A aquisição comercial de bioregenerativos recombinantes e a aplicação prática dos protocolos clínicos apresentados neste site são <strong className="text-accent">estritamente reservadas a profissionais de saúde devidamente habilitados</strong> e registrados em seus respectivos conselhos de classe profissionais no Brasil (CRM, CRBM, CRO, CRF e demais categorias legalmente autorizadas pelos órgãos competentes).
                     </p>
                   </div>
                   <p className="text-sm sm:text-base">
@@ -235,7 +235,7 @@ export default function TermosDeUsoPage() {
                 {/* Seção 3 */}
                 <section id="aceitacao" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       03
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -250,7 +250,7 @@ export default function TermosDeUsoPage() {
                 {/* Seção 4 */}
                 <section id="cadastro" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       04
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -262,15 +262,15 @@ export default function TermosDeUsoPage() {
                   </p>
                   <ul className="space-y-2 text-sm sm:text-base">
                     <li className="flex items-start gap-2">
-                      <span className="text-[#C59D3F] font-bold">•</span>
+                      <span className="text-accent font-bold">•</span>
                       <span>O usuário é responsável por manter suas informações cadastrais exatas, completas e atualizadas;</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-[#C59D3F] font-bold">•</span>
+                      <span className="text-accent font-bold">•</span>
                       <span>O login e a senha de acesso são de uso pessoal e intransferível, cabendo ao usuário a guarda sigilosa de suas credenciais;</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-[#C59D3F] font-bold">•</span>
+                      <span className="text-accent font-bold">•</span>
                       <span>Em caso de suspeita de uso não autorizado ou quebra de segurança de sua conta, o usuário deverá comunicar a Aura Regenera imediatamente.</span>
                     </li>
                   </ul>
@@ -279,7 +279,7 @@ export default function TermosDeUsoPage() {
                 {/* Seção 5 */}
                 <section id="utilizacao" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       05
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -312,7 +312,7 @@ export default function TermosDeUsoPage() {
                 {/* Seção 6 */}
                 <section id="informacoes-medicas" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       06
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -330,7 +330,7 @@ export default function TermosDeUsoPage() {
                 {/* Seção 7 */}
                 <section id="pedidos-logistica" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       07
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -342,15 +342,15 @@ export default function TermosDeUsoPage() {
                   </p>
                   <ul className="space-y-2 text-sm sm:text-base">
                     <li className="flex items-start gap-2">
-                      <span className="text-[#C59D3F] font-bold">•</span>
+                      <span className="text-accent font-bold">•</span>
                       <span><strong>Conservação e Transporte:</strong> Nossos bioregenerativos recombinantes liofilizados são expedidos em embalagens adequadas, acompanhados de nota fiscal e lote rastreável;</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-[#C59D3F] font-bold">•</span>
+                      <span className="text-accent font-bold">•</span>
                       <span><strong>Conferência no Recebimento:</strong> O profissional ou responsável clínico deve conferir a integridade da embalagem, lacres e prazo de validade no momento da entrega;</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-[#C59D3F] font-bold">•</span>
+                      <span className="text-accent font-bold">•</span>
                       <span><strong>Armazenamento Adequado:</strong> O cliente é responsável por armazenar os produtos estritamente conforme as instruções da bula e rótulo do fabricante.</span>
                     </li>
                   </ul>
@@ -359,7 +359,7 @@ export default function TermosDeUsoPage() {
                 {/* Seção 8 */}
                 <section id="farmacovigilancia" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       08
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -371,15 +371,15 @@ export default function TermosDeUsoPage() {
                   </p>
                   <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-xs sm:text-sm">
                     <p className="font-semibold text-white mb-1">Canal de Farmacovigilância & Tecnovigilância pbserum:</p>
-                    <p className="text-[#F6F3EC]/80">E-mail: <a href={`mailto:${ADVERSE_EVENT_CONTACT.email}`} className="text-[#C59D3F] font-mono hover:underline">{ADVERSE_EVENT_CONTACT.email}</a></p>
-                    <p className="text-[#F6F3EC]/80 mt-1">Suporte Técnico Aura Regenera: <a href={`mailto:${CONTACT_EMAIL}`} className="text-[#C59D3F] font-mono hover:underline">{CONTACT_EMAIL}</a></p>
+                    <p className="text-on-panel/80">E-mail: <a href={`mailto:${ADVERSE_EVENT_CONTACT.email}`} className="text-accent font-mono hover:underline">{ADVERSE_EVENT_CONTACT.email}</a></p>
+                    <p className="text-on-panel/80 mt-1">Suporte Técnico Aura Regenera: <a href={`mailto:${CONTACT_EMAIL}`} className="text-accent font-mono hover:underline">{CONTACT_EMAIL}</a></p>
                   </div>
                 </section>
 
                 {/* Seção 9 */}
                 <section id="ia-automacao" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       09
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -394,7 +394,7 @@ export default function TermosDeUsoPage() {
                 {/* Seção 10 */}
                 <section id="integracoes" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       10
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -409,7 +409,7 @@ export default function TermosDeUsoPage() {
                 {/* Seção 11 */}
                 <section id="comunicacao" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       11
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -424,7 +424,7 @@ export default function TermosDeUsoPage() {
                 {/* Seção 12 */}
                 <section id="dados-inseridos" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       12
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -439,7 +439,7 @@ export default function TermosDeUsoPage() {
                 {/* Seção 13 */}
                 <section id="propriedade-intelectual" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       13
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -454,7 +454,7 @@ export default function TermosDeUsoPage() {
                 {/* Seção 14 */}
                 <section id="licenca" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       14
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -469,7 +469,7 @@ export default function TermosDeUsoPage() {
                 {/* Seção 15 */}
                 <section id="condicoes-comerciais" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       15
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -484,7 +484,7 @@ export default function TermosDeUsoPage() {
                 {/* Seção 16 */}
                 <section id="disponibilidade" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       16
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -499,7 +499,7 @@ export default function TermosDeUsoPage() {
                 {/* Seção 17 */}
                 <section id="atualizacoes" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       17
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -514,7 +514,7 @@ export default function TermosDeUsoPage() {
                 {/* Seção 18 */}
                 <section id="suporte" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       18
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -529,7 +529,7 @@ export default function TermosDeUsoPage() {
                 {/* Seção 19 */}
                 <section id="responsabilidades" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       19
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -544,7 +544,7 @@ export default function TermosDeUsoPage() {
                 {/* Seção 20 */}
                 <section id="limitacao" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       20
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -559,7 +559,7 @@ export default function TermosDeUsoPage() {
                 {/* Seção 21 */}
                 <section id="suspensao" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       21
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -574,7 +574,7 @@ export default function TermosDeUsoPage() {
                 {/* Seção 22 */}
                 <section id="privacidade" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       22
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -583,7 +583,7 @@ export default function TermosDeUsoPage() {
                   </div>
                   <p className="text-sm sm:text-base">
                     O tratamento de dados pessoais no âmbito de nossos serviços obedece rigorosamente à Lei nº 13.709/2018 (LGPD). Para mais detalhes sobre a coleta, armazenamento e exercício de seus direitos de titular, consulte nossa{" "}
-                    <Link href="/politica-de-privacidade" className="text-[#C59D3F] font-semibold underline underline-offset-4 hover:opacity-80">
+                    <Link href="/politica-de-privacidade" className="text-accent font-semibold underline underline-offset-4 hover:opacity-80">
                       Política de Privacidade
                     </Link>.
                   </p>
@@ -591,50 +591,50 @@ export default function TermosDeUsoPage() {
 
                 {/* Seção 23 - Legislação e Contato */}
                 <section id="legislacao-foro" className="scroll-mt-28">
-                  <div className="rounded-2xl border border-[#C59D3F]/30 bg-gradient-to-br from-[#12283C] to-[#0B1D2C] p-6 sm:p-8">
+                  <div className="rounded-2xl border border-accent/30 bg-gradient-to-br from-panel to-[#0B1D2C] p-6 sm:p-8">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#C59D3F] text-[#0D1B2A]">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-accent-fg">
                         <Building2 className="h-5 w-5" />
                       </div>
                       <div>
                         <h2 className="font-display text-xl font-bold text-white">
                           Legislação Aplicável, Foro e Atendimento Oficial
                         </h2>
-                        <p className="text-xs text-[#F6F3EC]/70">
+                        <p className="text-xs text-on-panel/70">
                           Aura Regenera · CNPJ {COMPANY_CNPJ}
                         </p>
                       </div>
                     </div>
 
-                    <p className="text-sm sm:text-base text-[#F6F3EC]/85 leading-relaxed mb-6">
+                    <p className="text-sm sm:text-base text-on-panel/85 leading-relaxed mb-6">
                       Estes Termos de Uso são regidos e interpretados em conformidade com a legislação da República Federativa do Brasil. Para dirimir eventuais controvérsias oriundas destes termos, fica eleito o Foro da Comarca de Aracaju/SE, com renúncia a qualquer outro, por mais privilegiado que seja.
                     </p>
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 text-xs sm:text-sm">
                       <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
-                        <span className="text-[#C59D3F] font-mono text-xs uppercase block mb-1">E-mail de Atendimento</span>
+                        <span className="text-accent font-mono text-xs uppercase block mb-1">E-mail de Atendimento</span>
                         <a
                           href={`mailto:${CONTACT_EMAIL}`}
-                          className="font-semibold text-white hover:text-[#C59D3F] transition-colors"
+                          className="font-semibold text-white hover:text-accent transition-colors"
                         >
                           {CONTACT_EMAIL}
                         </a>
                       </div>
 
                       <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
-                        <span className="text-[#C59D3F] font-mono text-xs uppercase block mb-1">WhatsApp Comercial & Suporte</span>
+                        <span className="text-accent font-mono text-xs uppercase block mb-1">WhatsApp Comercial & Suporte</span>
                         <a
                           href={WHATSAPP_URL}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-semibold text-white hover:text-[#C59D3F] transition-colors"
+                          className="font-semibold text-white hover:text-accent transition-colors"
                         >
                           {WHATSAPP_NUMBER_DISPLAY}
                         </a>
                       </div>
                     </div>
 
-                    <div className="mt-6 border-t border-white/10 pt-4 flex flex-wrap items-center justify-between gap-4 text-xs text-[#F6F3EC]/60">
+                    <div className="mt-6 border-t border-white/10 pt-4 flex flex-wrap items-center justify-between gap-4 text-xs text-on-panel/60">
                       <span>Aura Regenera · Bioregenerativos Recombinantes</span>
                       <span>Aracaju · SE · Brasil</span>
                     </div>

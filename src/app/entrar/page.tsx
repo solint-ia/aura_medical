@@ -553,7 +553,7 @@ function AuthPageContent() {
     `w-full rounded-xl border px-4 py-3 text-sm transition-colors outline-none ${
       hasError
         ? "border-red-500 bg-red-500/5 text-red-900 dark:text-red-200 focus:border-red-600"
-        : "border-content/18 bg-canvas dark:bg-card text-content focus:border-[#C59D3F]"
+        : "border-content/18 bg-canvas dark:bg-card text-content focus:border-accent"
     }`;
 
   return (
@@ -604,7 +604,7 @@ function AuthPageContent() {
           }}
           className={`flex-1 py-3.5 font-bold uppercase transition-colors border-b-2 text-center ${
             tab === "login"
-              ? "border-[#C59D3F] text-[#C59D3F]"
+              ? "border-accent text-accent"
               : "border-transparent text-content/60 hover:text-content"
           }`}
         >
@@ -621,7 +621,7 @@ function AuthPageContent() {
           }}
           className={`flex-1 py-3.5 font-bold uppercase transition-colors border-b-2 text-center ${
             tab === "register"
-              ? "border-[#C59D3F] text-[#C59D3F]"
+              ? "border-accent text-accent"
               : "border-transparent text-content/60 hover:text-content"
           }`}
         >
@@ -678,7 +678,7 @@ function AuthPageContent() {
                     setGeneralError("");
                     setSuccessMsg("");
                   }}
-                  className="text-[#C59D3F] hover:underline font-bold"
+                  className="text-accent hover:underline font-bold"
                 >
                   Esqueceu a senha?
                 </button>
@@ -716,7 +716,7 @@ function AuthPageContent() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-[#C59D3F] py-3.5 font-bold text-sm text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99] mt-2"
+              className="w-full rounded-xl bg-accent py-3.5 font-bold text-sm text-accent-fg transition-all hover:bg-accent shadow-md active:scale-[0.99] mt-2"
             >
               {loading ? "Entrando..." : "Entrar na Minha Conta →"}
             </button>
@@ -729,13 +729,13 @@ function AuthPageContent() {
         <div className="space-y-6 py-4">
           {/* Step Tracker Header */}
           <div className="flex items-center justify-between font-mono text-xs border-b border-content/10 pb-3 uppercase">
-            <span className={`font-bold ${regStep === 1 ? "text-[#C59D3F]" : "text-content/50"}`}>
+            <span className={`font-bold ${regStep === 1 ? "text-accent" : "text-content/50"}`}>
               1. Dados Pessoais & Acesso
             </span>
-            <span className={`font-bold ${regStep === 2 ? "text-[#C59D3F]" : "text-content/50"}`}>
+            <span className={`font-bold ${regStep === 2 ? "text-accent" : "text-content/50"}`}>
               2. Endereço Principal
             </span>
-            <span className={`font-bold ${regStep === 3 ? "text-[#C59D3F]" : "text-content/50"}`}>
+            <span className={`font-bold ${regStep === 3 ? "text-accent" : "text-content/50"}`}>
               3. Verificação por E-mail
             </span>
           </div>
@@ -962,7 +962,7 @@ function AuthPageContent() {
 
               <button
                 type="submit"
-                className="w-full rounded-xl bg-[#C59D3F] py-3.5 font-bold text-sm text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99] mt-4"
+                className="w-full rounded-xl bg-accent py-3.5 font-bold text-sm text-accent-fg transition-all hover:bg-accent shadow-md active:scale-[0.99] mt-4"
               >
                 Prosseguir para o Endereço →
               </button>
@@ -989,7 +989,7 @@ function AuthPageContent() {
                     className={inputClass(!!fieldErrors.cep)}
                   />
                   {cepLoading && (
-                    <p className="mt-1 font-mono text-[11px] text-[#C59D3F] animate-pulse">Buscando CEP...</p>
+                    <p className="mt-1 font-mono text-[11px] text-accent animate-pulse">Buscando CEP...</p>
                   )}
                   {fieldErrors.cep && (
                     <p className="mt-1 font-mono text-xs text-red-500">{fieldErrors.cep}</p>
@@ -1122,7 +1122,7 @@ function AuthPageContent() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-2/3 rounded-xl bg-[#C59D3F] py-3.5 font-bold text-sm text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99]"
+                  className="w-2/3 rounded-xl bg-accent py-3.5 font-bold text-sm text-accent-fg transition-all hover:bg-accent shadow-md active:scale-[0.99]"
                 >
                   {loading ? "Enviando Código..." : "Finalizar Cadastro →"}
                 </button>
@@ -1134,7 +1134,7 @@ function AuthPageContent() {
           {regStep === 3 && (
             <form onSubmit={handleVerifyOtpSubmit} className="space-y-6 max-w-md mx-auto py-4">
               <div className="text-center space-y-2">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#C59D3F]/20 text-[#C59D3F]">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent/20 text-accent">
                   <Mail className="h-7 w-7" />
                 </div>
                 <h3 className="font-display text-xl font-bold text-content">
@@ -1155,7 +1155,7 @@ function AuthPageContent() {
                   placeholder="000000"
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
-                  className="w-full rounded-2xl border-2 border-[#C59D3F] bg-canvas py-4 text-center font-mono text-3xl font-extrabold text-[#C59D3F] tracking-[12px] outline-none shadow-md"
+                  className="w-full rounded-2xl border-2 border-accent bg-canvas py-4 text-center font-mono text-3xl font-extrabold text-accent tracking-[12px] outline-none shadow-md"
                 />
               </div>
 
@@ -1165,7 +1165,7 @@ function AuthPageContent() {
                   type="button"
                   onClick={handleResendOtp}
                   disabled={resendingCode}
-                  className="text-[#C59D3F] hover:underline font-bold flex items-center gap-1"
+                  className="text-accent hover:underline font-bold flex items-center gap-1"
                 >
                   <RefreshCw className={`h-3.5 w-3.5 ${resendingCode ? "animate-spin" : ""}`} />
                   <span>{resendingCode ? "Enviando..." : "Reenviar Código"}</span>
@@ -1175,7 +1175,7 @@ function AuthPageContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-xl bg-[#C59D3F] py-3.5 font-bold text-sm text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99]"
+                className="w-full rounded-xl bg-accent py-3.5 font-bold text-sm text-accent-fg transition-all hover:bg-accent shadow-md active:scale-[0.99]"
               >
                 {loading ? "Verificando..." : "Confirmar Código & Entrar →"}
               </button>
@@ -1217,7 +1217,7 @@ function AuthPageContent() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-2/3 rounded-xl bg-[#C59D3F] py-3.5 font-bold text-sm text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99]"
+                  className="w-2/3 rounded-xl bg-accent py-3.5 font-bold text-sm text-accent-fg transition-all hover:bg-accent shadow-md active:scale-[0.99]"
                 >
                   {loading ? "Enviando..." : "Enviar Código de Recuperação →"}
                 </button>
@@ -1228,7 +1228,7 @@ function AuthPageContent() {
           {forgotStep === 2 && (
             <form onSubmit={handleVerifyForgotCode} className="space-y-5 max-w-md mx-auto">
               <div className="text-center space-y-1">
-                <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-[#C59D3F]/20 text-[#C59D3F]">
+                <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-accent/20 text-accent">
                   <Mail className="h-6 w-6" />
                 </div>
                 <h3 className="font-display text-lg font-bold text-content">
@@ -1249,7 +1249,7 @@ function AuthPageContent() {
                   placeholder="000000"
                   value={forgotCode}
                   onChange={(e) => setForgotCode(e.target.value.replace(/\D/g, ""))}
-                  className="w-full rounded-2xl border-2 border-[#C59D3F] bg-canvas py-3.5 text-center font-mono text-3xl font-extrabold text-[#C59D3F] tracking-[12px] outline-none shadow-md"
+                  className="w-full rounded-2xl border-2 border-accent bg-canvas py-3.5 text-center font-mono text-3xl font-extrabold text-accent tracking-[12px] outline-none shadow-md"
                 />
               </div>
 
@@ -1259,7 +1259,7 @@ function AuthPageContent() {
                   type="button"
                   onClick={handleResendForgotCode}
                   disabled={resendingForgotCode}
-                  className="text-[#C59D3F] hover:underline font-bold flex items-center gap-1"
+                  className="text-accent hover:underline font-bold flex items-center gap-1"
                 >
                   <RefreshCw className={`h-3.5 w-3.5 ${resendingForgotCode ? "animate-spin" : ""}`} />
                   <span>{resendingForgotCode ? "Enviando..." : "Reenviar Código"}</span>
@@ -1278,7 +1278,7 @@ function AuthPageContent() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-2/3 rounded-xl bg-[#C59D3F] py-3.5 font-bold text-sm text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99]"
+                  className="w-2/3 rounded-xl bg-accent py-3.5 font-bold text-sm text-accent-fg transition-all hover:bg-accent shadow-md active:scale-[0.99]"
                 >
                   {loading ? "Verificando..." : "Validar Código →"}
                 </button>
@@ -1289,7 +1289,7 @@ function AuthPageContent() {
           {forgotStep === 3 && (
             <form onSubmit={handleResetPasswordSubmit} className="space-y-5 max-w-md mx-auto">
               <div className="text-center space-y-1">
-                <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-[#C59D3F]/20 text-[#C59D3F]">
+                <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-accent/20 text-accent">
                   <KeyRound className="h-6 w-6" />
                 </div>
                 <h3 className="font-display text-lg font-bold text-content">
@@ -1370,7 +1370,7 @@ function AuthPageContent() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-2/3 rounded-xl bg-[#C59D3F] py-3.5 font-bold text-sm text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99]"
+                  className="w-2/3 rounded-xl bg-accent py-3.5 font-bold text-sm text-accent-fg transition-all hover:bg-accent shadow-md active:scale-[0.99]"
                 >
                   {loading ? "Salvando..." : "Salvar Nova Senha →"}
                 </button>

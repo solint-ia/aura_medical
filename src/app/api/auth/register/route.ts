@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { getAuthJwtSecret } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { dbPool } from "@/lib/db";
 import { toISODateString } from "@/lib/format";
 import { validateCpfOrCnpj, validateEmail, validatePhone } from "@/lib/validators";
 
-const JWT_SECRET = process.env.SUPABASE_SERVICE_ROLE_KEY || "aura-jwt-secret-key-2026-secure";
 
 export async function POST(req: Request) {
   try {
@@ -240,7 +240,7 @@ export async function POST(req: Request) {
         cpfCnpj: createdUser!.cpfCnpj,
         name: `${createdUser!.firstName} ${createdUser!.lastName}`,
       },
-      JWT_SECRET,
+      getAuthJwtSecret(),
       { expiresIn: "30d" }
     );
 

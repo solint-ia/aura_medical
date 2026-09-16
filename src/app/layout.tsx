@@ -5,6 +5,8 @@ import { SITE_URL } from "@/data/site";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
+import { NavigationTracker } from "@/components/navigation/NavigationTracker";
+import { Suspense } from "react";
 
 import "./globals.css";
 
@@ -32,7 +34,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Aura Regenera",
   description:
-    "Slim+, Smooth+ e Drain+: bioregenerativos recombinantes de alta performance para flacidez, gordura localizada, celulite, fibrose e cicatrizes. Resultados comprovados para a bioremodelação e regeneração tecidual.",
+    "Catálogo de biotecnologia regenerativa para profissionais: bioregenerativos PBSerum, protocolos clínicos e dermocosméticos La Cutanée.",
   metadataBase: new URL(SITE_URL),
   icons: {
     icon: "/logos/AR-favicon.png",
@@ -42,7 +44,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Aura Regenera",
     description:
-      "Bioregenerativos recombinantes para bioremodelação da matriz extracelular. Tecnologia avançada de alta performance no Brasil.",
+      "PBSerum e La Cutanée em um catálogo de tecnologias regenerativas para a prática clínica.",
     locale: "pt_BR",
     type: "website",
   },
@@ -63,6 +65,7 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <CartProvider>
+              <Suspense fallback={null}><NavigationTracker /></Suspense>
               {children}
             </CartProvider>
           </AuthProvider>

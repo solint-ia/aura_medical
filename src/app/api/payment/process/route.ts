@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 import { sendOrderConfirmationEmail } from "@/lib/orderEmail";
 import { prisma } from "@/lib/prisma";
 import { dbPool } from "@/lib/db";
-import { enzymesData } from "@/data/enzymes";
-import { protocolsData } from "@/data/protocols";
 import { verifyAuthToken } from "@/lib/auth";
 import { calculateCheckoutTotal, verifyCheckoutItems } from "@/lib/checkoutPricing";
 import {
@@ -61,19 +59,10 @@ function truncateForMp(text: string): string {
  * Reaproveita a descrição já escrita para as páginas de catálogo: introdução do
  * protocolo (`protocolsData`) ou descrição curta da enzima (`enzymesData`).
  * Itens de protocolo usam o próprio slug como id no carrinho; ampolas individuais
- * usam `enz-<enzima>` (ver `BuyEnzymeVialButton`).
+ * usam `enz-<enzima>` para manter compatibilidade com carrinhos antigos.
  */
-function findItemDescription(itemId: string): string | undefined {
-  const protocol = protocolsData.find((p) => p.slug === itemId);
-  if (protocol?.introduction) return truncateForMp(protocol.introduction);
-
-  const enzymeId = itemId.replace(/^enz-/, "");
-  const enzyme = enzymesData.find(
-    (e) => e.slug === enzymeId || e.slug === `${enzymeId}-plus`
-  );
-  if (enzyme?.shortDescription) return truncateForMp(enzyme.shortDescription);
-
-  return undefined;
+function findItemDescription(name: string): string {
+  return truncateForMp(name);
 }
 
 /** O Mercado Pago exige URL absoluta em `picture_url`; o carrinho guarda caminho relativo. */
@@ -242,9 +231,9 @@ export async function POST(req: Request) {
       );
     }
 
-    const verifiedCart = verifyCheckoutItems(items, auth.role === "ADMIN");
+    const verifiedCart = await verifyCheckoutItems(items, { allowInternal: auth.role === "ADMIN" });
     if (!verifiedCart.ok) {
-      return NextResponse.json({ error: verifiedCart.error }, { status: 400 });
+      return NextResponse.json({ error: verifiedCart.error }, { status: verifiedCart.status || 400 });
     }
 
     const subtotal = verifiedCart.subtotal;
@@ -325,7 +314,7 @@ export async function POST(req: Request) {
 
     const mpAdditionalInfo = {
       items: verifiedCart.items.map((i) => {
-            const description = findItemDescription(String(i.id));
+            const description = findItemDescription(i.name);
             const pictureUrl = toAbsoluteImageUrl(i.imagePath, requestOrigin);
 
             return {

@@ -710,7 +710,7 @@ function CheckoutContent() {
   const inputClass = (hasError?: boolean) =>
     `w-full rounded-lg border px-3.5 py-3 text-sm transition-colors outline-none ${hasError
       ? "border-red-500 bg-red-500/5 text-red-900 dark:text-red-200 focus:border-red-600"
-      : "border-content/18 bg-canvas dark:bg-card text-content focus:border-[#C59D3F]"
+      : "border-content/18 bg-canvas dark:bg-card text-content focus:border-accent"
     }`;
 
   if (!isHydrated) {
@@ -725,7 +725,7 @@ function CheckoutContent() {
   if (!user) {
     return (
       <div className="mx-auto flex min-h-[75vh] max-w-xl flex-col items-center justify-center px-4 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#C59D3F]/15 text-[#C59D3F]">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-accent/15 text-accent">
           <User className="h-8 w-8" />
         </div>
         <h1 className="font-display text-2xl font-bold text-content mb-2">
@@ -737,7 +737,7 @@ function CheckoutContent() {
         <div className="flex justify-center gap-4">
           <Link
             href="/entrar"
-            className="rounded-xl bg-[#C59D3F] px-8 py-3.5 font-bold text-xs text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99]"
+            className="rounded-xl bg-accent px-8 py-3.5 font-bold text-xs text-accent-fg transition-all hover:bg-accent shadow-md active:scale-[0.99]"
           >
             Entrar na Conta ou Criar Cadastro →
           </Link>
@@ -750,7 +750,7 @@ function CheckoutContent() {
   if (items.length === 0 && !isSubmitted) {
     return (
       <div className="mx-auto flex min-h-[75vh] max-w-2xl flex-col items-center justify-center px-4 text-center">
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#C59D3F]/15 text-[#C59D3F]">
+        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-accent/15 text-accent">
           <ShoppingBag className="h-10 w-10" />
         </div>
         <h1 className="font-display text-3xl font-bold text-content mb-3">
@@ -761,7 +761,7 @@ function CheckoutContent() {
         </p>
         <Link
           href="/carrinho"
-          className="inline-flex items-center gap-2 rounded-lg bg-[#C59D3F] px-8 py-3.5 text-base font-semibold text-[#0D1B2A] transition-colors hover:bg-[#d4ac4c]"
+          className="inline-flex items-center gap-2 rounded-lg bg-accent px-8 py-3.5 text-base font-semibold text-accent-fg transition-colors hover:bg-accent"
         >
           Ir para o Carrinho
         </Link>
@@ -795,7 +795,7 @@ function CheckoutContent() {
         <div
           className={`mx-auto mt-6 mb-6 flex h-20 w-20 items-center justify-center rounded-full ${
             isAwaitingPayment
-              ? "bg-[#C59D3F]/15 text-[#C59D3F]"
+              ? "bg-accent/15 text-accent"
               : "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
           }`}
         >
@@ -808,28 +808,28 @@ function CheckoutContent() {
               : "Aguardando a Confirmação do Cartão"
             : "🎉 Pagamento Confirmado com Sucesso!"}
         </h1>
-        <p className="font-mono text-sm font-bold text-[#C59D3F] mb-4">
+        <p className="font-mono text-sm font-bold text-accent mb-4">
           Código do Pedido: {submittedOrderNumber}
         </p>
         <p className="text-base text-content/75 mb-6">
           {isAwaitingPayment ? (
             <>
               <strong className="text-content">{user.firstName}</strong>, seus{" "}
-              <strong className="text-[#C59D3F]">{submittedOrderSummary.itemsCount} kit(s)</strong> ficam reservados até
+              <strong className="text-accent">{submittedOrderSummary.itemsCount} kit(s)</strong> ficam reservados até
               a confirmação do pagamento. O pedido é registrado assim que o Mercado Pago aprovar a transação.
             </>
           ) : (
             <>
               Obrigado, <strong className="text-content">{user.firstName} {user.lastName}</strong>. Seu pedido de{" "}
-              <strong className="text-[#C59D3F]">{submittedOrderSummary.itemsCount} kit(s)</strong> foi registrado em nosso sistema.
+              <strong className="text-accent">{submittedOrderSummary.itemsCount} kit(s)</strong> foi registrado em nosso sistema.
             </>
           )}
         </p>
 
         {/* CARTÃO EM ANÁLISE — pagamento criado, ainda não aprovado */}
         {isCardUnderReview && (
-          <div className="w-full rounded-2xl border-2 border-[#C59D3F] bg-card p-6 mb-8 text-center space-y-3 shadow-xl">
-            <span className="inline-block rounded-full bg-[#C59D3F]/15 px-3.5 py-1 font-mono text-xs font-bold text-[#C59D3F]">
+          <div className="w-full rounded-2xl border-2 border-accent bg-card p-6 mb-8 text-center space-y-3 shadow-xl">
+            <span className="inline-block rounded-full bg-accent/15 px-3.5 py-1 font-mono text-xs font-bold text-accent">
               {threeDsInfo ? "🔐 Confirme sua identidade com o banco" : "⏳ Pagamento em análise pelo Mercado Pago"}
             </span>
             {threeDsInfo ? (
@@ -860,10 +860,10 @@ function CheckoutContent() {
                 resultado em tempo real.
               </p>
             )}
-            <div className="flex items-center justify-center gap-2 font-mono text-xs text-[#C59D3F] pt-1">
+            <div className="flex items-center justify-center gap-2 font-mono text-xs text-accent pt-1">
               <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C59D3F] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#C59D3F]"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent"></span>
               </span>
               Aguardando confirmação do pagamento em tempo real...
             </div>
@@ -891,7 +891,7 @@ function CheckoutContent() {
               onClick={() => {
                 if (trackedPaymentId) registerConfirmedOrder(trackedPaymentId);
               }}
-              className="rounded-lg bg-[#C59D3F] px-4 py-2 font-mono text-xs font-bold text-[#0D1B2A] transition-colors hover:bg-[#d4ac4c] disabled:opacity-60"
+              className="rounded-lg bg-accent px-4 py-2 font-mono text-xs font-bold text-accent-fg transition-colors hover:bg-accent disabled:opacity-60"
             >
               {registeringOrder ? "Registrando..." : "Tentar registrar novamente"}
             </button>
@@ -918,7 +918,7 @@ function CheckoutContent() {
 
         {/* PIX QR CODE & COPIA E COLA SECTION (PENDING STATE) */}
         {isPixPending && pixData && (
-          <div className="w-full rounded-2xl border-2 border-[#C59D3F] bg-card p-6 mb-8 text-center space-y-4 shadow-xl">
+          <div className="w-full rounded-2xl border-2 border-accent bg-card p-6 mb-8 text-center space-y-4 shadow-xl">
             <span className="inline-block rounded-full bg-emerald-500/15 px-3.5 py-1 font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400">
               ⚡ QR Code PIX Mercado Pago Gerado com Sucesso
             </span>
@@ -964,17 +964,17 @@ function CheckoutContent() {
                     setPixCopied(true);
                     setTimeout(() => setPixCopied(false), 3000);
                   }}
-                  className="shrink-0 rounded-xl bg-[#C59D3F] px-4 py-2.5 font-mono text-xs font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-sm active:scale-[0.98]"
+                  className="shrink-0 rounded-xl bg-accent px-4 py-2.5 font-mono text-xs font-bold text-accent-fg transition-all hover:bg-accent shadow-sm active:scale-[0.98]"
                 >
                   {pixCopied ? "✓ Copiado!" : "📋 Copiar PIX"}
                 </button>
               </div>
             </div>
 
-            <div className="flex items-center justify-center gap-2 font-mono text-xs text-[#C59D3F] pt-2">
+            <div className="flex items-center justify-center gap-2 font-mono text-xs text-accent pt-2">
               <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C59D3F] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#C59D3F]"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent"></span>
               </span>
               Aguardando confirmação do pagamento em tempo real...
             </div>
@@ -1001,7 +1001,7 @@ function CheckoutContent() {
           {paymentApproved && (
             <Link
               href="/minha-conta"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#C59D3F] px-8 py-3.5 font-semibold text-[#0D1B2A] transition-colors hover:bg-[#d4ac4c] shadow-md"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-8 py-3.5 font-semibold text-accent-fg transition-colors hover:bg-accent shadow-md"
             >
               Ver Pedido na Minha Conta →
             </Link>
@@ -1040,11 +1040,11 @@ function CheckoutContent() {
         <button
           type="button"
           onClick={() => setStep(1)}
-          className={`flex items-center gap-2 font-bold transition-colors ${step === 1 ? "text-[#C59D3F]" : "text-content/60 hover:text-content"
+          className={`flex items-center gap-2 font-bold transition-colors ${step === 1 ? "text-accent" : "text-content/60 hover:text-content"
             }`}
         >
           <span
-            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${step === 1 ? "bg-[#C59D3F] text-[#0D1B2A]" : "bg-[#C59D3F]/20 text-[#C59D3F]"
+            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${step === 1 ? "bg-accent text-accent-fg" : "bg-accent/20 text-accent"
               }`}
           >
             1
@@ -1059,11 +1059,11 @@ function CheckoutContent() {
           onClick={() => {
             if (selectedAddress) setStep(2);
           }}
-          className={`flex items-center gap-2 font-bold transition-colors ${step === 2 ? "text-[#C59D3F]" : "text-content/40"
+          className={`flex items-center gap-2 font-bold transition-colors ${step === 2 ? "text-accent" : "text-content/40"
             }`}
         >
           <span
-            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${step === 2 ? "bg-[#C59D3F] text-[#0D1B2A]" : "bg-content/10 text-content/50"
+            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${step === 2 ? "bg-accent text-accent-fg" : "bg-content/10 text-content/50"
               }`}
           >
             2
@@ -1078,8 +1078,8 @@ function CheckoutContent() {
           {/* READONLY CUSTOMER IDENTITY CARD */}
           <div className="rounded-2xl border border-content/12 bg-card p-5 space-y-3">
             <div className="flex items-center justify-between border-b border-content/10 pb-2.5">
-              <span className="font-mono text-xs font-bold text-[#C59D3F] uppercase tracking-wider flex items-center gap-1.5">
-                <Lock className="h-3.5 w-3.5 text-[#C59D3F]" />
+              <span className="font-mono text-xs font-bold text-accent uppercase tracking-wider flex items-center gap-1.5">
+                <Lock className="h-3.5 w-3.5 text-accent" />
                 Dados do Cliente (Cadastrado)
               </span>
               <span className="font-mono text-[11px] text-content/50">Somente Leitura</span>
@@ -1108,13 +1108,13 @@ function CheckoutContent() {
           {/* SELEÇÃO DE ENDEREÇO DE ENTREGA (APENAS ENDEREÇOS CADASTRADOS NA CONTA) */}
           <div className="rounded-2xl border border-content/12 bg-card p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-content/10 pb-3">
-              <h3 className="font-mono text-xs font-bold text-[#C59D3F] uppercase tracking-wider flex items-center gap-2">
+              <h3 className="font-mono text-xs font-bold text-accent uppercase tracking-wider flex items-center gap-2">
                 <MapPin className="h-4 w-4" />
                 Selecione o Endereço de Entrega *
               </h3>
               <Link
                 href="/minha-conta"
-                className="font-mono text-xs text-[#C59D3F] hover:underline font-bold"
+                className="font-mono text-xs text-accent hover:underline font-bold"
               >
                 Gerenciar Endereços na Minha Conta ➔
               </Link>
@@ -1133,7 +1133,7 @@ function CheckoutContent() {
                       key={addr.id}
                       onClick={() => setSelectedAddress(addr)}
                       className={`flex cursor-pointer flex-col justify-between rounded-xl border p-4 transition-all ${isSelected
-                          ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content shadow-sm ring-1 ring-[#C59D3F]"
+                          ? "border-accent bg-accent/10 text-content shadow-sm ring-1 ring-[#C59D3F]"
                           : "border-content/15 bg-canvas hover:border-content/30"
                         }`}
                     >
@@ -1148,7 +1148,7 @@ function CheckoutContent() {
                           CEP: {formatCep(addr.cep)}
                         </p>
                       </div>
-                      <span className="font-mono text-[11px] font-bold text-[#C59D3F] pt-2">
+                      <span className="font-mono text-[11px] font-bold text-accent pt-2">
                         {isSelected ? "✓ Endereço Selecionado" : "Clique para selecionar"}
                       </span>
                     </div>
@@ -1161,13 +1161,13 @@ function CheckoutContent() {
           {/* DYNAMIC FREIGHT CALCULATED WITH SELECTED ADDRESS */}
           {selectedAddress && (
             <div className="rounded-2xl border border-content/12 bg-card p-6 space-y-4">
-              <h3 className="font-mono text-xs font-bold text-[#C59D3F] uppercase tracking-wider flex items-center gap-2">
+              <h3 className="font-mono text-xs font-bold text-accent uppercase tracking-wider flex items-center gap-2">
                 <Truck className="h-4 w-4" />
                 Envio
               </h3>
 
               {shippingLoading ? (
-                <div className="py-4 text-center font-mono text-xs text-[#C59D3F] animate-pulse">
+                <div className="py-4 text-center font-mono text-xs text-accent animate-pulse">
                   Calculando frete em tempo real para o CEP {formatCep(selectedAddress.cep)}...
                 </div>
               ) : shippingError ? (
@@ -1194,12 +1194,12 @@ function CheckoutContent() {
                         key={opt.id}
                         onClick={() => setSelectedShippingOption(opt)}
                         className={`flex cursor-pointer items-center justify-between rounded-xl border p-3.5 transition-all ${isSelected
-                            ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content shadow-sm"
+                            ? "border-accent bg-accent/10 text-content shadow-sm"
                             : "border-content/15 bg-canvas hover:border-content/30"
                           }`}
                       >
                         <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-card font-mono text-xs font-bold text-[#C59D3F] border border-content/10">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-card font-mono text-xs font-bold text-accent border border-content/10">
                             🚚
                           </div>
                           <div>
@@ -1209,7 +1209,7 @@ function CheckoutContent() {
                             </p>
                           </div>
                         </div>
-                        <span className="font-mono text-sm font-bold text-[#C59D3F]">
+                        <span className="font-mono text-sm font-bold text-accent">
                           {formatBRL(opt.price)}
                         </span>
                       </div>
@@ -1228,7 +1228,7 @@ function CheckoutContent() {
           <div className="rounded-2xl border border-content/12 bg-card p-6 flex flex-wrap items-center justify-between gap-4 shadow-sm">
             <div>
               <span className="font-mono text-xs text-content/60 uppercase">Subtotal + Frete:</span>
-              <p className="font-display text-2xl font-bold text-[#C59D3F]">
+              <p className="font-display text-2xl font-bold text-accent">
                 {formatBRL(orderTotalBeforeDiscount)}
               </p>
               <p className="font-mono text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-1 flex items-center gap-1">
@@ -1239,7 +1239,7 @@ function CheckoutContent() {
             <button
               type="submit"
               disabled={!selectedAddress || shippingLoading || !selectedShippingOption}
-              className="rounded-xl bg-[#C59D3F] px-8 py-3.5 font-bold text-xs text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-md active:scale-[0.99] disabled:opacity-50"
+              className="rounded-xl bg-accent px-8 py-3.5 font-bold text-xs text-accent-fg transition-all hover:bg-accent shadow-md active:scale-[0.99] disabled:opacity-50"
             >
               Continuar para Pagamento →
             </button>
@@ -1257,7 +1257,7 @@ function CheckoutContent() {
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="font-mono text-xs text-[#C59D3F] underline font-bold"
+              className="font-mono text-xs text-accent underline font-bold"
             >
               ← Alterar Endereço / Frete
             </button>
@@ -1277,14 +1277,14 @@ function CheckoutContent() {
               )}
               <div className="pt-2 border-t border-content/10 flex items-center justify-between text-sm">
                 <span className="text-content font-bold">💰 Valor Total do Pedido:</span>
-                <span className="text-[#C59D3F] font-bold text-base">{formatBRL(totalPrice)}</span>
+                <span className="text-accent font-bold text-base">{formatBRL(totalPrice)}</span>
               </div>
             </div>
           )}
 
           {/* PAYMENT METHOD SELECTOR */}
           <div className="rounded-2xl border border-content/12 bg-card p-6 space-y-4">
-            <h3 className="font-mono text-xs font-bold text-[#C59D3F] uppercase tracking-wider">
+            <h3 className="font-mono text-xs font-bold text-accent uppercase tracking-wider">
               Selecione como Deseja Pagar *
             </h3>
 
@@ -1331,11 +1331,11 @@ function CheckoutContent() {
                 }}
                 className={`flex cursor-pointer items-start gap-4 rounded-2xl border-2 p-5 transition-all ${
                   paymentMethod === "card"
-                    ? "border-[#C59D3F] bg-[#C59D3F]/10 text-content shadow-sm ring-1 ring-[#C59D3F]"
+                    ? "border-accent bg-accent/10 text-content shadow-sm ring-1 ring-[#C59D3F]"
                     : "border-content/15 bg-canvas hover:border-content/30"
                 }`}
               >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#C59D3F]/15 text-[#C59D3F]">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent">
                   <CreditCard className="h-6 w-6" />
                 </div>
                 <div className="pt-0.5">
@@ -1353,7 +1353,7 @@ function CheckoutContent() {
             {/* Credit Card Form Fields */}
             {paymentMethod === "card" && (
               <div className="mt-6 rounded-xl border border-content/12 bg-canvas p-5 space-y-4">
-                <h4 className="font-mono text-xs font-bold text-[#C59D3F] uppercase tracking-wider">
+                <h4 className="font-mono text-xs font-bold text-accent uppercase tracking-wider">
                   Dados do Cartão de Crédito
                 </h4>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -1491,7 +1491,7 @@ function CheckoutContent() {
           <button
             type="submit"
             disabled={processingPayment}
-            className="w-full rounded-xl bg-[#C59D3F] py-4 text-base font-bold text-[#0D1B2A] transition-all hover:bg-[#d4ac4c] shadow-lg active:scale-[0.99] disabled:opacity-50"
+            className="w-full rounded-xl bg-accent py-4 text-base font-bold text-accent-fg transition-all hover:bg-accent shadow-lg active:scale-[0.99] disabled:opacity-50"
           >
             {processingPayment
               ? "Processando Pagamento com Mercado Pago..."

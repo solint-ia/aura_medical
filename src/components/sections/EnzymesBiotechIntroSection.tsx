@@ -139,7 +139,7 @@ export function EnzymesBiotechIntroSection() {
     <section
       id={ANVISA_CHAPTER_ID}
       aria-label="Introdução Conceitual e Biotecnologia"
-      className="relative scroll-mt-24 overflow-hidden bg-[#0A1622] px-[clamp(20px,4vw,56px)] pt-12 sm:pt-16 md:pt-20 pb-[clamp(64px,8vw,104px)] text-[#F6F3EC]"
+      className="relative scroll-mt-24 overflow-hidden bg-canvas px-[clamp(20px,4vw,56px)] pt-12 sm:pt-16 md:pt-20 pb-[clamp(64px,8vw,104px)] text-on-panel"
     >
       {/* Background ambient radial glows */}
       <div
@@ -154,11 +154,11 @@ export function EnzymesBiotechIntroSection() {
       <div className="relative z-10 mx-auto max-w-[1240px]">
         {/* Section Header */}
         <div className="mb-12 max-w-3xl mx-auto text-center">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#C59D3F]/40 bg-[#C59D3F]/12 px-4 py-1.5 font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#C59D3F]">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/12 px-4 py-1.5 font-mono text-xs font-bold uppercase tracking-[0.18em] text-accent">
             <Sparkles className="h-3.5 w-3.5" />
             <span>BIOTECNOLOGIA EXCLUSIVA</span>
           </div>
-          <h2 className="font-display text-[clamp(28px,4vw,48px)] font-bold leading-[1.15] tracking-[-0.01em] text-[#F6F3EC]">
+          <h2 className="font-display text-[clamp(28px,4vw,48px)] font-bold leading-[1.15] tracking-[-0.01em] text-on-panel">
             Biotecnologia Avançada para Resultados Visíveis
           </h2>
         </div>
@@ -179,21 +179,21 @@ export function EnzymesBiotechIntroSection() {
                   type="button"
                   onClick={() => setActiveStep(index)}
                   className={`group relative flex items-center gap-5 rounded-2xl border p-5 text-left transition-all duration-300 ${isActive
-                    ? "border-[#C59D3F] bg-[#122436] shadow-[0_10px_30px_rgba(197,157,63,0.2)]"
+                    ? "border-accent bg-panel shadow-[0_10px_30px_rgba(197,157,63,0.2)]"
                     : "border-white/10 bg-white/4 hover:border-white/25 hover:bg-white/7"
                     }`}
                 >
                   {/* Left Active Pillar Line */}
                   <div
-                    className={`absolute left-0 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full transition-all duration-300 ${isActive ? "bg-[#C59D3F]" : "bg-transparent group-hover:bg-white/30"
+                    className={`absolute left-0 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full transition-all duration-300 ${isActive ? "bg-accent" : "bg-transparent group-hover:bg-white/30"
                       }`}
                   />
 
                   {/* Step Number Circle */}
                   <div
                     className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl font-mono text-sm font-bold transition-all duration-300 ${isActive
-                      ? "bg-[#C59D3F] text-[#0D1B2A] shadow-md"
-                      : "border border-white/15 bg-white/5 text-[#F6F3EC]/60 group-hover:text-[#F6F3EC]"
+                      ? "bg-accent text-accent-fg shadow-md"
+                      : "border border-white/15 bg-white/5 text-on-panel/60 group-hover:text-on-panel"
                       }`}
                   >
                     {item.stepNumber}
@@ -201,11 +201,11 @@ export function EnzymesBiotechIntroSection() {
 
                   {/* Nav Title & Tag */}
                   <div>
-                    <span className="block font-mono text-[10.5px] uppercase tracking-wider text-[#C59D3F]">
+                    <span className="block font-mono text-[10.5px] uppercase tracking-wider text-accent">
                       {item.subtitleTag}
                     </span>
                     <span
-                      className={`block font-display text-lg font-bold transition-colors ${isActive ? "text-[#F6F3EC]" : "text-[#F6F3EC]/70 group-hover:text-[#F6F3EC]"
+                      className={`block font-display text-lg font-bold transition-colors ${isActive ? "text-on-panel" : "text-on-panel/70 group-hover:text-on-panel"
                         }`}
                     >
                       {item.navTitle}
@@ -217,7 +217,7 @@ export function EnzymesBiotechIntroSection() {
           </nav>
 
           {/* Right Content Display Panel (Span 8) */}
-          <div className="lg:col-span-8 relative min-h-[460px] rounded-3xl border border-[#C59D3F]/35 bg-[#122436]/90 p-7 sm:p-10 shadow-2xl backdrop-blur-md overflow-hidden transition-all duration-500">
+          <div className="lg:col-span-8 relative min-h-[460px] rounded-3xl border border-accent/35 bg-panel/90 p-7 sm:p-10 shadow-2xl backdrop-blur-md overflow-hidden transition-all duration-500">
             {/* Subtle Inner Glow Element */}
             <div
               aria-hidden="true"
@@ -227,35 +227,35 @@ export function EnzymesBiotechIntroSection() {
             <div key={chapter.id} className="relative z-10 space-y-6 animate-fade-in">
               {/* Header Badge */}
               <div className="flex items-center justify-between border-b border-white/10 pb-5">
-                <span className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-[#C59D3F]">
+                <span className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-accent">
                   Capítulo {chapter.stepNumber} · {chapter.subtitleTag}
                 </span>
-                <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 font-mono text-[11px] text-[#F6F3EC]/70 uppercase">
+                <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 font-mono text-[11px] text-on-panel/70 uppercase">
                   pbserum Recombinante
                 </span>
               </div>
 
               {/* Main Chapter Title */}
-              <h3 className="font-display text-2xl sm:text-3xl font-bold text-[#F6F3EC]">
+              <h3 className="font-display text-2xl sm:text-3xl font-bold text-on-panel">
                 {chapter.title}
               </h3>
 
               {/* Subtitle if present */}
               {chapter.subtitle ? (
-                <p className="text-base sm:text-lg font-semibold leading-relaxed text-[#C59D3F]">
+                <p className="text-base sm:text-lg font-semibold leading-relaxed text-accent">
                   {chapter.subtitle}
                 </p>
               ) : null}
 
               {/* Body paragraphs if present */}
               {chapter.body1 ? (
-                <p className="text-base sm:text-lg leading-relaxed text-[#F6F3EC]/90 font-medium">
+                <p className="text-base sm:text-lg leading-relaxed text-on-panel/90 font-medium">
                   {chapter.body1}
                 </p>
               ) : null}
 
               {chapter.body2 ? (
-                <p className="text-base leading-relaxed text-[#F6F3EC]/80 font-normal">
+                <p className="text-base leading-relaxed text-on-panel/80 font-normal">
                   {chapter.body2}
                 </p>
               ) : null}
@@ -268,15 +268,15 @@ export function EnzymesBiotechIntroSection() {
                     return (
                       <div
                         key={hl.title}
-                        className="rounded-2xl border border-[#C59D3F]/25 bg-[#C59D3F]/10 p-5 space-y-2.5 transition-colors hover:bg-[#C59D3F]/15"
+                        className="rounded-2xl border border-accent/25 bg-accent/10 p-5 space-y-2.5 transition-colors hover:bg-accent/15"
                       >
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#C59D3F] text-[#0D1B2A]">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-accent-fg">
                           <IconComponent className="h-5 w-5" />
                         </div>
-                        <h4 className="font-display text-base font-bold text-[#F6F3EC]">
+                        <h4 className="font-display text-base font-bold text-on-panel">
                           {hl.title}
                         </h4>
-                        <p className="text-xs leading-relaxed text-[#F6F3EC]/80 font-normal">
+                        <p className="text-xs leading-relaxed text-on-panel/80 font-normal">
                           {hl.description}
                         </p>
                       </div>
@@ -291,22 +291,22 @@ export function EnzymesBiotechIntroSection() {
                   {enzymesData.map((enzyme) => (
                     <li
                       key={enzyme.slug}
-                      className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 rounded-2xl border border-[#C59D3F]/30 bg-[#0D1E2E] p-5 shadow-lg"
+                      className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 rounded-2xl border border-accent/30 bg-panel p-5 shadow-lg"
                     >
                       <div className="flex items-center gap-3">
-                        <CheckCircle2 className="h-5 w-5 shrink-0 text-[#C59D3F]" />
+                        <CheckCircle2 className="h-5 w-5 shrink-0 text-accent" />
                         <div>
-                          <p className="font-display text-base font-bold text-[#F6F3EC]">
+                          <p className="font-display text-base font-bold text-on-panel">
                             {enzyme.name}
                           </p>
-                          <p className="text-xs text-[#F6F3EC]/70">{enzyme.anvisaProduct}</p>
+                          <p className="text-xs text-on-panel/70">{enzyme.anvisaProduct}</p>
                         </div>
                       </div>
                       <div className="ml-8 sm:ml-0">
-                        <span className="block font-mono text-[10.5px] uppercase tracking-wider text-[#F6F3EC]/50">
+                        <span className="block font-mono text-[10.5px] uppercase tracking-wider text-on-panel/50">
                           Processo ANVISA
                         </span>
-                        <span className="font-mono text-sm font-bold text-[#C59D3F]">
+                        <span className="font-mono text-sm font-bold text-accent">
                           {enzyme.anvisaRegistration}
                         </span>
                       </div>
@@ -317,22 +317,22 @@ export function EnzymesBiotechIntroSection() {
 
               {/* Chapter 3 Factory Details */}
               {chapter.factoryDetails ? (
-                <div className="mt-6 rounded-2xl border border-[#C59D3F]/30 bg-[#0D1E2E] p-6 space-y-4 shadow-lg">
+                <div className="mt-6 rounded-2xl border border-accent/30 bg-panel p-6 space-y-4 shadow-lg">
                   <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
                     <div className="flex items-center gap-2">
-                      <Building2 className="h-5 w-5 text-[#C59D3F]" />
-                      <span className="font-display text-base font-bold text-[#F6F3EC]">
+                      <Building2 className="h-5 w-5 text-accent" />
+                      <span className="font-display text-base font-bold text-on-panel">
                         Proteos Biotech S.L.
                       </span>
                     </div>
-                    <div className="flex items-center gap-1.5 font-mono text-xs text-[#C59D3F]">
+                    <div className="flex items-center gap-1.5 font-mono text-xs text-accent">
                       <Globe2 className="h-4 w-4" />
                       <span>{chapter.factoryDetails.location}</span>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Award className="h-5 w-5 text-[#C59D3F] shrink-0 mt-0.5" />
-                    <p className="text-xs sm:text-sm text-[#F6F3EC]/90 leading-relaxed font-medium">
+                    <Award className="h-5 w-5 text-accent shrink-0 mt-0.5" />
+                    <p className="text-xs sm:text-sm text-on-panel/90 leading-relaxed font-medium">
                       {chapter.factoryDetails.guarantee}
                     </p>
                   </div>

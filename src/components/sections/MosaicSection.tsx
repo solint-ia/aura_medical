@@ -9,7 +9,7 @@ export function MosaicSection() {
     >
       {/* Editorial Typography Anchor */}
       <div className="mx-auto mb-10 max-w-3xl text-center md:mb-14">
-        <span className="font-mono text-xs font-semibold tracking-[0.18em] text-[#C59D3F] uppercase md:text-sm">
+        <span className="font-mono text-xs font-semibold tracking-[0.18em] text-accent uppercase md:text-sm">
           Indicações Clínicas
         </span>
         <h2 className="mt-2.5 font-display text-3xl font-light leading-[1.14] tracking-tight text-content sm:text-4xl md:text-5xl">

@@ -46,7 +46,7 @@ export function TabNav<T extends string>({
             aria-current={isActive ? "page" : undefined}
             className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-center font-bold uppercase leading-tight transition-colors lg:justify-start lg:rounded-none lg:border-0 lg:border-b-2 lg:px-4 lg:py-3 lg:text-left xl:px-5 ${
               isActive
-                ? "border-[#C59D3F] bg-[#C59D3F] text-[#0D1B2A] shadow-xs lg:bg-transparent lg:text-[#C59D3F]"
+                ? "border-accent bg-accent text-accent-fg shadow-xs lg:bg-transparent lg:text-accent"
                 : "border-content/15 bg-card text-content/70 hover:border-content/30 hover:text-content lg:border-transparent lg:bg-transparent lg:text-content/60 lg:hover:border-transparent"
             }`}
           >

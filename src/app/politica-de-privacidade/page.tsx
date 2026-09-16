@@ -48,7 +48,7 @@ const SECTIONS = [
 export default function PoliticaPrivacidadePage() {
   return (
     <AccreditationProvider>
-      <div className="min-h-screen bg-[#0D1B2A] text-[#F6F3EC]">
+      <div className="min-h-screen bg-panel text-on-panel">
         <SiteHeader />
 
         <main className="relative overflow-hidden pb-24">
@@ -57,23 +57,23 @@ export default function PoliticaPrivacidadePage() {
             aria-hidden="true"
             className="pointer-events-none absolute top-0 left-1/2 -z-0 h-[600px] w-full max-w-7xl -translate-x-1/2 overflow-hidden blur-3xl opacity-30"
           >
-            <div className="absolute -top-32 left-1/4 h-[420px] w-[420px] rounded-full bg-[#C59D3F]/25" />
-            <div className="absolute top-20 right-1/4 h-[450px] w-[450px] rounded-full bg-[#162A3D]" />
+            <div className="absolute -top-32 left-1/4 h-[420px] w-[420px] rounded-full bg-accent/25" />
+            <div className="absolute top-20 right-1/4 h-[450px] w-[450px] rounded-full bg-card" />
           </div>
 
           <div className="relative z-10 mx-auto max-w-[1280px] px-[clamp(20px,4vw,56px)] pt-8 md:pt-12">
             {/* Breadcrumbs */}
             <nav aria-label="Navegação estrutural" className="mb-8">
-              <ol className="flex items-center gap-2 font-mono text-xs text-[#F6F3EC]/60">
+              <ol className="flex items-center gap-2 font-mono text-xs text-on-panel/60">
                 <li>
-                  <Link href="/" className="transition-colors hover:text-[#C59D3F]">
+                  <Link href="/" className="transition-colors hover:text-accent">
                     Home
                   </Link>
                 </li>
                 <li>
                   <ChevronRight className="h-3.5 w-3.5 text-white/40" />
                 </li>
-                <li className="font-semibold text-[#C59D3F]">
+                <li className="font-semibold text-accent">
                   Política de Privacidade
                 </li>
               </ol>
@@ -81,10 +81,10 @@ export default function PoliticaPrivacidadePage() {
 
             {/* Header Hero */}
             <div className="mb-12 max-w-3xl">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#C59D3F]/40 bg-[#C59D3F]/10 px-4 py-1.5 font-mono text-xs font-semibold tracking-widest text-[#C59D3F] uppercase backdrop-blur-sm">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-1.5 font-mono text-xs font-semibold tracking-widest text-accent uppercase backdrop-blur-sm">
                 <Shield className="h-3.5 w-3.5" />
                 <span>LGPD · Lei nº 13.709/2018</span>
-                <span className="h-1 w-1 rounded-full bg-[#C59D3F]" />
+                <span className="h-1 w-1 rounded-full bg-accent" />
                 <span>Documento Oficial</span>
               </div>
 
@@ -92,12 +92,12 @@ export default function PoliticaPrivacidadePage() {
                 Política de Privacidade
               </h1>
 
-              <p className="mt-4 text-base sm:text-lg text-[#F6F3EC]/80 leading-relaxed">
+              <p className="mt-4 text-base sm:text-lg text-on-panel/80 leading-relaxed">
                 A <strong className="text-white font-semibold">Aura Regenera</strong> valoriza a privacidade, a segurança e a proteção dos dados pessoais de seus clientes, profissionais da saúde credenciados, parceiros e visitantes.
               </p>
 
-              <div className="mt-6 flex flex-wrap items-center gap-4 text-xs font-mono text-[#F6F3EC]/60 border-t border-white/10 pt-4">
-                <span>Última atualização: <strong className="text-[#C59D3F]">14 de agosto de 2026</strong></span>
+              <div className="mt-6 flex flex-wrap items-center gap-4 text-xs font-mono text-on-panel/60 border-t border-white/10 pt-4">
+                <span>Última atualização: <strong className="text-accent">14 de agosto de 2026</strong></span>
                 <span>·</span>
                 <span>CNPJ: <strong className="text-white">{COMPANY_CNPJ}</strong></span>
               </div>
@@ -106,31 +106,31 @@ export default function PoliticaPrivacidadePage() {
             {/* Destaques Rápidos / Pillars */}
             <div className="mb-14 grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#C59D3F]/15 text-[#C59D3F]">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15 text-accent">
                   <Lock className="h-5 w-5" />
                 </div>
                 <h2 className="text-sm font-semibold text-white">Sigilo & Segurança</h2>
-                <p className="mt-1.5 text-xs text-[#F6F3EC]/70 leading-relaxed">
+                <p className="mt-1.5 text-xs text-on-panel/70 leading-relaxed">
                   Criptografia de ponta a ponta e controle estrito no armazenamento de cadastros e pedidos.
                 </p>
               </div>
 
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#C59D3F]/15 text-[#C59D3F]">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15 text-accent">
                   <Share2 className="h-5 w-5" />
                 </div>
                 <h2 className="text-sm font-semibold text-white">Zero Comercialização</h2>
-                <p className="mt-1.5 text-xs text-[#F6F3EC]/70 leading-relaxed">
+                <p className="mt-1.5 text-xs text-on-panel/70 leading-relaxed">
                   Não vendemos nem repassamos seus dados cadastrais ou comerciais para terceiros.
                 </p>
               </div>
 
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#C59D3F]/15 text-[#C59D3F]">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15 text-accent">
                   <UserCheck className="h-5 w-5" />
                 </div>
                 <h2 className="text-sm font-semibold text-white">Direitos Garantidos</h2>
-                <p className="mt-1.5 text-xs text-[#F6F3EC]/70 leading-relaxed">
+                <p className="mt-1.5 text-xs text-on-panel/70 leading-relaxed">
                   Acesso rápido, correção, portabilidade e revogação de consentimento a qualquer momento.
                 </p>
               </div>
@@ -140,8 +140,8 @@ export default function PoliticaPrivacidadePage() {
             <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
               {/* Sidebar: Índice */}
               <aside className="lg:col-span-4">
-                <div className="sticky top-28 rounded-2xl border border-white/10 bg-[#12283C]/70 p-6 backdrop-blur-md">
-                  <p className="font-mono text-xs font-semibold tracking-wider text-[#C59D3F] uppercase mb-4">
+                <div className="sticky top-28 rounded-2xl border border-white/10 bg-panel/70 p-6 backdrop-blur-md">
+                  <p className="font-mono text-xs font-semibold tracking-wider text-accent uppercase mb-4">
                     Índice do Documento
                   </p>
                   <nav aria-label="Seções da política" className="space-y-1 text-xs">
@@ -149,7 +149,7 @@ export default function PoliticaPrivacidadePage() {
                       <a
                         key={sec.id}
                         href={`#${sec.id}`}
-                        className="block rounded-lg px-3 py-2 text-[#F6F3EC]/75 transition-colors hover:bg-white/[0.06] hover:text-[#C59D3F]"
+                        className="block rounded-lg px-3 py-2 text-on-panel/75 transition-colors hover:bg-white/[0.06] hover:text-accent"
                       >
                         {sec.title}
                       </a>
@@ -157,10 +157,10 @@ export default function PoliticaPrivacidadePage() {
                   </nav>
 
                   <div className="mt-6 border-t border-white/10 pt-4">
-                    <p className="text-xs text-[#F6F3EC]/60 mb-2">Dúvidas sobre privacidade?</p>
+                    <p className="text-xs text-on-panel/60 mb-2">Dúvidas sobre privacidade?</p>
                     <a
                       href={`mailto:${CONTACT_EMAIL}`}
-                      className="inline-flex items-center gap-2 text-xs font-semibold text-[#C59D3F] hover:underline"
+                      className="inline-flex items-center gap-2 text-xs font-semibold text-accent hover:underline"
                     >
                       <Mail className="h-3.5 w-3.5" />
                       {CONTACT_EMAIL}
@@ -170,7 +170,7 @@ export default function PoliticaPrivacidadePage() {
               </aside>
 
               {/* Corpo Principal da Política */}
-              <article className="space-y-12 text-[#F6F3EC]/85 lg:col-span-8 leading-relaxed">
+              <article className="space-y-12 text-on-panel/85 lg:col-span-8 leading-relaxed">
                 {/* Introdução */}
                 <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
                   <p className="text-sm sm:text-base leading-relaxed">
@@ -184,7 +184,7 @@ export default function PoliticaPrivacidadePage() {
                 {/* Seção 1 */}
                 <section id="coleta" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       01
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -196,31 +196,31 @@ export default function PoliticaPrivacidadePage() {
                   </p>
                   <ul className="space-y-2 text-sm sm:text-base">
                     <li className="flex items-start gap-2.5">
-                      <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-[#C59D3F]" />
+                      <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-accent" />
                       <span><strong>Dados cadastrais e de identificação:</strong> Nome completo, CPF, e-mail e número de telefone/WhatsApp;</span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-[#C59D3F]" />
+                      <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-accent" />
                       <span><strong>Dados profissionais e de credenciamento:</strong> Registro profissional em conselho de classe (CRM, CRBM, CRO, CRF ou correlatos), especialidade clínica, nome da clínica ou consultório e CNPJ profissional;</span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-[#C59D3F]" />
+                      <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-accent" />
                       <span><strong>Dados de entrega e faturamento:</strong> Endereço comercial/clínico completo para envio dos bioregenerativos recombinantes e informações fiscais para emissão de Nota Fiscal;</span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-[#C59D3F]" />
+                      <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-accent" />
                       <span><strong>Informações fornecidas voluntariamente:</strong> Mensagens enviadas via WhatsApp, solicitações de suporte sobre protocolos clínicos (ex.: Slim+, Smooth+, Drain+), dúvidas técnicas e histórico de pedidos;</span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-[#C59D3F]" />
+                      <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-accent" />
                       <span><strong>Dados técnicos de navegação:</strong> Endereço IP, tipo de dispositivo, navegador utilizado, páginas e protocolos consultados e registros de data/hora de acesso;</span>
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-[#C59D3F]" />
+                      <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-accent" />
                       <span><strong>Cookies e identificadores:</strong> Informações de preferências de sessão e métricas de usabilidade para aprimoramento contínuo da plataforma.</span>
                     </li>
                   </ul>
-                  <p className="text-xs text-[#F6F3EC]/70 italic">
+                  <p className="text-xs text-on-panel/70 italic">
                     * Solicitamos apenas os dados estritamente necessários para atender finalidades legítimas, comerciais e regulatórias da nossa operação.
                   </p>
                 </section>
@@ -228,7 +228,7 @@ export default function PoliticaPrivacidadePage() {
                 {/* Seção 2 */}
                 <section id="utilizacao" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       02
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -269,7 +269,7 @@ export default function PoliticaPrivacidadePage() {
                 {/* Seção 3 */}
                 <section id="ia-automacao" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       03
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -279,8 +279,8 @@ export default function PoliticaPrivacidadePage() {
                   <p className="text-sm sm:text-base">
                     A Aura Regenera utiliza soluções tecnológicas baseadas em inteligência artificial e automação para agilizar a triagem de credenciamento, qualificação inicial de contatos, assistência na navegação de protocolos e otimização do atendimento ao cliente.
                   </p>
-                  <div className="rounded-xl border border-[#C59D3F]/20 bg-[#C59D3F]/5 p-4 text-sm text-[#F6F3EC]/90">
-                    <p className="flex items-center gap-2 font-semibold text-[#C59D3F] mb-1">
+                  <div className="rounded-xl border border-accent/20 bg-accent/5 p-4 text-sm text-on-panel/90">
+                    <p className="flex items-center gap-2 font-semibold text-accent mb-1">
                       <Cpu className="h-4 w-4 shrink-0" />
                       Uso Ético e Limites da IA
                     </p>
@@ -293,7 +293,7 @@ export default function PoliticaPrivacidadePage() {
                 {/* Seção 4 */}
                 <section id="compartilhamento" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       04
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -305,23 +305,23 @@ export default function PoliticaPrivacidadePage() {
                   </p>
                   <ul className="space-y-2 text-sm sm:text-base">
                     <li className="flex items-start gap-2">
-                      <span className="text-[#C59D3F] font-bold">•</span>
+                      <span className="text-accent font-bold">•</span>
                       <span><strong>Operadores logísticos e transportadoras:</strong> Para viabilizar a entrega física dos bioregenerativos no endereço clínico cadastrado;</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-[#C59D3F] font-bold">•</span>
+                      <span className="text-accent font-bold">•</span>
                       <span><strong>Processadores de pagamento e instituições financeiras:</strong> Para faturamento, cobrança e prevenção a fraudes;</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-[#C59D3F] font-bold">•</span>
+                      <span className="text-accent font-bold">•</span>
                       <span><strong>Provedores de infraestrutura e hospedagem:</strong> Servidores em nuvem com altos padrões de segurança para armazenamento de banco de dados;</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-[#C59D3F] font-bold">•</span>
+                      <span className="text-accent font-bold">•</span>
                       <span><strong>Farmacovigilância e parceiros biotecnológicos (ex.: Proteos Biotech / pbserum):</strong> Em casos de reporte formal de eventos adversos para cumprimento das normas de vigilância sanitária;</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-[#C59D3F] font-bold">•</span>
+                      <span className="text-accent font-bold">•</span>
                       <span><strong>Autoridades públicas e ordens judiciais:</strong> Quando houver determinação legal ou solicitação válida de autoridade competente.</span>
                     </li>
                   </ul>
@@ -330,7 +330,7 @@ export default function PoliticaPrivacidadePage() {
                 {/* Seção 5 */}
                 <section id="seguranca" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       05
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -348,7 +348,7 @@ export default function PoliticaPrivacidadePage() {
                 {/* Seção 6 */}
                 <section id="cookies" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       06
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -366,7 +366,7 @@ export default function PoliticaPrivacidadePage() {
                 {/* Seção 7 */}
                 <section id="terceiros" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       07
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -381,7 +381,7 @@ export default function PoliticaPrivacidadePage() {
                 {/* Seção 8 */}
                 <section id="direitos" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       08
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -417,15 +417,15 @@ export default function PoliticaPrivacidadePage() {
                       Retirar o consentimento para recebimento de informativos e comunicações de marketing.
                     </div>
                   </div>
-                  <p className="text-xs text-[#F6F3EC]/70">
-                    Para exercer qualquer um destes direitos, basta enviar uma mensagem ao nosso Encarregado de Dados pelo e-mail: <strong className="text-[#C59D3F]">{CONTACT_EMAIL}</strong>.
+                  <p className="text-xs text-on-panel/70">
+                    Para exercer qualquer um destes direitos, basta enviar uma mensagem ao nosso Encarregado de Dados pelo e-mail: <strong className="text-accent">{CONTACT_EMAIL}</strong>.
                   </p>
                 </section>
 
                 {/* Seção 9 */}
                 <section id="comunicacoes" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       09
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -435,7 +435,7 @@ export default function PoliticaPrivacidadePage() {
                   <p className="text-sm sm:text-base">
                     A Aura Regenera poderá enviar comunicações contendo artigos científicos, lançamentos de novos protocolos, novidades de biotecnologia e atualizações comerciais aos profissionais cadastrados. O usuário poderá optar por interromper o recebimento de mensagens promocionais a qualquer momento por meio do link de descadastro nas mensagens ou solicitando via WhatsApp/e-mail.
                   </p>
-                  <p className="text-xs text-[#F6F3EC]/70">
+                  <p className="text-xs text-on-panel/70">
                     O cancelamento de marketing não afeta o envio de comunicados operacionais indispensáveis, tais como rastreio de encomendas, faturas e avisos de segurança.
                   </p>
                 </section>
@@ -443,7 +443,7 @@ export default function PoliticaPrivacidadePage() {
                 {/* Seção 10 */}
                 <section id="casos-clinicos" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       10
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -458,7 +458,7 @@ export default function PoliticaPrivacidadePage() {
                 {/* Seção 11 */}
                 <section id="transferencia" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       11
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -473,7 +473,7 @@ export default function PoliticaPrivacidadePage() {
                 {/* Seção 12 */}
                 <section id="menores" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       12
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -488,7 +488,7 @@ export default function PoliticaPrivacidadePage() {
                 {/* Seção 13 */}
                 <section id="responsabilidades" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       13
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -503,7 +503,7 @@ export default function PoliticaPrivacidadePage() {
                 {/* Seção 14 */}
                 <section id="alteracoes" className="scroll-mt-28 space-y-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C59D3F]/15 font-mono text-sm font-bold text-[#C59D3F]">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 font-mono text-sm font-bold text-accent">
                       14
                     </span>
                     <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -517,50 +517,50 @@ export default function PoliticaPrivacidadePage() {
 
                 {/* Seção 15 - Contato DPO */}
                 <section id="contato" className="scroll-mt-28">
-                  <div className="rounded-2xl border border-[#C59D3F]/30 bg-gradient-to-br from-[#12283C] to-[#0B1D2C] p-6 sm:p-8">
+                  <div className="rounded-2xl border border-accent/30 bg-gradient-to-br from-panel to-[#0B1D2C] p-6 sm:p-8">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#C59D3F] text-[#0D1B2A]">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-accent-fg">
                         <Building2 className="h-5 w-5" />
                       </div>
                       <div>
                         <h2 className="font-display text-xl font-bold text-white">
                           Canal de Atendimento e Encarregado (DPO)
                         </h2>
-                        <p className="text-xs text-[#F6F3EC]/70">
+                        <p className="text-xs text-on-panel/70">
                           Aura Regenera · Tratamento de Dados & Conformidade LGPD
                         </p>
                       </div>
                     </div>
 
-                    <p className="text-sm sm:text-base text-[#F6F3EC]/85 leading-relaxed mb-6">
+                    <p className="text-sm sm:text-base text-on-panel/85 leading-relaxed mb-6">
                       Para exercer seus direitos de titular, solicitar esclarecimentos ou relatar qualquer dúvida a respeito do tratamento de dados pessoais, entre em contato conosco pelos canais oficiais:
                     </p>
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 text-xs sm:text-sm">
                       <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
-                        <span className="text-[#C59D3F] font-mono text-xs uppercase block mb-1">E-mail do DPO / Privacidade</span>
+                        <span className="text-accent font-mono text-xs uppercase block mb-1">E-mail do DPO / Privacidade</span>
                         <a
                           href={`mailto:${CONTACT_EMAIL}`}
-                          className="font-semibold text-white hover:text-[#C59D3F] transition-colors"
+                          className="font-semibold text-white hover:text-accent transition-colors"
                         >
                           {CONTACT_EMAIL}
                         </a>
                       </div>
 
                       <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
-                        <span className="text-[#C59D3F] font-mono text-xs uppercase block mb-1">WhatsApp de Atendimento</span>
+                        <span className="text-accent font-mono text-xs uppercase block mb-1">WhatsApp de Atendimento</span>
                         <a
                           href={WHATSAPP_URL}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-semibold text-white hover:text-[#C59D3F] transition-colors"
+                          className="font-semibold text-white hover:text-accent transition-colors"
                         >
                           {WHATSAPP_NUMBER_DISPLAY}
                         </a>
                       </div>
                     </div>
 
-                    <div className="mt-6 border-t border-white/10 pt-4 flex flex-wrap items-center justify-between gap-4 text-xs text-[#F6F3EC]/60">
+                    <div className="mt-6 border-t border-white/10 pt-4 flex flex-wrap items-center justify-between gap-4 text-xs text-on-panel/60">
                       <span>CNPJ: {COMPANY_CNPJ}</span>
                       <span>Aracaju · Sergipe · Brasil</span>
                     </div>

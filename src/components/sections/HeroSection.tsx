@@ -1,112 +1,108 @@
 import Image from "next/image";
-import type { CSSProperties } from "react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
-import { PRODUCT_IMAGE_SIZE, PRODUCTS } from "@/data/products";
+import { AccreditationButton } from "@/components/accreditation/AccreditationButton";
+import type { CatalogItem } from "@/data/catalog";
+import { HERO_ACCREDITATION_CTA_LABEL } from "@/data/site";
 
-/** Stacked arrangement of the three boxes, mirroring the printed catalogue. */
-const HERO_STACK = [
-  {
-    productId: "smooth",
-    className: "left-0 top-[2%] w-[58%] z-1",
-    tilt: "-7deg",
-    delay: "100ms",
-  },
-  {
-    productId: "drain",
-    className: "left-[20%] top-[28%] w-[60%] z-2",
-    tilt: "4deg",
-    delay: "220ms",
-  },
-  {
-    productId: "slim",
-    className: "left-[32%] top-[52%] w-[62%] z-3",
-    tilt: "-3deg",
-    delay: "340ms",
-  },
-] as const;
+interface HeroLine {
+  slug: string;
+  name: string;
+  _count: { products: number; protocols: number };
+}
 
-export function HeroSection() {
+export function HeroSection({ lines }: { lines: HeroLine[]; products?: CatalogItem[] }) {
   return (
-    <section
-      id="hero"
-      aria-labelledby="hero-title"
-      className="relative overflow-hidden bg-canvas px-[clamp(20px,4vw,56px)] pt-[clamp(36px,4.5vw,72px)] pb-[clamp(28px,3vw,48px)]"
-    >
-      <div className="mx-auto grid max-w-[1280px] grid-cols-1 items-center gap-0 hero:grid-cols-2 hero:gap-[clamp(40px,6vw,72px)]">
-        {/* Below `hero` the wrapper dissolves into the grid, so the render can
-            sit between the headline and the supporting copy. Above it, the
-            wrapper reforms and the copy stacks in its own column. */}
-        <div className="contents hero:block hero:max-w-[560px]">
-          <p className="order-1 mb-5 animate-fade-up font-mono text-[12.5px] tracking-[0.14em] text-accent uppercase">
-            pbserum Plus · Bioregenerativos Recombinantes
-          </p>
-          <h1
-            id="hero-title"
-            className="order-1 mb-[22px] animate-fade-up font-display text-[clamp(34px,4.6vw,58px)] leading-[1.06] font-bold tracking-[-0.015em] text-content [animation-delay:80ms]"
-          >
-            Regenere a arquitetura do tecido, não apenas a superfície da
-            pele.
-          </h1>
-          <p className="order-3 mb-9 animate-fade-up text-[clamp(16px,1.4vw,18.5px)] leading-[1.6] text-content/72 [animation-delay:160ms]">
-            Slim+, Smooth+ e Drain+ são três bioregenerativos
-            recombinantes que atuam na matriz extracelular para tratar flacidez,
-            gordura localizada, celulite, fibrose e cicatrizes, com a segurança
-            e o controle que sua prática clínica exige.
-          </p>
-          <div className="order-4 mb-8 flex animate-fade-up flex-wrap gap-4 [animation-delay:240ms]">
-            <a
-              href="#protocolos"
-              className="group inline-flex items-center gap-2.5 rounded-lg bg-action px-8 py-4 text-[15.5px] font-semibold text-action-fg transition-all hover:bg-action-hover shadow-md hover:shadow-lg active:scale-[0.99]"
-            >
-              <span>Ver protocolos</span>
-              <svg
-                aria-hidden="true"
-                className="h-4 w-4 transition-transform group-hover:translate-y-0.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth="2.5"
+    <section className="relative isolate overflow-hidden bg-canvas">
+      {/* Arte de fundo cinematográfica completa com os produtos e fluidos integrados. */}
+      <div aria-hidden="true" className="absolute inset-0 -z-20">
+        <Image
+          src="/fundo-hero-light.png"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-right opacity-100 transition-opacity duration-500 motion-reduce:transition-none lg:object-center dark:opacity-0"
+        />
+        <Image
+          src="/fundo-hero-dark.png"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-right opacity-0 transition-opacity duration-500 motion-reduce:transition-none lg:object-center dark:opacity-100"
+        />
+      </div>
+
+      {/* Scrim suave: protege a leitura do texto sem lavar a vivacidade da arte */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-gradient-to-b from-canvas/75 via-canvas/40 to-transparent lg:bg-gradient-to-r lg:from-canvas/95 lg:via-canvas/40 lg:to-transparent"
+      />
+      {/* Transição suave de topo com o header — sem corte brusco */}
+      <div aria-hidden="true" className="absolute inset-x-0 top-0 -z-10 h-20 bg-gradient-to-b from-canvas/60 to-transparent" />
+      {/* Transição orgânica para a próxima seção, sem borda dura. */}
+      <div aria-hidden="true" className="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-t from-canvas to-transparent" />
+
+      <div className="mx-auto max-w-[1380px] px-[clamp(16px,4vw,48px)] pb-12 pt-8 sm:pb-16 sm:pt-12 lg:pb-24 lg:pt-16">
+        <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_.95fr] lg:gap-14">
+          <div className="relative z-10 min-w-0">
+            {/* Eyebrow com linhas editoriais sutis */}
+            <div className="inline-flex items-center gap-3">
+              <span className="h-px w-5 bg-accent/60" />
+              <span className="font-mono text-xs font-semibold uppercase tracking-[.20em] text-accent sm:text-sm">
+                Inovação em medicina estética
+              </span>
+              <span className="h-px w-5 bg-accent/60" />
+            </div>
+
+            <h1 className="mt-5 max-w-[18ch] text-balance font-display text-4xl font-semibold leading-[1.08] tracking-tight text-content sm:text-5xl md:text-6xl lg:text-[4rem]">
+              A nova fronteira dos tratamentos regenerativos.
+            </h1>
+
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-content/80 sm:text-lg">
+              Soluções biotecnológicas avançadas que respeitam a fisiologia celular, com a segurança e o rigor científico que a sua clínica precisa.
+            </p>
+
+            <p className="mt-3 font-display text-sm font-semibold tracking-wide text-content/90 sm:text-base">
+              Ciência. Tecnologia. <span className="text-accent font-bold">Resultados comprovados.</span>
+            </p>
+
+            <div className="mt-9 flex w-full flex-col gap-3.5 sm:w-auto sm:flex-row sm:flex-wrap sm:mt-10">
+              <Link
+                href="/catalogo"
+                className="inline-flex min-h-[50px] items-center justify-center gap-2.5 rounded-full bg-action px-8 text-sm font-semibold text-action-fg shadow-[0_10px_30px_rgba(18,40,60,.18)] transition-all hover:bg-action-hover hover:shadow-[0_14px_36px_rgba(18,40,60,.25)] sm:justify-start"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" />
-              </svg>
-            </a>
+                Explorar catálogo <ArrowRight className="h-4 w-4" />
+              </Link>
+              <AccreditationButton className="inline-flex min-h-[50px] w-full items-center justify-center rounded-full border border-content/20 bg-canvas/70 px-8 text-sm font-semibold text-content backdrop-blur-sm transition-colors hover:border-content/45 sm:w-auto">
+                {HERO_ACCREDITATION_CTA_LABEL}
+              </AccreditationButton>
+            </div>
           </div>
+
+          {/* Espaço reservado para visualização da arte dos produtos integrada no fundo */}
+          <div aria-hidden="true" className="pointer-events-none min-h-[280px] sm:min-h-[420px] lg:min-h-[580px]" />
         </div>
 
-        <div className="relative order-2 mt-4 mb-10 ml-auto aspect-[1/0.88] w-full max-w-[560px] hero:order-none hero:my-0">
-          <div
-            aria-hidden="true"
-            className="absolute top-0 right-0 h-[82%] w-[82%] rounded-full bg-[radial-gradient(circle_at_32%_28%,#FBF9F4_0%,#EFE7D6_55%,rgba(239,231,214,0)_100%)] dark:bg-[radial-gradient(circle_at_32%_28%,#1B3247_0%,#112233_55%,rgba(17,34,51,0)_100%)]"
-          />
-          <div
-            aria-hidden="true"
-            className="absolute top-[4%] right-[6%] h-[30%] w-[30%] rounded-full bg-[radial-gradient(circle_at_38%_32%,#E9CB84_0%,#C9A63E_60%,rgba(201,166,62,0)_100%)] opacity-90"
-          />
-          {HERO_STACK.map((item) => {
-            const product = PRODUCTS.find(
-              (candidate) => candidate.id === item.productId,
-            );
-            if (!product) return null;
-
-            return (
-              <Image
-                key={product.id}
-                src={product.imageSrc}
-                alt={product.imageAlt}
-                width={PRODUCT_IMAGE_SIZE.width}
-                height={PRODUCT_IMAGE_SIZE.height}
-                priority
-                sizes="(max-width: 760px) 60vw, 350px"
-                style={
-                  {
-                    "--tilt": item.tilt,
-                    animationDelay: item.delay,
-                  } as CSSProperties
-                }
-                className={`absolute h-auto animate-rise-in drop-shadow-[0_20px_34px_rgba(18,40,60,0.22)] ${item.className}`}
-              />
-            );
-          })}
+        <div className="mt-12 border-t border-content/10 pt-6 sm:mt-16">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-content/60">Linhas disponíveis</p>
+          <div className="no-scrollbar -mx-[clamp(16px,4vw,48px)] flex gap-2 overflow-x-auto px-[clamp(16px,4vw,48px)] pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
+            {lines.map((line) => (
+              <Link
+                key={line.slug}
+                href={`/linhas/${line.slug}`}
+                className="group inline-flex shrink-0 items-center gap-2.5 rounded-full border border-content/12 bg-canvas/70 px-4 py-2.5 backdrop-blur-sm transition-colors hover:border-content/35 hover:bg-canvas"
+              >
+                <span className="font-display text-sm font-semibold text-content">{line.name}</span>
+                <span className="text-xs text-content/60">
+                  {line._count.products} produtos{line._count.protocols ? ` · ${line._count.protocols} protocolos` : ""}
+                </span>
+                <ArrowRight className="h-4 w-4 text-content/50 transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transition-none" />
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </section>

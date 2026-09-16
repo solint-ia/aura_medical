@@ -1,0 +1,8 @@
+import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/adminGuard";
+import { prisma } from "@/lib/prisma";
+import { skuPatchSchema } from "@/lib/validation/catalog";
+import { audit, validationError } from "@/server/admin/mutation";
+type Context = { params: Promise<{ id: string; skuId: string }> };
+export async function PATCH(req: Request, { params }: Context) { const admin = await requireAdmin(req); if (!admin.ok) return admin.response; const parsed = skuPatchSchema.safeParse(await req.json()); if (!parsed.success) return NextResponse.json(validationError(parsed.error), { status: 400 }); const { id, skuId } = await params; const before = await prisma.sku.findFirst({ where: { id: skuId, productId: id } }); if (!before) return NextResponse.json({ error: "SKU não encontrado." }, { status: 404 }); const sku = await prisma.sku.update({ where: { id: skuId }, data: parsed.data }); await audit(admin.user.userId, "Sku", skuId, "update", { before, after: sku }); return NextResponse.json({ sku }); }
+export async function DELETE(req: Request, { params }: Context) { const admin = await requireAdmin(req); if (!admin.ok) return admin.response; const { id, skuId } = await params; const sku = await prisma.sku.findFirst({ where: { id: skuId, productId: id } }); if (!sku) return NextResponse.json({ error: "SKU não encontrado." }, { status: 404 }); const sold = await prisma.orderItem.count({ where: { productId: sku.code } }); if (sold) await prisma.sku.update({ where: { id: skuId }, data: { isActive: false } }); else await prisma.sku.delete({ where: { id: skuId } }); await audit(admin.user.userId, "Sku", skuId, sold ? "archive" : "delete", { code: sku.code }); return NextResponse.json({ success: true, archived: Boolean(sold) }); }

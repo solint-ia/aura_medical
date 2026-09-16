@@ -1,6 +1,15 @@
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.SUPABASE_SERVICE_ROLE_KEY || "aura-jwt-secret-key-2026-secure";
+export function getAuthJwtSecret(): string {
+  const secret = process.env.AUTH_JWT_SECRET;
+  if (!secret) {
+    throw new Error("AUTH_JWT_SECRET is required and must be separate from Supabase credentials.");
+  }
+  if (Buffer.byteLength(secret, "utf8") < 32) {
+    throw new Error("AUTH_JWT_SECRET must contain at least 32 bytes.");
+  }
+  return secret;
+}
 
 export interface AuthTokenPayload {
   userId: string;
@@ -20,15 +29,8 @@ export function verifyAuthToken(req: Request): AuthTokenPayload | null {
   if (!authHeader || !authHeader.startsWith("Bearer ")) return null;
 
   try {
-    return jwt.verify(authHeader.substring(7), JWT_SECRET) as AuthTokenPayload;
+    return jwt.verify(authHeader.substring(7), getAuthJwtSecret()) as AuthTokenPayload;
   } catch {
     return null;
   }
-}
-
-/** Same as verifyAuthToken, but additionally requires role === "ADMIN". */
-export function verifyAdminToken(req: Request): AuthTokenPayload | null {
-  const payload = verifyAuthToken(req);
-  if (!payload || payload.role !== "ADMIN") return null;
-  return payload;
 }
