@@ -59,7 +59,7 @@ export function PurchasePanel({ item }: { item: CatalogItem }) {
           <button type="button" aria-label="Aumentar quantidade" disabled={quantity >= max} onClick={() => setQuantity((value) => Math.min(max, value + 1))} className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-content/5 disabled:cursor-not-allowed disabled:opacity-35"><Plus className="h-4 w-4" /></button>
         </div>
       </div>
-      <p className="mt-4 text-sm text-content/65">Até 10x no cartão · 5% de desconto no PIX</p>
+      <p className="mt-4 text-sm text-content/65">Até 10x no cartão{/* · 5% de desconto no PIX */}</p>
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
         <button type="button" onClick={() => add(true)} className="rounded-full bg-action px-5 py-3.5 text-sm font-semibold text-action-fg shadow-md hover:bg-action-hover">Comprar agora</button>
         <button type="button" onClick={() => add(false)} className="inline-flex items-center justify-center gap-2 rounded-full border border-content/20 bg-card px-5 py-3.5 text-sm font-semibold text-content hover:border-content/40">{added ? <><Check className="h-4 w-4" /> Adicionado</> : <><ShoppingCart className="h-4 w-4" /> Adicionar ao carrinho</>}</button>

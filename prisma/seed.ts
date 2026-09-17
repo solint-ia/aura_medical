@@ -65,18 +65,27 @@ async function seedLines() {
 async function seedProducts(lines: Map<string, { id: string }>) {
   const products = new Map<string, { id: string }>();
   const pbLineId = lines.get("pbserum")!.id;
+  const laLineId = lines.get("la-cutanee")!.id;
+
+  const catProfissional = await prisma.category.upsert({
+    where: { slug: "profissional" },
+    update: { name: "Profissional", sortOrder: 0, lineId: pbLineId },
+    create: { slug: "profissional", name: "Profissional", sortOrder: 0, lineId: pbLineId },
+  });
+
+  const catDomestico = await prisma.category.upsert({
+    where: { slug: "domestico" },
+    update: { name: "Doméstico", sortOrder: 1, lineId: laLineId },
+    create: { slug: "domestico", name: "Doméstico", sortOrder: 1, lineId: laLineId },
+  });
+
   for (const [index, enzyme] of enzymesData.entries()) {
     const localImage = `/frascos/${enzyme.slug.replace(/-plus$/, "")}.png`;
     const asset = await mediaAsset(localImage, `Ampola ${enzyme.name} PBSerum`);
-    const category = await prisma.category.upsert({
-      where: { slug: "bioregenerativo-recombinante" },
-      update: { name: "Bioregenerativo recombinante", lineId: pbLineId },
-      create: { slug: "bioregenerativo-recombinante", name: "Bioregenerativo recombinante", lineId: pbLineId },
-    });
     const product = await prisma.product.upsert({
       where: { slug: enzyme.slug },
       update: {
-        lineId: pbLineId, categoryId: category.id, name: enzyme.name, eyebrow: "Bioregenerativo recombinante",
+        lineId: pbLineId, categoryId: catProfissional.id, name: enzyme.name, eyebrow: "Bioregenerativo recombinante",
         collection: "PBSerum Plus", summary: enzyme.shortDescription, presentation: "Ampola individual liofilizada",
         highlights: [enzyme.activeIngredient, enzyme.indications[0]].slice(0, 2),
         specs: [{ label: "Ativo", value: enzyme.activeIngredient }, { label: "Origem", value: enzyme.origin }, { label: "Substrato-alvo", value: enzyme.targetSubstrate }],
@@ -84,7 +93,7 @@ async function seedProducts(lines: Map<string, { id: string }>) {
         status: PublishStatus.PUBLISHED, visibility: Visibility.PUBLIC, featured: true, featuredOrder: index, sortOrder: index, publishedAt: new Date(),
       },
       create: {
-        lineId: pbLineId, categoryId: category.id, slug: enzyme.slug, name: enzyme.name, eyebrow: "Bioregenerativo recombinante",
+        lineId: pbLineId, categoryId: catProfissional.id, slug: enzyme.slug, name: enzyme.name, eyebrow: "Bioregenerativo recombinante",
         collection: "PBSerum Plus", summary: enzyme.shortDescription, presentation: "Ampola individual liofilizada",
         highlights: [enzyme.activeIngredient, enzyme.indications[0]].slice(0, 2),
         specs: [{ label: "Ativo", value: enzyme.activeIngredient }, { label: "Origem", value: enzyme.origin }, { label: "Substrato-alvo", value: enzyme.targetSubstrate }],
@@ -108,14 +117,11 @@ async function seedProducts(lines: Map<string, { id: string }>) {
     products.set(enzyme.slug, product);
   }
 
-  const laLineId = lines.get("la-cutanee")!.id;
   for (const [index, item] of LA_CUTANEE_CATALOG.entries()) {
-    const categorySlug = slugify(item.category);
-    const category = await prisma.category.upsert({ where: { slug: categorySlug }, update: { lineId: laLineId, name: item.category }, create: { slug: categorySlug, lineId: laLineId, name: item.category, sortOrder: index } });
     const product = await prisma.product.upsert({
       where: { slug: item.slug },
-      update: { lineId: laLineId, categoryId: category.id, name: item.name, eyebrow: item.category, collection: item.collection, summary: item.summary, presentation: item.presentation, highlights: item.tags.map((tag) => tag.replace(/^\p{Extended_Pictographic}\uFE0F?\s*/u, "")).slice(0, 2), variantName: item.variantName, status: PublishStatus.PUBLISHED, visibility: Visibility.PUBLIC, featured: index < 3, featuredOrder: index < 3 ? index + 3 : null, sortOrder: index, publishedAt: new Date() },
-      create: { slug: item.slug, lineId: laLineId, categoryId: category.id, name: item.name, eyebrow: item.category, collection: item.collection, summary: item.summary, presentation: item.presentation, highlights: item.tags.map((tag) => tag.replace(/^\p{Extended_Pictographic}\uFE0F?\s*/u, "")).slice(0, 2), variantName: item.variantName, status: PublishStatus.PUBLISHED, visibility: Visibility.PUBLIC, featured: index < 3, featuredOrder: index < 3 ? index + 3 : null, sortOrder: index, publishedAt: new Date() },
+      update: { lineId: laLineId, categoryId: catDomestico.id, name: item.name, eyebrow: item.category, collection: item.collection, summary: item.summary, presentation: item.presentation, highlights: item.tags.map((tag) => tag.replace(/^\p{Extended_Pictographic}\uFE0F?\s*/u, "")).slice(0, 2), variantName: item.variantName, status: PublishStatus.PUBLISHED, visibility: Visibility.PUBLIC, featured: index < 3, featuredOrder: index < 3 ? index + 3 : null, sortOrder: index, publishedAt: new Date() },
+      create: { slug: item.slug, lineId: laLineId, categoryId: catDomestico.id, name: item.name, eyebrow: item.category, collection: item.collection, summary: item.summary, presentation: item.presentation, highlights: item.tags.map((tag) => tag.replace(/^\p{Extended_Pictographic}\uFE0F?\s*/u, "")).slice(0, 2), variantName: item.variantName, status: PublishStatus.PUBLISHED, visibility: Visibility.PUBLIC, featured: index < 3, featuredOrder: index < 3 ? index + 3 : null, sortOrder: index, publishedAt: new Date() },
     });
     await prisma.productSection.deleteMany({ where: { productId: product.id } });
     await prisma.productSection.createMany({ data: item.sections.map((section, sortOrder) => ({ productId: product.id, title: section.title, body: section.body, items: section.items || [], sortOrder })) });
@@ -129,6 +135,14 @@ async function seedProducts(lines: Map<string, { id: string }>) {
     }
     products.set(item.slug, product);
   }
+
+  // Remove categorias antigas que não sejam Profissional ou Doméstico
+  await prisma.category.deleteMany({
+    where: {
+      slug: { notIn: ["profissional", "domestico"] },
+    },
+  });
+
   return products;
 }
 
@@ -169,7 +183,7 @@ async function seedCasesAndContent(lines: Map<string, { id: string }>) {
   const globalFaqs = [
     ["Quem pode comprar?", "O catálogo da Aura Regenera é exclusivo para profissionais e clínicas da área da saúde e estética (médicos, dermatologistas, biomédicos estetas, farmacêuticos e clínicas habilitadas). Para garantir a conformidade regulatória e a segurança técnica dos tratamentos biotecnológicos, o cadastro solicita a validação de CPF ou CNPJ com registro profissional ativo para a liberação de pedidos."],
     ["Como criar uma conta?", "Clique na opção 'Entrar' ou 'Fale Conosco' no menu superior, preencha os dados da sua clínica ou consultório e confirme o e-mail de ativação. Nossa equipe faz uma validação ágil do perfil profissional para liberar o seu acesso à tabela de valores e ao catálogo completo."],
-    ["Quais são as formas de pagamento?", "Aceitamos cartão de crédito em até 10x (crédito e débito) e PIX com confirmação imediata e 5% de desconto especial. Todas as operações são processadas com criptografia de ponta a ponta via Mercado Pago para total segurança."],
+    ["Quais são as formas de pagamento?", "Aceitamos cartão de crédito em até 10x (crédito e débito) e PIX com confirmação imediata. Todas as operações são processadas com criptografia de ponta a ponta via Mercado Pago para total segurança."],
     ["Existe pedido mínimo?", "Não há valor mínimo nem quantidade mínima para compra. Você tem total liberdade para adquirir desde uma única ampola ou frasco avulso para reposição rápida até grandes volumes para a rotina de protocolos da sua clínica."],
     ["Como funcionam frete e prazo?", "O frete e o prazo de entrega são calculados automaticamente pelo CEP informado no checkout, com transportadoras especializadas e opções de envio expresso. Assim que o pedido for despachado, você recebe o código de rastreamento completo por e-mail e WhatsApp para acompanhar até a entrega."],
     ["Como falar com a equipe?", "Nossa equipe de consultores científicos e suporte técnico atende diretamente pelo botão 'Fale Conosco' no menu, pelo WhatsApp oficial (79 9 9680-9911) ou pelo e-mail contato@auraregenera.com para orientações sobre protocolos, produtos, diluições e pedidos comerciais."],

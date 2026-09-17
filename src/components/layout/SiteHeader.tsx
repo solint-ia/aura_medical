@@ -41,11 +41,11 @@ export function SiteHeader({ lines = LINE_LIST.map((line) => ({ slug: line.id, n
           <Image src="/logos/logo-aura-horizontal.png" alt="" aria-hidden="true" width={300} height={75} priority className="hidden h-12 w-auto object-contain sm:h-15 lg:h-[4.5rem] dark:block" />
         </Link>
 
-        <nav aria-label="Navegação principal" className="hidden items-center gap-8 lg:flex">
+        <nav aria-label="Navegação principal" className="hidden items-center gap-9 lg:flex">
           <NavLink href="/" current={active("/")}>Home</NavLink>
           <NavLink href="/catalogo" current={pathname === "/catalogo"}>Catálogo</NavLink>
           <div className="group relative">
-            <button type="button" className={`inline-flex items-center gap-1.5 py-3 text-sm font-medium transition-colors hover:text-[#C59D3F] dark:hover:text-[#D8B657] ${pathname.startsWith("/linhas") ? "text-[#C59D3F] dark:text-[#D8B657]" : "text-slate-700 dark:text-white/82"}`}>Linhas <ChevronDown className="h-3.5 w-3.5 transition-transform group-hover:rotate-180" /></button>
+            <button type="button" className={`inline-flex items-center gap-2 py-3 text-[17px] font-semibold transition-colors hover:text-[#C59D3F] dark:hover:text-[#D8B657] ${pathname.startsWith("/linhas") ? "text-[#C59D3F] dark:text-[#D8B657]" : "text-slate-700 dark:text-white/85"}`}>Linhas <ChevronDown className="h-4 w-4 transition-transform group-hover:rotate-180" /></button>
             <div className={`invisible absolute left-1/2 top-full w-[360px] -translate-x-1/2 translate-y-2 rounded-[20px] p-2 opacity-0 transition-all group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 ${PANEL}`}>
               {lines.map((line) => <Link key={line.slug} href={`/linhas/${line.slug}`} className="flex gap-3 rounded-[15px] p-3.5 hover:bg-black/4 dark:hover:bg-white/7"><span><strong className="block text-sm font-semibold">{line.name}</strong><span className="mt-0.5 block text-xs text-slate-500 dark:text-white/55">{line.descriptor}</span></span></Link>)}
               <Link href="/catalogo" className="mt-1 block rounded-[14px] border-t border-black/6 px-4 py-3 text-center text-xs font-semibold text-[#A8801F] hover:bg-black/4 dark:border-white/8 dark:text-[#D8B657] dark:hover:bg-white/5">Ver catálogo completo</Link>
@@ -79,7 +79,7 @@ export function SiteHeader({ lines = LINE_LIST.map((line) => ({ slug: line.id, n
 }
 
 function NavLink({ href, current, children }: { href: string; current: boolean; children: React.ReactNode }) {
-  return <Link href={href} className={`py-3 text-[15px] font-medium transition-colors hover:text-[#C59D3F] dark:hover:text-[#D8B657] ${current ? "text-[#C59D3F] dark:text-[#D8B657]" : "text-slate-700 dark:text-white/90"}`}>{children}</Link>;
+  return <Link href={href} className={`py-3 text-[17px] font-semibold transition-colors hover:text-[#C59D3F] dark:hover:text-[#D8B657] ${current ? "text-[#C59D3F] dark:text-[#D8B657]" : "text-slate-700 dark:text-white/90"}`}>{children}</Link>;
 }
 
 function CartLink({ count }: { count: number }) {

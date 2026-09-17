@@ -86,6 +86,11 @@ export async function getProtocolsByLine(lineSlug: string) {
   return rows.map(mapProtocol);
 }
 
+export async function getPublishedProtocols() {
+  const rows = await prisma.protocol.findMany({ where: { ...publishedPublic, line: { status: "PUBLISHED" } }, include: protocolInclude, orderBy: { sortOrder: "asc" } });
+  return rows.map(mapProtocol);
+}
+
 export async function getProtocolBySlug(slug: string) {
   const row = await prisma.protocol.findFirst({ where: { slug, ...publishedPublic }, include: protocolInclude });
   return row ? mapProtocol(row) : null;
@@ -102,7 +107,7 @@ const GLOBAL_FAQ_ANSWERS: Record<string, string> = {
   "Como criar uma conta?":
     "Clique na opção 'Entrar' ou 'Fale Conosco' no menu superior, preencha os dados da sua clínica ou consultório e confirme o e-mail de ativação. Nossa equipe faz uma validação ágil do perfil profissional para liberar o seu acesso à tabela de valores e ao catálogo completo.",
   "Quais são as formas de pagamento?":
-    "Aceitamos cartão de crédito em até 10x (crédito e débito) e PIX com confirmação imediata e 5% de desconto especial. Todas as operações são processadas com criptografia de ponta a ponta via Mercado Pago para total segurança.",
+    "Aceitamos cartão de crédito em até 10x (crédito e débito) e PIX com confirmação imediata. Todas as operações são processadas com criptografia de ponta a ponta via Mercado Pago para total segurança.",
   "Existe pedido mínimo?":
     "Não há valor mínimo nem quantidade mínima para compra. Você tem total liberdade para adquirir desde uma única ampola ou frasco avulso para reposição rápida até grandes volumes para a rotina de protocolos da sua clínica.",
   "Como funcionam frete e prazo?":

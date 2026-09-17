@@ -11,9 +11,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "db:migrate": "prisma migrate deploy",
-    "db:seed": "tsx --env-file=.env.local prisma/seed.ts",
-    "db:parity": "tsx --env-file=.env.local scripts/verify-catalog-parity.ts",
-    "storage:migrate": "tsx --env-file=.env.local scripts/migrate-catalog-images.ts",
+    "db:seed": "tsx --env-file=.env prisma/seed.ts",
+    "db:parity": "tsx --env-file=.env scripts/verify-catalog-parity.ts",
+    "storage:migrate": "tsx --env-file=.env scripts/migrate-catalog-images.ts",
     "images:trim": "tsx scripts/trim-product-images.ts",
     "check:colors": "node scripts/check-hardcoded-colors.mjs"
   },

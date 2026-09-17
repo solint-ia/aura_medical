@@ -18,6 +18,10 @@ if (!url || !serviceKey) {
   throw new Error("NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY são obrigatórios.");
 }
 
+if (typeof globalThis.WebSocket === "undefined") {
+  globalThis.WebSocket = class {} as never;
+}
+
 const supabase = createClient(url, serviceKey, {
   auth: { persistSession: false, autoRefreshToken: false },
 });

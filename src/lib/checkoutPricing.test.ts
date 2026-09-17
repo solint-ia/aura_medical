@@ -18,8 +18,8 @@ describe("verifyCheckoutItems", () => {
     expect((await verifyCheckoutItems([{ id: "revytra-c20-nano", quantity }], { resolver })).ok).toBe(false);
   });
 
-  it("aplica desconto PIX somente depois do frete", () => {
-    expect(calculateCheckoutTotal(100, "pix", 10)).toBe(104.5);
+  it("calcula total de checkout sem desconto PIX ativo", () => {
+    expect(calculateCheckoutTotal(100, "pix", 10)).toBe(110);
     expect(calculateCheckoutTotal(100, "card", 10)).toBe(110);
   });
 

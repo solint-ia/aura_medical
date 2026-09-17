@@ -457,13 +457,15 @@ function CheckoutContent() {
   const shippingCost = selectedShippingOption?.price ?? 0;
 
   const orderTotalBeforeDiscount = subtotal + shippingCost;
-  /** Incentivo para pagamento à vista: 5% de desconto no valor total pago via Pix. */
-  const PIX_DISCOUNT_RATE = 0.05;
-  const pixDiscountAmount = Math.round(orderTotalBeforeDiscount * PIX_DISCOUNT_RATE * 100) / 100;
-  const totalPrice =
-    Math.round(
-      (paymentMethod === "pix" ? orderTotalBeforeDiscount - pixDiscountAmount : orderTotalBeforeDiscount) * 100
-    ) / 100;
+  /** Incentivo para pagamento à vista: 5% de desconto no valor total pago via Pix (desativado/comentado a pedido). */
+  // const PIX_DISCOUNT_RATE = 0.05;
+  // const pixDiscountAmount = Math.round(orderTotalBeforeDiscount * PIX_DISCOUNT_RATE * 100) / 100;
+  // const totalPrice =
+  //   Math.round(
+  //     (paymentMethod === "pix" ? orderTotalBeforeDiscount - pixDiscountAmount : orderTotalBeforeDiscount) * 100
+  //   ) / 100;
+  const pixDiscountAmount = 0;
+  const totalPrice = Math.round(orderTotalBeforeDiscount * 100) / 100;
 
   // Step 1 Validation: Must have a selected address
   const handleContinueToPayment = (e: React.FormEvent) => {
@@ -1269,12 +1271,13 @@ function CheckoutContent() {
               <p>📍 <strong className="text-content">Endereço Selecionado:</strong> {selectedAddress.street}, {selectedAddress.number} {selectedAddress.complement && `(${selectedAddress.complement})`} - {selectedAddress.city}</p>
               <p>🚚 <strong className="text-content">Frete Escolhido:</strong> {selectedShippingOption ? selectedShippingOption.name : "Frete Padrão"} ({formatBRL(shippingCost)})</p>
               <p>🧾 <strong className="text-content">Subtotal + Frete:</strong> {formatBRL(orderTotalBeforeDiscount)}</p>
+              {/* Desconto PIX desativado a pedido (comentado para reaproveitamento futuro)
               {paymentMethod === "pix" && (
                 <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 font-semibold py-0.5">
                   <span>🏷️ Desconto PIX (5% OFF):</span>
                   <span className="font-bold">-{formatBRL(pixDiscountAmount)}</span>
                 </div>
-              )}
+              )} */}
               <div className="pt-2 border-t border-content/10 flex items-center justify-between text-sm">
                 <span className="text-content font-bold">💰 Valor Total do Pedido:</span>
                 <span className="text-accent font-bold text-base">{formatBRL(totalPrice)}</span>
@@ -1305,9 +1308,9 @@ function CheckoutContent() {
                     : "border-content/15 bg-canvas hover:border-emerald-500/40"
                 }`}
               >
-                <div className="absolute -top-3 right-4 rounded-full bg-emerald-600 px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase text-white shadow-xs">
+                {/* <div className="absolute -top-3 right-4 rounded-full bg-emerald-600 px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase text-white shadow-xs">
                   5% OFF
-                </div>
+                </div> */}
 
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
                   <QrCode className="h-6 w-6" />
@@ -1318,7 +1321,7 @@ function CheckoutContent() {
                     Aprovação imediata pelo Mercado Pago.
                   </p>
                   <p className="mt-2 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                    Total: {formatBRL(orderTotalBeforeDiscount - pixDiscountAmount)}
+                    Total: {formatBRL(orderTotalBeforeDiscount)}
                   </p>
                 </div>
               </div>

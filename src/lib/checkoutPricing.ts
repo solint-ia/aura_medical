@@ -65,5 +65,8 @@ export async function verifyCheckoutItems(
 
 export function calculateCheckoutTotal(subtotal: number, paymentMethod: "card" | "pix", shippingCost = 0): number {
   const totalBeforeDiscount = subtotal + shippingCost;
-  return roundMoney(paymentMethod === "pix" ? totalBeforeDiscount * 0.95 : totalBeforeDiscount);
+  // Desconto de 5% no PIX desativado a pedido (mantido comentado para reaproveitamento futuro):
+  // const pixDiscount = paymentMethod === "pix" ? totalBeforeDiscount * 0.05 : 0;
+  // return roundMoney(totalBeforeDiscount - pixDiscount);
+  return roundMoney(totalBeforeDiscount);
 }

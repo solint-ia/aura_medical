@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Paperclip } from "lucide-react";
 
 import type { CatalogItem, DetailSection } from "@/data/catalog";
 import { BackLink } from "@/components/navigation/BackLink";
@@ -38,8 +37,6 @@ export function CatalogDetail({ item, related = [] }: { item: CatalogItem; relat
         <div className="mt-12">
           {protocol ? <ProtocolSections item={item} /> : <EditorialSections sections={item.sections} />}
         </div>
-
-        {item.pending?.some((entry) => entry.public) ? <section className="mt-8 border-y border-dashed border-content/20 py-8"><div className="flex items-center gap-2"><Paperclip className="h-5 w-5" /><h2 className="font-display text-xl font-semibold">Ficha técnica em confirmação</h2></div><p className="mt-2 text-sm text-content/65">Estas informações serão publicadas após a confirmação do fornecedor.</p><ul className="mt-4 grid divide-y divide-content/10 sm:grid-cols-2 sm:gap-x-8">{item.pending.filter((entry) => entry.public).map((entry) => <li key={entry.label} className="py-3 text-sm">{entry.label}</li>)}</ul></section> : null}
       </div>
 
       {related.length ? <section className="mt-16 bg-raised px-[clamp(16px,4vw,48px)] py-14"><div className="mx-auto max-w-[1280px]"><div className="mb-7 flex items-end justify-between gap-4"><div><p className="font-mono text-xs uppercase tracking-[.15em] text-(--line-accent)">Continue explorando</p><h2 className="mt-2 font-display text-3xl font-semibold">Mais da {line.name}</h2></div><Link href={`/linhas/${line.id}`} className="text-sm font-semibold">Ver linha completa</Link></div><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{related.map((entry) => <CatalogCard key={entry.slug} item={entry} />)}</div></div></section> : null}
