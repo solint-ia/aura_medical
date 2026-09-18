@@ -69,6 +69,10 @@ export function ProductVisualEditor({
     : undefined;
 
   function setImageAt(index: number, assetId: string) {
+    if (images.some((image, position) => position !== index && image.assetId === assetId)) {
+      onMessage("Esta foto já está na galeria. Arraste as miniaturas para reordenar.");
+      return;
+    }
     const next = [...images];
     if (index >= next.length) next.push({ assetId, caption: "", sortOrder: next.length });
     else next[index] = { ...next[index], assetId };

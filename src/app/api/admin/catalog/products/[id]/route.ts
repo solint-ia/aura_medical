@@ -23,7 +23,23 @@ export async function PATCH(req: Request, { params }: Context) {
   const product = await prisma.$transaction(async (tx) => {
     if (data.slug && data.slug !== before.slug && before.status !== "DRAFT") await tx.slugRedirect.upsert({ where: { fromPath: `/produtos/${before.slug}` }, update: { toPath: `/produtos/${data.slug}` }, create: { fromPath: `/produtos/${before.slug}`, toPath: `/produtos/${data.slug}` } });
     if (sections) { await tx.productSection.deleteMany({ where: { productId: id } }); await tx.productSection.createMany({ data: sections.map(({ id: _id, ...section }) => ({ ...section, productId: id })) }); }
-    if (images) { await tx.productImage.deleteMany({ where: { productId: id } }); if (images.length) await tx.productImage.createMany({ data: images.map((image) => ({ ...image, caption: image.caption || null, productId: id })) }); }
+    if (images) {
+      const assetIds = images.map((image) => image.assetId);
+      await tx.productImage.deleteMany({
+        where: {
+          productId: id,
+          ...(assetIds.length ? { assetId: { notIn: assetIds } } : {}),
+        },
+      });
+      for (const image of images) {
+        const data = { caption: image.caption || null, sortOrder: image.sortOrder };
+        await tx.productImage.upsert({
+          where: { productId_assetId: { productId: id, assetId: image.assetId } },
+          update: data,
+          create: { ...data, productId: id, assetId: image.assetId },
+        });
+      }
+    }
     if (pending) { await tx.pendingField.deleteMany({ where: { productId: id } }); if (pending.length) await tx.pendingField.createMany({ data: pending.map(({ id: _id, ...field }) => ({ ...field, productId: id })) }); }
     return tx.product.update({ where: { id }, data, include: productInclude });
   });

@@ -7,6 +7,19 @@ const visibility = z.enum(["PUBLIC", "INTERNAL"]);
 const slug = (max: number) => z.string().min(2).max(max).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 
 export const galleryImageSchema = z.object({ assetId: z.string().uuid(), caption: z.string().max(240).nullish(), sortOrder: z.number().int().default(0) });
+export const gallerySchema = z.array(galleryImageSchema).superRefine((images, context) => {
+  const seen = new Set<string>();
+  images.forEach((image, index) => {
+    if (seen.has(image.assetId)) {
+      context.addIssue({
+        code: "custom",
+        path: [index, "assetId"],
+        message: "A mesma imagem não pode aparecer duas vezes na galeria.",
+      });
+    }
+    seen.add(image.assetId);
+  });
+});
 export const sectionSchema = z.object({ id: z.string().uuid().optional(), title: z.string().min(1).max(80), body: z.string().nullish(), items: z.array(z.string()).default([]), sortOrder: z.number().int().default(0) });
 export const pendingFieldSchema = z.object({ id: z.string().uuid().optional(), label: z.string().min(1).max(120), isPublic: z.boolean().default(true), resolvedAt: z.coerce.date().nullish() });
 
@@ -29,7 +42,7 @@ export const productSchema = z.object({
   regulatoryName: z.string().max(160).nullish(), regulatoryNumber: z.string().max(60).nullish(), weightGrams: z.number().int().nonnegative().nullish(),
   lengthCm: z.number().positive().nullish(), widthCm: z.number().positive().nullish(), heightCm: z.number().positive().nullish(), featured: z.boolean().default(false),
   featuredOrder: z.number().int().nullish(), sortOrder: z.number().int().default(0), visibility: visibility.default("PUBLIC"),
-  sections: z.array(sectionSchema).default([]), images: z.array(galleryImageSchema).default([]), pending: z.array(pendingFieldSchema).default([]),
+  sections: z.array(sectionSchema).default([]), images: gallerySchema.default([]), pending: z.array(pendingFieldSchema).default([]),
 });
 export const productPatchSchema = productSchema.partial();
 
@@ -47,7 +60,7 @@ export const protocolSchema = z.object({
   marking: z.string().default(""), expectedResults: z.array(z.string()).default([]), coverImageId: z.string().uuid().nullish(), mappingImageId: z.string().uuid().nullish(),
   visibility: visibility.default("PUBLIC"), sortOrder: z.number().int().default(0),
   components: z.array(z.object({ productId: z.string().uuid(), quantity: z.number().int().positive(), role: z.string().min(1), sortOrder: z.number().int().default(0) })).default([]),
-  images: z.array(galleryImageSchema).default([]),
+  images: gallerySchema.default([]),
 });
 export const protocolPatchSchema = protocolSchema.partial();
 

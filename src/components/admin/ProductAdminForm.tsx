@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { SaveBar, toSlug } from "./AdminUi";
@@ -39,6 +39,21 @@ const emptyProduct: Row = {
 
 const numberOrNull = (value: unknown) => (value === "" || value === null || value === undefined ? null : Number(value));
 
+function normalizeProduct(product: Row) {
+  return {
+    ...emptyProduct,
+    ...product,
+    specs: product.specs ?? [],
+    sections: product.sections ?? [],
+    images: (product.images ?? []).map((image: Row) => ({
+      assetId: image.assetId,
+      caption: image.caption ?? "",
+      sortOrder: image.sortOrder,
+    })),
+    pending: product.pending ?? [],
+  };
+}
+
 export function ProductAdminForm({ title, endpoint, create = false }: { title: string; endpoint: string; create?: boolean }) {
   const { authToken } = useAuth();
   const router = useRouter();
@@ -47,6 +62,7 @@ export function ProductAdminForm({ title, endpoint, create = false }: { title: s
   const [categories, setCategories] = useState<Row[]>([]);
   const [state, setState] = useState<"saved" | "dirty" | "saving" | "conflict">("saved");
   const [message, setMessage] = useState("");
+  const savingRef = useRef(false);
 
   function change(key: string, value: unknown) {
     setForm((current) => {
@@ -70,23 +86,14 @@ export function ProductAdminForm({ title, endpoint, create = false }: { title: s
       setLines(lineData.lines ?? []);
       setCategories(categoryData.categories ?? []);
       if (productData?.product) {
-        setForm({
-          ...emptyProduct,
-          ...productData.product,
-          specs: productData.product.specs ?? [],
-          sections: productData.product.sections ?? [],
-          images: (productData.product.images ?? []).map((image: Row) => ({
-            assetId: image.assetId,
-            caption: image.caption ?? "",
-            sortOrder: image.sortOrder,
-          })),
-          pending: productData.product.pending ?? [],
-        });
+        setForm(normalizeProduct(productData.product));
       }
     });
   }, [authToken, create, endpoint]);
 
   async function save() {
+    if (savingRef.current) return;
+    savingRef.current = true;
     setState("saving");
     setMessage("");
     const payload = {
@@ -124,13 +131,15 @@ export function ProductAdminForm({ title, endpoint, create = false }: { title: s
         if (response.status === 409) setState("conflict");
         throw new Error(data.error || JSON.stringify(data.fields));
       }
-      setForm((current) => ({ ...current, ...data.product }));
+      setForm(normalizeProduct(data.product));
       setState("saved");
       setMessage("Produto salvo.");
       if (create) router.replace(`/admin/produtos/${data.product.id}`);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Falha ao salvar.");
       setState((current) => (current === "conflict" ? current : "dirty"));
+    } finally {
+      savingRef.current = false;
     }
   }
 
