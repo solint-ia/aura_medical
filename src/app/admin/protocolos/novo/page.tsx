@@ -1,2 +1,2 @@
-import { AdminJsonEditor } from "@/components/admin/AdminJsonEditor";
-export default function Page() { return <AdminJsonEditor create title="Novo protocolo" endpoint="/api/admin/catalog/protocols" dataKey="protocol" template={{ lineId: "", slug: "", name: "", introduction: "", indications: [], sessions: "", frequency: "", reconstitution: [], application: [], marking: "", expectedResults: [], components: [] }} />; }
+import { ProtocolAdminForm } from "@/components/admin/ProtocolAdminForm";
+export default function Page() { return <ProtocolAdminForm create endpoint="/api/admin/catalog/protocols" />; }

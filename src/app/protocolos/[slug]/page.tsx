@@ -5,7 +5,7 @@ import { AccreditationProvider } from "@/components/accreditation/AccreditationP
 import { CatalogDetail } from "@/components/catalog/CatalogDetail";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeaderServer } from "@/components/layout/SiteHeaderServer";
-import { getProtocolBySlug, getProtocolsByLine, getPublishedProducts, getSlugRedirect } from "@/server/catalog/repository";
+import { getProtocolBySlug, getProtocolsByLine, getSlugRedirect } from "@/server/catalog/repository";
 
 interface PageProps { params: Promise<{ slug: string }> }
 
@@ -14,13 +14,13 @@ export async function generateStaticParams() { try { return (await getProtocolsB
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const item = await getProtocolBySlug((await params).slug);
-  return item ? { title: `${item.name} · PBSerum | Aura Regenera`, description: item.summary } : { title: "Protocolo não encontrado · Aura Regenera" };
+  return item ? { title: `${item.name} · Pbserum | Aura Regenera`, description: item.summary } : { title: "Protocolo não encontrado · Aura Regenera" };
 }
 
 export default async function ProtocolPage({ params }: PageProps) {
   const slug = (await params).slug;
   const item = await getProtocolBySlug(slug);
   if (!item) { const redirect = await getSlugRedirect(`/protocolos/${slug}`); if (redirect) permanentRedirect(redirect.toPath); notFound(); }
-  const related = (await getPublishedProducts({ lineSlug: item.line })).slice(0, 3);
+  const related = (await getProtocolsByLine(item.line)).filter((candidate) => candidate.slug !== item.slug).slice(0, 3);
   return <AccreditationProvider><SiteHeaderServer /><CatalogDetail item={item} related={related} /><SiteFooter /></AccreditationProvider>;
 }

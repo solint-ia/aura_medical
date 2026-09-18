@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/adminGuard";
 import { prisma } from "@/lib/prisma";
 import { dbPool } from "@/lib/db";
 import { sendMailerooEmail, renderShippingUpdateEmailTemplate } from "@/lib/maileroo";
+import { restoreStock } from "@/server/catalog/stock";
 
 async function notifyTrackingUpdate(params: {
   email: string;
@@ -193,7 +194,7 @@ export async function PUT(req: Request) {
         if (!previous) throw new Error("Pedido não encontrado.");
         if (status === "cancelado" && previous.status !== "cancelado") {
           for (const item of previous.items) {
-            await tx.sku.updateMany({ where: { OR: [{ code: item.productId }, { aliases: { some: { alias: item.productId } } }], trackStock: true }, data: { stockQuantity: { increment: item.quantity } } });
+            await restoreStock(tx, item.productId, item.quantity);
           }
         }
         return tx.order.update({

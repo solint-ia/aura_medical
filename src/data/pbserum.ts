@@ -1,6 +1,7 @@
 import { enzymesData, PRICE_PER_VIAL } from "./enzymes";
 import { PUBLIC_PROTOCOLS, getProtocolBySlug } from "./protocols";
 import type { CatalogItem } from "./catalog";
+import { protocolVialsLabel } from "@/lib/protocolVials";
 
 const enzymeImage = (slug: string) => `/frascos/${slug.replace(/-plus$/, "")}.png`;
 
@@ -16,7 +17,7 @@ const products: CatalogItem[] = enzymesData.map((enzyme) => ({
   line: "pbserum",
   name: enzyme.name,
   category: enzymeType[enzyme.slug] ?? "Enzima recombinante",
-  collection: "PBSerum Plus",
+  collection: "Pbserum Plus",
   summary: enzyme.shortDescription,
   tags: [enzyme.activeIngredient, ...enzyme.indications].slice(0, 3),
   image: enzymeImage(enzyme.slug),
@@ -39,11 +40,11 @@ const protocols: CatalogItem[] = PUBLIC_PROTOCOLS.map((protocol) => {
     line: "pbserum",
     name: protocol.name,
     category: "Protocolo clínico",
-    collection: "PBSerum Plus",
-    summary: detail?.introduction ?? `Protocolo PBSerum com ${composition.join(", ")}.`,
+    collection: "Pbserum Plus",
+    summary: detail?.introduction ?? `Protocolo Pbserum com ${composition.join(", ")}.`,
     tags: composition.slice(0, 3),
     image: protocol.image ?? detail?.imagePath1 ?? "/images/mosaico.png",
-    presentation: `${protocol.composition.reduce((sum, part) => sum + part.vials, 0)} ampolas por região`,
+    presentation: protocolVialsLabel(protocol.id, protocol.composition.reduce((sum, part) => sum + part.vials, 0)),
     offers: [{ id: protocol.id, price: protocol.totalPrice }],
     sections: [],
   };

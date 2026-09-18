@@ -35,6 +35,7 @@ import {
   formatCpf,
   formatCpfOrCnpj,
   formatPhone,
+  isDebitCard,
   validateCardExpiry,
   validateCardNumber,
   validateCpf,
@@ -42,6 +43,8 @@ import {
 
 type Step = 1 | 2; // Step 1: Endereço & Frete | Step 2: Pagamento & Revisão
 type PaymentMethod = "card" | "pix" | null;
+/** Crédito ou débito, conforme o Mercado Pago identifica o cartão digitado. */
+type CardKind = "credit" | "debit" | null;
 
 interface CardForm {
   name: string;
@@ -72,6 +75,8 @@ const MP_INSTALLMENT_FACTORS: Record<number, number> = {
   8: 1.1323,
   9: 1.1476,
   10: 1.1632,
+  11: 1.1793,
+  12: 1.1957,
 };
 
 function formatInstallmentText(num: number, totalPrice: number): string {
@@ -186,6 +191,24 @@ async function tokenizeCardWithMercadoPago(card: CardForm): Promise<MercadoPagoC
   return data as MercadoPagoCardToken;
 }
 
+/**
+ * Pergunta ao Mercado Pago, pelos primeiros dígitos, se o cartão é de crédito
+ * ou de débito. O débito é sempre à vista, então a resposta define se o campo
+ * de parcelamento aparece.
+ */
+async function fetchCardKind(bin: string): Promise<CardKind> {
+  if (!MERCADO_PAGO_PUBLIC_KEY) return null;
+  const response = await fetch(
+    `https://api.mercadopago.com/v1/payment_methods/search?public_key=${encodeURIComponent(MERCADO_PAGO_PUBLIC_KEY)}&bin=${bin}`
+  );
+  if (!response.ok) return null;
+  const data = await response.json();
+  const type = data?.results?.[0]?.payment_type_id;
+  if (type === "debit_card") return "debit";
+  if (type === "credit_card") return "credit";
+  return null;
+}
+
 function CheckoutContent() {
   const router = useRouter();
   const { items, subtotal, clearCart, isHydrated } = useCart();
@@ -202,7 +225,32 @@ function CheckoutContent() {
     installments: 1,
   });
 
+  const [cardLookup, setCardLookup] = useState<{ bin: string; kind: CardKind } | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(null);
+  const cardBin = card.number.replace(/\D/g, "").slice(0, 8);
+
+  // Só vale a resposta do BIN que está digitado agora; o anterior é descartado
+  // pela própria comparação, sem precisar limpar o estado a cada tecla.
+  const cardKind = cardLookup?.bin === cardBin ? cardLookup.kind : null;
+
+  useEffect(() => {
+    if (cardBin.length < 6) return;
+    let active = true;
+    const timer = window.setTimeout(() => {
+      void fetchCardKind(cardBin)
+        .then((kind) => {
+          if (!active) return;
+          setCardLookup({ bin: cardBin, kind });
+          if (kind === "debit") setCard((current) => ({ ...current, installments: 1 }));
+        })
+        .catch(() => undefined);
+    }, 300);
+    return () => {
+      active = false;
+      window.clearTimeout(timer);
+    };
+  }, [cardBin]);
+
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
   const [selectedShippingOption, setSelectedShippingOption] = useState<ShippingOption | null>(null);
   const [shippingLoading, setShippingLoading] = useState(false);
@@ -573,7 +621,7 @@ function CheckoutContent() {
           lastFour: token.last_four_digits || cleanNumber.slice(-4),
           holderName: card.name,
           cpf: card.cpf,
-          installments: card.installments,
+          installments: isDebitCard(token.payment_method_id || token.payment_method?.id || "") ? 1 : card.installments,
         };
       }
 
@@ -626,7 +674,7 @@ function CheckoutContent() {
         shippingCost: confirmedShippingCost,
         subtotal,
         totalPrice: confirmedTotal,
-        paymentMethod: paymentMethod === "pix" ? "pix" : "credito",
+        paymentMethod: paymentMethod === "pix" ? "pix" : cardKind === "debit" ? "debito" : "credito",
         items: items.map((i) => ({
           id: i.id,
           name: i.name,
@@ -640,7 +688,11 @@ function CheckoutContent() {
           customerEmail: user?.email || "",
           orderNumber,
           paymentMethod:
-            paymentMethod === "pix" ? "PIX à Vista (Mercado Pago)" : "Cartão de Crédito (Mercado Pago)",
+            paymentMethod === "pix"
+              ? "PIX à Vista (Mercado Pago)"
+              : cardKind === "debit"
+                ? "Cartão de Débito (Mercado Pago)"
+                : "Cartão de Crédito (Mercado Pago)",
           shippingAddress: `${selectedAddress.street}, ${selectedAddress.number} ${selectedAddress.complement ? `- ${selectedAddress.complement}` : ""} - ${selectedAddress.neighborhood}, ${selectedAddress.city}/${selectedAddress.uf} (CEP ${cepDigits})`.trim(),
           items: items.map((i) => ({ name: i.name, quantity: i.quantity, unitPrice: i.unitPrice })),
           subtotal,
@@ -875,7 +927,7 @@ function CheckoutContent() {
         {/* CARD APPROVED BANNER */}
         {paymentMethod === "card" && paymentApproved && (
           <div className="w-full rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 mb-6 text-center text-xs font-mono text-emerald-700 dark:text-emerald-300 space-y-1">
-            <p>✓ Pagamento via Cartão de Crédito aprovado e confirmado pelo Mercado Pago.</p>
+            <p>✓ Pagamento via {cardKind === "debit" ? "Cartão de Débito" : "Cartão de Crédito"} aprovado e confirmado pelo Mercado Pago.</p>
             <p className="text-[11px] text-content/75">📩 Enviamos os detalhes resumidos da compra para o seu e-mail (<strong>{user.email}</strong>).</p>
           </div>
         )}
@@ -987,7 +1039,7 @@ function CheckoutContent() {
           <div className="w-full rounded-xl border border-content/12 bg-card p-6 text-left mb-8 space-y-2 font-mono text-sm text-content/80">
             <p>📍 <strong className="text-content">Entrega:</strong> {selectedAddress.street}, {selectedAddress.number} {selectedAddress.complement} - {selectedAddress.city}</p>
             <p>🚚 <strong className="text-content">Frete:</strong> {submittedOrderSummary.shippingName} ({submittedOrderSummary.shippingCost === 0 ? "GRÁTIS / R$ 0,00" : formatBRL(submittedOrderSummary.shippingCost)})</p>
-            <p>💳 <strong className="text-content">Pagamento:</strong> {paymentMethod === "pix" ? "PIX à vista (Mercado Pago)" : "Cartão de Crédito (Mercado Pago)"}</p>
+            <p>💳 <strong className="text-content">Pagamento:</strong> {paymentMethod === "pix" ? "PIX à vista (Mercado Pago)" : cardKind === "debit" ? "Cartão de Débito (Mercado Pago)" : "Cartão de Crédito (Mercado Pago)"}</p>
             <p>💰 <strong className="text-content">Valor Total:</strong> {formatBRL(submittedOrderSummary.total)}</p>
           </div>
         )}
@@ -1342,9 +1394,9 @@ function CheckoutContent() {
                   <CreditCard className="h-6 w-6" />
                 </div>
                 <div className="pt-0.5">
-                  <h4 className="font-bold text-base text-content">Cartão de Crédito</h4>
+                  <h4 className="font-bold text-base text-content">Cartão de Crédito ou Débito</h4>
                   <p className="mt-1 text-xs text-content/70">
-                    Parcele em até 10x pelo Mercado Pago.
+                    Crédito em até 12x ou débito à vista, pelo Mercado Pago.
                   </p>
                   <p className="mt-2 text-xs font-mono text-content/60">
                     Total: {formatBRL(orderTotalBeforeDiscount)}
@@ -1357,7 +1409,7 @@ function CheckoutContent() {
             {paymentMethod === "card" && (
               <div className="mt-6 rounded-xl border border-content/12 bg-canvas p-5 space-y-4">
                 <h4 className="font-mono text-xs font-bold text-accent uppercase tracking-wider">
-                  Dados do Cartão de Crédito
+                  Dados do Cartão
                 </h4>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="sm:col-span-2">
@@ -1439,19 +1491,25 @@ function CheckoutContent() {
 
                   <div className="sm:col-span-2">
                     <label className="block mb-1.5 font-mono text-xs text-content/75 uppercase tracking-wider">
-                      Opções de Parcelamento *
+                      {cardKind === "debit" ? "Forma de Cobrança" : "Opções de Parcelamento *"}
                     </label>
+                    {cardKind === "debit" ? (
+                      <p className="rounded-xl border border-content/12 bg-raised px-4 py-3 text-sm text-content/75">
+                        Cartão de débito: cobrança única de {formatBRL(totalPrice)}.
+                      </p>
+                    ) : (
                     <select
                       value={card.installments}
                       onChange={(e) => setCard({ ...card, installments: Number(e.target.value) })}
                       className={inputClass(false)}
                     >
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((num) => (
                         <option key={num} value={num}>
                           {formatInstallmentText(num, totalPrice)}
                         </option>
                       ))}
                     </select>
+                    )}
                   </div>
                 </div>
               </div>

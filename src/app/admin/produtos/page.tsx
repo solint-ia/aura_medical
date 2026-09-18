@@ -1,2 +1,5 @@
-import { AdminResourceList } from "@/components/admin/AdminResourceList";
-export default function Page() { return <AdminResourceList endpoint="/api/admin/catalog/products" dataKey="products" title="Produtos" editBase="/admin/produtos" />; }
+import { AdminCardGrid } from "@/components/admin/AdminCardGrid";
+
+export default function Page() {
+  return <AdminCardGrid endpoint="/api/admin/catalog/products" dataKey="products" title="Produtos" eyebrow="Catálogo" editBase="/admin/produtos" variant="product" createLabel="Novo produto" />;
+}

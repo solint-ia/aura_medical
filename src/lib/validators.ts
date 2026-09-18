@@ -276,6 +276,11 @@ export function validateCardNumber(value: string): boolean {
  * Validates card expiry in MM/YY format: month must be 1-12, and the card
  * must not already be expired (valid through the last day of that month).
  */
+/** No Mercado Pago o débito chega como debvisa, debmaster ou debelo. */
+export function isDebitCard(paymentMethodId: string): boolean {
+  return /^deb/i.test(paymentMethodId.trim());
+}
+
 export function validateCardExpiry(expiry: string): boolean {
   const match = expiry.match(/^(\d{2})\/(\d{2})$/);
   if (!match) return false;

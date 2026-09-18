@@ -17,7 +17,7 @@ const LINE_HERO_IMAGES: Record<string, { light: string; dark: string; alt: strin
   pbserum: {
     light: "/images/heroes/pbserum-hero-light.jpg",
     dark: "/images/heroes/pbserum-hero-dark.jpg",
-    alt: "Linha de Bioregenerativos Recombinantes PBSerum",
+    alt: "Linha de Bioregenerativos Recombinantes Pbserum",
   },
 };
 

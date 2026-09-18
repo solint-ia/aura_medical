@@ -318,7 +318,7 @@ export default function PoliticaPrivacidadePage() {
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-accent font-bold">•</span>
-                      <span><strong>Farmacovigilância e parceiros biotecnológicos (ex.: Proteos Biotech / pbserum):</strong> Em casos de reporte formal de eventos adversos para cumprimento das normas de vigilância sanitária;</span>
+                      <span><strong>Farmacovigilância e parceiros biotecnológicos (ex.: Proteos Biotech / Pbserum):</strong> Em casos de reporte formal de eventos adversos para cumprimento das normas de vigilância sanitária;</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-accent font-bold">•</span>

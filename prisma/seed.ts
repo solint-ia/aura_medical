@@ -81,12 +81,12 @@ async function seedProducts(lines: Map<string, { id: string }>) {
 
   for (const [index, enzyme] of enzymesData.entries()) {
     const localImage = `/frascos/${enzyme.slug.replace(/-plus$/, "")}.png`;
-    const asset = await mediaAsset(localImage, `Ampola ${enzyme.name} PBSerum`);
+    const asset = await mediaAsset(localImage, `Ampola ${enzyme.name} Pbserum`);
     const product = await prisma.product.upsert({
       where: { slug: enzyme.slug },
       update: {
         lineId: pbLineId, categoryId: catProfissional.id, name: enzyme.name, eyebrow: "Bioregenerativo recombinante",
-        collection: "PBSerum Plus", summary: enzyme.shortDescription, presentation: "Ampola individual liofilizada",
+        collection: "Pbserum Plus", summary: enzyme.shortDescription, presentation: "Ampola individual liofilizada",
         highlights: [enzyme.activeIngredient, enzyme.indications[0]].slice(0, 2),
         specs: [{ label: "Ativo", value: enzyme.activeIngredient }, { label: "Origem", value: enzyme.origin }, { label: "Substrato-alvo", value: enzyme.targetSubstrate }],
         regulatoryName: enzyme.anvisaProduct, regulatoryNumber: enzyme.anvisaRegistration,
@@ -94,14 +94,14 @@ async function seedProducts(lines: Map<string, { id: string }>) {
       },
       create: {
         lineId: pbLineId, categoryId: catProfissional.id, slug: enzyme.slug, name: enzyme.name, eyebrow: "Bioregenerativo recombinante",
-        collection: "PBSerum Plus", summary: enzyme.shortDescription, presentation: "Ampola individual liofilizada",
+        collection: "Pbserum Plus", summary: enzyme.shortDescription, presentation: "Ampola individual liofilizada",
         highlights: [enzyme.activeIngredient, enzyme.indications[0]].slice(0, 2),
         specs: [{ label: "Ativo", value: enzyme.activeIngredient }, { label: "Origem", value: enzyme.origin }, { label: "Substrato-alvo", value: enzyme.targetSubstrate }],
         regulatoryName: enzyme.anvisaProduct, regulatoryNumber: enzyme.anvisaRegistration,
         status: PublishStatus.PUBLISHED, visibility: Visibility.PUBLIC, featured: true, featuredOrder: index, sortOrder: index, publishedAt: new Date(),
       },
     });
-    await prisma.productImage.upsert({ where: { productId_assetId: { productId: product.id, assetId: asset.id } }, update: { sortOrder: 0 }, create: { productId: product.id, assetId: asset.id } });
+    await prisma.productImage.upsert({ where: { productId_assetId: { productId: product.id, assetId: asset.id } }, update: { sortOrder: 0, caption: enzyme.name }, create: { productId: product.id, assetId: asset.id, caption: enzyme.name } });
     await prisma.productSection.deleteMany({ where: { productId: product.id } });
     await prisma.productSection.createMany({ data: [
       { productId: product.id, title: "Mecanismo de ação", body: enzyme.fullDescription, items: [], sortOrder: 0 },
@@ -128,7 +128,7 @@ async function seedProducts(lines: Map<string, { id: string }>) {
     await prisma.pendingField.deleteMany({ where: { productId: product.id } });
     if (item.pending?.length) await prisma.pendingField.createMany({ data: item.pending.map((field) => ({ productId: product.id, label: field.label, isPublic: field.public })) });
     const primaryAsset = await mediaAsset(item.image, item.name);
-    await prisma.productImage.upsert({ where: { productId_assetId: { productId: product.id, assetId: primaryAsset.id } }, update: { sortOrder: 0 }, create: { productId: product.id, assetId: primaryAsset.id } });
+    await prisma.productImage.upsert({ where: { productId_assetId: { productId: product.id, assetId: primaryAsset.id } }, update: { sortOrder: 0, caption: item.name }, create: { productId: product.id, assetId: primaryAsset.id, caption: item.name } });
     for (const [sortOrder, offer] of item.offers.entries()) {
       const offerAsset = offer.image ? await mediaAsset(offer.image, offer.label ? `${item.name} · ${offer.label}` : item.name) : primaryAsset;
       await prisma.sku.upsert({ where: { code: offer.id }, update: { productId: product.id, protocolId: null, label: offer.label, price: offer.price, imageId: offerAsset.id, isActive: true, sortOrder }, create: { code: offer.id, productId: product.id, label: offer.label, price: offer.price, imageId: offerAsset.id, sortOrder } });
@@ -160,6 +160,7 @@ async function seedProtocols(lines: Map<string, { id: string }>, products: Map<s
     });
     await prisma.protocolComponent.deleteMany({ where: { protocolId: protocol.id } });
     await prisma.protocolComponent.createMany({ data: source.composition.map((component, sortOrder) => ({ protocolId: protocol.id, productId: products.get(`${component.enzyme}-plus`)!.id, quantity: component.vials, role: detail.composition.find((entry) => entry.name.toLowerCase().includes(component.enzyme))?.description || "Componente do protocolo", sortOrder })) });
+    await prisma.protocolImage.upsert({ where: { protocolId_assetId: { protocolId: protocol.id, assetId: cover.id } }, update: { caption: source.name, sortOrder: 0 }, create: { protocolId: protocol.id, assetId: cover.id, caption: source.name, sortOrder: 0 } });
     await prisma.sku.upsert({ where: { code: source.id }, update: { productId: null, protocolId: protocol.id, price: source.totalPrice, imageId: cover.id, isActive: true }, create: { code: source.id, protocolId: protocol.id, price: source.totalPrice, imageId: cover.id } });
   }
 }
@@ -170,11 +171,14 @@ async function seedCasesAndContent(lines: Map<string, { id: string }>) {
     const before = await mediaAsset(source.beforeImage, `${source.categoryName}: antes`);
     const after = await mediaAsset(source.afterImage, `${source.categoryName}: depois`);
     const protocol = await prisma.protocol.findUnique({ where: { slug: source.categoryId }, select: { id: true } });
-    await prisma.clinicalCase.upsert({
+    const clinicalCase = await prisma.clinicalCase.upsert({
       where: { slug: source.id },
-      update: { lineId, protocolId: protocol?.id, title: source.categoryName, professional: source.doctor, country: source.country, sessions: source.sessions, beforeImageId: before.id, afterImageId: after.id, imageRightsConfirmed: true, imageRightsNote: "Material do fabricante", status: PublishStatus.PUBLISHED, sortOrder },
-      create: { slug: source.id, lineId, protocolId: protocol?.id, title: source.categoryName, professional: source.doctor, country: source.country, sessions: source.sessions, beforeImageId: before.id, afterImageId: after.id, imageRightsConfirmed: true, imageRightsNote: "Material do fabricante", status: PublishStatus.PUBLISHED, sortOrder },
+      update: { lineId, title: source.categoryName, professional: source.doctor, country: source.country, sessions: source.sessions, beforeImageId: before.id, afterImageId: after.id, imageRightsConfirmed: true, imageRightsNote: "Material do fabricante", status: protocol ? PublishStatus.PUBLISHED : PublishStatus.DRAFT, sortOrder },
+      create: { slug: source.id, lineId, title: source.categoryName, professional: source.doctor, country: source.country, sessions: source.sessions, beforeImageId: before.id, afterImageId: after.id, imageRightsConfirmed: true, imageRightsNote: "Material do fabricante", status: protocol ? PublishStatus.PUBLISHED : PublishStatus.DRAFT, sortOrder },
     });
+    await prisma.clinicalCaseProtocol.deleteMany({ where: { caseId: clinicalCase.id } });
+    if (protocol) await prisma.clinicalCaseProtocol.create({ data: { caseId: clinicalCase.id, protocolId: protocol.id, sortOrder: 0 } });
+    else console.warn(`Caso sem vínculo automático: ${source.id}`);
   }
 
   await prisma.safetyNote.deleteMany({ where: { lineId } });
@@ -190,8 +194,8 @@ async function seedCasesAndContent(lines: Map<string, { id: string }>) {
   ];
   await prisma.faqItem.createMany({ data: globalFaqs.map(([question, answer], sortOrder) => ({ scope: FaqScope.GLOBAL, question, answer, isPublished: true, sortOrder })) });
   await prisma.faqItem.createMany({ data: [
-    { scope: FaqScope.LINE, lineId, question: "Os produtos PBSerum possuem registro?", answer: "Os números dos processos ANVISA estão nas páginas de cada produto.", isPublished: true, sortOrder: 0 },
-    { scope: FaqScope.LINE, lineId, question: "Onde encontro reconstituição e marcação?", answer: "Essas informações estão nas páginas dos protocolos clínicos PBSerum.", isPublished: true, sortOrder: 1 },
+    { scope: FaqScope.LINE, lineId, question: "Os produtos Pbserum possuem registro?", answer: "Os números dos processos ANVISA estão nas páginas de cada produto.", isPublished: true, sortOrder: 0 },
+    { scope: FaqScope.LINE, lineId, question: "Onde encontro reconstituição e marcação?", answer: "Essas informações estão nas páginas dos protocolos clínicos Pbserum.", isPublished: true, sortOrder: 1 },
   ] });
   await prisma.contentBlock.upsert({ where: { key: "line.pbserum.science-links" }, update: { lineId, items: LINES.pbserum.links || [], isPublished: true }, create: { key: "line.pbserum.science-links", lineId, items: LINES.pbserum.links || [], isPublished: true } });
 }

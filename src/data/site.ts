@@ -16,7 +16,7 @@ export interface NavLink {
 export const NAV_LINKS: NavLink[] = [
   { href: "/", label: "Home" },
   { href: "/catalogo", label: "Catálogo" },
-  { href: "/linhas/pbserum", label: "PBSerum" },
+  { href: "/linhas/pbserum", label: "Pbserum" },
   { href: "/linhas/la-cutanee", label: "La Cutanée" },
 ];
 

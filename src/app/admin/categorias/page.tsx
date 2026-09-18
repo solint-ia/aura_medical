@@ -1,2 +1,2 @@
-import { AdminResourceList } from "@/components/admin/AdminResourceList";
-export default function Page() { return <AdminResourceList endpoint="/api/admin/catalog/categories" dataKey="categories" title="Categorias" editBase="/admin/categorias" />; }
+import { CategoryManager } from "@/components/admin/CategoryManager";
+export default function Page() { return <CategoryManager />; }

@@ -1,5 +1,5 @@
 import { permanentRedirect } from "next/navigation";
 
 export default function LegacyCasesPage() {
-  permanentRedirect("/linhas/pbserum/casos-clinicos");
+  permanentRedirect("/linhas/pbserum");
 }

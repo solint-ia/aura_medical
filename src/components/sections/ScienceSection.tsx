@@ -37,7 +37,7 @@ export function ScienceSection() {
                 Comparativo Tecnológico
               </p>
               <h3 className="font-display text-2xl font-bold text-on-panel mt-1">
-                Tecnologia pbserum vs. Bioregenerativos Tradicionais
+                Tecnologia Pbserum vs. Bioregenerativos Tradicionais
               </h3>
             </div>
             <span className="inline-flex items-center rounded-full border border-accent/30 bg-accent/10 px-4 py-1.5 font-mono text-xs font-semibold text-accent uppercase">
@@ -47,7 +47,7 @@ export function ScienceSection() {
 
           {/* DESKTOP VIEW: 2 Side-by-Side Vertical Comparison Pillar Cards (Hidden on Mobile) */}
           <div className="hidden md:grid md:grid-cols-2 gap-8 items-stretch">
-            {/* PILLAR 1: Tecnologia pbserum (Superior Highlighted Column) */}
+            {/* PILLAR 1: Tecnologia Pbserum (Superior Highlighted Column) */}
             <div className="relative flex flex-col rounded-3xl border-2 border-accent/50 bg-panel p-7 sm:p-8 shadow-2xl overflow-hidden transition-all hover:border-accent">
               {/* Subtle Gold Ambient Glow */}
               <div
@@ -63,7 +63,7 @@ export function ScienceSection() {
                   </span>
                   <h4 className="font-display text-2xl font-bold text-on-panel flex items-center gap-2">
                     <CheckCircle2 className="h-6 w-6 text-accent shrink-0" />
-                    <span>Tecnologia pbserum</span>
+                    <span>Tecnologia Pbserum</span>
                   </h4>
                   <p className="font-mono text-xs text-accent mt-1">
                     Bioregenerativos Recombinantes de Alta Pureza
@@ -147,11 +147,11 @@ export function ScienceSection() {
 
                 {/* Parallel comparison per attribute */}
                 <div className="space-y-3">
-                  {/* Superior pbserum side */}
+                  {/* Superior Pbserum side */}
                   <div className="rounded-xl border border-accent/40 bg-accent/12 p-3.5 space-y-1">
                     <div className="flex items-center gap-1.5 font-mono text-[11px] font-bold text-accent uppercase">
                       <CheckCircle2 className="h-4 w-4 shrink-0" />
-                      <span>Tecnologia pbserum</span>
+                      <span>Tecnologia Pbserum</span>
                     </div>
                     <p className="text-xs font-semibold text-on-panel leading-relaxed pl-5">
                       {row.recombinant}

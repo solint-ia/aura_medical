@@ -24,21 +24,45 @@ export interface PendingInfo {
   public: boolean;
 }
 
+export interface CatalogImage {
+  src: string;
+  alt: string;
+  caption?: string;
+}
+
+export interface CatalogClinicalCase {
+  id: string;
+  title: string;
+  description?: string;
+  beforeImage: string;
+  afterImage: string;
+  professional: string;
+  country?: string;
+  sessions: number;
+  related: { name: string; href: string }[];
+}
+
 export interface CatalogItem {
   slug: string;
   kind: CatalogKind;
   line: LineId;
   name: string;
   category: string;
+  /** Classe do ativo mostrada no card, ex.: "Lipase". */
+  activeLabel?: string;
   collection?: string;
   summary: string;
   tags: string[];
   image: string;
+  images?: CatalogImage[];
   presentation: string;
   offers: CatalogOffer[];
+  /** Verdadeiro quando o item tem oferta, mas nenhuma com unidade disponível. */
+  soldOut?: boolean;
   variantName?: string;
   sections: DetailSection[];
   pending?: PendingInfo[];
+  clinicalCases?: CatalogClinicalCase[];
   lineInfo?: {
     id: string;
     name: string;
@@ -55,11 +79,10 @@ export interface CatalogItem {
   protocol?: {
     sessions: string;
     frequency: string;
-    composition: { quantity: number; product: string; role: string }[];
+    composition: { quantity: number; product: string; slug?: string; image?: string; role: string }[];
     reconstitution: string[];
-    marking: string;
+    marking?: string;
     expectedResults: string[];
-    mappingImage?: string;
   };
 }
 

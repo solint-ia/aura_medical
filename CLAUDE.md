@@ -2,7 +2,7 @@
 
 ## Projeto
 
-E-commerce B2B da Aura Regenera para profissionais. O catálogo reúne PBSerum e La Cutanée em Next.js 16 (App Router), React 19, TypeScript strict e Tailwind CSS v4.
+E-commerce B2B da Aura Regenera para profissionais. O catálogo reúne Pbserum e La Cutanée em Next.js 16 (App Router), React 19, TypeScript strict e Tailwind CSS v4.
 
 ## Comandos
 
@@ -20,8 +20,10 @@ E-commerce B2B da Aura Regenera para profissionais. O catálogo reúne PBSerum e
 
 - O Postgres é a fonte de verdade do catálogo publicado; os módulos em `src/data` alimentam somente o seed e páginas científicas legadas.
 - `prisma/schema.prisma` define catálogo, conteúdo, mídia, redirects e auditoria; `prisma/seed.ts` é idempotente.
+- `ClinicalCaseProduct` e `ClinicalCaseProtocol` ligam casos clínicos a múltiplos produtos/protocolos; todo caso publicado exige direito de imagem confirmado e ao menos um vínculo.
+- `ProductImage` e `ProtocolImage` mantêm galerias ordenadas com legenda; a primeira imagem é a capa do produto.
 - `src/server/catalog/repository.ts` concentra leituras e resolução de SKUs; componentes nunca consultam o Prisma diretamente.
-- Imagens comerciais ficam no bucket Supabase Storage `Catalogo`; `MediaAsset` guarda caminho e metadados.
+- Imagens comerciais ficam no bucket Supabase Storage `Catalogo`; `MediaAsset` guarda caminho, metadados, tipo (`MediaCategory`) e marca para filtrar o acervo.
 - `/admin/*` oferece listas e editores protegidos; toda rota `/api/admin/**` usa `requireAdmin`, Zod e auditoria nas mutações.
 - `src/components/catalog/`: vitrine, filtros, card, detalhe e painel de compra.
 - `/produtos/[slug]`: detalhes de produto.
@@ -34,7 +36,7 @@ Preços exibidos pelo cliente não são confiáveis. O checkout sempre resolve n
 ## Regras visuais
 
 - Fundo neutro porcelana `#EEF1F5`; navy e dourado identificam a Aura.
-- PBSerum usa creme-dourado `#F5EEDC`; La Cutanée usa azul-gelo `#E7EEF8` e azul `#2B5C9E` dentro de seus componentes.
+- Pbserum usa creme-dourado `#F5EEDC`; La Cutanée usa azul-gelo `#E7EEF8` e azul `#2B5C9E` dentro de seus componentes.
 - Raios: seção 32px, card 24px, mídia 18px, ações e tags em pílula.
 - Sora para display, Manrope para corpo e JetBrains Mono para rótulos técnicos.
 - Headlines preferem peso 600. Cards não usam tags; o detalhe aceita no máximo duas tags informativas e sem emoji.
@@ -44,13 +46,16 @@ Preços exibidos pelo cliente não são confiáveis. O checkout sempre resolve n
 
 - A Home contém Hero, até seis destaques e FAQ geral. O catálogo completo fica em `/catalogo`; preços não aparecem na vitrine.
 - Compra existe somente no detalhe: “Comprar agora” adiciona o item e segue ao checkout; “Adicionar ao carrinho” permanece na página.
-- Cartão permite até 10x e PIX tem 5% de desconto.
+- Cartão de crédito permite até 12x, débito é sempre à vista e PIX tem 5% de desconto.
+- Débito e crédito usam o mesmo formulário: o BIN consultado no Mercado Pago define o tipo e esconde o parcelamento.
 - Protocolos conservam composição, sessões, reconstituição, marcação e resultados. O campo `application` não é exibido.
 - Revytra C20+ Nano custa R$ 314,85.
 - A grafia publicada é `Uvinul®`.
+- A grafia publicada da marca é `Pbserum`; nomes de registro ANVISA mantêm a transcrição oficial.
+- Protocolos descrevem o kit em ampolas no total (`src/lib/protocolVials.ts`); Celulite é a exceção por região.
 - Informações La Cutanée não recebidas do fornecedor aparecem como “Ficha técnica em confirmação”; dados internos pendentes ficam apenas no módulo de dados.
-- Até chegarem dimensões reais, o frete usa a embalagem padrão de 10 × 15 × 20 cm e 0,5 kg.
+- O frete envia ao Melhor Envio as medidas de uma unidade e a quantidade; sem peso e dimensões cadastrados, usa a embalagem padrão de 10 × 15 × 20 cm e 0,5 kg.
 
 ## Conteúdo legado
 
-`enzymes.ts`, `protocols.ts`, `products.ts` e `cases.ts` continuam como fontes do seed e da página científica `/enzimas`. Casos clínicos públicos ficam em `/linhas/[slug]/casos-clinicos`; `/casos-clinicos` é um redirect permanente para PBSerum.
+`enzymes.ts`, `protocols.ts`, `products.ts` e `cases.ts` continuam como fontes do seed e da página científica `/enzimas`. Casos clínicos públicos aparecem dentro dos produtos e protocolos vinculados. `/casos-clinicos` e `/linhas/[slug]/casos-clinicos` são redirects permanentes para a marca correspondente.

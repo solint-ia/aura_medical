@@ -1,8 +1,10 @@
-import type { VerifiedCheckoutItem } from "@/lib/checkoutPricing";
+import type { ShippingPackage, VerifiedCheckoutItem } from "@/lib/checkoutPricing";
+
+/** Embalagem padrão enquanto o produto não tem medidas reais cadastradas. */
+export const DEFAULT_PACKAGE: ShippingPackage = { width: 10, height: 15, length: 20, weight: 0.5 };
 
 const PRODUCTION_API_URL = "https://melhorenvio.com.br/api/v2";
 const REQUEST_TIMEOUT_MS = 12_000;
-const ALLOWED_CORREIOS_SERVICE_IDS = new Set(["1", "2"]); // PAC e SEDEX
 
 export interface MelhorEnvioShippingOption {
   id: string;
@@ -33,8 +35,9 @@ function money(value: unknown): number | null {
 
 /**
  * Calcula o frete apenas com itens previamente resolvidos pelo catálogo do
- * servidor. As medidas correspondem à embalagem padrão atualmente usada para
- * cada kit/ampola enviado pela Aura Regenera.
+ * servidor. Cada item vai com as medidas de UMA unidade e a quantidade: o
+ * Melhor Envio multiplica pela quantidade e monta a embalagem combinada, então
+ * nada é somado ou multiplicado aqui.
  */
 export async function calculateMelhorEnvioShipping(
   destinationCep: string,
@@ -81,16 +84,19 @@ export async function calculateMelhorEnvioShipping(
   const payload = {
     from: { postal_code: origin },
     to: { postal_code: destination },
-    products: items.map((item) => ({
-      id: item.id,
-      width: 10,
-      height: 15,
-      length: 20,
-      weight: 0.5,
-      insurance_value: item.unitPrice,
-      quantity: item.quantity,
-    })),
-    services: Array.from(ALLOWED_CORREIOS_SERVICE_IDS).join(","),
+    products: items.map((item) => {
+      const box = item.package ?? DEFAULT_PACKAGE;
+      return {
+        id: item.id,
+        // A API exige centímetros inteiros; arredondar para cima nunca subdimensiona.
+        width: Math.ceil(box.width),
+        height: Math.ceil(box.height),
+        length: Math.ceil(box.length),
+        weight: box.weight,
+        insurance_value: item.unitPrice,
+        quantity: item.quantity,
+      };
+    }),
   };
 
   let response: Response;
@@ -127,7 +133,6 @@ export async function calculateMelhorEnvioShipping(
   const options = data
     .filter((raw): raw is Record<string, unknown> => Boolean(raw && typeof raw === "object"))
     .filter((raw) => !raw.error)
-    .filter((raw) => ALLOWED_CORREIOS_SERVICE_IDS.has(String(raw.id)))
     .map<MelhorEnvioShippingOption | null>((raw) => {
       const company =
         raw.company && typeof raw.company === "object"

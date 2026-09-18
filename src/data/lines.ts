@@ -23,15 +23,14 @@ export interface ProductLine {
 export const LINES: Record<"pbserum" | "la-cutanee", ProductLine> = {
   pbserum: {
     id: "pbserum",
-    name: "PBSerum",
+    name: "Pbserum",
     descriptor: "Bioregenerativos recombinantes",
     tagline: "Precisão biotecnológica para protocolos de remodelação e regeneração tecidual.",
     emoji: "🧬",
     colors: { surface: "#F5EEDC", accent: "#B4872D", foreground: "#12283C" },
     highlights: ["3 produtos", "6 protocolos", "Tecnologia recombinante"],
     links: [
-      { label: "Ciência PBSerum", href: "/enzimas", description: "Entenda os ativos, mecanismos e registros." },
-      { label: "Casos clínicos", href: "/casos-clinicos", description: "Explore resultados documentados por indicação." },
+      { label: "Ciência Pbserum", href: "/enzimas", description: "Entenda os ativos, mecanismos e registros." },
     ],
   },
   "la-cutanee": {

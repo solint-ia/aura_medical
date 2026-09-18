@@ -1,6 +1,7 @@
 import "server-only";
 
 import { prisma } from "@/lib/prisma";
+import { effectiveStock, kitsFromComponents } from "./availability";
 import { mapProduct, mapProtocol, mediaUrl, productInclude, protocolInclude } from "./mappers";
 
 const publishedPublic = { status: "PUBLISHED" as const, visibility: "PUBLIC" as const, line: { status: "PUBLISHED" as const } };
@@ -9,7 +10,7 @@ export async function getPublishedLines() {
   return prisma.line.findMany({
     where: { status: "PUBLISHED" },
     include: { _count: { select: { products: { where: { status: "PUBLISHED", visibility: "PUBLIC" } }, protocols: { where: { status: "PUBLISHED", visibility: "PUBLIC" } }, cases: { where: { status: "PUBLISHED" } } } } },
-    orderBy: { sortOrder: "asc" },
+    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
   });
 }
 
@@ -82,12 +83,12 @@ export async function getProductBySlug(slug: string) {
 }
 
 export async function getProtocolsByLine(lineSlug: string) {
-  const rows = await prisma.protocol.findMany({ where: { ...publishedPublic, line: { slug: lineSlug, status: "PUBLISHED" } }, include: protocolInclude, orderBy: { sortOrder: "asc" } });
+  const rows = await prisma.protocol.findMany({ where: { ...publishedPublic, line: { slug: lineSlug, status: "PUBLISHED" } }, include: protocolInclude, orderBy: [{ sortOrder: "asc" }, { name: "asc" }] });
   return rows.map(mapProtocol);
 }
 
 export async function getPublishedProtocols() {
-  const rows = await prisma.protocol.findMany({ where: { ...publishedPublic, line: { status: "PUBLISHED" } }, include: protocolInclude, orderBy: { sortOrder: "asc" } });
+  const rows = await prisma.protocol.findMany({ where: { ...publishedPublic, line: { status: "PUBLISHED" } }, include: protocolInclude, orderBy: [{ sortOrder: "asc" }, { name: "asc" }] });
   return rows.map(mapProtocol);
 }
 
@@ -96,18 +97,13 @@ export async function getProtocolBySlug(slug: string) {
   return row ? mapProtocol(row) : null;
 }
 
-export async function getCasesByLine(lineSlug: string) {
-  const rows = await prisma.clinicalCase.findMany({ where: { status: "PUBLISHED", line: { slug: lineSlug, status: "PUBLISHED" } }, include: { beforeImage: true, afterImage: true, protocol: { select: { slug: true } } }, orderBy: { sortOrder: "asc" } });
-  return rows.map((row) => ({ id: row.slug, categoryId: row.protocol?.slug || row.slug, categoryName: row.title, beforeImage: mediaUrl(row.beforeImage) || "", afterImage: mediaUrl(row.afterImage) || "", doctor: row.professional, country: row.country || undefined, sessions: row.sessions }));
-}
-
 const GLOBAL_FAQ_ANSWERS: Record<string, string> = {
   "Quem pode comprar?":
-    "O catálogo da Aura Regenera é exclusivo para profissionais e clínicas da área da saúde e estética (médicos, dermatologistas, biomédicos estetas, farmacêuticos e clínicas habilitadas). Para garantir a conformidade regulatória e a segurança técnica dos tratamentos biotecnológicos, o cadastro solicita a validação de CPF ou CNPJ com registro profissional ativo para a liberação de pedidos.",
+    "Qualquer pessoa pode comprar no catálogo da Aura Regenera. A linha La Cutanée reúne dermocosméticos de uso doméstico, pensados para a rotina de cuidados em casa. Já os bioregenerativos e protocolos Pbserum são indicados para aplicação por profissionais habilitados da saúde e da estética.",
   "Como criar uma conta?":
-    "Clique na opção 'Entrar' ou 'Fale Conosco' no menu superior, preencha os dados da sua clínica ou consultório e confirme o e-mail de ativação. Nossa equipe faz uma validação ágil do perfil profissional para liberar o seu acesso à tabela de valores e ao catálogo completo.",
+    "Clique em 'Entrar' no menu superior, preencha seus dados e confirme o e-mail de ativação. A conta já nasce liberada para comprar em todo o catálogo, sem espera por aprovação.",
   "Quais são as formas de pagamento?":
-    "Aceitamos cartão de crédito em até 10x (crédito e débito) e PIX com confirmação imediata. Todas as operações são processadas com criptografia de ponta a ponta via Mercado Pago para total segurança.",
+    "Aceitamos todas as formas de pagamento: cartão de crédito, cartão de débito e PIX, com parcelamento em até 12x no cartão. Todas as operações são processadas com segurança pelo Mercado Pago.",
   "Existe pedido mínimo?":
     "Não há valor mínimo nem quantidade mínima para compra. Você tem total liberdade para adquirir desde uma única ampola ou frasco avulso para reposição rápida até grandes volumes para a rotina de protocolos da sua clínica.",
   "Como funcionam frete e prazo?":
@@ -131,13 +127,41 @@ export async function getSafetyNotes(lineId?: string) {
   return prisma.safetyNote.findMany({ where: { lineId, isPublished: true }, orderBy: { sortOrder: "asc" } });
 }
 
+
+type ResolverRow = {
+  trackStock: boolean;
+  stockQuantity: number | null;
+  protocol?: { components: { quantity: number; product: { skus: { isActive: boolean; trackStock: boolean; stockQuantity: number | null }[] } }[] } | null;
+};
+
+/** Protocolo herda o teto da composição; produto usa só o próprio SKU. */
+function resolvedStock(row: ResolverRow) {
+  const ceiling = row.protocol ? kitsFromComponents(row.protocol.components) : undefined;
+  const { trackStock, stock } = effectiveStock(row, ceiling);
+  return { trackStock, stockQuantity: stock ?? null };
+}
+/** Medidas de uma unidade do produto; só vale com peso e as três dimensões preenchidos. */
+function shippingPackage(product: { weightGrams: number | null; lengthCm: unknown; widthCm: unknown; heightCm: unknown } | null | undefined) {
+  if (!product?.weightGrams || !product.lengthCm || !product.widthCm || !product.heightCm) return undefined;
+  return {
+    weight: product.weightGrams / 1000,
+    length: Number(product.lengthCm),
+    width: Number(product.widthCm),
+    height: Number(product.heightCm),
+  };
+}
+
 export async function resolveSkus(codes: string[]) {
   const aliases = await prisma.skuAlias.findMany({ where: { alias: { in: codes } }, select: { alias: true, sku: { select: { code: true } } } });
   const canonical = new Map(aliases.map((entry) => [entry.alias, entry.sku.code]));
   const lookup = [...new Set(codes.map((code) => canonical.get(code) || code))];
   const rows = await prisma.sku.findMany({
     where: { code: { in: lookup } },
-    include: { image: true, product: { include: { line: true } }, protocol: { include: { line: true } } },
+    include: {
+      image: true,
+      product: { include: { line: true } },
+      protocol: { include: { line: true, components: { include: { product: { include: { skus: { select: { isActive: true, trackStock: true, stockQuantity: true } } } } } } } },
+    },
   });
   const byCode = new Map(rows.map((row) => [row.code, row]));
   return codes.map((requestedCode) => {
@@ -149,7 +173,8 @@ export async function resolveSkus(codes: string[]) {
       requestedCode, skuCode, name: row.label ? `${owner?.name} · ${row.label}` : owner?.name || skuCode,
       unitPrice: Number(row.price), imagePath: mediaUrl(row.image), isActive: row.isActive,
       status: owner?.status, visibility: owner?.visibility, lineStatus: row.product?.line.status || row.protocol?.line.status,
-      trackStock: row.trackStock, stockQuantity: row.stockQuantity,
+      ...resolvedStock(row),
+      package: shippingPackage(row.product),
     };
   });
 }

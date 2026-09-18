@@ -1,2 +1,5 @@
-import { AdminResourceList } from "@/components/admin/AdminResourceList";
-export default function Page() { return <AdminResourceList endpoint="/api/admin/audit" dataKey="logs" title="Auditoria" />; }
+import { AuditTrail } from "@/components/admin/AuditTrail";
+
+export default function Page() {
+  return <AuditTrail />;
+}

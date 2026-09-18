@@ -1,6 +1,6 @@
 import Image from "next/image";
-import Link from "next/link";
 import { Mail } from "lucide-react";
+import { ScrollTopLink } from "@/components/navigation/ScrollTopLink";
 import {
   COMPANY_CNPJ,
   CONTACT_EMAIL,
@@ -70,12 +70,12 @@ export function SiteFooter() {
           <ul className="flex flex-col items-center gap-1.5 text-xs sm:text-sm">
             {NAV_LINKS.map((link) => (
               <li key={link.href}>
-                <Link
+                <ScrollTopLink
                   href={link.href}
                   className="font-medium text-on-panel transition-colors hover:text-[#C59D3F]"
                 >
                   {link.label}
-                </Link>
+                </ScrollTopLink>
               </li>
             ))}
           </ul>
@@ -150,19 +150,19 @@ export function SiteFooter() {
           © 2026 Aura Regenera · CNPJ {COMPANY_CNPJ}
         </p>
         <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-on-panel/75">
-          <Link
+          <ScrollTopLink
             href="/termos-de-uso"
             className="transition-colors hover:text-[#C59D3F] hover:underline underline-offset-4"
           >
             Termos de Uso
-          </Link>
+          </ScrollTopLink>
           <span className="text-on-panel/30 hidden sm:inline" aria-hidden="true">·</span>
-          <Link
+          <ScrollTopLink
             href="/politica-de-privacidade"
             className="transition-colors hover:text-[#C59D3F] hover:underline underline-offset-4"
           >
             Políticas de Privacidade
-          </Link>
+          </ScrollTopLink>
         </div>
       </div>
       </div>

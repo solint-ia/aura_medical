@@ -1,1 +1,0 @@
-export default function Page() { return <section><p className="font-mono text-xs uppercase tracking-wider text-accent">Conta</p><h1 className="font-display text-4xl font-semibold">Perfil administrativo</h1><p className="mt-4 text-content/65">Os dados de perfil e a troca de senha permanecem disponíveis na visão geral do painel.</p></section>; }

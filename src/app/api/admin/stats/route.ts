@@ -26,6 +26,9 @@ export async function GET(req: Request) {
     let ordersTodayCount = 0;
     let ordersWeekCount = 0;
     let ordersMonthCount = 0;
+    let products = 0;
+    let media = 0;
+    let cases = 0;
 
     const statusCounts: Record<string, number> = {
       pendente: 0,
@@ -39,7 +42,7 @@ export async function GET(req: Request) {
     let rawOrders: any[] = [];
 
     try {
-      totalUsersCount = await prisma.userProfile.count();
+      [totalUsersCount, products, media, cases] = await Promise.all([prisma.userProfile.count(), prisma.product.count(), prisma.mediaAsset.count(), prisma.clinicalCase.count()]);
       rawOrders = await prisma.order.findMany({
         include: {
           address: true,
@@ -103,6 +106,9 @@ export async function GET(req: Request) {
       ordersTodayCount,
       ordersWeekCount,
       ordersMonthCount,
+      products,
+      media,
+      cases,
       statusCounts,
     });
   } catch (err: unknown) {

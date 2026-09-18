@@ -1,2 +1,5 @@
-import { AdminResourceList } from "@/components/admin/AdminResourceList";
-export default function Page() { return <AdminResourceList endpoint="/api/admin/users" dataKey="users" title="Clientes" />; }
+import { CustomersManager } from "@/components/admin/CustomersManager";
+
+export default function Page() {
+  return <CustomersManager />;
+}

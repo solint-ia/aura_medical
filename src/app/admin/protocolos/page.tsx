@@ -1,2 +1,5 @@
-import { AdminResourceList } from "@/components/admin/AdminResourceList";
-export default function Page() { return <AdminResourceList endpoint="/api/admin/catalog/protocols" dataKey="protocols" title="Protocolos" editBase="/admin/protocolos" />; }
+import { AdminCardGrid } from "@/components/admin/AdminCardGrid";
+
+export default function Page() {
+  return <AdminCardGrid endpoint="/api/admin/catalog/protocols" dataKey="protocols" title="Protocolos" eyebrow="Catálogo" editBase="/admin/protocolos" variant="protocol" createLabel="Novo protocolo" />;
+}

@@ -1,2 +1,2 @@
-import { AdminJsonEditor } from "@/components/admin/AdminJsonEditor";
-export default function Page() { return <AdminJsonEditor create title="Nova linha" endpoint="/api/admin/catalog/lines" dataKey="line" template={{ slug: "", name: "", descriptor: "", tagline: "", surfaceLight: "#FFFFFF", surfaceDark: "#112233", accentLight: "#B4872D", accentDark: "#D8B657", inkLight: "#12283C", inkDark: "#F7F5F0", differentials: [], commitments: [], sortOrder: 0 }} />; }
+import { LineAdminForm } from "@/components/admin/LineAdminForm";
+export default function Page() { return <LineAdminForm create endpoint="/api/admin/catalog/lines" />; }

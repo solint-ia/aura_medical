@@ -183,7 +183,7 @@ export default function TermosDeUsoPage() {
                 {/* Introdução e Declaração */}
                 <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
                   <p className="text-sm sm:text-base leading-relaxed">
-                    Estes <strong>Termos de Uso</strong> regulam o acesso aos conteúdos, catálogo técnico, área restrita de credenciamento, cotações, solicitações comerciais e pedidos de bioregenerativos recombinantes da linha <strong className="text-white">pbserum Plus (Slim+, Smooth+, Drain+)</strong> e produtos correlatos distribuídos pela <strong>Aura Regenera</strong> (CNPJ {COMPANY_CNPJ}).
+                    Estes <strong>Termos de Uso</strong> regulam o acesso aos conteúdos, catálogo técnico, área restrita de credenciamento, cotações, solicitações comerciais e pedidos de bioregenerativos recombinantes da linha <strong className="text-white">Pbserum Plus (Slim+, Smooth+, Drain+)</strong> e produtos correlatos distribuídos pela <strong>Aura Regenera</strong> (CNPJ {COMPANY_CNPJ}).
                   </p>
                   <p className="mt-4 text-sm sm:text-base leading-relaxed">
                     Ao acessar, navegar ou efetuar cadastros em nosso site, o usuário declara ter lido, compreendido e concordado integralmente com as condições dispostas nestes Termos e na nossa{" "}
@@ -370,7 +370,7 @@ export default function TermosDeUsoPage() {
                     Em conformidade com as normas sanitárias e o compromisso com a segurança do paciente, mantemos canais diretos para comunicação técnica e reporte de intercorrências ou suspeitas de eventos adversos relacionados ao uso dos produtos:
                   </p>
                   <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-xs sm:text-sm">
-                    <p className="font-semibold text-white mb-1">Canal de Farmacovigilância & Tecnovigilância pbserum:</p>
+                    <p className="font-semibold text-white mb-1">Canal de Farmacovigilância & Tecnovigilância Pbserum:</p>
                     <p className="text-on-panel/80">E-mail: <a href={`mailto:${ADVERSE_EVENT_CONTACT.email}`} className="text-accent font-mono hover:underline">{ADVERSE_EVENT_CONTACT.email}</a></p>
                     <p className="text-on-panel/80 mt-1">Suporte Técnico Aura Regenera: <a href={`mailto:${CONTACT_EMAIL}`} className="text-accent font-mono hover:underline">{CONTACT_EMAIL}</a></p>
                   </div>
@@ -447,7 +447,7 @@ export default function TermosDeUsoPage() {
                     </h2>
                   </div>
                   <p className="text-sm sm:text-base">
-                    Todos os direitos sobre logotipos, marcas (Aura Regenera, pbserum Plus, Slim+, Smooth+, Drain+), layout do site, gráficos, bancos de dados, textos técnicos, fotografias autorizadas de casos clínicos e códigos-fonte pertencem à Aura Regenera ou aos seus respectivos licenciantes e parceiros biotecnológicos internacionais. É vedada a reprodução, cópia, publicação ou exploração comercial sem autorização expressa e por escrito.
+                    Todos os direitos sobre logotipos, marcas (Aura Regenera, Pbserum Plus, Slim+, Smooth+, Drain+), layout do site, gráficos, bancos de dados, textos técnicos, fotografias autorizadas de casos clínicos e códigos-fonte pertencem à Aura Regenera ou aos seus respectivos licenciantes e parceiros biotecnológicos internacionais. É vedada a reprodução, cópia, publicação ou exploração comercial sem autorização expressa e por escrito.
                   </p>
                 </section>
 

@@ -13,6 +13,7 @@
     "db:migrate": "prisma migrate deploy",
     "db:seed": "tsx --env-file=.env prisma/seed.ts",
     "db:parity": "tsx --env-file=.env scripts/verify-catalog-parity.ts",
+    "db:verify-case-links": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/verify-clinical-case-links.ts",
     "storage:migrate": "tsx --env-file=.env scripts/migrate-catalog-images.ts",
     "images:trim": "tsx scripts/trim-product-images.ts",
     "check:colors": "node scripts/check-hardcoded-colors.mjs"
@@ -32,7 +33,7 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "server-only": "^0.0.1",
-    "sharp": "^0.35.4",
+    "sharp": "0.34.5",
     "zod": "^4.6.5"
   },
   "devDependencies": {

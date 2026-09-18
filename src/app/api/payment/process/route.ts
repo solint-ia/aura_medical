@@ -14,7 +14,7 @@ import {
   markHighRiskAttempt,
   paymentAttemptKey,
 } from "@/lib/paymentAttemptGuard";
-import { validateCpf } from "@/lib/validators";
+import { isDebitCard, validateCpf } from "@/lib/validators";
 
 const MERCADO_PAGO_ACCESS_TOKEN = process.env.MERCADO_PAGO_ACCESS_TOKEN || "";
 const MERCADO_PAGO_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY || "";
@@ -354,6 +354,13 @@ export async function POST(req: Request) {
       },
     };
 
+    const cardPaymentLabel =
+      paymentMethod === "pix"
+        ? "PIX à Vista (Mercado Pago)"
+        : isDebitCard(String(cardData?.paymentMethodId || ""))
+          ? "Cartão de Débito (Mercado Pago)"
+          : "Cartão de Crédito (Mercado Pago)";
+
     // Só é chamado para pagamentos JÁ confirmados: cartão aprovado (abaixo) ou,
     // no caso do PIX, pelo endpoint /api/payment/confirm-email quando o polling
     // do checkout detecta status "approved". Nunca no momento em que a cobrança
@@ -363,7 +370,7 @@ export async function POST(req: Request) {
         customerName: customerFullName,
         customerEmail: customer.email,
         orderNumber,
-        paymentMethod: paymentMethod === "pix" ? "PIX à Vista (Mercado Pago)" : "Cartão de Crédito (Mercado Pago)",
+        paymentMethod: cardPaymentLabel,
         shippingAddress: formattedAddress,
         items: verifiedCart.items,
         subtotal,
@@ -472,7 +479,7 @@ export async function POST(req: Request) {
         !cardData.cpf
       ) {
         return NextResponse.json(
-          { error: "Informe todos os dados do cartão de crédito." },
+          { error: "Informe todos os dados do cartão." },
           { status: 400 }
         );
       }
@@ -486,7 +493,8 @@ export async function POST(req: Request) {
         !/^[a-z0-9_-]{2,30}$/i.test(String(cardData.paymentMethodId)) ||
         !Number.isInteger(installments) ||
         installments < 1 ||
-        installments > 10
+        installments > 12 ||
+        (isDebitCard(String(cardData.paymentMethodId)) && installments !== 1)
       ) {
         return NextResponse.json({ error: "Dados do cartão inválidos." }, { status: 400 });
       }

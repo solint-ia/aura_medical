@@ -4,6 +4,7 @@ import { dbPool } from "@/lib/db";
 import { verifyAuthToken } from "@/lib/auth";
 import { calculateCheckoutTotal, verifyCheckoutItems } from "@/lib/checkoutPricing";
 import { fetchMercadoPagoPayment } from "@/lib/mercadopago";
+import { consumeStock } from "@/server/catalog/stock";
 
 /** Tolerância na comparação de valores (centavos de arredondamento). */
 const AMOUNT_TOLERANCE = 0.02;
@@ -76,7 +77,12 @@ export async function POST(req: Request) {
       );
     }
 
-    const pricingMethod = paymentMethod === "pix" ? "pix" : paymentMethod === "credito" ? "card" : null;
+    const pricingMethod =
+      paymentMethod === "pix"
+        ? "pix"
+        : paymentMethod === "credito" || paymentMethod === "debito"
+          ? "card"
+          : null;
     if (!pricingMethod) {
       return NextResponse.json({ error: "Forma de pagamento inválida." }, { status: 400 });
     }
@@ -196,11 +202,7 @@ export async function POST(req: Request) {
     try {
       createdOrder = await prisma.$transaction(async (tx) => {
         for (const item of verifiedCart.items.filter((entry) => entry.trackStock)) {
-          const changed = await tx.sku.updateMany({
-            where: { code: item.skuCode, trackStock: true, stockQuantity: { gte: item.quantity } },
-            data: { stockQuantity: { decrement: item.quantity } },
-          });
-          if (changed.count !== 1) throw new Error(`Estoque insuficiente para ${item.name}.`);
+          await consumeStock(tx, item.skuCode, item.quantity);
         }
         return tx.order.create({
         data: {

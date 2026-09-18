@@ -52,7 +52,7 @@ const BIOTECH_CHAPTERS: BiotechChapter[] = [
     body1:
       "Os bioregenerativos recombinantes e proteínas atuam como catalisadores biológicos e agentes de regeneração tecidual, acelerando processos celulares essenciais com máxima especificidade.",
     body2:
-      "Os bioregenerativos recombinantes da pbserum são concebidos utilizando a tecnologia de ADN recombinante, permitindo a produção em grande escala com qualidade consistente. Desenvolvidos através de investigação biotecnológica avançada em Albacete, Espanha, utilizam uma biotecnologia única para potencializar os tratamentos regenerativos de várias patologias e necessidades da pele.",
+      "Os bioregenerativos recombinantes da Pbserum são concebidos utilizando a tecnologia de ADN recombinante, permitindo a produção em grande escala com qualidade consistente. Desenvolvidos através de investigação biotecnológica avançada em Albacete, Espanha, utilizam uma biotecnologia única para potencializar os tratamentos regenerativos de várias patologias e necessidades da pele.",
   },
   {
     id: "tecnologia",
@@ -61,7 +61,7 @@ const BIOTECH_CHAPTERS: BiotechChapter[] = [
     subtitleTag: "Inovação Biotecnológica",
     title: "Biotecnologia Recombinante Exclusiva",
     subtitle:
-      "A pbserum utiliza ADN recombinante para criar bioregenerativos recombinantes e proteínas de origem bacteriana que imitam com precisão as moléculas humanas.",
+      "A Pbserum utiliza ADN recombinante para criar bioregenerativos recombinantes e proteínas de origem bacteriana que imitam com precisão as moléculas humanas.",
     highlights: [
       {
         title: "Eficácia & Seletividade",
@@ -105,7 +105,7 @@ const BIOTECH_CHAPTERS: BiotechChapter[] = [
     stepNumber: "04",
     navTitle: "Registro ANVISA",
     subtitleTag: "Regularização Sanitária",
-    title: "Registro ANVISA da linha pbserum Professional",
+    title: "Registro ANVISA da linha Pbserum Professional",
     subtitle:
       "Cada bioregenerativo da linha possui processo próprio junto à ANVISA — Agência Nacional de Vigilância Sanitária.",
     body1:
@@ -231,7 +231,7 @@ export function EnzymesBiotechIntroSection() {
                   Capítulo {chapter.stepNumber} · {chapter.subtitleTag}
                 </span>
                 <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 font-mono text-[11px] text-on-panel/70 uppercase">
-                  pbserum Recombinante
+                  Pbserum Recombinante
                 </span>
               </div>
 

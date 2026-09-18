@@ -18,7 +18,7 @@ export function ProductsSection() {
       <div className="relative z-10 mx-auto max-w-[1280px]">
         <SectionIntro
           titleId="produtos-title"
-          eyebrow="pbserum Plus · Linha Profissional"
+          eyebrow="Pbserum Plus · Linha Profissional"
           title="Três bioregenerativos recombinantes. Um mecanismo específico para cada tecido."
           lead="Cada bioregenerativo recombinante atua sobre um substrato distinto (gordura, colágeno fibrótico ou polissacarídeos da matriz) e pode ser combinado em protocolo conforme a indicação clínica."
           className="mb-14"

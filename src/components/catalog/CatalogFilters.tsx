@@ -101,8 +101,6 @@ export function CatalogFilters({ items }: { items: CatalogItem[] }) {
     }
   }
 
-  const productsCount = items.filter((i) => i.kind === "product").length;
-  const protocolsCount = items.filter((i) => i.kind === "protocol").length;
 
   const startIdx = (currentPage - 1) * ITEMS_PER_PAGE + 1;
   const endIdx = Math.min(currentPage * ITEMS_PER_PAGE, filtered.length);
@@ -112,9 +110,9 @@ export function CatalogFilters({ items }: { items: CatalogItem[] }) {
       {/* Abas de Tipo: Todos, Produtos, Protocolos */}
       <div className="mb-6 flex flex-wrap items-center gap-2.5">
         {[
-          { id: "", label: "Todos os Itens", count: items.length },
-          { id: "produtos", label: "Produtos Individuais", count: productsCount },
-          { id: "protocolos", label: "Protocolos Clínicos", count: protocolsCount },
+          { id: "", label: "Todos os Itens" },
+          { id: "produtos", label: "Produtos Individuais" },
+          { id: "protocolos", label: "Protocolos Clínicos" },
         ].map((tab) => {
           const isActive = typeParam === tab.id;
           return (
@@ -129,13 +127,6 @@ export function CatalogFilters({ items }: { items: CatalogItem[] }) {
               }`}
             >
               <span>{tab.label}</span>
-              <span
-                className={`rounded-full px-2 py-0.5 font-mono text-xs ${
-                  isActive ? "bg-action-fg/15 text-action-fg" : "bg-content/8 text-content/60"
-                }`}
-              >
-                {tab.count}
-              </span>
             </button>
           );
         })}
@@ -150,10 +141,10 @@ export function CatalogFilters({ items }: { items: CatalogItem[] }) {
             onChange={(event) => update("linha", event.target.value)}
             className="min-h-11 rounded-xl border border-content/15 bg-canvas px-3 font-normal"
           >
-            <option value="">Todas as linhas ({items.length})</option>
+            <option value="">Todas as linhas</option>
             {lines.map(([slug, name]) => (
               <option key={slug} value={slug}>
-                {name} ({items.filter((item) => item.line === slug).length})
+                {name}
               </option>
             ))}
           </select>
@@ -169,7 +160,7 @@ export function CatalogFilters({ items }: { items: CatalogItem[] }) {
             <option value="">Todas as categorias</option>
             {categories.map(({ slug, name }) => (
               <option key={slug} value={slug}>
-                {name} ({items.filter((item) => (!line || item.line === line) && slugify(item.category) === slug).length})
+                {name}
               </option>
             ))}
           </select>

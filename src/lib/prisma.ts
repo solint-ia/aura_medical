@@ -5,17 +5,17 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function getDatabaseUrl() {
-  let url = process.env.DATABASE_URL;
-  if (!url) {
+  const configuredUrl = process.env.DATABASE_URL;
+  if (!configuredUrl) {
     throw new Error("DATABASE_URL is required to initialize Prisma.");
   }
 
-  // Ensure SSL and connection timeout parameters for Vercel Serverless
-  if (!url.includes("sslmode=") && !url.includes("pgbouncer=")) {
-    url += (url.includes("?") ? "&" : "?") + "sslmode=require&connect_timeout=30";
-  }
-
-  return url;
+  const url = new URL(configuredUrl);
+  if (!url.searchParams.has("sslmode")) url.searchParams.set("sslmode", "require");
+  if (!url.searchParams.has("connect_timeout")) url.searchParams.set("connect_timeout", "30");
+  if (!url.searchParams.has("pool_timeout")) url.searchParams.set("pool_timeout", "60");
+  if (url.port === "6543" && !url.searchParams.has("connection_limit")) url.searchParams.set("connection_limit", "5");
+  return url.toString();
 }
 
 export const prisma =
@@ -27,6 +27,10 @@ export const prisma =
       },
     },
     log: ["error", "warn"],
+    transactionOptions: {
+      maxWait: 10_000,
+      timeout: 30_000,
+    },
   });
 
 if (process.env.NODE_ENV !== "production") {

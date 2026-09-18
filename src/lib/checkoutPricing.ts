@@ -2,7 +2,9 @@ import { MAX_DISTINCT_ITEMS, MAX_QUANTITY_PER_ITEM } from "@/lib/checkoutLimits"
 import { roundMoney } from "@/lib/money";
 
 export interface CheckoutItemInput { id?: unknown; quantity?: unknown }
-export interface VerifiedCheckoutItem { id: string; skuCode: string; name: string; quantity: number; unitPrice: number; imagePath?: string; trackStock: boolean }
+/** Embalagem de uma unidade, em cm e kg, quando o produto tem medidas cadastradas. */
+export interface ShippingPackage { width: number; height: number; length: number; weight: number }
+export interface VerifiedCheckoutItem { id: string; skuCode: string; name: string; quantity: number; unitPrice: number; imagePath?: string; trackStock: boolean; package?: ShippingPackage }
 export type VerifiedCheckout = { ok: true; items: VerifiedCheckoutItem[]; subtotal: number } | { ok: false; error: string; status?: number };
 
 export interface ResolvedCheckoutSku {
@@ -17,6 +19,7 @@ export interface ResolvedCheckoutSku {
   lineStatus?: string;
   trackStock: boolean;
   stockQuantity?: number | null;
+  package?: ShippingPackage;
 }
 
 export type CheckoutSkuResolver = (codes: string[]) => Promise<(ResolvedCheckoutSku | null)[]>;
@@ -56,7 +59,7 @@ export async function verifyCheckoutItems(
     if (!sku || !sku.isActive || sku.status !== "PUBLISHED" || sku.lineStatus !== "PUBLISHED") return { ok: false, error: `Produto inválido ou indisponível: ${input.id}.` };
     if (sku.visibility === "INTERNAL" && !options.allowInternal) return { ok: false, error: `Produto inválido ou indisponível: ${input.id}.` };
     if (sku.trackStock && input.quantity > (sku.stockQuantity || 0)) return { ok: false, error: `Estoque insuficiente para ${sku.name}.` };
-    items.push({ id: input.id, skuCode: sku.skuCode, name: sku.name, quantity: input.quantity, unitPrice: sku.unitPrice, imagePath: sku.imagePath, trackStock: sku.trackStock });
+    items.push({ id: input.id, skuCode: sku.skuCode, name: sku.name, quantity: input.quantity, unitPrice: sku.unitPrice, imagePath: sku.imagePath, trackStock: sku.trackStock, package: sku.package });
   }
 
   const subtotal = roundMoney(items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0));

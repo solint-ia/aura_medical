@@ -34,7 +34,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Aura Regenera",
   description:
-    "Catálogo de biotecnologia regenerativa para profissionais: bioregenerativos PBSerum, protocolos clínicos e dermocosméticos La Cutanée.",
+    "Catálogo de biotecnologia regenerativa para profissionais: bioregenerativos Pbserum, protocolos clínicos e dermocosméticos La Cutanée.",
   metadataBase: new URL(SITE_URL),
   icons: {
     icon: "/logos/AR-favicon.png",
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Aura Regenera",
     description:
-      "PBSerum e La Cutanée em um catálogo de tecnologias regenerativas para a prática clínica.",
+      "Pbserum e La Cutanée em um catálogo de tecnologias regenerativas para a prática clínica.",
     locale: "pt_BR",
     type: "website",
   },
