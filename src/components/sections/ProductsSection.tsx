@@ -7,7 +7,7 @@ export function ProductsSection() {
     <section
       id="produtos"
       aria-labelledby="produtos-title"
-      className="relative overflow-hidden bg-canvas px-[clamp(20px,4vw,56px)] py-[clamp(64px,8vw,104px)] text-content transition-colors duration-300"
+      className="anchor-section relative overflow-hidden bg-canvas px-[clamp(20px,4vw,56px)] py-[clamp(64px,8vw,104px)] text-content transition-colors duration-300"
     >
       {/* Ambient background glow */}
       <div

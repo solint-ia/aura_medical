@@ -4,7 +4,9 @@ import { useState } from "react";
 import Image from "next/image";
 import { GripVertical, ImagePlus, Plus, Trash2 } from "lucide-react";
 
-import { assetUrl } from "./assetUrl";
+import { assetUrl, type AdminAsset } from "./assetUrl";
+import { FramingButton, FramingEditor } from "./FramingEditor";
+import { framingStyle, toFraming } from "@/lib/imageFraming";
 import { MediaModal } from "./AdminSelectors";
 import { AdminField, AdminSwitch, inputClass, StatusBadge } from "./AdminUi";
 import { useMediaAssets } from "./useMediaAssets";
@@ -42,6 +44,7 @@ export function ProductVisualEditor({
   const { byId, reload } = useMediaAssets();
   const [picking, setPicking] = useState<number | null>(null);
   const [drawer, setDrawer] = useState<"precos" | "casos" | null>(null);
+  const [framingAsset, setFramingAsset] = useState<AdminAsset | null>(null);
 
   const line = lines.find((entry) => entry.id === form.lineId);
   const category = categories.find((entry) => entry.id === form.categoryId);
@@ -93,7 +96,8 @@ export function ProductVisualEditor({
     );
   }
 
-  const cover = images[0] ? assetUrl(byId.get(images[0].assetId)) : "";
+  const coverAsset = images[0] ? byId.get(images[0].assetId) : undefined;
+  const cover = assetUrl(coverAsset);
 
   return (
     <div className="line-scope grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]" style={lineStyle}>
@@ -105,7 +109,7 @@ export function ProductVisualEditor({
           <EditRegion label="Fotos">
             <div className="product-halo relative flex min-h-[300px] items-center justify-center overflow-hidden rounded-[32px] md:min-h-[400px]">
               {cover ? (
-                <Image src={cover} alt="" fill sizes="40vw" className="object-contain p-8" />
+                <Image src={cover} alt="" fill sizes="40vw" className="object-contain p-8" style={framingStyle(toFraming(coverAsset))} />
               ) : (
                 <span className="text-sm text-content/40">Sem foto</span>
               )}
@@ -116,11 +120,13 @@ export function ProductVisualEditor({
               >
                 {cover ? "Trocar foto de capa" : "Escolher foto de capa"}
               </button>
+              {coverAsset ? <FramingButton onClick={() => setFramingAsset(coverAsset)} /> : null}
             </div>
 
             <div className="mt-3 flex flex-wrap gap-2">
               {images.map((image, index) => {
-                const url = assetUrl(byId.get(image.assetId));
+                const asset = byId.get(image.assetId);
+                const url = assetUrl(asset);
                 return (
                   <div
                     key={index}
@@ -133,13 +139,14 @@ export function ProductVisualEditor({
                     }}
                     className="group/thumb relative h-16 w-16 overflow-hidden rounded-xl border border-content/15 bg-raised"
                   >
-                    {url ? <Image src={url} alt="" fill sizes="64px" className="object-contain" /> : null}
+                    {url ? <Image src={url} alt="" fill sizes="64px" className="object-contain" style={framingStyle(toFraming(asset))} /> : null}
                     <button
                       type="button"
                       onClick={() => setPicking(index)}
                       className="absolute inset-0 bg-panel/60 opacity-0 transition group-hover/thumb:opacity-100"
                       aria-label={`Trocar foto ${index + 1}`}
                     />
+                    {asset ? <FramingButton compact onClick={() => setFramingAsset(asset)} /> : null}
                     <span className="pointer-events-none absolute top-0.5 left-0.5 opacity-0 group-hover/thumb:opacity-100">
                       <GripVertical className="h-3 w-3 text-on-panel" />
                     </span>
@@ -461,6 +468,10 @@ export function ProductVisualEditor({
           <PublicAddress path={`/produtos/${form.slug || "…"}`} canOpen={Boolean(form.slug) && form.status === "PUBLISHED"} />
         </SidebarSection>
       </aside>
+
+      {framingAsset ? (
+        <FramingEditor asset={framingAsset} onClose={() => setFramingAsset(null)} onSaved={reload} />
+      ) : null}
 
       {picking !== null ? (
         <MediaModal

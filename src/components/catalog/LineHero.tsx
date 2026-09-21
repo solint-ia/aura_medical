@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { FramedImage } from "@/components/ui/FramedImage";
 import Link from "next/link";
 
 import type { CatalogItem } from "@/data/catalog";
@@ -85,7 +86,7 @@ export function LineHero({ line, products }: LineHeroProps) {
               {showcase.map((product, index) => (
                 <div key={product.slug} className="line-product-rise absolute bottom-[18%] w-[27%]" style={{ left: `${6 + index * 23}%`, animationDelay: `${index * 60}ms` }}>
                   <div className="relative h-[260px]">
-                    <Image src={product.image} alt={product.name} fill sizes="25vw" className="object-contain drop-shadow-[0_18px_18px_rgba(10,22,34,.22)]" />
+                    <FramedImage src={product.image} alt={product.name} framing={product.imageFraming} fill sizes="25vw" className="object-contain drop-shadow-[0_18px_18px_rgba(10,22,34,.22)]" />
                   </div>
                   <p className="mt-3 truncate text-center font-mono text-[10px] uppercase tracking-wider opacity-60">
                     {product.presentation.match(/\d+\s*(?:ml|g)/i)?.[0] || product.name}

@@ -52,7 +52,10 @@ export const skuPatchSchema = skuSchema.omit({ code: true }).partial();
 export const uploadRequestSchema = z.object({ filename: z.string().min(1).max(180), mimeType: z.enum(["image/png", "image/jpeg", "image/webp"]), sizeBytes: z.number().int().positive().max(8 * 1024 * 1024) });
 export const mediaCategorySchema = z.enum(["PRODUCT", "PROTOCOL", "CLINICAL_CASE", "BRAND", "OTHER"]);
 export const mediaConfirmSchema = z.object({ path: z.string().min(1).max(500), alt: z.string().min(2).max(300), purpose: z.enum(["catalog", "clinical"]).default("catalog"), category: mediaCategorySchema.nullish(), lineId: z.string().uuid().nullish() });
-export const mediaPatchSchema = z.object({ alt: z.string().min(2).max(300).optional(), category: mediaCategorySchema.nullish(), lineId: z.string().uuid().nullish() }).refine((value) => Object.keys(value).length > 0, "Nada para atualizar.");
+export const mediaFitSchema = z.enum(["COVER", "CONTAIN"]);
+/** Enquadramento: modo de preenchimento, ponto focal em % e zoom a partir dele. */
+export const mediaFramingSchema = { fit: mediaFitSchema.optional(), focalX: z.number().int().min(0).max(100).optional(), focalY: z.number().int().min(0).max(100).optional(), zoom: z.number().int().min(100).max(300).optional() };
+export const mediaPatchSchema = z.object({ alt: z.string().min(2).max(300).optional(), category: mediaCategorySchema.nullish(), lineId: z.string().uuid().nullish(), ...mediaFramingSchema }).refine((value) => Object.keys(value).length > 0, "Nada para atualizar.");
 
 export const protocolSchema = z.object({
   lineId: z.string().uuid(), slug: slug(120), name: z.string().min(2).max(160), introduction: z.string().min(2), note: z.string().nullish(), indications: z.array(z.string()).default([]),

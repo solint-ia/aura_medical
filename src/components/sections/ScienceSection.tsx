@@ -7,7 +7,7 @@ export function ScienceSection() {
     <section
       id="ciencia"
       aria-labelledby="ciencia-title"
-      className="relative overflow-hidden bg-panel px-[clamp(20px,4vw,56px)] py-[clamp(64px,8vw,104px)]"
+      className="anchor-section relative overflow-hidden bg-panel px-[clamp(20px,4vw,56px)] py-[clamp(64px,8vw,104px)]"
     >
       {/* Concentric ambient background rings */}
       <div

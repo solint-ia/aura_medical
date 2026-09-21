@@ -104,6 +104,11 @@ enum MediaProvider {
   SUPABASE
 }
 
+enum MediaFit {
+  COVER
+  CONTAIN
+}
+
 enum MediaCategory {
   PRODUCT
   PROTOCOL
@@ -455,6 +460,10 @@ model MediaAsset {
   mimeType         String          @map("mime_type") @db.VarChar(40)
   sizeBytes        Int             @map("size_bytes")
   hasAlpha         Boolean         @default(false) @map("has_alpha")
+  fit              MediaFit        @default(COVER)
+  focalX           Int             @default(50) @map("focal_x")
+  focalY           Int             @default(50) @map("focal_y")
+  zoom             Int             @default(100)
   category         MediaCategory?
   lineId           String?         @map("line_id") @db.Uuid
   line             Line?           @relation(fields: [lineId], references: [id], onDelete: SetNull)

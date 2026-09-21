@@ -24,8 +24,11 @@ E-commerce B2B da Aura Regenera para profissionais. O catálogo reúne Pbserum e
 - `ProductImage` e `ProtocolImage` mantêm galerias ordenadas com legenda; a primeira imagem é a capa do produto.
 - `src/server/catalog/repository.ts` concentra leituras e resolução de SKUs; componentes nunca consultam o Prisma diretamente.
 - Imagens comerciais ficam no bucket Supabase Storage `Catalogo`; `MediaAsset` guarda caminho, metadados, tipo (`MediaCategory`) e marca para filtrar o acervo.
+- `MediaAsset` também guarda o enquadramento (`fit`, `focalX`, `focalY`, `zoom`): o padrão preenche o espaço e o admin ajusta em `FramingEditor`. O site aplica o ajuste por `FramedImage`/`framingStyle`, e ele vale em todo lugar onde a foto aparece.
 - `/admin/*` oferece listas e editores protegidos; toda rota `/api/admin/**` usa `requireAdmin`, Zod e auditoria nas mutações.
 - `src/components/catalog/`: vitrine, filtros, card, detalhe e painel de compra.
+- `SubNavBar` fixa as pílulas de seção abaixo do cabeçalho nas páginas longas (marca, ciência, detalhe). Ela mede cabeçalho e barra, publica `--anchor-offset` e só mostra seções que existem na página; toda seção alvo usa a classe `anchor-section`.
+- O caminho acima do título vem da navegação real da aba (`navigationTrail`); `Breadcrumbs items` declara a hierarquia usada no JSON-LD e em quem chega direto por link.
 - `/produtos/[slug]`: detalhes de produto.
 - `/protocolos/[slug]`: detalhes de protocolo no mesmo sistema visual.
 - `/linhas/[slug]`: página institucional e catálogo de cada marca.
@@ -54,6 +57,7 @@ Preços exibidos pelo cliente não são confiáveis. O checkout sempre resolve n
 - A grafia publicada da marca é `Pbserum`; nomes de registro ANVISA mantêm a transcrição oficial.
 - Protocolos descrevem o kit em ampolas no total (`src/lib/protocolVials.ts`); Celulite é a exceção por região.
 - Informações La Cutanée não recebidas do fornecedor aparecem como “Ficha técnica em confirmação”; dados internos pendentes ficam apenas no módulo de dados.
+- Antes de acusar falha ao salvar, os editores do admin releem o registro (`matchesSaved`): resposta perdida ou conflito com a própria gravação anterior contam como salvo.
 - O frete envia ao Melhor Envio as medidas de uma unidade e a quantidade; sem peso e dimensões cadastrados, usa a embalagem padrão de 10 × 15 × 20 cm e 0,5 kg.
 
 ## Conteúdo legado

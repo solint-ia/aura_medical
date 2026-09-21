@@ -261,3 +261,10 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* Seções alcançadas pela sub-barra de navegação. O deslocamento acompanha a
+   altura real do cabeçalho e da barra, medidas em `SubNavBar`; o valor de
+   reserva cobre o intervalo antes da primeira medição. */
+.anchor-section {
+  scroll-margin-top: var(--anchor-offset, 9rem);
+}

@@ -4,7 +4,9 @@ import { useState } from "react";
 import Image from "next/image";
 import { ImagePlus, Plus, Trash2 } from "lucide-react";
 
-import { assetUrl } from "./assetUrl";
+import { assetUrl, type AdminAsset } from "./assetUrl";
+import { FramingButton, FramingEditor } from "./FramingEditor";
+import { framingStyle, toFraming } from "@/lib/imageFraming";
 import { MediaModal } from "./AdminSelectors";
 import { useMediaAssets } from "./useMediaAssets";
 import { ClinicalCaseManager } from "./ClinicalCaseManager";
@@ -41,6 +43,7 @@ export function ProtocolVisualEditor({
 }) {
   const { byId, reload } = useMediaAssets();
   const [picking, setPicking] = useState<Picking>(null);
+  const [framingAsset, setFramingAsset] = useState<AdminAsset | null>(null);
   const [drawer, setDrawer] = useState<"precos" | "casos" | null>(null);
 
   const line = lines.find((entry) => entry.id === form.lineId);
@@ -63,8 +66,10 @@ export function ProtocolVisualEditor({
       } as React.CSSProperties)
     : undefined;
 
-  const cover = assetUrl(byId.get(form.coverImageId));
-  const mapping = assetUrl(byId.get(form.mappingImageId));
+  const coverAsset = byId.get(form.coverImageId);
+  const mappingAsset = byId.get(form.mappingImageId);
+  const cover = assetUrl(coverAsset);
+  const mapping = assetUrl(mappingAsset);
 
   function pickedAsset(assetId: string) {
     if (!picking) return;
@@ -93,7 +98,7 @@ export function ProtocolVisualEditor({
         <div className="grid gap-6 lg:grid-cols-2">
           <EditRegion label="Fotos">
             <div className="relative flex min-h-[320px] items-center justify-center overflow-hidden rounded-[32px] bg-card md:min-h-[420px]">
-              {cover ? <Image src={cover} alt="" fill sizes="46vw" className="object-cover" /> : <span className="text-sm text-content/40">Sem foto de capa</span>}
+              {cover ? <Image src={cover} alt="" fill sizes="46vw" className="object-cover" style={framingStyle(toFraming(coverAsset))} /> : <span className="text-sm text-content/40">Sem foto de capa</span>}
               <button
                 type="button"
                 onClick={() => setPicking({ kind: "cover" })}
@@ -101,20 +106,23 @@ export function ProtocolVisualEditor({
               >
                 {cover ? "Trocar foto de capa" : "Escolher foto de capa"}
               </button>
+              {coverAsset ? <FramingButton onClick={() => setFramingAsset(coverAsset)} /> : null}
             </div>
 
             <div className="mt-3 flex flex-wrap gap-2">
               {images.map((image, index) => {
-                const url = assetUrl(byId.get(image.assetId));
+                const asset = byId.get(image.assetId);
+                const url = assetUrl(asset);
                 return (
                   <div key={index} className="group/thumb relative h-16 w-16 overflow-hidden rounded-xl border border-content/15 bg-raised">
-                    {url ? <Image src={url} alt="" fill sizes="64px" className="object-cover" /> : null}
+                    {url ? <Image src={url} alt="" fill sizes="64px" className="object-cover" style={framingStyle(toFraming(asset))} /> : null}
                     <button
                       type="button"
                       onClick={() => setPicking({ kind: "gallery", index })}
                       className="absolute inset-0 bg-panel/60 opacity-0 transition group-hover/thumb:opacity-100"
                       aria-label={`Trocar foto ${index + 1}`}
                     />
+                    {asset ? <FramingButton compact onClick={() => setFramingAsset(asset)} /> : null}
                     <button
                       type="button"
                       onClick={() => change("images", images.filter((_, position) => position !== index))}
@@ -338,7 +346,7 @@ export function ProtocolVisualEditor({
               <div className="mt-5">
                 <p className="mb-2 font-mono text-xs tracking-wider text-content/50 uppercase">Imagem de mapeamento</p>
                 <div className="relative h-40 overflow-hidden rounded-xl border border-content/15 bg-raised">
-                  {mapping ? <Image src={mapping} alt="" fill sizes="30vw" className="object-cover" /> : null}
+                  {mapping ? <Image src={mapping} alt="" fill sizes="30vw" className="object-cover" style={framingStyle(toFraming(mappingAsset))} /> : null}
                   <button
                     type="button"
                     onClick={() => setPicking({ kind: "mapping" })}
@@ -346,6 +354,7 @@ export function ProtocolVisualEditor({
                   >
                     {mapping ? "Trocar imagem" : "Escolher imagem"}
                   </button>
+                  {mappingAsset ? <FramingButton onClick={() => setFramingAsset(mappingAsset)} /> : null}
                   {!mapping ? (
                     <span className="pointer-events-none absolute inset-0 grid place-items-center text-xs text-content/40">
                       Sem imagem de mapeamento
@@ -464,6 +473,10 @@ export function ProtocolVisualEditor({
           onPick={pickedAsset}
           onUploaded={reload}
         />
+      ) : null}
+
+      {framingAsset ? (
+        <FramingEditor asset={framingAsset} onClose={() => setFramingAsset(null)} onSaved={reload} />
       ) : null}
 
       {drawer === "precos" ? (

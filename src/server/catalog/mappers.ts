@@ -2,6 +2,7 @@ import type { Prisma } from "@prisma/client";
 
 import type { CatalogItem } from "@/data/catalog";
 import { effectiveStock, isSoldOut, kitsFromComponents } from "./availability";
+import { toFraming } from "@/lib/imageFraming";
 import { protocolVialsLabel } from "@/lib/protocolVials";
 
 export const productInclude = {
@@ -79,7 +80,8 @@ export function mapProduct(row: ProductRow): CatalogItem {
     summary: row.summary,
     tags: row.highlights,
     image: mediaUrl(primaryImage) || "",
-    images: row.images.map((image) => ({ src: mediaUrl(image.asset) || "", alt: image.asset.alt, caption: image.caption || undefined })),
+    imageFraming: toFraming(primaryImage),
+    images: row.images.map((image) => ({ src: mediaUrl(image.asset) || "", alt: image.asset.alt, caption: image.caption || undefined, framing: toFraming(image.asset) })),
     presentation: row.presentation,
     variantName: row.variantName || undefined,
     offers,
@@ -111,7 +113,8 @@ export function mapProtocol(row: ProtocolRow): CatalogItem {
     summary: row.introduction,
     tags: ["Protocolo Clínico"],
     image: mediaUrl(row.coverImage) || "",
-    images: gallery.map((image) => ({ src: mediaUrl(image.asset) || "", alt: image.asset.alt, caption: image.caption || undefined })),
+    imageFraming: toFraming(row.coverImage),
+    images: gallery.map((image) => ({ src: mediaUrl(image.asset) || "", alt: image.asset.alt, caption: image.caption || undefined, framing: toFraming(image.asset) })),
     presentation: protocolVialsLabel(row.slug, row.components.reduce((sum, component) => sum + component.quantity, 0)),
     offers,
     soldOut: isSoldOut(offers),
@@ -140,6 +143,8 @@ function mapClinicalCase(clinicalCase: CaseWithLinks, currentHref: string) {
     description: clinicalCase.description || undefined,
     beforeImage: mediaUrl(clinicalCase.beforeImage) || "",
     afterImage: mediaUrl(clinicalCase.afterImage) || "",
+    beforeFraming: toFraming(clinicalCase.beforeImage),
+    afterFraming: toFraming(clinicalCase.afterImage),
     professional: clinicalCase.professional,
     country: clinicalCase.country || undefined,
     sessions: clinicalCase.sessions,

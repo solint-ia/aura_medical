@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
+import { FramedImage } from "@/components/ui/FramedImage";
 import { SectionIntro } from "@/components/ui/SectionIntro";
 import type { CatalogItem } from "@/data/catalog";
 import { protocolVialsLabel } from "@/lib/protocolVials";
@@ -26,16 +27,16 @@ export function ProtocolShowcase({ items, lineName }: { items: CatalogItem[]; li
     <section
       id="protocolos"
       aria-labelledby="protocolos-title"
-      className="relative scroll-mt-36 overflow-hidden bg-panel px-[clamp(20px,4vw,56px)] py-[clamp(64px,8vw,104px)]"
+      className="anchor-section relative overflow-hidden bg-raised px-[clamp(20px,4vw,56px)] py-[clamp(64px,8vw,104px)] dark:bg-panel"
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -top-65 -right-50 h-[600px] w-[600px] rounded-full border border-on-panel/6"
+        className="pointer-events-none absolute -top-65 -right-50 h-[600px] w-[600px] rounded-full border border-content/8 dark:border-on-panel/6"
       />
 
       <div className="relative mx-auto max-w-[1280px]">
         <SectionIntro
-          tone="dark"
+          tone="adaptive"
           titleId="protocolos-title"
           eyebrow="Protocolos · Configurador interativo"
           title={`Protocolos ${lineName} prontos, com a proporção certa para cada indicação.`}
@@ -56,8 +57,8 @@ export function ProtocolShowcase({ items, lineName }: { items: CatalogItem[]; li
                   onClick={() => setSelectedSlug(item.slug)}
                   className={`flex-none rounded-full border px-5 py-3 text-[13.5px] font-semibold whitespace-nowrap transition-colors ${
                     isSelected
-                      ? "border-accent-panel bg-accent-panel text-accent-fg"
-                      : "border-on-panel/24 text-on-panel/78 hover:border-accent-panel/60"
+                      ? "border-accent bg-accent text-accent-fg dark:border-accent-panel dark:bg-accent-panel"
+                      : "border-content/20 bg-card text-content/78 hover:border-accent/60 dark:border-on-panel/24 dark:bg-transparent dark:text-on-panel/78 dark:hover:border-accent-panel/60"
                   }`}
                 >
                   {item.name}
@@ -81,19 +82,19 @@ export function ProtocolShowcase({ items, lineName }: { items: CatalogItem[]; li
                   onClick={() => setSelectedSlug(item.slug)}
                   className={`flex w-full items-center justify-between gap-3.5 rounded-xl px-[22px] py-[19px] text-left transition-all ${
                     isSelected
-                      ? "bg-on-panel/12 font-semibold shadow-sm"
-                      : "opacity-75 hover:bg-on-panel/5 hover:opacity-100"
+                      ? "bg-card font-semibold shadow-[0_10px_28px_rgba(18,40,60,0.09)] dark:bg-on-panel/12 dark:shadow-sm"
+                      : "opacity-65 hover:bg-content/5 hover:opacity-100 dark:hover:bg-on-panel/5"
                   } ${soldOut && !isSelected ? "opacity-45" : ""}`}
                 >
                   <span className="flex min-w-0 items-center gap-3.5">
-                    <span className={`flex-none font-mono text-[11px] ${isSelected ? "text-accent-panel" : "text-on-panel/35"}`}>
+                    <span className={`flex-none font-mono text-[11px] ${isSelected ? "text-accent dark:text-accent-panel" : "text-content/35 dark:text-on-panel/35"}`}>
                       {String(index + 1).padStart(2, "0")}
                     </span>
-                    <span className={`truncate text-[16.5px] font-semibold ${isSelected ? "text-on-panel" : "text-on-panel/55"}`}>
+                    <span className={`truncate text-[16.5px] font-semibold ${isSelected ? "text-content dark:text-on-panel" : "text-content/55 dark:text-on-panel/55"}`}>
                       {item.name}
                     </span>
                   </span>
-                  <span className={`flex-none font-mono text-xs whitespace-nowrap ${isSelected ? "text-accent-panel" : "text-on-panel/35"}`}>
+                  <span className={`flex-none font-mono text-xs whitespace-nowrap ${isSelected ? "text-accent dark:text-accent-panel" : "text-content/35 dark:text-on-panel/35"}`}>
                     {soldOut ? "Esgotado" : vials ? `${vials} amp.` : ""}
                   </span>
                 </button>
@@ -117,12 +118,12 @@ function ProtocolCard({ item }: { item: CatalogItem }) {
     <article
       // Re-montar no slug repete a animação de entrada a cada troca.
       key={item.slug}
-      className="flex animate-fade-up flex-col gap-7 rounded-[32px] bg-canvas p-[clamp(28px,4vw,48px)] shadow-[0_30px_80px_rgba(4,12,20,0.4)] [animation-duration:280ms] motion-reduce:animate-none dark:bg-card"
+      className="flex animate-fade-up flex-col gap-7 rounded-[32px] border border-content/8 bg-card p-[clamp(28px,4vw,48px)] shadow-[0_24px_60px_rgba(18,40,60,0.12)] [animation-duration:280ms] motion-reduce:animate-none dark:border-on-panel/6 dark:shadow-[0_30px_80px_rgba(4,12,20,0.4)]"
     >
       <header className="flex items-center gap-5 sm:gap-6">
         {item.image ? (
           <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-[3px] border-(--line-accent)/50 shadow-lg ring-4 ring-(--line-accent)/15 sm:h-24 sm:w-24 md:h-28 md:w-28">
-            <Image src={item.image} alt="" fill sizes="(max-width: 768px) 96px, 112px" className="object-cover" />
+            <FramedImage src={item.image} alt="" framing={item.imageFraming} fill sizes="(max-width: 768px) 96px, 112px" className="object-cover" />
           </div>
         ) : null}
         <div className="flex min-w-0 flex-col">
@@ -149,7 +150,7 @@ function ProtocolCard({ item }: { item: CatalogItem }) {
             {protocol.composition.map((entry) => (
               <li
                 key={`${entry.product}-${entry.role}`}
-                className="flex items-center gap-3 rounded-[18px] border border-content/10 bg-card px-4 py-2.5 text-sm text-content shadow-xs dark:bg-canvas"
+                className="flex items-center gap-3 rounded-[18px] border border-content/10 bg-raised px-4 py-2.5 text-sm text-content shadow-xs dark:bg-canvas"
               >
                 {entry.image ? (
                   <Image

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-export type SectionTone = "light" | "dark";
+export type SectionTone = "light" | "dark" | "adaptive";
 
 interface SectionIntroProps {
   eyebrow: string;
@@ -25,6 +25,11 @@ const TONE_CLASSES: Record<
     eyebrow: "text-accent-panel",
     title: "text-on-panel",
     lead: "text-on-panel/78",
+  },
+  adaptive: {
+    eyebrow: "text-accent dark:text-accent-panel",
+    title: "text-content dark:text-on-panel",
+    lead: "text-content/72 dark:text-on-panel/78",
   },
 };
 

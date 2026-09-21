@@ -3,6 +3,8 @@ import Link from "next/link";
 import type { CatalogItem, DetailSection } from "@/data/catalog";
 import { BackLink } from "@/components/navigation/BackLink";
 import { Breadcrumbs } from "@/components/navigation/Breadcrumbs";
+import { SubNavBar, type SubNavItem } from "@/components/navigation/SubNavBar";
+import { anchorId } from "@/lib/anchors";
 import { Tag } from "@/components/ui/Tag";
 import { CatalogCard } from "./CatalogCard";
 import { LineScope } from "./LineScope";
@@ -10,17 +12,37 @@ import { PurchasePanel } from "./PurchasePanel";
 import { ProductGallery } from "./ProductGallery";
 import { ClinicalCasesSection } from "./ClinicalCasesSection";
 
+/** Blocos de conteúdo da página, na ordem em que aparecem. */
+function detailSections(item: CatalogItem): SubNavItem[] {
+  if (item.protocol) {
+    return [
+      { id: "composicao", label: "Composição" },
+      ...(item.protocol.reconstitution.length ? [{ id: anchorId("Reconstituição"), label: "Preparo" }] : []),
+      ...(item.protocol.expectedResults.length ? [{ id: anchorId("Resultados esperados"), label: "Resultados" }] : []),
+    ];
+  }
+  return item.sections.map((section) => ({ id: anchorId(section.title), label: section.title }));
+}
+
 export function CatalogDetail({ item, related = [] }: { item: CatalogItem; related?: CatalogItem[] }) {
   const line = item.lineInfo || { id: item.line, name: item.line, descriptor: "", colors: { surface: "#EEF1F5", surfaceDark: "#112233", accent: "#B4872D", accentDark: "#D8B657", foreground: "#12283C", foregroundDark: "#F7F5F0" } };
   const protocol = item.protocol;
+  const cases = item.clinicalCases ?? [];
+  const navItems: SubNavItem[] = [
+    { id: "visao-geral", label: "Visão geral" },
+    ...detailSections(item),
+    ...(cases.length ? [{ id: "casos-clinicos", label: protocol ? "Antes & Depois" : "Casos clínicos" }] : []),
+    ...(related.length ? [{ id: "relacionados", label: protocol ? "Outros kits" : "Relacionados" }] : []),
+  ];
 
   return <LineScope colors={line.colors}>
+    <SubNavBar items={navItems} brandLabel={line.name} />
     <main className="pb-20 pt-5 text-content md:pt-8">
       <div className="mx-auto max-w-[1280px] px-[clamp(16px,4vw,48px)]">
         <Breadcrumbs items={[{ label: "Início", href: "/" }, { label: line.name, href: `/linhas/${line.id}` }, ...(item.kind === "protocol" ? [{ label: "Protocolos", href: `/linhas/${line.id}#protocolos` }] : []), { label: item.name }]} />
         <div className="mt-5"><BackLink fallbackHref={item.kind === "protocol" ? `/linhas/${line.id}#protocolos` : `/linhas/${line.id}`} /></div>
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <div id="visao-geral" className="anchor-section mt-6 grid gap-6 lg:grid-cols-2">
           <ProductGallery images={item.images} name={item.name} cover={item.image} kind={item.kind} />
 
           <section className="rounded-[32px] border border-content/10 bg-card p-6 shadow-[0_18px_55px_rgba(18,40,60,0.08)] md:p-10">
@@ -36,19 +58,19 @@ export function CatalogDetail({ item, related = [] }: { item: CatalogItem; relat
         <div className="mt-12">
           {protocol ? <ProtocolSections item={item} /> : <EditorialSections sections={item.sections} />}
         </div>
-        <ClinicalCasesSection cases={item.clinicalCases ?? []} />
+        <ClinicalCasesSection cases={cases} />
       </div>
 
-      {related.length ? <section className="mt-16 bg-raised px-[clamp(16px,4vw,48px)] py-14"><div className="mx-auto max-w-[1280px]"><div className="mb-7 flex items-end justify-between gap-4"><div><p className="font-mono text-xs uppercase tracking-[.15em] text-(--line-accent)">Continue explorando</p><h2 className="mt-2 font-display text-3xl font-semibold">Mais da {line.name}</h2></div><Link href={`/linhas/${line.id}`} className="text-sm font-semibold">Ver linha completa</Link></div><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{related.map((entry) => <CatalogCard key={entry.slug} item={entry} />)}</div></div></section> : null}
+      {related.length ? <section id="relacionados" className="anchor-section mt-16 bg-raised px-[clamp(16px,4vw,48px)] py-14"><div className="mx-auto max-w-[1280px]"><div className="mb-7 flex items-end justify-between gap-4"><div><p className="font-mono text-xs uppercase tracking-[.15em] text-(--line-accent)">Continue explorando</p><h2 className="mt-2 font-display text-3xl font-semibold">Mais da {line.name}</h2></div><Link href={`/linhas/${line.id}`} className="text-sm font-semibold">Ver linha completa</Link></div><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{related.map((entry) => <CatalogCard key={entry.slug} item={entry} />)}</div></div></section> : null}
     </main>
   </LineScope>;
 }
 
 function EditorialSections({ sections }: { sections: DetailSection[] }) {
-  return <>{sections.map((section) => <section key={section.title} className="grid border-t border-content/10 py-10 md:py-14 lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] lg:gap-12"><h2 className="font-display text-xl font-semibold lg:sticky lg:top-32 lg:self-start">{section.title}</h2><div className="mt-5 max-w-[62ch] text-[17px] leading-[1.7] text-content/75 lg:mt-0">{section.body ? <p>{section.body}</p> : null}{section.items?.length ? <ul className="mt-3 divide-y divide-content/10">{section.items.map((entry) => <li key={entry} className="py-3">{entry}</li>)}</ul> : null}</div></section>)}</>;
+  return <>{sections.map((section) => <section key={section.title} id={anchorId(section.title)} className="anchor-section grid border-t border-content/10 py-10 md:py-14 lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] lg:gap-12"><h2 className="font-display text-xl font-semibold lg:sticky lg:top-32 lg:self-start">{section.title}</h2><div className="mt-5 max-w-[62ch] text-[17px] leading-[1.7] text-content/75 lg:mt-0">{section.body ? <p>{section.body}</p> : null}{section.items?.length ? <ul className="mt-3 divide-y divide-content/10">{section.items.map((entry) => <li key={entry} className="py-3">{entry}</li>)}</ul> : null}</div></section>)}</>;
 }
 
 function ProtocolSections({ item }: { item: CatalogItem }) {
   const protocol = item.protocol!;
-  return <><section className="grid border-t border-content/10 py-10 md:py-14 lg:grid-cols-[15rem_1fr] lg:gap-12"><h2 className="font-display text-xl font-semibold">Composição</h2><div className="mt-5 overflow-x-auto lg:mt-0"><table className="w-full border-collapse text-left text-sm"><thead className="font-mono text-xs uppercase tracking-wider text-content/55"><tr><th className="border-b border-content/15 py-3">Ampolas</th><th className="border-b border-content/15 py-3">Produto</th><th className="border-b border-content/15 py-3">Função</th></tr></thead><tbody>{protocol.composition.map((entry) => <tr key={`${entry.product}-${entry.role}`}><td className="border-b border-content/10 py-4">{entry.quantity}</td><td className="border-b border-content/10 py-4 font-semibold">{entry.product}</td><td className="border-b border-content/10 py-4">{entry.role}</td></tr>)}</tbody></table></div></section><EditorialSections sections={[{ title: "Reconstituição", items: protocol.reconstitution }, { title: "Resultados esperados", items: protocol.expectedResults }]} /></>;
+  return <><section id="composicao" className="anchor-section grid border-t border-content/10 py-10 md:py-14 lg:grid-cols-[15rem_1fr] lg:gap-12"><h2 className="font-display text-xl font-semibold">Composição</h2><div className="mt-5 overflow-x-auto lg:mt-0"><table className="w-full border-collapse text-left text-sm"><thead className="font-mono text-xs uppercase tracking-wider text-content/55"><tr><th className="border-b border-content/15 py-3">Ampolas</th><th className="border-b border-content/15 py-3">Produto</th><th className="border-b border-content/15 py-3">Função</th></tr></thead><tbody>{protocol.composition.map((entry) => <tr key={`${entry.product}-${entry.role}`}><td className="border-b border-content/10 py-4">{entry.quantity}</td><td className="border-b border-content/10 py-4 font-semibold">{entry.product}</td><td className="border-b border-content/10 py-4">{entry.role}</td></tr>)}</tbody></table></div></section><EditorialSections sections={[{ title: "Reconstituição", items: protocol.reconstitution }, { title: "Resultados esperados", items: protocol.expectedResults }]} /></>;
 }

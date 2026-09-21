@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { SaveBar, toSlug } from "./AdminUi";
 import { ProtocolVisualEditor } from "./ProtocolVisualEditor";
+import { matchesSaved } from "./savedMatch";
 
 type Row = Record<string, any>;
 
@@ -98,6 +99,27 @@ export function ProtocolAdminForm({ endpoint, create = false }: { endpoint: stri
     });
   }, [authToken, create, endpoint]);
 
+  /**
+   * O servidor pode gravar e a resposta se perder no caminho — rede instável,
+   * recompilação em desenvolvimento — ou a segunda tentativa bater de frente
+   * com a primeira, que deu certo. Antes de acusar erro, conferimos o registro:
+   * se ele já está como queríamos, a gravação foi um sucesso.
+   */
+  async function alreadySaved(payload: Row) {
+    if (create || !form.id) return false;
+    try {
+      const response = await fetch(endpoint, { headers: { Authorization: `Bearer ${authToken}` } });
+      const data = await responseData(response);
+      if (!data.protocol || !matchesSaved(payload, data.protocol)) return false;
+      setForm((current) => ({ ...current, ...data.protocol }));
+      setState("saved");
+      setMessage("Protocolo salvo.");
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   async function save() {
     setState("saving");
     setMessage("");
@@ -126,6 +148,7 @@ export function ProtocolAdminForm({ endpoint, create = false }: { endpoint: stri
       });
       const data = await responseData(response);
       if (!response.ok || !data.protocol) {
+        if (await alreadySaved(payload)) return;
         setState(response.status === 409 ? "conflict" : "dirty");
         return setMessage(data.error || JSON.stringify(data.fields) || "Não foi possível salvar o protocolo.");
       }
@@ -134,6 +157,7 @@ export function ProtocolAdminForm({ endpoint, create = false }: { endpoint: stri
       setMessage("Protocolo salvo.");
       if (create) router.replace(`/admin/protocolos/${data.protocol.id}`);
     } catch (error) {
+      if (await alreadySaved(payload)) return;
       setState("dirty");
       setMessage(error instanceof Error ? `Falha ao salvar: ${error.message}` : "Falha de comunicação ao salvar o protocolo.");
     }

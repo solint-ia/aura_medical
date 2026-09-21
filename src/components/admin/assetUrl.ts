@@ -6,6 +6,13 @@ export type AdminAsset = {
   alt?: string;
   width?: number;
   height?: number;
+  category?: string | null;
+  lineId?: string | null;
+  fit?: string | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  zoom?: number | null;
+  updatedAt?: string;
 };
 
 /** URL pública de um MediaAsset, montada no cliente (espelha `mediaUrl` do servidor). */

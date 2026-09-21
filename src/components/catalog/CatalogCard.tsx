@@ -1,8 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import type { CatalogItem } from "@/data/catalog";
 import { getCatalogHref } from "@/data/catalog";
+import { FramedImage } from "@/components/ui/FramedImage";
 
 export function CatalogCard({ item }: { item: CatalogItem }) {
   const line = item.lineInfo || { id: item.line, name: item.line, descriptor: "", colors: { surface: "#EEF1F5", surfaceDark: "#112233", accent: "#B4872D", accentDark: "#D8B657", foreground: "#12283C", foregroundDark: "#F7F5F0" } };
@@ -45,9 +45,10 @@ export function CatalogCard({ item }: { item: CatalogItem }) {
             Protocolo Clínico
           </span>
         ) : null}
-        <Image
+        <FramedImage
           src={item.image}
           alt={displayName}
+          framing={item.imageFraming}
           fill
           sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 30vw"
           className={

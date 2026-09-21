@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Search, Trash2, Upload } from "lucide-react";
+import { ChevronLeft, ChevronRight, Crop, Search, Trash2, Upload } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { assetUrl } from "./assetUrl";
 import { inputClass } from "./AdminUi";
 import { MEDIA_CATEGORIES } from "./mediaCategories";
+import { FramingEditor } from "./FramingEditor";
+import { framingStyle, toFraming } from "@/lib/imageFraming";
 
 type Asset = {
   id: string;
@@ -18,6 +20,10 @@ type Asset = {
   height?: number;
   category?: string | null;
   lineId?: string | null;
+  fit?: string | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  zoom?: number | null;
   updatedAt?: string;
 };
 
@@ -38,6 +44,7 @@ export function MediaLibrary() {
   const [uploadLineId, setUploadLineId] = useState("");
   const [dragging, setDragging] = useState(false);
   const [message, setMessage] = useState("");
+  const [framingAsset, setFramingAsset] = useState<Asset | null>(null);
 
   const headers = (json = false) => ({
     ...(json ? { "Content-Type": "application/json" } : {}),
@@ -206,7 +213,7 @@ export function MediaLibrary() {
           return (
             <article key={asset.id} className="overflow-hidden rounded-2xl border border-content/10 bg-card">
               <div className="relative h-48 bg-raised">
-                {url ? <Image src={url} alt={asset.alt} fill sizes="(max-width: 640px) 90vw, 25vw" className="object-contain p-3" /> : null}
+                {url ? <Image src={url} alt={asset.alt} fill sizes="(max-width: 640px) 90vw, 25vw" className="object-contain p-3" style={framingStyle(toFraming(asset))} /> : null}
               </div>
               <div className="space-y-2.5 p-4">
                 <textarea
@@ -250,6 +257,9 @@ export function MediaLibrary() {
                   <span className="text-[10px] text-content/45">
                     {asset.width}×{asset.height}
                   </span>
+                  <button type="button" onClick={() => setFramingAsset(asset)} className="ml-auto inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-content/70 hover:text-accent">
+                    <Crop className="h-3.5 w-3.5" /> Enquadramento
+                  </button>
                   <button type="button" onClick={() => void remove(asset)} className="p-2 text-red-600" aria-label="Excluir imagem">
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -261,6 +271,14 @@ export function MediaLibrary() {
       </div>
 
       {!assets.length ? <p className="mt-10 text-center text-sm text-content/55">Nenhuma imagem encontrada com esses filtros.</p> : null}
+
+      {framingAsset ? (
+        <FramingEditor
+          asset={framingAsset}
+          onClose={() => setFramingAsset(null)}
+          onSaved={(saved) => setAssets((current) => current.map((item) => (item.id === saved.id ? { ...item, ...saved } : item)))}
+        />
+      ) : null}
 
       <div className="mt-6 flex items-center justify-between text-xs text-content/60">
         <span>{total} imagem(ns)</span>

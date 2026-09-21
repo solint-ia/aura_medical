@@ -7,6 +7,8 @@ import { useAuth } from "@/context/AuthContext";
 import { assetUrl, type AdminAsset } from "./assetUrl";
 import { inputClass } from "./AdminUi";
 import { MEDIA_CATEGORIES, mediaCategoryLabel, type MediaDefaults } from "./mediaCategories";
+import { FramingEditor } from "./FramingEditor";
+import { framingStyle, toFraming } from "@/lib/imageFraming";
 
 type Option = { id: string; name?: string; title?: string; slug?: string };
 
@@ -35,6 +37,7 @@ export function MediaPicker({
   const { authToken } = useAuth();
   const [assets, setAssets] = useState<AdminAsset[]>([]);
   const [open, setOpen] = useState(false);
+  const [framing, setFraming] = useState(false);
 
   const load = useCallback(() => {
     if (!authToken) return;
@@ -60,7 +63,7 @@ export function MediaPicker({
           aria-label={selected ? `Trocar imagem: ${selected.alt}` : "Escolher imagem"}
         >
           {url ? (
-            <Image src={url} alt="" fill sizes="80px" className="object-contain p-1" />
+            <Image src={url} alt="" fill sizes="80px" className="object-contain p-1" style={framingStyle(toFraming(selected))} />
           ) : (
             <ImagePlus className="absolute inset-0 m-auto h-6 w-6 text-content/35" />
           )}
@@ -72,13 +75,22 @@ export function MediaPicker({
               {selected ? "Trocar" : "Escolher"}
             </button>
             {selected ? (
-              <button type="button" onClick={() => onChange("")} className="text-xs font-semibold text-content/55">
-                Remover
-              </button>
+              <>
+                <button type="button" onClick={() => setFraming(true)} className="text-xs font-semibold text-content/55 hover:text-accent">
+                  Ajustar enquadramento
+                </button>
+                <button type="button" onClick={() => onChange("")} className="text-xs font-semibold text-content/55">
+                  Remover
+                </button>
+              </>
             ) : null}
           </div>
         </div>
       </div>
+
+      {framing && selected ? (
+        <FramingEditor asset={selected} onClose={() => setFraming(false)} onSaved={load} />
+      ) : null}
 
       {open ? (
         <MediaModal

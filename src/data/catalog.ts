@@ -1,3 +1,4 @@
+import type { ImageFraming } from "@/lib/imageFraming";
 import type { LineId } from "./lines";
 import { LA_CUTANEE_CATALOG } from "./la-cutanee";
 import { PBSERUM_CATALOG } from "./pbserum";
@@ -28,6 +29,8 @@ export interface CatalogImage {
   src: string;
   alt: string;
   caption?: string;
+  /** Ajuste manual de enquadramento feito no acervo. */
+  framing?: ImageFraming;
 }
 
 export interface CatalogClinicalCase {
@@ -36,6 +39,8 @@ export interface CatalogClinicalCase {
   description?: string;
   beforeImage: string;
   afterImage: string;
+  beforeFraming?: ImageFraming;
+  afterFraming?: ImageFraming;
   professional: string;
   country?: string;
   sessions: number;
@@ -54,6 +59,7 @@ export interface CatalogItem {
   summary: string;
   tags: string[];
   image: string;
+  imageFraming?: ImageFraming;
   images?: CatalogImage[];
   presentation: string;
   offers: CatalogOffer[];

@@ -139,7 +139,7 @@ export function EnzymesBiotechIntroSection() {
     <section
       id={ANVISA_CHAPTER_ID}
       aria-label="Introdução Conceitual e Biotecnologia"
-      className="relative scroll-mt-24 overflow-hidden bg-canvas px-[clamp(20px,4vw,56px)] pt-12 sm:pt-16 md:pt-20 pb-[clamp(64px,8vw,104px)] text-on-panel"
+      className="anchor-section relative overflow-hidden bg-canvas px-[clamp(20px,4vw,56px)] pt-12 sm:pt-16 md:pt-20 pb-[clamp(64px,8vw,104px)] text-on-panel"
     >
       {/* Background ambient radial glows */}
       <div

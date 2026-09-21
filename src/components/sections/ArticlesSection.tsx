@@ -7,7 +7,7 @@ export function ArticlesSection() {
     <section
       id="artigos"
       aria-labelledby="artigos-title"
-      className="bg-canvas px-[clamp(20px,4vw,56px)] py-[clamp(64px,8vw,104px)]"
+      className="anchor-section bg-canvas px-[clamp(20px,4vw,56px)] py-[clamp(64px,8vw,104px)]"
     >
       <div className="mx-auto max-w-[1280px]">
         <SectionIntro

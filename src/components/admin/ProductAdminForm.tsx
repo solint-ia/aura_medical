@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { SaveBar, toSlug } from "./AdminUi";
 import { ProductVisualEditor } from "./ProductVisualEditor";
+import { matchesSaved } from "./savedMatch";
 
 type Row = Record<string, any>;
 
@@ -91,6 +92,27 @@ export function ProductAdminForm({ title, endpoint, create = false }: { title: s
     });
   }, [authToken, create, endpoint]);
 
+  /**
+   * O servidor pode gravar e a resposta se perder no caminho — rede instável,
+   * recompilação em desenvolvimento — ou a segunda tentativa bater de frente
+   * com a primeira, que deu certo. Antes de acusar erro, conferimos o registro:
+   * se ele já está como queríamos, a gravação foi um sucesso.
+   */
+  async function alreadySaved(payload: Row) {
+    if (create || !form.id) return false;
+    try {
+      const response = await fetch(endpoint, { headers: { Authorization: `Bearer ${authToken}` } });
+      const data = await response.json();
+      if (!data.product || !matchesSaved(payload, data.product)) return false;
+      setForm(normalizeProduct(data.product));
+      setState("saved");
+      setMessage("Produto salvo.");
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   async function save() {
     if (savingRef.current) return;
     savingRef.current = true;
@@ -136,6 +158,7 @@ export function ProductAdminForm({ title, endpoint, create = false }: { title: s
       setMessage("Produto salvo.");
       if (create) router.replace(`/admin/produtos/${data.product.id}`);
     } catch (error) {
+      if (await alreadySaved(payload)) return;
       setMessage(error instanceof Error ? error.message : "Falha ao salvar.");
       setState((current) => (current === "conflict" ? current : "dirty"));
     } finally {
