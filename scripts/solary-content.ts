@@ -49,28 +49,28 @@ const MODO_DE_USAR = [
 ].join("\n\n");
 
 const SEGURANCA = [
-  "Dermatologicamente testado e hipoalergênico",
-  "Avaliação dermatológica do potencial de fototoxicidade e fotossensibilização (FTT — IPC.2020.1078)",
-  "Avaliação dermatológica da irritabilidade dérmica primária, acumulada e sensibilização (HRIPT — IPC.2020.1078)",
-  "Não testado em animais",
+  "Segurança: dermatologicamente testado e hipoalergênico",
+  "Segurança: avaliação dermatológica de fototoxicidade e fotossensibilização (FTT)",
+  "Segurança: avaliação de irritabilidade dérmica primária, acumulada e sensibilização (HRIPT)",
+  "Segurança: não testado em animais",
 ];
 
 const VOLUNTARIOS = [
-  "94% gostaram do produto",
-  "94% afirmaram que o produto auxilia contra manchas e clareia",
-  "81% afirmaram que o produto é eficaz contra rugas",
-  "84% afirmaram que o produto auxilia na prevenção do envelhecimento",
-  "80% afirmaram que o produto tem efeito matte",
-  "94% aprovaram o produto",
+  "Voluntários: 94% gostaram do produto",
+  "Voluntários: 94% afirmaram que auxilia contra manchas e clareia",
+  "Voluntários: 81% afirmaram que é eficaz contra rugas",
+  "Voluntários: 84% afirmaram que auxilia na prevenção do envelhecimento",
+  "Voluntários: 80% afirmaram que tem efeito matte",
+  "Voluntários: 94% aprovaram o produto",
 ];
 
 const ENSAIOS = [
-  "Análise físico-química: determinação de teor (TEOR — IPC.2020.1078)",
-  "Determinação do fator de proteção solar, proteção imediata (FPSISOST-PI — IPC.2020.1078)",
-  "Determinação do fator de proteção solar FPS-UVB (FPSISOST — IPC.2020.1078)",
-  "Avaliação do fator de proteção UVA in vitro (UVA — IPC.2020.1078)",
-  "Estudo in vitro de proteção à luz azul e visível (NV.32.02)",
-  "Estudo in vitro de proteção ao infravermelho (NV.32.02)",
+  "Ensaio: análise físico-química, determinação de teor (TEOR)",
+  "Ensaio: fator de proteção solar, proteção imediata (FPSISOST-PI)",
+  "Ensaio: fator de proteção solar FPS-UVB (FPSISOST)",
+  "Ensaio: fator de proteção UVA in vitro (UVA)",
+  "Ensaio: proteção in vitro à luz azul e visível (NV.32.02)",
+  "Ensaio: proteção in vitro ao infravermelho (NV.32.02)",
 ];
 
 const LIVRE_DE = [
@@ -87,24 +87,27 @@ const LIVRE_DE = [
 const INCI_BASE =
   "Aqua, Diethylamino Hydroxybenzoyl Hexyl Benzoate, Tris-Biphenyl Triazine, Decyl Glucoside, Butylene Glycol, Disodium Phosphate, Xanthan Gum, Methylene Bis-Benzotriazolyl Tetramethylbutylphenol, Propylene Glycol, Cetearyl Alcohol, Ethylhexyl Salicylate, Coco-caprylate, Dibutyl Adipate, Cyclopentasiloxane, Dimethicone/Vinyl Dimethicone Crosspolymer, Trimethylsiloxyphenyl Dimethicone, Bis-Ethylhexyloxyphenol Methoxyphenyl Triazine, Glyceryl Stearate, Dicaprylyl Carbonate, Glycerin, Isododecane, Aluminum Starch Octenylsuccinate, Trimethylsiloxysilicate, Ethylhexyl Triazone, Disodium Cetearyl Sulfosuccinate, Benzyl Alcohol, Glyceryl Caprylate, Glyceryl Undecylenate, BHT, Disodium EDTA, Steareth-21, Dextrin, Phloretin, Polysorbate 20, Tocopherol, Dehydroacetic Acid, Benzoic Acid";
 
+/**
+ * Cinco blocos, no mesmo agrupamento que o fabricante usa nas abas da ficha:
+ * Indicação, Benefícios, Como usar, Estudos clínicos e Componentes. A lista
+ * "Livre de" aparece repetida em todas as abas do fabricante; aqui ela fica
+ * uma vez só, junto da composição, que é do que ela fala.
+ */
 const sections = (comCor: boolean) => [
-  { title: "Descrição", body: DESCRICAO, items: [], sortOrder: 0 },
+  { title: "Indicação", body: DESCRICAO, items: [], sortOrder: 0 },
   { title: "Benefícios", body: null, items: BENEFICIOS, sortOrder: 1 },
-  { title: "Modo de usar", body: MODO_DE_USAR, items: [], sortOrder: 2 },
-  { title: "Testes clínicos de segurança", body: null, items: SEGURANCA, sortOrder: 3 },
+  { title: "Como usar", body: MODO_DE_USAR, items: [], sortOrder: 2 },
   {
-    title: "Eficácia comprovada com voluntários",
-    body: "Avaliação da apreciabilidade cosmética e da aceitabilidade dermatológica (ACD, AC — IPC.2020.1078). Conclusão dos voluntários:",
-    items: VOLUNTARIOS,
-    sortOrder: 4,
+    title: "Estudos clínicos",
+    body: "Ensaios conduzidos sob o protocolo IPC.2020.1078: segurança dermatológica, eficácia avaliada por voluntários e ensaios físico-químicos e in vitro.",
+    items: [...SEGURANCA, ...VOLUNTARIOS, ...ENSAIOS],
+    sortOrder: 3,
   },
-  { title: "Ensaios de eficácia", body: null, items: ENSAIOS, sortOrder: 5 },
-  { title: "Livre de", body: null, items: LIVRE_DE, sortOrder: 6 },
   {
-    title: "Composição",
+    title: "Componentes",
     body: comCor ? `${INCI_BASE}, CI 77491, CI 77492, CI 77499.` : `${INCI_BASE}.`,
-    items: [],
-    sortOrder: 7,
+    items: LIVRE_DE,
+    sortOrder: 4,
   },
 ];
 
