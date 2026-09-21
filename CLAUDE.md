@@ -24,7 +24,7 @@ E-commerce B2B da Aura Regenera para profissionais. O catálogo reúne Pbserum e
 - `ProductImage` e `ProtocolImage` mantêm galerias ordenadas com legenda; a primeira imagem é a capa do produto.
 - `src/server/catalog/repository.ts` concentra leituras e resolução de SKUs; componentes nunca consultam o Prisma diretamente.
 - Imagens comerciais ficam no bucket Supabase Storage `Catalogo`; `MediaAsset` guarda caminho, metadados, tipo (`MediaCategory`) e marca para filtrar o acervo.
-- `MediaAsset` também guarda o enquadramento (`fit`, `focalX`, `focalY`, `zoom`): o padrão preenche o espaço e o admin ajusta em `FramingEditor`. O site aplica o ajuste por `FramedImage`/`framingStyle`, e ele vale em todo lugar onde a foto aparece.
+- `MediaAsset` também guarda o enquadramento (`fit`, `focalX`, `focalY`, `zoom`) e ajustes por contexto em `framingByContext`. O padrão vale em todo lugar; `card` (vitrines) e `page` (galeria do item) podem sobrepô-lo, resolvidos por `toFraming(asset, contexto)`. O admin ajusta em `FramingEditor` e o site aplica por `FramedImage`/`framingStyle`.
 - `/admin/*` oferece listas e editores protegidos; toda rota `/api/admin/**` usa `requireAdmin`, Zod e auditoria nas mutações.
 - `src/components/catalog/`: vitrine, filtros, card, detalhe e painel de compra.
 - `SubNavBar` fixa as pílulas de seção abaixo do cabeçalho nas páginas longas (marca, ciência, detalhe). Ela mede cabeçalho e barra, publica `--anchor-offset` e só mostra seções que existem na página; toda seção alvo usa a classe `anchor-section`.

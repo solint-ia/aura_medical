@@ -98,7 +98,7 @@ export function ProtocolVisualEditor({
         <div className="grid gap-6 lg:grid-cols-2">
           <EditRegion label="Fotos">
             <div className="relative flex min-h-[320px] items-center justify-center overflow-hidden rounded-[32px] bg-card md:min-h-[420px]">
-              {cover ? <Image src={cover} alt="" fill sizes="46vw" className="object-cover" style={framingStyle(toFraming(coverAsset))} /> : <span className="text-sm text-content/40">Sem foto de capa</span>}
+              {cover ? <Image src={cover} alt="" fill sizes="46vw" className="object-cover" style={framingStyle(toFraming(coverAsset, "page"))} /> : <span className="text-sm text-content/40">Sem foto de capa</span>}
               <button
                 type="button"
                 onClick={() => setPicking({ kind: "cover" })}
@@ -115,7 +115,7 @@ export function ProtocolVisualEditor({
                 const url = assetUrl(asset);
                 return (
                   <div key={index} className="group/thumb relative h-16 w-16 overflow-hidden rounded-xl border border-content/15 bg-raised">
-                    {url ? <Image src={url} alt="" fill sizes="64px" className="object-cover" style={framingStyle(toFraming(asset))} /> : null}
+                    {url ? <Image src={url} alt="" fill sizes="64px" className="object-cover" style={framingStyle(toFraming(asset, "page"))} /> : null}
                     <button
                       type="button"
                       onClick={() => setPicking({ kind: "gallery", index })}
@@ -346,7 +346,7 @@ export function ProtocolVisualEditor({
               <div className="mt-5">
                 <p className="mb-2 font-mono text-xs tracking-wider text-content/50 uppercase">Imagem de mapeamento</p>
                 <div className="relative h-40 overflow-hidden rounded-xl border border-content/15 bg-raised">
-                  {mapping ? <Image src={mapping} alt="" fill sizes="30vw" className="object-cover" style={framingStyle(toFraming(mappingAsset))} /> : null}
+                  {mapping ? <Image src={mapping} alt="" fill sizes="30vw" className="object-cover" style={framingStyle(toFraming(mappingAsset, "page"))} /> : null}
                   <button
                     type="button"
                     onClick={() => setPicking({ kind: "mapping" })}

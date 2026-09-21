@@ -12,6 +12,7 @@ export type AdminAsset = {
   focalX?: number | null;
   focalY?: number | null;
   zoom?: number | null;
+  framingByContext?: unknown;
   updatedAt?: string;
 };
 

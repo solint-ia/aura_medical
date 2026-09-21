@@ -4,7 +4,7 @@ import sharp from "sharp";
 import { requireAdmin } from "@/lib/adminGuard";
 import { prisma } from "@/lib/prisma";
 import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { mediaCategorySchema, mediaConfirmSchema, mediaPatchSchema } from "@/lib/validation/catalog";
 import { audit, requireUnchanged, validationError } from "@/server/admin/mutation";
 
@@ -50,7 +50,31 @@ export async function POST(req: Request) {
   await audit(admin.user.userId, "MediaAsset", asset.id, "create", { purpose: parsed.data.purpose, path: objectPath }); return NextResponse.json({ asset }, { status: 201 });
 }
 
-export async function PATCH(req: Request) { const admin = await requireAdmin(req); if (!admin.ok) return admin.response; const id = new URL(req.url).searchParams.get("id"); if (!id) return NextResponse.json({ error: "ID obrigatório." }, { status: 400 }); const parsed = mediaPatchSchema.safeParse(await req.json()); if (!parsed.success) return NextResponse.json(validationError(parsed.error), { status: 400 }); const before = await prisma.mediaAsset.findUnique({ where: { id } }); if (!before) return NextResponse.json({ error: "Mídia não encontrada." }, { status: 404 }); const stale = requireUnchanged(req, before.updatedAt); if (stale) return stale; const asset = await prisma.mediaAsset.update({ where: { id }, data: parsed.data }); await audit(admin.user.userId, "MediaAsset", id, "update", parsed.data); return NextResponse.json({ asset }); }
+export async function PATCH(req: Request) {
+  const admin = await requireAdmin(req); if (!admin.ok) return admin.response;
+  const id = new URL(req.url).searchParams.get("id"); if (!id) return NextResponse.json({ error: "ID obrigatório." }, { status: 400 });
+  const parsed = mediaPatchSchema.safeParse(await req.json()); if (!parsed.success) return NextResponse.json(validationError(parsed.error), { status: 400 });
+  const before = await prisma.mediaAsset.findUnique({ where: { id } }); if (!before) return NextResponse.json({ error: "Mídia não encontrada." }, { status: 404 });
+  const stale = requireUnchanged(req, before.updatedAt); if (stale) return stale;
+
+  // O ajuste por contexto chega parcial: o que não veio continua como está e
+  // `null` faz o contexto voltar a seguir o enquadramento padrão da imagem.
+  const { framingByContext, ...fields } = parsed.data;
+  let contexts: Prisma.InputJsonValue | typeof Prisma.DbNull | undefined;
+  if (framingByContext) {
+    const current = (before.framingByContext ?? {}) as Record<string, unknown>;
+    const merged = { ...current };
+    for (const [context, framing] of Object.entries(framingByContext)) {
+      if (framing) merged[context] = framing;
+      else delete merged[context];
+    }
+    contexts = Object.keys(merged).length ? (merged as Prisma.InputJsonValue) : Prisma.DbNull;
+  }
+
+  const asset = await prisma.mediaAsset.update({ where: { id }, data: { ...fields, ...(contexts === undefined ? {} : { framingByContext: contexts }) } });
+  await audit(admin.user.userId, "MediaAsset", id, "update", parsed.data);
+  return NextResponse.json({ asset });
+}
 
 export async function DELETE(req: Request) {
   const admin = await requireAdmin(req); if (!admin.ok) return admin.response; const id = new URL(req.url).searchParams.get("id"); if (!id) return NextResponse.json({ error: "ID obrigatório." }, { status: 400 });

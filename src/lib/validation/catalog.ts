@@ -55,7 +55,10 @@ export const mediaConfirmSchema = z.object({ path: z.string().min(1).max(500), a
 export const mediaFitSchema = z.enum(["COVER", "CONTAIN"]);
 /** Enquadramento: modo de preenchimento, ponto focal em % e zoom a partir dele. */
 export const mediaFramingSchema = { fit: mediaFitSchema.optional(), focalX: z.number().int().min(0).max(100).optional(), focalY: z.number().int().min(0).max(100).optional(), zoom: z.number().int().min(100).max(300).optional() };
-export const mediaPatchSchema = z.object({ alt: z.string().min(2).max(300).optional(), category: mediaCategorySchema.nullish(), lineId: z.string().uuid().nullish(), ...mediaFramingSchema }).refine((value) => Object.keys(value).length > 0, "Nada para atualizar.");
+/** Ajuste de um contexto; `null` volta a seguir o enquadramento padrão. */
+const contextFramingSchema = z.object({ fit: z.enum(["cover", "contain"]), x: z.number().int().min(0).max(100), y: z.number().int().min(0).max(100), zoom: z.number().int().min(100).max(300) }).nullable();
+export const framingByContextSchema = z.object({ card: contextFramingSchema.optional(), page: contextFramingSchema.optional() });
+export const mediaPatchSchema = z.object({ alt: z.string().min(2).max(300).optional(), category: mediaCategorySchema.nullish(), lineId: z.string().uuid().nullish(), ...mediaFramingSchema, framingByContext: framingByContextSchema.optional() }).refine((value) => Object.keys(value).length > 0, "Nada para atualizar.");
 
 export const protocolSchema = z.object({
   lineId: z.string().uuid(), slug: slug(120), name: z.string().min(2).max(160), introduction: z.string().min(2), note: z.string().nullish(), indications: z.array(z.string()).default([]),

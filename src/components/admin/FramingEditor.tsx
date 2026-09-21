@@ -4,20 +4,38 @@ import { useRef, useState } from "react";
 import { Crop, Maximize2, Minimize2, RotateCcw, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { assetUrl, type AdminAsset } from "./assetUrl";
-import { DEFAULT_FRAMING, framingStyle, toFraming, type ImageFraming } from "@/lib/imageFraming";
+import {
+  contextFramings,
+  DEFAULT_FRAMING,
+  FRAMING_CONTEXTS,
+  framingStyle,
+  toFraming,
+  type FramingByContext,
+  type FramingContext,
+  type ImageFraming,
+} from "@/lib/imageFraming";
 
-/** Proporções em que a mesma foto aparece no site, para conferir antes de salvar. */
-const PREVIEWS = [
-  { label: "Card do catálogo", className: "aspect-[4/3]" },
-  { label: "Página", className: "aspect-[3/4]" },
-] as const;
+type Tab = "default" | FramingContext;
+
+const TABS: { value: Tab; label: string; hint: string }[] = [
+  { value: "default", label: "Padrão", hint: "Vale em todo lugar onde a foto aparece, salvo onde houver ajuste próprio." },
+  ...FRAMING_CONTEXTS,
+];
+
+/** Proporção do palco de edição, aproximando o espaço real de cada contexto. */
+const STAGE_RATIO: Record<Tab, string> = {
+  default: "aspect-[4/3]",
+  card: "aspect-[4/3]",
+  page: "aspect-[3/4]",
+};
 
 /**
  * Ajuste manual do enquadramento de uma foto do acervo.
  *
  * O admin arrasta para escolher o que fica no centro, aproxima e decide entre
- * preencher o espaço ou mostrar a foto inteira. O ajuste vale em todo lugar
- * onde a foto aparece.
+ * preencher o espaço ou mostrar a foto inteira. O ajuste padrão vale em todo
+ * lugar; card do catálogo e página do item podem receber um ajuste próprio,
+ * para a mesma foto preencher a vitrine e aparecer inteira na página.
  */
 export function FramingEditor({
   asset,
@@ -29,25 +47,50 @@ export function FramingEditor({
   onSaved?: (asset: AdminAsset) => void;
 }) {
   const { authToken } = useAuth();
-  const [framing, setFraming] = useState<ImageFraming>(toFraming(asset));
+  const [tab, setTab] = useState<Tab>("default");
+  const [base, setBase] = useState<ImageFraming>(toFraming(asset));
+  const [contexts, setContexts] = useState<FramingByContext>(contextFramings(asset));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const stage = useRef<HTMLDivElement>(null);
   const url = assetUrl(asset);
 
+  /** O contexto sem ajuste próprio espelha o padrão enquanto não for editado. */
+  const framing = tab === "default" ? base : (contexts[tab] ?? base);
+  const follows = tab !== "default" && !contexts[tab];
+
+  function update(patch: Partial<ImageFraming>) {
+    const next = { ...framing, ...patch };
+    if (tab === "default") setBase(next);
+    else setContexts((current) => ({ ...current, [tab]: next }));
+  }
+
   function pointTo(event: React.PointerEvent) {
     const box = stage.current?.getBoundingClientRect();
     if (!box) return;
-    setFraming((current) => ({
-      ...current,
+    update({
       x: Math.round(Math.min(100, Math.max(0, ((event.clientX - box.left) / box.width) * 100))),
       y: Math.round(Math.min(100, Math.max(0, ((event.clientY - box.top) / box.height) * 100))),
-    }));
+    });
+  }
+
+  function reset() {
+    if (tab === "default") return setBase(DEFAULT_FRAMING);
+    // Fora do padrão, restaurar significa voltar a seguir o enquadramento padrão.
+    setContexts((current) => {
+      const next = { ...current };
+      delete next[tab];
+      return next;
+    });
   }
 
   async function save() {
     setSaving(true);
     setError("");
+    const byContext = Object.fromEntries(
+      FRAMING_CONTEXTS.map(({ value }) => [value, contexts[value] ?? null]),
+    ) as Record<FramingContext, ImageFraming | null>;
+
     const response = await fetch(`/api/admin/media?id=${asset.id}`, {
       method: "PATCH",
       headers: {
@@ -56,10 +99,11 @@ export function FramingEditor({
         ...(asset.updatedAt ? { "If-Match": asset.updatedAt } : {}),
       },
       body: JSON.stringify({
-        fit: framing.fit === "contain" ? "CONTAIN" : "COVER",
-        focalX: framing.x,
-        focalY: framing.y,
-        zoom: framing.zoom,
+        fit: base.fit === "contain" ? "CONTAIN" : "COVER",
+        focalX: base.x,
+        focalY: base.y,
+        zoom: base.zoom,
+        framingByContext: byContext,
       }),
     });
     const data = await response.json().catch(() => ({}));
@@ -69,7 +113,8 @@ export function FramingEditor({
     onClose();
   }
 
-  const preview = framingStyle(framing) ?? { objectFit: "cover" as const, objectPosition: "50% 50%" };
+  const style = (value: ImageFraming) => framingStyle(value) ?? { objectFit: "cover" as const, objectPosition: "50% 50%" };
+  const preview = style(framing);
 
   return (
     <div className="fixed inset-0 z-[70] grid place-items-center bg-panel/60 p-4 backdrop-blur-sm">
@@ -78,7 +123,7 @@ export function FramingEditor({
           <div>
             <h2 className="font-display text-2xl font-semibold">Ajustar enquadramento</h2>
             <p className="mt-1 max-w-lg text-sm text-content/60">
-              Clique ou arraste sobre a foto para escolher o que deve ficar no centro. O ajuste vale em todos os lugares onde ela aparece.
+              Clique ou arraste sobre a foto para escolher o que deve ficar no centro. O padrão vale em todo lugar, e cada contexto pode ter o seu próprio ajuste.
             </p>
           </div>
           <button type="button" onClick={onClose} className="rounded-lg p-2" aria-label="Fechar">
@@ -86,8 +131,31 @@ export function FramingEditor({
           </button>
         </header>
 
-        <div className="grid min-h-0 flex-1 gap-5 overflow-y-auto p-5 md:grid-cols-[1fr_14rem]">
+        <div className="flex gap-1 border-b border-content/10 px-5 pt-3" role="tablist" aria-label="Onde a foto aparece">
+          {TABS.map((entry) => {
+            const adjusted = entry.value !== "default" && Boolean(contexts[entry.value]);
+            return (
+              <button
+                key={entry.value}
+                type="button"
+                role="tab"
+                aria-selected={tab === entry.value}
+                onClick={() => setTab(entry.value)}
+                className={`flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-sm font-semibold ${tab === entry.value ? "border-accent text-accent" : "border-transparent text-content/55"}`}
+              >
+                {entry.label}
+                {adjusted ? <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-label="com ajuste próprio" /> : null}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="grid min-h-0 flex-1 gap-5 overflow-y-auto p-5 md:grid-cols-[1fr_15rem]">
           <div>
+            <p className="mb-2 text-xs text-content/55">
+              {TABS.find((entry) => entry.value === tab)?.hint}
+              {follows ? " Hoje segue o padrão: qualquer ajuste aqui passa a valer só neste lugar." : ""}
+            </p>
             <div
               ref={stage}
               onPointerDown={(event) => {
@@ -97,7 +165,7 @@ export function FramingEditor({
               onPointerMove={(event) => {
                 if (event.buttons === 1) pointTo(event);
               }}
-              className="relative aspect-[4/3] w-full cursor-crosshair overflow-hidden rounded-2xl border border-content/12 bg-raised"
+              className={`relative ${STAGE_RATIO[tab]} w-full cursor-crosshair overflow-hidden rounded-2xl border border-content/12 bg-raised`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {url ? <img src={url} alt={asset.alt ?? ""} className="h-full w-full select-none" style={preview} draggable={false} /> : null}
@@ -116,7 +184,7 @@ export function FramingEditor({
                 max={300}
                 step={5}
                 value={framing.zoom}
-                onChange={(event) => setFraming({ ...framing, zoom: Number(event.target.value) })}
+                onChange={(event) => update({ zoom: Number(event.target.value) })}
                 className="mt-2 w-full accent-[var(--color-accent)]"
               />
             </label>
@@ -128,14 +196,14 @@ export function FramingEditor({
               <div className="grid gap-2">
                 <button
                   type="button"
-                  onClick={() => setFraming({ ...framing, fit: "cover" })}
+                  onClick={() => update({ fit: "cover" })}
                   className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold ${framing.fit === "cover" ? "border-accent text-accent" : "border-content/15"}`}
                 >
                   <Maximize2 className="h-4 w-4" /> Preencher o espaço
                 </button>
                 <button
                   type="button"
-                  onClick={() => setFraming({ ...framing, fit: "contain", zoom: 100 })}
+                  onClick={() => update({ fit: "contain", zoom: 100 })}
                   className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold ${framing.fit === "contain" ? "border-accent text-accent" : "border-content/15"}`}
                 >
                   <Minimize2 className="h-4 w-4" /> Mostrar a foto inteira
@@ -151,24 +219,23 @@ export function FramingEditor({
             <div>
               <p className="mb-2 font-mono text-xs tracking-wider text-content/55 uppercase">Como vai ficar</p>
               <div className="grid grid-cols-2 gap-2">
-                {PREVIEWS.map((entry) => (
-                  <figure key={entry.label}>
-                    <div className={`relative ${entry.className} overflow-hidden rounded-xl border border-content/12 bg-raised`}>
+                {FRAMING_CONTEXTS.map((entry) => (
+                  <figure key={entry.value}>
+                    <div className={`relative ${STAGE_RATIO[entry.value]} overflow-hidden rounded-xl border ${tab === entry.value ? "border-accent" : "border-content/12"} bg-raised`}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      {url ? <img src={url} alt="" className="h-full w-full" style={preview} /> : null}
+                      {url ? <img src={url} alt="" className="h-full w-full" style={style(contexts[entry.value] ?? base)} /> : null}
                     </div>
-                    <figcaption className="mt-1 text-[10px] text-content/55">{entry.label}</figcaption>
+                    <figcaption className="mt-1 text-[10px] text-content/55">
+                      {entry.label}
+                      {contexts[entry.value] ? " · ajuste próprio" : " · padrão"}
+                    </figcaption>
                   </figure>
                 ))}
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setFraming(DEFAULT_FRAMING)}
-              className="flex items-center gap-2 text-xs font-semibold text-content/60 hover:text-content"
-            >
-              <RotateCcw className="h-3.5 w-3.5" /> Restaurar padrão
+            <button type="button" onClick={reset} className="flex items-center gap-2 text-xs font-semibold text-content/60 hover:text-content">
+              <RotateCcw className="h-3.5 w-3.5" /> {tab === "default" ? "Restaurar padrão" : "Voltar a seguir o padrão"}
             </button>
           </div>
         </div>

@@ -109,7 +109,7 @@ export function ProductVisualEditor({
           <EditRegion label="Fotos">
             <div className="product-halo relative flex min-h-[300px] items-center justify-center overflow-hidden rounded-[32px] md:min-h-[400px]">
               {cover ? (
-                <Image src={cover} alt="" fill sizes="40vw" className="object-contain p-8" style={framingStyle(toFraming(coverAsset))} />
+                <Image src={cover} alt="" fill sizes="40vw" className="object-contain p-8" style={framingStyle(toFraming(coverAsset, "page"))} />
               ) : (
                 <span className="text-sm text-content/40">Sem foto</span>
               )}
@@ -139,7 +139,7 @@ export function ProductVisualEditor({
                     }}
                     className="group/thumb relative h-16 w-16 overflow-hidden rounded-xl border border-content/15 bg-raised"
                   >
-                    {url ? <Image src={url} alt="" fill sizes="64px" className="object-contain" style={framingStyle(toFraming(asset))} /> : null}
+                    {url ? <Image src={url} alt="" fill sizes="64px" className="object-contain" style={framingStyle(toFraming(asset, "page"))} /> : null}
                     <button
                       type="button"
                       onClick={() => setPicking(index)}

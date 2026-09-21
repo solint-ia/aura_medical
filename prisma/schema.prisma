@@ -464,6 +464,8 @@ model MediaAsset {
   focalX           Int             @default(50) @map("focal_x")
   focalY           Int             @default(50) @map("focal_y")
   zoom             Int             @default(100)
+  /// Ajustes por contexto (card, página) que sobrepõem o enquadramento padrão.
+  framingByContext Json?           @map("framing_by_context")
   category         MediaCategory?
   lineId           String?         @map("line_id") @db.Uuid
   line             Line?           @relation(fields: [lineId], references: [id], onDelete: SetNull)
