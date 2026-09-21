@@ -36,8 +36,8 @@ export const categorySchema = z.object({ lineId: z.string().uuid().nullish(), sl
 export const categoryPatchSchema = categorySchema.partial();
 
 export const productSchema = z.object({
-  lineId: z.string().uuid(), categoryId: z.string().uuid().nullish(), slug: slug(120), name: z.string().min(2).max(160), eyebrow: z.string().min(2).max(160),
-  collection: z.string().max(80).nullish(), summary: z.string().min(2), presentation: z.string().min(2).max(160), netContent: z.string().max(40).nullish(),
+  lineId: z.string().uuid(), categoryId: z.string().uuid().nullish(), slug: slug(120), name: z.string().min(2).max(160), eyebrow: z.string().max(160).default(""),
+  collection: z.string().max(80).nullish(), summary: z.string().default(""), presentation: z.string().max(160).default(""), netContent: z.string().max(40).nullish(),
   highlights: z.array(noEmoji.max(120)).max(2), variantName: z.string().max(40).nullish(), specs: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
   regulatoryName: z.string().max(160).nullish(), regulatoryNumber: z.string().max(60).nullish(), weightGrams: z.number().int().nonnegative().nullish(),
   lengthCm: z.number().positive().nullish(), widthCm: z.number().positive().nullish(), heightCm: z.number().positive().nullish(), featured: z.boolean().default(false),
@@ -61,8 +61,8 @@ export const framingByContextSchema = z.object({ card: contextFramingSchema.opti
 export const mediaPatchSchema = z.object({ alt: z.string().min(2).max(300).optional(), category: mediaCategorySchema.nullish(), lineId: z.string().uuid().nullish(), ...mediaFramingSchema, framingByContext: framingByContextSchema.optional() }).refine((value) => Object.keys(value).length > 0, "Nada para atualizar.");
 
 export const protocolSchema = z.object({
-  lineId: z.string().uuid(), slug: slug(120), name: z.string().min(2).max(160), introduction: z.string().min(2), note: z.string().nullish(), indications: z.array(z.string()).default([]),
-  sessions: z.string().min(1).max(40), frequency: z.string().min(1).max(60), reconstitution: z.array(z.string()).default([]), application: z.array(z.string()).default([]),
+  lineId: z.string().uuid(), slug: slug(120), name: z.string().min(2).max(160), introduction: z.string().default(""), note: z.string().nullish(), indications: z.array(z.string()).default([]),
+  sessions: z.string().max(40).default(""), frequency: z.string().max(60).default(""), reconstitution: z.array(z.string()).default([]), application: z.array(z.string()).default([]),
   marking: z.string().default(""), expectedResults: z.array(z.string()).default([]), coverImageId: z.string().uuid().nullish(), mappingImageId: z.string().uuid().nullish(),
   visibility: visibility.default("PUBLIC"), sortOrder: z.number().int().default(0),
   components: z.array(z.object({ productId: z.string().uuid(), quantity: z.number().int().positive(), role: z.string().min(1), sortOrder: z.number().int().default(0) })).default([]),

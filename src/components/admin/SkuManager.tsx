@@ -5,6 +5,7 @@ import { Check, Loader2, Plus, Save, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { AdminField, AdminSwitch, inputClass } from "./AdminUi";
 import { MediaPicker } from "./AdminSelectors";
+import { formErrorMessage } from "./formErrors";
 
 type Row = Record<string, unknown> & {
   id?: string;
@@ -114,7 +115,7 @@ export function SkuManager({
       const data = await response.json();
       const msg = response.ok
         ? `Preço e estoque de ${row.code} salvos com sucesso!`
-        : (data.error ?? "Falha ao salvar o preço.");
+        : formErrorMessage(data, "Falha ao salvar a variação.");
       onMessage(msg);
       setFeedback({ type: response.ok ? "success" : "error", text: msg });
       if (response.ok) {
@@ -180,7 +181,7 @@ export function SkuManager({
         }),
       });
       const data = await response.json();
-      const msg = response.ok ? "Novo preço cadastrado com sucesso!" : (data.error ?? JSON.stringify(data.fields));
+      const msg = response.ok ? "Nova variação cadastrada com sucesso!" : formErrorMessage(data, "Falha ao cadastrar a variação.");
       onMessage(msg);
       setFeedback({ type: response.ok ? "success" : "error", text: msg });
       if (response.ok) {

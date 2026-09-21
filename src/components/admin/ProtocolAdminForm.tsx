@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { SaveBar, toSlug } from "./AdminUi";
 import { ProtocolVisualEditor } from "./ProtocolVisualEditor";
+import { formErrorMessage } from "./formErrors";
 import { matchesSaved } from "./savedMatch";
 
 type Row = Record<string, any>;
@@ -162,7 +163,7 @@ export function ProtocolAdminForm({ endpoint, create = false }: { endpoint: stri
       if (!response.ok || !data.protocol) {
         if (await alreadySaved(payload)) return;
         setState(response.status === 409 ? "conflict" : "dirty");
-        return setMessage(data.error || JSON.stringify(data.fields) || "Não foi possível salvar o protocolo.");
+        return setMessage(formErrorMessage(data, "Não foi possível salvar o protocolo."));
       }
       setForm(normalizeProtocol(data.protocol));
       setState("saved");

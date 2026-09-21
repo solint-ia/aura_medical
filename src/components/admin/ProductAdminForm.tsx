@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { SaveBar, toSlug } from "./AdminUi";
 import { ProductVisualEditor } from "./ProductVisualEditor";
+import { formErrorMessage } from "./formErrors";
 import { matchesSaved } from "./savedMatch";
 
 type Row = Record<string, any>;
@@ -162,7 +163,7 @@ export function ProductAdminForm({ title, endpoint, create = false }: { title: s
       const data = await response.json();
       if (!response.ok) {
         if (response.status === 409) setState("conflict");
-        throw new Error(data.error || JSON.stringify(data.fields));
+        throw new Error(formErrorMessage(data, "Não foi possível salvar o produto."));
       }
       setForm(normalizeProduct(data.product));
       setState("saved");
