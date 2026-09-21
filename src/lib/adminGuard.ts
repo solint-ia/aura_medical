@@ -16,10 +16,22 @@ export async function requireAdmin(req: Request): Promise<AdminGuardResult> {
     };
   }
 
-  const profile = await prisma.userProfile.findUnique({
-    where: { id: token.userId },
-    select: { role: true },
-  });
+  let profile: { role: string } | null;
+  try {
+    profile = await prisma.userProfile.findUnique({
+      where: { id: token.userId },
+      select: { role: true },
+    });
+  } catch (error) {
+    console.error("Falha ao validar administrador no banco de dados", error);
+    return {
+      ok: false,
+      response: NextResponse.json(
+        { error: "Banco de dados temporariamente indisponível. Aguarde alguns instantes e tente novamente." },
+        { status: 503, headers: { "Cache-Control": "no-store" } },
+      ),
+    };
+  }
 
   if (profile?.role !== "ADMIN") {
     return {

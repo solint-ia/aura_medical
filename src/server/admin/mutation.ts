@@ -4,9 +4,21 @@ import { CATALOG_TAG } from "@/server/catalog/cache";
 export { requireUnchanged } from "./concurrency";
 
 export async function audit(actorId: string, entity: string, entityId: string, action: string, diff: unknown) {
-  await prisma.auditLog.create({ data: { actorId, entity, entityId, action, diff: JSON.parse(JSON.stringify(diff ?? {})) } });
-  revalidateTag(CATALOG_TAG, { expire: 0 });
-  revalidatePath("/", "layout");
+  // A alteração principal já foi confirmada quando chegamos aqui. Uma falha
+  // auxiliar não pode fazer o cliente acreditar que ela não foi salva e
+  // repetir a mutação com uma versão agora obsoleta.
+  try {
+    await prisma.auditLog.create({ data: { actorId, entity, entityId, action, diff: JSON.parse(JSON.stringify(diff ?? {})) } });
+  } catch (error) {
+    console.error("Falha ao registrar auditoria administrativa", { entity, entityId, action, error });
+  }
+
+  try {
+    revalidateTag(CATALOG_TAG, { expire: 0 });
+    revalidatePath("/", "layout");
+  } catch (error) {
+    console.error("Falha ao revalidar o catálogo após mutação administrativa", { entity, entityId, action, error });
+  }
 }
 
 export async function lineIdFromCaseLinks(productIds: string[], protocolIds: string[]) {

@@ -10,6 +10,8 @@ export interface CatalogOffer {
   label?: string;
   price: number;
   image?: string;
+  /** Círculo que representa a variação: cor sólida ou foto de fundo. */
+  swatch?: { color?: string; image?: string };
   trackStock?: boolean;
   stock?: number;
 }
@@ -65,6 +67,7 @@ export interface CatalogItem {
   offers: CatalogOffer[];
   /** Verdadeiro quando o item tem oferta, mas nenhuma com unidade disponível. */
   soldOut?: boolean;
+  /** Como chamar a escolha entre variações, ex.: "Cor" ou "Tom". */
   variantName?: string;
   sections: DetailSection[];
   pending?: PendingInfo[];

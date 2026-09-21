@@ -8,13 +8,20 @@ import { useCart } from "@/context/CartContext";
 import { formatBRL } from "@/lib/format";
 import { MAX_QUANTITY_PER_ITEM } from "@/lib/checkoutLimits";
 import { roundMoney } from "@/lib/money";
+import { useVariant } from "./VariantContext";
+import { VariantSwatches } from "./VariantSwatches";
 
 const isOfferSoldOut = (offer: CatalogOffer) => offer.trackStock === true && (offer.stock ?? 0) <= 0;
 
 export function PurchasePanel({ item }: { item: CatalogItem }) {
   const router = useRouter();
   const { addToCart } = useCart();
-  const [offerId, setOfferId] = useState(item.offers[0].id);
+  // A escolha é compartilhada com a galeria quando a página a fornece;
+  // isolado (testes, prévias), o painel continua guardando a sua.
+  const shared = useVariant();
+  const [ownOfferId, setOwnOfferId] = useState(item.offers[0].id);
+  const offerId = shared?.offerId ?? ownOfferId;
+  const setOfferId = shared?.select ?? setOwnOfferId;
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const offer = item.offers.find((entry) => entry.id === offerId) ?? item.offers[0];
@@ -55,10 +62,19 @@ export function PurchasePanel({ item }: { item: CatalogItem }) {
 
   return (
     <div className="mt-7 border-t border-content/10 pt-6">
-      {item.variantName && item.offers.length > 1 ? (
+      {item.offers.length > 1 && item.offers.some((entry) => entry.swatch) ? (
+        <VariantSwatches
+          offers={item.offers}
+          selectedId={offer.id}
+          onSelect={selectOffer}
+          legend={item.variantName || "Escolha a variação"}
+        />
+      ) : null}
+
+      {item.offers.length > 1 && !item.offers.some((entry) => entry.swatch) ? (
         <fieldset className="mb-5">
           <legend className="mb-2 font-mono text-xs font-semibold tracking-wider text-content/55 uppercase">
-            {item.variantName}
+            {item.variantName || "Escolha a variação"}
           </legend>
           <div className="flex flex-wrap gap-2">
             {item.offers.map((entry) => {

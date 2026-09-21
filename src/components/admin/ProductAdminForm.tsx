@@ -45,13 +45,24 @@ function normalizeProduct(product: Row) {
     ...emptyProduct,
     ...product,
     specs: product.specs ?? [],
-    sections: product.sections ?? [],
+    // Essas linhas são recriadas no servidor a cada salvamento. Não carregue
+    // IDs efêmeros para o payload nem para a confirmação de `alreadySaved`.
+    sections: (product.sections ?? []).map((section: Row) => ({
+      title: section.title,
+      body: section.body ?? "",
+      items: section.items ?? [],
+      sortOrder: section.sortOrder,
+    })),
     images: (product.images ?? []).map((image: Row) => ({
       assetId: image.assetId,
       caption: image.caption ?? "",
       sortOrder: image.sortOrder,
     })),
-    pending: product.pending ?? [],
+    pending: (product.pending ?? []).map((field: Row) => ({
+      label: field.label,
+      isPublic: field.isPublic,
+      resolvedAt: field.resolvedAt ?? null,
+    })),
   };
 }
 
@@ -144,7 +155,7 @@ export function ProductAdminForm({ title, endpoint, create = false }: { title: s
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
-          ...(!create && form.updatedAt ? { "If-Match": form.updatedAt } : {}),
+          ...(!create && form.updatedAt ? { "X-Record-Version": form.updatedAt } : {}),
         },
         body: JSON.stringify(payload),
       });

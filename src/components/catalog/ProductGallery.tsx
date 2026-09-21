@@ -4,12 +4,27 @@ import Image from "next/image";
 import { FramedImage } from "@/components/ui/FramedImage";
 import { useRef, useState } from "react";
 import type { CatalogImage, CatalogItem } from "@/data/catalog";
+import { useVariant } from "./VariantContext";
 
 export function ProductGallery({ images, name, cover, kind }: { images?: CatalogImage[]; name: string; cover: string; kind: CatalogItem["kind"] }) {
+  const variant = useVariant();
   const entries = images?.filter((image) => image.src) ?? [];
-  const gallery = entries.length ? entries : [{ src: cover, alt: name }];
+  const base = entries.length ? entries : [{ src: cover, alt: name }];
+  // A foto da variação escolhida entra na galeria quando não é uma das já cadastradas.
+  const gallery =
+    variant?.image && !base.some((image) => image.src === variant.image)
+      ? [{ src: variant.image, alt: name }, ...base]
+      : base;
   const isProtocol = kind === "protocol";
   const [active, setActive] = useState(0);
+  // Trocar de variação traz a foto dela para a frente, sem impedir que se
+  // continue navegando pelas outras depois.
+  const [shownVariant, setShownVariant] = useState(variant?.image);
+  if (shownVariant !== variant?.image) {
+    setShownVariant(variant?.image);
+    const index = gallery.findIndex((image) => image.src === variant?.image);
+    if (index >= 0) setActive(index);
+  }
   const touchStart = useRef<number | null>(null);
   const select = (index: number) => setActive(Math.max(0, Math.min(gallery.length - 1, index)));
 

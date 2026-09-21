@@ -8,7 +8,7 @@ import { Prisma } from "@prisma/client";
 import { mediaCategorySchema, mediaConfirmSchema, mediaPatchSchema } from "@/lib/validation/catalog";
 import { audit, requireUnchanged, validationError } from "@/server/admin/mutation";
 
-const USAGE_COUNT = { _count: { select: { productImages: true, protocolImages: true, lineMedia: true, skus: true, protocolCovers: true, protocolMappings: true, casesBefore: true, casesAfter: true } } } as const;
+const USAGE_COUNT = { _count: { select: { productImages: true, protocolImages: true, lineMedia: true, skus: true, skuSwatches: true, protocolCovers: true, protocolMappings: true, casesBefore: true, casesAfter: true } } } as const;
 
 /**
  * Sem `page` devolve o acervo inteiro (usado para montar prévias por id).
@@ -78,9 +78,9 @@ export async function PATCH(req: Request) {
 
 export async function DELETE(req: Request) {
   const admin = await requireAdmin(req); if (!admin.ok) return admin.response; const id = new URL(req.url).searchParams.get("id"); if (!id) return NextResponse.json({ error: "ID obrigatório." }, { status: 400 });
-  const asset = await prisma.mediaAsset.findUnique({ where: { id }, include: { productImages: { include: { product: { select: { name: true } } } }, protocolImages: { include: { protocol: { select: { name: true } } } }, lineMedia: { include: { line: { select: { name: true } } } }, skus: { select: { code: true } }, protocolCovers: { select: { name: true } }, protocolMappings: { select: { name: true } }, casesBefore: { select: { title: true } }, casesAfter: { select: { title: true } } } });
+  const asset = await prisma.mediaAsset.findUnique({ where: { id }, include: { productImages: { include: { product: { select: { name: true } } } }, protocolImages: { include: { protocol: { select: { name: true } } } }, lineMedia: { include: { line: { select: { name: true } } } }, skus: { select: { code: true } }, skuSwatches: { select: { code: true } }, protocolCovers: { select: { name: true } }, protocolMappings: { select: { name: true } }, casesBefore: { select: { title: true } }, casesAfter: { select: { title: true } } } });
   if (!asset) return NextResponse.json({ error: "Mídia não encontrada." }, { status: 404 });
-  const usages = [...asset.productImages.map(({ product }) => `Produto: ${product.name}`), ...asset.protocolImages.map(({ protocol }) => `Protocolo: ${protocol.name}`), ...asset.lineMedia.map(({ line }) => `Marca: ${line.name}`), ...asset.skus.map((sku) => `SKU: ${sku.code}`), ...asset.protocolCovers.map((protocol) => `Capa: ${protocol.name}`), ...asset.protocolMappings.map((protocol) => `Mapeamento: ${protocol.name}`), ...asset.casesBefore.map((item) => `Antes: ${item.title}`), ...asset.casesAfter.map((item) => `Depois: ${item.title}`)];
+  const usages = [...asset.productImages.map(({ product }) => `Produto: ${product.name}`), ...asset.protocolImages.map(({ protocol }) => `Protocolo: ${protocol.name}`), ...asset.lineMedia.map(({ line }) => `Marca: ${line.name}`), ...asset.skus.map((sku) => `Variação: ${sku.code}`), ...asset.skuSwatches.map((sku) => `Círculo da variação: ${sku.code}`), ...asset.protocolCovers.map((protocol) => `Capa: ${protocol.name}`), ...asset.protocolMappings.map((protocol) => `Mapeamento: ${protocol.name}`), ...asset.casesBefore.map((item) => `Antes: ${item.title}`), ...asset.casesAfter.map((item) => `Depois: ${item.title}`)];
   if (usages.length) return NextResponse.json({ error: "Mídia em uso não pode ser excluída.", usages }, { status: 409 });
   if (asset.provider === "SUPABASE" && asset.bucket) await getSupabaseAdmin().storage.from(asset.bucket).remove([asset.path]); await prisma.mediaAsset.delete({ where: { id } }); await audit(admin.user.userId, "MediaAsset", id, "delete", { path: asset.path }); return NextResponse.json({ success: true });
 }

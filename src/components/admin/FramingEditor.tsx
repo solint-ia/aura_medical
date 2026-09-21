@@ -96,7 +96,7 @@ export function FramingEditor({
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${authToken}`,
-        ...(asset.updatedAt ? { "If-Match": asset.updatedAt } : {}),
+        ...(asset.updatedAt ? { "X-Record-Version": asset.updatedAt } : {}),
       },
       body: JSON.stringify({
         fit: base.fit === "contain" ? "CONTAIN" : "COVER",

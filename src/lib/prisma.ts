@@ -12,9 +12,15 @@ function getDatabaseUrl() {
 
   const url = new URL(configuredUrl);
   if (!url.searchParams.has("sslmode")) url.searchParams.set("sslmode", "require");
-  if (!url.searchParams.has("connect_timeout")) url.searchParams.set("connect_timeout", "30");
+  if (!url.searchParams.has("connect_timeout")) url.searchParams.set("connect_timeout", "15");
   if (!url.searchParams.has("pool_timeout")) url.searchParams.set("pool_timeout", "60");
-  if (url.port === "6543" && !url.searchParams.has("connection_limit")) url.searchParams.set("connection_limit", "5");
+  if (url.port === "6543") {
+    // O Supavisor na porta 6543 opera em modo transacional: prepared
+    // statements precisam ser desativados e uma conexão por instância evita
+    // esgotar o pool quando a plataforma escala horizontalmente.
+    if (!url.searchParams.has("pgbouncer")) url.searchParams.set("pgbouncer", "true");
+    if (!url.searchParams.has("connection_limit")) url.searchParams.set("connection_limit", "1");
+  }
   return url.toString();
 }
 

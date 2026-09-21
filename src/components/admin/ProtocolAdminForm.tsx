@@ -42,6 +42,26 @@ const empty: Row = {
   status: "DRAFT",
 };
 
+function normalizeProtocol(protocol: Row) {
+  return {
+    ...empty,
+    ...protocol,
+    // Componentes e imagens também são recriados. Conserve apenas os campos
+    // editáveis para a checagem pós-falha não comparar IDs antigos e novos.
+    components: (protocol.components ?? []).map((component: Row) => ({
+      productId: component.productId,
+      quantity: component.quantity,
+      role: component.role,
+      sortOrder: component.sortOrder,
+    })),
+    images: (protocol.images ?? []).map((image: Row) => ({
+      assetId: image.assetId,
+      caption: image.caption ?? "",
+      sortOrder: image.sortOrder,
+    })),
+  };
+}
+
 /** Espelha `kitsFromComponents` do servidor, para avisar o admin em tempo real. */
 function kitsAvailable(components: Row[], products: Row[]) {
   return components.reduce((fewest: number, component: Row) => {
@@ -86,15 +106,7 @@ export function ProtocolAdminForm({ endpoint, create = false }: { endpoint: stri
       setLines(lineData.lines ?? []);
       setProducts(productData.products ?? []);
       if (protocolData?.protocol) {
-        setForm({
-          ...empty,
-          ...protocolData.protocol,
-          images: (protocolData.protocol.images ?? []).map((image: Row) => ({
-            assetId: image.assetId,
-            caption: image.caption ?? "",
-            sortOrder: image.sortOrder,
-          })),
-        });
+        setForm(normalizeProtocol(protocolData.protocol));
       }
     });
   }, [authToken, create, endpoint]);
@@ -111,7 +123,7 @@ export function ProtocolAdminForm({ endpoint, create = false }: { endpoint: stri
       const response = await fetch(endpoint, { headers: { Authorization: `Bearer ${authToken}` } });
       const data = await responseData(response);
       if (!data.protocol || !matchesSaved(payload, data.protocol)) return false;
-      setForm((current) => ({ ...current, ...data.protocol }));
+      setForm(normalizeProtocol(data.protocol));
       setState("saved");
       setMessage("Protocolo salvo.");
       return true;
@@ -142,7 +154,7 @@ export function ProtocolAdminForm({ endpoint, create = false }: { endpoint: stri
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
-          ...(!create && form.updatedAt ? { "If-Match": form.updatedAt } : {}),
+          ...(!create && form.updatedAt ? { "X-Record-Version": form.updatedAt } : {}),
         },
         body: JSON.stringify(payload),
       });
@@ -152,7 +164,7 @@ export function ProtocolAdminForm({ endpoint, create = false }: { endpoint: stri
         setState(response.status === 409 ? "conflict" : "dirty");
         return setMessage(data.error || JSON.stringify(data.fields) || "Não foi possível salvar o protocolo.");
       }
-      setForm((current) => ({ ...current, ...data.protocol }));
+      setForm(normalizeProtocol(data.protocol));
       setState("saved");
       setMessage("Protocolo salvo.");
       if (create) router.replace(`/admin/protocolos/${data.protocol.id}`);

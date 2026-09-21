@@ -10,6 +10,7 @@ import { CatalogCard } from "./CatalogCard";
 import { LineScope } from "./LineScope";
 import { PurchasePanel } from "./PurchasePanel";
 import { ProductGallery } from "./ProductGallery";
+import { VariantProvider } from "./VariantContext";
 import { ClinicalCasesSection } from "./ClinicalCasesSection";
 
 /** Blocos de conteúdo da página, na ordem em que aparecem. */
@@ -42,6 +43,7 @@ export function CatalogDetail({ item, related = [] }: { item: CatalogItem; relat
         <Breadcrumbs items={[{ label: "Início", href: "/" }, { label: line.name, href: `/linhas/${line.id}` }, ...(item.kind === "protocol" ? [{ label: "Protocolos", href: `/linhas/${line.id}#protocolos` }] : []), { label: item.name }]} />
         <div className="mt-5"><BackLink fallbackHref={item.kind === "protocol" ? `/linhas/${line.id}#protocolos` : `/linhas/${line.id}`} /></div>
 
+        <VariantProvider offers={item.offers}>
         <div id="visao-geral" className="anchor-section mt-6 grid gap-6 lg:grid-cols-2">
           <ProductGallery images={item.images} name={item.name} cover={item.image} kind={item.kind} />
 
@@ -54,6 +56,7 @@ export function CatalogDetail({ item, related = [] }: { item: CatalogItem; relat
             <PurchasePanel item={item} />
           </section>
         </div>
+        </VariantProvider>
 
         <div className="mt-12">
           {protocol ? <ProtocolSections item={item} /> : <EditorialSections sections={item.sections} />}

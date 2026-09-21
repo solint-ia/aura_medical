@@ -11,7 +11,7 @@ export const productInclude = {
   images: { include: { asset: true }, orderBy: { sortOrder: "asc" as const } },
   sections: { orderBy: { sortOrder: "asc" as const } },
   pending: true,
-  skus: { include: { image: true, aliases: true }, orderBy: { sortOrder: "asc" as const } },
+  skus: { include: { image: true, swatchImage: true, aliases: true }, orderBy: { sortOrder: "asc" as const } },
   caseLinks: { orderBy: { sortOrder: "asc" as const }, include: { case: { include: { beforeImage: true, afterImage: true, products: { include: { product: { select: { name: true, slug: true } } } }, protocols: { include: { protocol: { select: { name: true, slug: true } } } } } } } },
 } satisfies Prisma.ProductInclude;
 
@@ -66,6 +66,7 @@ export function mapProduct(row: ProductRow): CatalogItem {
     label: sku.label || undefined,
     price: Number(sku.price),
     image: mediaUrl(sku.image) || mediaUrl(primaryImage),
+    swatch: sku.swatchColor || sku.swatchImage ? { color: sku.swatchColor || undefined, image: mediaUrl(sku.swatchImage) } : undefined,
     ...effectiveStock(sku),
   }));
   return {

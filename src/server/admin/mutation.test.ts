@@ -6,7 +6,7 @@ describe("requireUnchanged", () => {
 
   it("accepts the current version", () => {
     const request = new Request("http://localhost", {
-      headers: { "If-Match": updatedAt.toISOString() },
+      headers: { "X-Record-Version": updatedAt.toISOString() },
     });
     expect(requireUnchanged(request, updatedAt)).toBeNull();
   });
@@ -17,9 +17,17 @@ describe("requireUnchanged", () => {
     await expect(response?.json()).resolves.toMatchObject({ error: expect.any(String) });
   });
 
+  it("does not treat the reserved If-Match header as the record version", async () => {
+    const request = new Request("http://localhost", {
+      headers: { "If-Match": updatedAt.toISOString() },
+    });
+    const response = requireUnchanged(request, updatedAt);
+    expect(response?.status).toBe(428);
+  });
+
   it("rejects a stale version", async () => {
     const request = new Request("http://localhost", {
-      headers: { "If-Match": "2025-01-01T00:00:00.000Z" },
+      headers: { "X-Record-Version": "2025-01-01T00:00:00.000Z" },
     });
     const response = requireUnchanged(request, updatedAt);
     expect(response?.status).toBe(409);

@@ -273,6 +273,10 @@ model Sku {
   label         String?     @db.VarChar(60)
   price         Decimal     @db.Decimal(10, 2)
   imageId       String?     @map("image_id") @db.Uuid
+  /// Cor do círculo que representa a variação na página do produto.
+  swatchColor   String?     @map("swatch_color") @db.VarChar(9)
+  /// Foto usada como fundo do círculo, para tons de pele e acabamentos.
+  swatchImageId String?     @map("swatch_image_id") @db.Uuid
   trackStock    Boolean     @default(false) @map("track_stock")
   stockQuantity Int?        @map("stock_quantity")
   isActive      Boolean     @default(true) @map("is_active")
@@ -282,6 +286,7 @@ model Sku {
   product       Product?    @relation(fields: [productId], references: [id])
   protocol      Protocol?   @relation(fields: [protocolId], references: [id])
   image         MediaAsset? @relation(fields: [imageId], references: [id])
+  swatchImage   MediaAsset? @relation("SkuSwatch", fields: [swatchImageId], references: [id])
   aliases       SkuAlias[]
 
   @@map("catalog_skus")
@@ -476,6 +481,7 @@ model MediaAsset {
   productImages    ProductImage[]
   protocolImages   ProtocolImage[]
   skus             Sku[]
+  skuSwatches      Sku[]           @relation("SkuSwatch")
   protocolCovers   Protocol[]      @relation("ProtocolCover")
   protocolMappings Protocol[]      @relation("ProtocolMapping")
   casesBefore      ClinicalCase[]  @relation("CaseBefore")

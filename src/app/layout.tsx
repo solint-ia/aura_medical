@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { NavigationTracker } from "@/components/navigation/NavigationTracker";
+import { MetaPixel } from "@/components/analytics/MetaPixel";
 import { Suspense } from "react";
 
 import "./globals.css";
@@ -66,6 +67,7 @@ export default function RootLayout({
           <AuthProvider>
             <CartProvider>
               <Suspense fallback={null}><NavigationTracker /></Suspense>
+              <Suspense fallback={null}><MetaPixel /></Suspense>
               {children}
             </CartProvider>
           </AuthProvider>

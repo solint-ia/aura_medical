@@ -26,9 +26,13 @@ type Asset = {
   zoom?: number | null;
   framingByContext?: unknown;
   updatedAt?: string;
+  _count?: Record<string, number>;
 };
 
 const PAGE_SIZE = 24;
+
+/** Em quantos lugares do catálogo a foto está pendurada. */
+const usageCount = (asset: Asset) => Object.values(asset._count ?? {}).reduce((total, value) => total + value, 0);
 
 export function MediaLibrary() {
   const { authToken } = useAuth();
@@ -120,7 +124,7 @@ export function MediaLibrary() {
   async function updateAsset(asset: Asset, patch: Partial<Pick<Asset, "alt" | "category" | "lineId">>) {
     const response = await fetch(`/api/admin/media?id=${asset.id}`, {
       method: "PATCH",
-      headers: { ...headers(true), ...(asset.updatedAt ? { "If-Match": asset.updatedAt } : {}) },
+      headers: { ...headers(true), ...(asset.updatedAt ? { "X-Record-Version": asset.updatedAt } : {}) },
       body: JSON.stringify(patch),
     });
     const data = await response.json();
@@ -129,9 +133,18 @@ export function MediaLibrary() {
   }
 
   async function remove(asset: Asset) {
+    if (usageCount(asset)) {
+      setMessage(`${asset.alt} está em uso no catálogo. Troque a foto onde ela aparece antes de excluí-la.`);
+      return;
+    }
+    if (!window.confirm(`Excluir "${asset.alt}" do acervo? O arquivo é apagado e não dá para desfazer.`)) return;
     const response = await fetch(`/api/admin/media?id=${asset.id}`, { method: "DELETE", headers: headers() });
     const data = await response.json();
-    setMessage(response.ok ? "Imagem excluída." : `${data.error}${data.usages?.length ? ` Usada em: ${data.usages.join("; ")}` : ""}`);
+    setMessage(
+      response.ok
+        ? `${asset.alt} foi excluída.`
+        : `${data.error ?? "Falha ao excluir."}${data.usages?.length ? ` Usada em: ${data.usages.join("; ")}` : ""}`,
+    );
     if (response.ok) setReloadKey((key) => key + 1);
   }
 
@@ -206,11 +219,19 @@ export function MediaLibrary() {
         </select>
       </div>
 
-      {message ? <p className="mt-4 rounded-xl bg-raised p-3 text-sm">{message}</p> : null}
+      {message ? (
+        <p role="status" className="fixed inset-x-4 bottom-4 z-50 mx-auto max-w-xl rounded-xl border border-content/12 bg-card p-3 text-sm shadow-xl sm:inset-x-auto sm:right-6 sm:left-auto">
+          {message}
+          <button type="button" onClick={() => setMessage("")} className="ml-3 text-xs font-semibold text-content/55">
+            fechar
+          </button>
+        </p>
+      ) : null}
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {assets.map((asset) => {
           const url = assetUrl(asset);
+          const inUse = usageCount(asset);
           return (
             <article key={asset.id} className="overflow-hidden rounded-2xl border border-content/10 bg-card">
               <div className="relative h-48 bg-raised">
@@ -257,11 +278,19 @@ export function MediaLibrary() {
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-content/45">
                     {asset.width}×{asset.height}
+                    {inUse ? ` · em uso em ${inUse} lugar${inUse > 1 ? "es" : ""}` : " · sem uso"}
                   </span>
                   <button type="button" onClick={() => setFramingAsset(asset)} className="ml-auto inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-content/70 hover:text-accent">
                     <Crop className="h-3.5 w-3.5" /> Enquadramento
                   </button>
-                  <button type="button" onClick={() => void remove(asset)} className="p-2 text-red-600" aria-label="Excluir imagem">
+                  <button
+                    type="button"
+                    onClick={() => void remove(asset)}
+                    disabled={Boolean(inUse)}
+                    title={inUse ? "Em uso no catálogo: troque a foto onde ela aparece antes de excluir." : "Excluir do acervo"}
+                    className="p-2 text-red-600 disabled:cursor-not-allowed disabled:text-content/30"
+                    aria-label={`Excluir ${asset.alt}`}
+                  >
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>

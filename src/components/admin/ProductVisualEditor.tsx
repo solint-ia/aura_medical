@@ -255,7 +255,7 @@ export function ProductVisualEditor({
                     onClick={() => setDrawer("precos")}
                     className="rounded-full bg-action px-4 py-2 text-xs font-semibold text-action-fg"
                   >
-                    Editar preços e estoque
+                    Editar variações e preços
                   </button>
                 </div>
               </div>
@@ -488,11 +488,19 @@ export function ProductVisualEditor({
 
       {drawer === "precos" ? (
         <EditorDrawer
-          title="Preços e estoque"
-          description="Cada linha é uma forma de comprar este produto, com preço e estoque próprios."
+          title="Variações, preços e estoque"
+          description="Cada linha é uma forma de comprar este produto: preço, estoque e, quando a diferença é visual, a foto e a cor que a representam na página."
           onClose={() => setDrawer(null)}
         >
-          <SkuManager owner="products" ownerId={form.id} skus={skus} onMessage={onMessage} />
+          <SkuManager
+            owner="products"
+            ownerId={form.id}
+            skus={skus}
+            onMessage={onMessage}
+            lineId={form.lineId || undefined}
+            variantName={form.variantName ?? ""}
+            onVariantName={(value) => change("variantName", value)}
+          />
         </EditorDrawer>
       ) : null}
 

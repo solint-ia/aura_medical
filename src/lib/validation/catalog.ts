@@ -46,7 +46,7 @@ export const productSchema = z.object({
 });
 export const productPatchSchema = productSchema.partial();
 
-export const skuSchema = z.object({ code: slug(100), label: z.string().max(60).nullish(), price: z.number().nonnegative(), imageId: z.string().uuid().nullish(), trackStock: z.boolean().default(false), stockQuantity: z.number().int().nonnegative().nullish(), isActive: z.boolean().default(true), sortOrder: z.number().int().default(0), aliases: z.array(slug(100)).default([]) });
+export const skuSchema = z.object({ code: slug(100), label: z.string().max(60).nullish(), price: z.number().nonnegative(), imageId: z.string().uuid().nullish(), swatchColor: hexColor.nullish(), swatchImageId: z.string().uuid().nullish(), trackStock: z.boolean().default(false), stockQuantity: z.number().int().nonnegative().nullish(), isActive: z.boolean().default(true), sortOrder: z.number().int().default(0), aliases: z.array(slug(100)).default([]) });
 export const skuPatchSchema = skuSchema.omit({ code: true }).partial();
 
 export const uploadRequestSchema = z.object({ filename: z.string().min(1).max(180), mimeType: z.enum(["image/png", "image/jpeg", "image/webp"]), sizeBytes: z.number().int().positive().max(8 * 1024 * 1024) });

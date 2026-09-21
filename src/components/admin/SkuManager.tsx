@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Plus, Save, Trash2 } from "lucide-react";
+import { Check, Loader2, Plus, Save, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { AdminField, AdminSwitch, inputClass } from "./AdminUi";
+import { MediaPicker } from "./AdminSelectors";
 
 type Row = Record<string, unknown> & {
   id?: string;
@@ -15,6 +16,9 @@ type Row = Record<string, unknown> & {
   isActive?: boolean;
   sortOrder?: number;
   updatedAt?: string;
+  imageId?: string | null;
+  swatchColor?: string | null;
+  swatchImageId?: string | null;
   aliases?: { alias: string }[];
 };
 
@@ -35,6 +39,9 @@ export function SkuManager({
   skus,
   onMessage,
   derivedKits,
+  lineId,
+  variantName,
+  onVariantName,
 }: {
   owner: "products" | "protocols";
   ownerId?: string;
@@ -42,11 +49,20 @@ export function SkuManager({
   onMessage: (message: string) => void;
   /** Quantos kits a composição permite montar (só protocolos). */
   derivedKits?: number;
+  /** Marca do produto, para o acervo já abrir filtrado. */
+  lineId?: string;
+  /** Como a página chama a escolha entre variações, ex.: Cor, Tom. */
+  variantName?: string;
+  onVariantName?: (value: string) => void;
 }) {
   const { authToken } = useAuth();
   const [rows, setRows] = useState<Row[]>(skus);
   const [draft, setDraft] = useState(emptyDraft);
   const [creating, setCreating] = useState(false);
+  const [savingId, setSavingId] = useState<string | null>(null);
+  const [savedId, setSavedId] = useState<string | null>(null);
+  const [removingId, setRemovingId] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   // Quando o formulário dono recarrega, a lista local volta a espelhar o servidor.
   const [seed, setSeed] = useState(skus);
@@ -77,62 +93,106 @@ export function SkuManager({
     setRows((current) => current.map((row) => (row.id === id ? { ...row, ...patch } : row)));
 
   async function saveRow(row: Row) {
-    const response = await fetch(`/api/admin/catalog/${owner}/${ownerId}/skus/${row.id}`, {
-      method: "PATCH",
-      headers: { ...headers(true), ...(row.updatedAt ? { "If-Match": row.updatedAt } : {}) },
-      body: JSON.stringify({
-        label: row.label || null,
-        price: Number(row.price),
-        trackStock: Boolean(row.trackStock),
-        stockQuantity: row.trackStock ? Number(row.stockQuantity ?? 0) : null,
-        isActive: Boolean(row.isActive),
-      }),
-    });
-    const data = await response.json();
-    onMessage(response.ok ? `Preço e estoque de ${row.code} salvos.` : (data.error ?? "Falha ao salvar o preço."));
-    if (response.ok) void reload();
+    if (!row.id) return;
+    setSavingId(row.id);
+    setFeedback(null);
+    try {
+      const response = await fetch(`/api/admin/catalog/${owner}/${ownerId}/skus/${row.id}`, {
+        method: "PATCH",
+        headers: { ...headers(true), ...(row.updatedAt ? { "X-Record-Version": row.updatedAt } : {}) },
+        body: JSON.stringify({
+          label: row.label || null,
+          price: Number(row.price),
+          trackStock: Boolean(row.trackStock),
+          stockQuantity: row.trackStock ? Number(row.stockQuantity ?? 0) : null,
+          isActive: Boolean(row.isActive),
+          imageId: row.imageId || null,
+          swatchColor: row.swatchColor || null,
+          swatchImageId: row.swatchImageId || null,
+        }),
+      });
+      const data = await response.json();
+      const msg = response.ok
+        ? `Preço e estoque de ${row.code} salvos com sucesso!`
+        : (data.error ?? "Falha ao salvar o preço.");
+      onMessage(msg);
+      setFeedback({ type: response.ok ? "success" : "error", text: msg });
+      if (response.ok) {
+        setSavedId(row.id);
+        setTimeout(() => setSavedId((curr) => (curr === row.id ? null : curr)), 3500);
+        void reload();
+      }
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : "Erro ao conectar com o servidor.";
+      setFeedback({ type: "error", text: msg });
+      onMessage(msg);
+    } finally {
+      setSavingId(null);
+    }
   }
 
   async function removeRow(row: Row) {
-    const response = await fetch(`/api/admin/catalog/${owner}/${ownerId}/skus/${row.id}`, {
-      method: "DELETE",
-      headers: headers(),
-    });
-    const data = await response.json();
-    onMessage(
-      response.ok
+    if (!row.id) return;
+    if (!window.confirm(`Tem certeza que deseja excluir ${row.code}?`)) return;
+    setRemovingId(row.id);
+    setFeedback(null);
+    try {
+      const response = await fetch(`/api/admin/catalog/${owner}/${ownerId}/skus/${row.id}`, {
+        method: "DELETE",
+        headers: headers(),
+      });
+      const data = await response.json();
+      const msg = response.ok
         ? data.archived
           ? `${row.code} já foi vendido, então foi desativado em vez de excluído.`
-          : `${row.code} excluído.`
-        : (data.error ?? "Falha ao excluir."),
-    );
-    if (response.ok) void reload();
+          : `${row.code} excluído com sucesso.`
+        : (data.error ?? "Falha ao excluir.");
+      onMessage(msg);
+      setFeedback({ type: response.ok ? "success" : "error", text: msg });
+      if (response.ok) void reload();
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : "Erro ao conectar com o servidor.";
+      setFeedback({ type: "error", text: msg });
+      onMessage(msg);
+    } finally {
+      setRemovingId(null);
+    }
   }
 
   async function createSku() {
     setCreating(true);
-    const response = await fetch(`/api/admin/catalog/${owner}/${ownerId}/skus`, {
-      method: "POST",
-      headers: headers(true),
-      body: JSON.stringify({
-        code: draft.code.trim(),
-        label: draft.label.trim() || null,
-        price: Number(draft.price),
-        trackStock: draft.trackStock,
-        stockQuantity: draft.trackStock ? Number(draft.stockQuantity ?? 0) : null,
-        sortOrder: rows.length,
-        aliases: draft.aliasText
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean),
-      }),
-    });
-    const data = await response.json();
-    onMessage(response.ok ? "Preço cadastrado." : (data.error ?? JSON.stringify(data.fields)));
-    setCreating(false);
-    if (response.ok) {
-      setDraft(emptyDraft);
-      void reload();
+    setFeedback(null);
+    try {
+      const response = await fetch(`/api/admin/catalog/${owner}/${ownerId}/skus`, {
+        method: "POST",
+        headers: headers(true),
+        body: JSON.stringify({
+          code: draft.code.trim(),
+          label: draft.label.trim() || null,
+          price: Number(draft.price),
+          trackStock: draft.trackStock,
+          stockQuantity: draft.trackStock ? Number(draft.stockQuantity ?? 0) : null,
+          sortOrder: rows.length,
+          aliases: draft.aliasText
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean),
+        }),
+      });
+      const data = await response.json();
+      const msg = response.ok ? "Novo preço cadastrado com sucesso!" : (data.error ?? JSON.stringify(data.fields));
+      onMessage(msg);
+      setFeedback({ type: response.ok ? "success" : "error", text: msg });
+      if (response.ok) {
+        setDraft(emptyDraft);
+        void reload();
+      }
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : "Erro ao conectar com o servidor.";
+      setFeedback({ type: "error", text: msg });
+      onMessage(msg);
+    } finally {
+      setCreating(false);
     }
   }
 
@@ -140,6 +200,30 @@ export function SkuManager({
 
   return (
     <div className="space-y-7">
+      {feedback ? (
+        <div
+          role="status"
+          className={`flex items-center justify-between rounded-xl border p-3.5 text-sm font-medium transition-all ${
+            feedback.type === "success"
+              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+              : "border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300"
+          }`}
+        >
+          <span className="flex items-center gap-2">
+            {feedback.type === "success" ? <Check className="h-4 w-4" /> : null}
+            {feedback.text}
+          </span>
+          <button
+            type="button"
+            onClick={() => setFeedback(null)}
+            className="text-xs font-bold opacity-70 hover:opacity-100"
+            aria-label="Fechar mensagem"
+          >
+            ✕
+          </button>
+        </div>
+      ) : null}
+
       {owner === "protocols" && derivedKits !== undefined ? (
         <p className="rounded-xl bg-raised p-4 text-sm text-content/70">
           A composição atual permite montar{" "}
@@ -151,28 +235,60 @@ export function SkuManager({
         </p>
       ) : null}
 
+      {owner === "products" && onVariantName ? (
+        <AdminField
+          label="Como chamar a escolha"
+          hint="Título acima dos círculos na página, ex.: Cor, Tom de pele, Tamanho"
+        >
+          <input
+            className={inputClass}
+            value={variantName ?? ""}
+            placeholder="Escolha a variação"
+            onChange={(event) => onVariantName(event.target.value)}
+          />
+        </AdminField>
+      ) : null}
+
       {rows.length ? (
         <div className="space-y-3">
           {rows.map((row) => (
-            <div key={row.id} className="rounded-2xl border border-content/10 bg-raised p-4">
+            <div key={row.id} className="rounded-2xl border border-content/10 bg-raised p-4 transition-all">
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <p className="font-mono text-sm font-semibold">{row.code}</p>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
+                  {savedId === row.id ? (
+                    <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-2.5 py-1 font-mono text-xs font-semibold text-emerald-600 dark:text-emerald-400 animate-in fade-in">
+                      <Check className="h-3.5 w-3.5" />
+                      Salvo!
+                    </span>
+                  ) : null}
                   <button
                     type="button"
                     onClick={() => void saveRow(row)}
-                    className="rounded-lg p-2 text-accent"
+                    disabled={savingId === row.id}
+                    className="inline-flex items-center justify-center rounded-lg border border-accent/25 bg-accent/10 p-2 text-accent shadow-xs transition-all hover:bg-accent hover:text-white hover:shadow-sm active:scale-95 disabled:opacity-50"
+                    title={`Salvar alterações de ${row.code}`}
                     aria-label={`Salvar ${row.code}`}
                   >
-                    <Save className="h-4 w-4" />
+                    {savingId === row.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Save className="h-4 w-4" />
+                    )}
                   </button>
                   <button
                     type="button"
                     onClick={() => void removeRow(row)}
-                    className="rounded-lg p-2 text-red-600"
+                    disabled={removingId === row.id}
+                    className="inline-flex items-center justify-center rounded-lg border border-red-500/25 bg-red-500/10 p-2 text-red-600 shadow-xs transition-all hover:bg-red-600 hover:text-white hover:shadow-sm active:scale-95 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white disabled:opacity-50"
+                    title={`Excluir ${row.code}`}
                     aria-label={`Excluir ${row.code}`}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    {removingId === row.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -218,6 +334,51 @@ export function SkuManager({
                   />
                 </div>
               </div>
+
+              {owner === "products" ? (
+                <div className="mt-4 grid gap-3 border-t border-content/10 pt-4 md:grid-cols-3">
+                  <MediaPicker
+                    label="Foto desta variação"
+                    hint="Aparece na galeria e no carrinho quando ela é escolhida"
+                    value={row.imageId ?? ""}
+                    onChange={(value) => update(row.id!, { imageId: value })}
+                    defaults={{ category: "PRODUCT", lineId }}
+                  />
+                  <MediaPicker
+                    label="Foto do círculo"
+                    hint="Fundo do círculo na página: tom de pele, acabamento"
+                    value={row.swatchImageId ?? ""}
+                    onChange={(value) => update(row.id!, { swatchImageId: value })}
+                    defaults={{ category: "PRODUCT", lineId }}
+                  />
+                  <AdminField label="Cor do círculo" hint="Use quando uma cor sólida já representa a variação">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={row.swatchColor || "#D8C3A5"}
+                        onChange={(event) => update(row.id!, { swatchColor: event.target.value.toUpperCase() })}
+                        className="h-10 w-14 cursor-pointer rounded-lg border border-content/15 bg-canvas"
+                        aria-label={`Cor do círculo de ${row.code}`}
+                      />
+                      <input
+                        className={inputClass}
+                        value={row.swatchColor ?? ""}
+                        placeholder="#RRGGBB"
+                        onChange={(event) => update(row.id!, { swatchColor: event.target.value.toUpperCase() })}
+                      />
+                      {row.swatchColor ? (
+                        <button
+                          type="button"
+                          onClick={() => update(row.id!, { swatchColor: null })}
+                          className="shrink-0 text-xs font-semibold text-content/55 hover:text-content"
+                        >
+                          Limpar
+                        </button>
+                      ) : null}
+                    </div>
+                  </AdminField>
+                </div>
+              ) : null}
 
               <p className="mt-3 font-mono text-xs text-content/50">
                 {row.aliases?.length ? `Apelidos: ${row.aliases.map((alias) => alias.alias).join(", ")} · ` : ""}
@@ -297,9 +458,9 @@ export function SkuManager({
             type="button"
             disabled={creating || !draft.code.trim() || !draft.price}
             onClick={() => void createSku()}
-            className="rounded-full bg-action px-5 py-2.5 text-sm font-semibold text-action-fg disabled:opacity-50"
+            className="rounded-full bg-action px-5 py-2.5 text-sm font-semibold text-action-fg transition-all hover:opacity-90 active:scale-95 disabled:opacity-50"
           >
-            <Plus className="mr-1 inline h-4 w-4" />
+            {creating ? <Loader2 className="mr-1 inline h-4 w-4 animate-spin" /> : <Plus className="mr-1 inline h-4 w-4" />}
             Adicionar preço
           </button>
         </div>

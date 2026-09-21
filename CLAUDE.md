@@ -48,6 +48,7 @@ Preços exibidos pelo cliente não são confiáveis. O checkout sempre resolve n
 ## Regras de negócio
 
 - A Home contém Hero, até seis destaques e FAQ geral. O catálogo completo fica em `/catalogo`; preços não aparecem na vitrine.
+- Cada `Sku` é uma variação de compra: com mais de uma ativa, a página mostra a escolha — círculos quando a variação tem cor ou foto (`swatchColor`/`swatchImageId`), pílulas quando não tem. `Product.variantName` nomeia a escolha e escolher uma variação troca preço, estoque e foto da galeria.
 - Compra existe somente no detalhe: “Comprar agora” adiciona o item e segue ao checkout; “Adicionar ao carrinho” permanece na página.
 - Cartão de crédito permite até 12x, débito é sempre à vista e PIX tem 5% de desconto.
 - Débito e crédito usam o mesmo formulário: o BIN consultado no Mercado Pago define o tipo e esconde o parcelamento.

@@ -35,4 +35,24 @@ describe("matchesSaved", () => {
   it("ignora campos que o painel não enviou", () => {
     expect(matchesSaved({ name: "Cicatrizes" }, { name: "Cicatrizes", status: "PUBLISHED" })).toBe(true);
   });
+
+  it("aceita componentes recriados quando os campos editáveis são iguais", () => {
+    const sent = {
+      components: [{ productId: "product-1", quantity: 2, role: "Remodelação", sortOrder: 0 }],
+    };
+    const saved = {
+      components: [{ id: "new-row", protocolId: "protocol-1", productId: "product-1", quantity: 2, role: "Remodelação", sortOrder: 0 }],
+    };
+    expect(matchesSaved(sent, saved)).toBe(true);
+  });
+
+  it("continua detectando troca de produto em componente recriado", () => {
+    const sent = {
+      components: [{ productId: "product-1", quantity: 2, role: "Remodelação", sortOrder: 0 }],
+    };
+    const saved = {
+      components: [{ id: "new-row", protocolId: "protocol-1", productId: "product-2", quantity: 2, role: "Remodelação", sortOrder: 0 }],
+    };
+    expect(matchesSaved(sent, saved)).toBe(false);
+  });
 });

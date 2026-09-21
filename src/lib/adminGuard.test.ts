@@ -30,4 +30,18 @@ describe("requireAdmin", () => {
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.response.status).toBe(403);
   });
+
+  it("returns JSON with 503 when the database is unavailable", async () => {
+    verifyAuthToken.mockReturnValue({ userId: "user-1", email: "admin@example.com" });
+    findUnique.mockRejectedValue(new Error("database unavailable"));
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    const result = await requireAdmin(new Request("http://localhost"));
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.response.status).toBe(503);
+      await expect(result.response.json()).resolves.toMatchObject({ error: expect.any(String) });
+    }
+  });
 });
