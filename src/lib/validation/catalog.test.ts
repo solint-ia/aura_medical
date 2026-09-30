@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { productPatchSchema } from "./catalog";
+import { productPatchSchema, skuPatchSchema, skuSchema } from "./catalog";
 
 describe("productPatchSchema", () => {
   it("aceita uma galeria com imagens diferentes", () => {
@@ -29,5 +29,19 @@ describe("productPatchSchema", () => {
         message: "A mesma imagem não pode aparecer duas vezes na galeria.",
       });
     }
+  });
+});
+
+describe("skuPatchSchema", () => {
+  it("não inventa apelidos, ordem nem estoque que o PATCH não enviou", () => {
+    const result = skuPatchSchema.parse({ price: 300 });
+
+    expect(result).toEqual({ price: 300 });
+  });
+
+  it("mantém os defaults ao criar uma variação", () => {
+    const result = skuSchema.parse({ code: "enz-slim-plus", price: 300 });
+
+    expect(result).toMatchObject({ aliases: [], sortOrder: 0, trackStock: false, isActive: true });
   });
 });

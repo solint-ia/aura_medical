@@ -46,8 +46,10 @@ export const productSchema = z.object({
 });
 export const productPatchSchema = productSchema.partial();
 
-export const skuSchema = z.object({ code: slug(100), label: z.string().max(60).nullish(), price: z.number().nonnegative(), imageId: z.string().uuid().nullish(), swatchColor: hexColor.nullish(), swatchImageId: z.string().uuid().nullish(), trackStock: z.boolean().default(false), stockQuantity: z.number().int().nonnegative().nullish(), isActive: z.boolean().default(true), sortOrder: z.number().int().default(0), aliases: z.array(slug(100)).default([]) });
-export const skuPatchSchema = skuSchema.omit({ code: true }).partial();
+const skuFields = { label: z.string().max(60).nullish(), price: z.number().nonnegative(), imageId: z.string().uuid().nullish(), swatchColor: hexColor.nullish(), swatchImageId: z.string().uuid().nullish(), trackStock: z.boolean(), stockQuantity: z.number().int().nonnegative().nullish(), isActive: z.boolean(), sortOrder: z.number().int(), aliases: z.array(slug(100)) };
+export const skuSchema = z.object({ ...skuFields, code: slug(100), trackStock: skuFields.trackStock.default(false), isActive: skuFields.isActive.default(true), sortOrder: skuFields.sortOrder.default(0), aliases: skuFields.aliases.default([]) });
+// Sem defaults: no Zod 4 o `.partial()` ainda os aplica, e um PATCH que não menciona apelidos passaria a apagá-los.
+export const skuPatchSchema = z.object(skuFields).partial();
 
 export const uploadRequestSchema = z.object({ filename: z.string().min(1).max(180), mimeType: z.enum(["image/png", "image/jpeg", "image/webp"]), sizeBytes: z.number().int().positive().max(8 * 1024 * 1024) });
 export const mediaCategorySchema = z.enum(["PRODUCT", "PROTOCOL", "CLINICAL_CASE", "BRAND", "OTHER"]);
