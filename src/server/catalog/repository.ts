@@ -159,8 +159,8 @@ export async function resolveSkus(codes: string[]) {
     where: { code: { in: lookup } },
     include: {
       image: true,
-      product: { include: { line: true } },
-      protocol: { include: { line: true, components: { include: { product: { include: { skus: { select: { isActive: true, trackStock: true, stockQuantity: true } } } } } } } },
+      product: { include: { line: true, images: { include: { asset: true }, orderBy: { sortOrder: "asc" }, take: 1 } } },
+      protocol: { include: { line: true, images: { include: { asset: true }, orderBy: { sortOrder: "asc" }, take: 1 }, components: { include: { product: { include: { skus: { select: { isActive: true, trackStock: true, stockQuantity: true } } } } } } } },
     },
   });
   const byCode = new Map(rows.map((row) => [row.code, row]));
@@ -169,9 +169,10 @@ export async function resolveSkus(codes: string[]) {
     const row = byCode.get(skuCode);
     if (!row) return null;
     const owner = row.product || row.protocol;
+    // A foto da variação escolhida vai para o pedido; sem ela, a capa do item.
     return {
       requestedCode, skuCode, name: row.label ? `${owner?.name} · ${row.label}` : owner?.name || skuCode,
-      unitPrice: Number(row.price), imagePath: mediaUrl(row.image), isActive: row.isActive,
+      unitPrice: Number(row.price), imagePath: mediaUrl(row.image ?? owner?.images[0]?.asset), isActive: row.isActive,
       status: owner?.status, visibility: owner?.visibility, lineStatus: row.product?.line.status || row.protocol?.line.status,
       ...resolvedStock(row),
       package: shippingPackage(row.product),

@@ -46,25 +46,25 @@ const PROTOCOL_IMAGE_MAP: Record<string, string> = {
   "fibrose-pos-cirurgica": "/images/fotos-protocolos/fibrose-2.png",
 };
 
-function getProtocolImg(productId?: string, productName?: string, imagePath?: string): string {
-  if (imagePath && imagePath.includes("/fotos-protocolos/")) return imagePath;
+/** Protocolos têm foto própria no histórico; o código do SKU é o id histórico do protocolo. */
+function protocolKey(productId?: string, productName?: string): string | null {
+  const slug = (value = "") =>
+    value.toLowerCase().trim().normalize("NFD").replace(/\p{Diacritic}/gu, "").replace(/^protocolo\s+/, "").replace(/\s+/g, "-");
+  if (PROTOCOL_IMAGE_MAP[slug(productId)]) return slug(productId);
+  // Pedidos antigos podem ter só o nome do protocolo.
+  if (!/^protocolo\s/i.test(productName ?? "")) return null;
+  const name = slug(productName);
+  return Object.keys(PROTOCOL_IMAGE_MAP).find((key) => name.startsWith(key.split("-")[0])) ?? null;
+}
 
-  const rawKey = (productId || productName || "").toLowerCase().trim();
-  const slugKey = rawKey
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/^protocolo\s+/, "")
-    .replace(/\s+/g, "-");
-
-  if (PROTOCOL_IMAGE_MAP[slugKey]) return PROTOCOL_IMAGE_MAP[slugKey];
-  if (slugKey.includes("queixo")) return PROTOCOL_IMAGE_MAP["queixo-duplo"];
-  if (slugKey.includes("perfilamento")) return PROTOCOL_IMAGE_MAP["perfilamento-facial"];
-  if (slugKey.includes("gordura")) return PROTOCOL_IMAGE_MAP["gordura-localizada"];
-  if (slugKey.includes("celulite")) return PROTOCOL_IMAGE_MAP["celulite"];
-  if (slugKey.includes("cicatriz")) return PROTOCOL_IMAGE_MAP["cicatrizes"];
-  if (slugKey.includes("fibrose")) return PROTOCOL_IMAGE_MAP["fibrose-pos-cirurgica"];
-
-  return "/images/fotos-protocolos/queixoduplo-2.png";
+/** Foto e nome de um item do pedido: produtos e variações usam o que foi gravado na compra. */
+function orderItemDisplay(item: { productId: string; productName: string; imagePath?: string }) {
+  const protocol = protocolKey(item.productId, item.productName);
+  if (!protocol) return { image: item.imagePath || null, name: item.productName };
+  return {
+    image: item.imagePath?.includes("/fotos-protocolos/") ? item.imagePath : PROTOCOL_IMAGE_MAP[protocol],
+    name: `Protocolo ${item.productName.replace(/^Protocolo\s+/i, "")}`,
+  };
 }
 
 type TabType = "pedidos" | "enderecos" | "perfil";
@@ -488,24 +488,26 @@ function CustomerPortalContent() {
                 {/* Items List */}
                 <div className="mb-6 divide-y divide-content/10">
                   {order.items.map((item) => {
-                    const itemImg = getProtocolImg(item.productId, item.productName, item.imagePath);
+                    const display = orderItemDisplay(item);
 
                     return (
                       <div key={item.id} className="flex items-center justify-between py-3">
                         <div className="flex items-center gap-3">
                           <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-accent/40 shadow-xs ring-2 ring-[#C59D3F]/10">
-                            <Image
-                              src={itemImg}
-                              alt={item.productName}
-                              fill
-                              sizes="48px"
-                              className="object-cover"
-                            />
+                            {display.image ? (
+                              <Image
+                                src={display.image}
+                                alt={display.name}
+                                fill
+                                sizes="48px"
+                                className="object-cover"
+                              />
+                            ) : (
+                              <ShoppingBag className="h-5 w-5 text-content/40" aria-hidden />
+                            )}
                           </div>
                           <div>
-                            <p className="font-bold text-sm text-content">
-                              Protocolo {item.productName.replace(/^Protocolo\s+/i, "")}
-                            </p>
+                            <p className="font-bold text-sm text-content">{display.name}</p>
                             <p className="font-mono text-xs text-content/65">
                               Qtd: {item.quantity} × {formatBRL(item.unitPrice)}
                             </p>
