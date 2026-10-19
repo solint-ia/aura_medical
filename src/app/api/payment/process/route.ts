@@ -341,8 +341,10 @@ export async function POST(req: Request) {
         // raiz do payload.
         ...(payerRegistrationDate ? { registration_date: payerRegistrationDate } : {}),
       },
+      // NÃO adicionar `cost` aqui: a API responde HTTP 400 "The name of the
+      // following parameters is wrong : [additional_info.shipments.cost]".
+      // O frete já entra no `transaction_amount` e no `metadata.shipping_cost`.
       shipments: {
-        cost: shippingCost,
         receiver_address: {
           zip_code: cepClean,
           street_name: streetStr,
