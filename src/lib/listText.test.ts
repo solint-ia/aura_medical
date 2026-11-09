@@ -31,6 +31,22 @@ describe("texto colado vira lista", () => {
     expect(parseListText("1.5 ml por sessão\n-10% de oleosidade")).toEqual(["1.5 ml por sessão", "-10% de oleosidade"]);
   });
 
+  it("não junta parágrafos só porque uma linha tem marcador", () => {
+    expect(
+      parseListText(
+        "Resultados após 7 dias\n\n73% Constataram melhora;\n\n70% Constataram o tom uniforme;\n\nSelos:\n\n• Vegano   • Sulfato free  •eureciclo.",
+      ),
+    ).toEqual([
+      "Resultados após 7 dias",
+      "73% Constataram melhora",
+      "70% Constataram o tom uniforme",
+      "Selos:",
+      "Vegano",
+      "Sulfato free",
+      "eureciclo.",
+    ]);
+  });
+
   it("devolve vazio para texto vazio", () => {
     expect(parseListText("  \n \n")).toEqual([]);
   });

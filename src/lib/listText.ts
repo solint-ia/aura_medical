@@ -5,11 +5,10 @@
  * marcadores (•, -, 1.), um item por linha, ou com linhas quebradas no meio de
  * uma frase. A regra:
  *
- * - Se alguma linha começa com marcador, só marcadores abrem item; as linhas
- *   sem marcador continuam o item anterior.
- * - Sem marcadores, cada linha é um item, exceto quando a anterior não termina
- *   em pontuação e a atual começa em minúscula: é a mesma frase quebrada.
- * - Um texto de uma linha só é dividido em ";" ou "•".
+ * - Linha em branco e marcador sempre abrem item novo.
+ * - Uma linha sem marcador continua o item anterior só quando ele não termina
+ *   em pontuação e ela começa em minúscula: é a mesma frase quebrada.
+ * - Vários "•" na mesma linha, ou uma linha única com ";", viram itens separados.
  */
 
 const MARKER = /^(?:[-–—•·▪◦*●○►✓✔]|\d{1,2}[.)]|[a-z]\))\s*/i;
@@ -28,20 +27,26 @@ function hasMarker(line: string) {
   return /\s$/.test(match[0]) || /^[•·▪◦●○►✓✔]/.test(line);
 }
 
+/** "• Vegano • Sulfato free •Cruelty free" vira uma linha por selo. */
+function splitInlineBullets(line: string) {
+  const parts = line.split(/\s*•\s*/).filter(Boolean);
+  return parts.length > 1 ? parts.map((part) => `• ${part}`) : [line];
+}
+
 export function parseListText(text: string): string[] {
   const lines = text
     .replace(/\r\n?/g, "\n")
     .split("\n")
-    .map((line) => line.trim());
+    .map((line) => line.trim())
+    .flatMap(splitInlineBullets);
   const filled = lines.filter(Boolean);
 
   if (filled.length === 1) {
     const only = filled[0].replace(MARKER, "");
-    const parts = only.split(/\s*[;•]\s*/).map(clean).filter(Boolean);
+    const parts = only.split(/\s*;\s*/).map(clean).filter(Boolean);
     return parts.length > 1 ? parts : [clean(only)].filter(Boolean);
   }
 
-  const marked = filled.some(hasMarker);
   const items: string[] = [];
   let current: string | null = null;
   let afterBlank = false;
@@ -51,9 +56,9 @@ export function parseListText(text: string): string[] {
       afterBlank = true;
       continue;
     }
-    const startsItem = marked
-      ? hasMarker(line) || current === null
-      : current === null || afterBlank || ENDS_SENTENCE.test(current) || !STARTS_LOWER.test(line);
+    const marked = hasMarker(line);
+    const startsItem =
+      current === null || afterBlank || marked || ENDS_SENTENCE.test(current) || !STARTS_LOWER.test(line);
     const content = marked ? line.replace(MARKER, "") : line;
 
     if (startsItem) {

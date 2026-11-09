@@ -54,7 +54,7 @@ function normalizeProduct(product: Row) {
       items: section.items ?? [],
       sortOrder: section.sortOrder,
       // Só do painel: o formato do bloco no editor, deduzido do conteúdo.
-      listMode: (section.items ?? []).length > 0,
+      listMode: (section.items ?? []).some((item: string) => item.trim()),
     })),
     images: (product.images ?? []).map((image: Row) => ({
       assetId: image.assetId,
@@ -144,7 +144,12 @@ export function ProductAdminForm({ title, endpoint, create = false }: { title: s
       lengthCm: numberOrNull(form.lengthCm),
       widthCm: numberOrNull(form.widthCm),
       heightCm: numberOrNull(form.heightCm),
-      sections: (form.sections ?? []).map(({ title, body, items, sortOrder }: Row) => ({ title, body, items, sortOrder })),
+      sections: (form.sections ?? []).map(({ title, body, items, sortOrder }: Row) => ({
+        title,
+        body,
+        items: (items ?? []).map((item: string) => item.trim()).filter(Boolean),
+        sortOrder,
+      })),
       skus: undefined,
       status: undefined,
       createdAt: undefined,

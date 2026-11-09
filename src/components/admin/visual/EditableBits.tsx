@@ -17,6 +17,7 @@ export function EditableText({
   placeholder,
   label,
   multiline = false,
+  submitOnEnter = false,
   maxLength,
 }: {
   value: string;
@@ -25,6 +26,8 @@ export function EditableText({
   placeholder: string;
   label: string;
   multiline?: boolean;
+  /** Caixa que quebra linhas para ler textos longos, mas Enter confirma em vez de pular linha. */
+  submitOnEnter?: boolean;
   maxLength?: number;
 }) {
   const [editing, setEditing] = useState(false);
@@ -34,6 +37,14 @@ export function EditableText({
   useEffect(() => {
     if (editing) inputRef.current?.focus();
   }, [editing]);
+
+  // A caixa acompanha o texto: o admin enxerga o conteúdo inteiro enquanto edita.
+  useEffect(() => {
+    const field = inputRef.current;
+    if (!editing || !multiline || !field) return;
+    field.style.height = "auto";
+    field.style.height = `${field.scrollHeight}px`;
+  }, [editing, multiline, draft]);
 
   function commit() {
     setEditing(false);
@@ -54,11 +65,15 @@ export function EditableText({
         aria-label={label}
         value={draft}
         maxLength={maxLength}
-        rows={Math.max(2, draft.split("\n").length + 1)}
-        onChange={(event) => setDraft(event.target.value)}
+        rows={submitOnEnter ? 1 : Math.max(2, draft.split("\n").length + 1)}
+        onChange={(event) => setDraft(submitOnEnter ? event.target.value.replace(/\s*\n\s*/g, " ") : event.target.value)}
         onBlur={commit}
         onKeyDown={(event) => {
           if (event.key === "Escape") setEditing(false);
+          if (submitOnEnter && event.key === "Enter") {
+            event.preventDefault();
+            commit();
+          }
         }}
         className={shared}
       />
@@ -249,6 +264,8 @@ export function EditableLines({
             onChange={(next) => onChange(values.map((item, itemIndex) => (itemIndex === index ? next : item)))}
             label={`${label} ${index + 1}`}
             placeholder="Item da lista"
+            multiline
+            submitOnEnter
             className="flex-1 text-[15px] leading-relaxed"
           />
           <button
