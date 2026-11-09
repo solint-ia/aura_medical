@@ -43,6 +43,7 @@ export function SkuManager({
   lineId,
   variantName,
   onVariantName,
+  onRowsChange,
 }: {
   owner: "products" | "protocols";
   ownerId?: string;
@@ -55,6 +56,8 @@ export function SkuManager({
   /** Como a página chama a escolha entre variações, ex.: Cor, Tom. */
   variantName?: string;
   onVariantName?: (value: string) => void;
+  /** Avisa o dono quando a lista recarrega do servidor, para a prévia acompanhar. */
+  onRowsChange?: (rows: Row[]) => void;
 }) {
   const { authToken } = useAuth();
   const [rows, setRows] = useState<Row[]>(skus);
@@ -85,8 +88,11 @@ export function SkuManager({
     const response = await fetch(`/api/admin/catalog/${owner}/${ownerId}`, { headers: headers() });
     const data = await response.json();
     const fresh = owner === "products" ? data.product?.skus : data.protocol?.skus;
-    if (fresh) setRows(fresh);
-  }, [owner, ownerId, headers]);
+    if (fresh) {
+      setRows(fresh);
+      onRowsChange?.(fresh);
+    }
+  }, [owner, ownerId, headers, onRowsChange]);
 
   if (!ownerId) return <p className="text-sm text-content/65">Salve o registro antes de cadastrar preços e estoque.</p>;
 

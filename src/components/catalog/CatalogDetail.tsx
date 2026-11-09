@@ -70,7 +70,7 @@ export function CatalogDetail({ item, related = [] }: { item: CatalogItem; relat
 }
 
 function EditorialSections({ sections }: { sections: DetailSection[] }) {
-  return <>{sections.map((section) => <section key={section.title} id={anchorId(section.title)} className="anchor-section grid border-t border-content/10 py-10 md:py-14 lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] lg:gap-12"><h2 className="font-display text-xl font-semibold lg:sticky lg:top-32 lg:self-start">{section.title}</h2><div className="mt-5 max-w-[62ch] text-[17px] leading-[1.7] text-content/75 lg:mt-0">{section.body ? <p>{section.body}</p> : null}{section.items?.length ? <ul className="mt-3 divide-y divide-content/10">{section.items.map((entry) => <li key={entry} className="py-3">{entry}</li>)}</ul> : null}</div></section>)}</>;
+  return <>{sections.map((section) => <section key={section.title} id={anchorId(section.title)} className="anchor-section grid border-t border-content/10 py-10 md:py-14 lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] lg:gap-12"><h2 className="font-display text-xl font-semibold lg:sticky lg:top-32 lg:self-start">{section.title}</h2><div className="mt-5 max-w-[62ch] text-[17px] leading-[1.7] text-content/75 lg:mt-0">{section.body ? <p className="whitespace-pre-line">{section.body}</p> : null}{section.items?.length ? <ul className="mt-3 divide-y divide-content/10">{section.items.map((entry) => <li key={entry} className="py-3">{entry}</li>)}</ul> : null}</div></section>)}</>;
 }
 
 function ProtocolSections({ item }: { item: CatalogItem }) {

@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { GripVertical, ImagePlus, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, GripVertical, ImagePlus, Plus, Trash2 } from "lucide-react";
 
 import { assetUrl, type AdminAsset } from "./assetUrl";
 import { FramingButton, FramingEditor } from "./FramingEditor";
 import { framingStyle, toFraming } from "@/lib/imageFraming";
+import { parseListText } from "@/lib/listText";
 import { MediaModal } from "./AdminSelectors";
 import { AdminField, AdminSwitch, inputClass, StatusBadge } from "./AdminUi";
 import { useMediaAssets } from "./useMediaAssets";
@@ -14,6 +15,7 @@ import { ClinicalCaseManager } from "./ClinicalCaseManager";
 import { SkuManager } from "./SkuManager";
 import { EditableLines, EditableTagList, EditableText, EditRegion } from "./visual/EditableBits";
 import { EditorDrawer } from "./visual/EditorDrawer";
+import { QuickPrice } from "./visual/QuickPrice";
 import { PairEditor, PublicAddress, SidebarInput, SidebarSection } from "./visual/EditorSidebar";
 
 type Row = Record<string, any>;
@@ -21,6 +23,11 @@ type Row = Record<string, any>;
 const BRL = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 const SECTION_PRESETS = ["Mecanismo de ação", "Indicações", "Como usar", "Benefícios", "Tecnologia", "Registro ANVISA"];
+
+const SECTION_FORMATS = [
+  [false, "Texto corrido"],
+  [true, "Lista de itens"],
+] as const;
 
 /**
  * Edição na própria página: à esquerda o produto como o cliente vê, com cada
@@ -33,9 +40,12 @@ export function ProductVisualEditor({
   categories,
   onMessage,
   onPublish,
+  onSkus,
 }: {
   form: Row;
   change: (key: string, value: unknown) => void;
+  /** Variações gravadas pela edição rápida: atualizam a prévia sem sujar o formulário. */
+  onSkus: (skus: Row[]) => void;
   lines: Row[];
   categories: Row[];
   onMessage: (message: string) => void;
@@ -45,6 +55,7 @@ export function ProductVisualEditor({
   const [picking, setPicking] = useState<number | null>(null);
   const [drawer, setDrawer] = useState<"precos" | "casos" | null>(null);
   const [framingAsset, setFramingAsset] = useState<AdminAsset | null>(null);
+  const [variantsChoice, setVariantsChoice] = useState<boolean | null>(null);
 
   const line = lines.find((entry) => entry.id === form.lineId);
   const category = categories.find((entry) => entry.id === form.categoryId);
@@ -59,6 +70,21 @@ export function ProductVisualEditor({
     activeSkus.length > 0 && tracked.length === activeSkus.length
       ? tracked.reduce((sum, sku) => sum + (sku.stockQuantity ?? 0), 0)
       : null;
+
+  // Enquanto o admin não escolhe, o interruptor reflete o que já existe.
+  const hasVariants = variantsChoice ?? (activeSkus.length > 1 || Boolean(form.variantName));
+
+  function toggleVariants(value: boolean) {
+    if (!value && activeSkus.length > 1) {
+      onMessage(
+        `Este produto tem ${activeSkus.length} variações à venda. Exclua ou tire de venda as extras em Gerenciar variações antes de torná-lo único.`,
+      );
+      return;
+    }
+    setVariantsChoice(value);
+    if (!value && form.variantName) change("variantName", "");
+    if (value && form.id) setDrawer("precos");
+  }
 
   const lineStyle = line
     ? ({
@@ -89,10 +115,32 @@ export function ProductVisualEditor({
     change("images", next.map((entry, position) => ({ ...entry, sortOrder: position })));
   }
 
+  /** A ordem na tela é a ordem publicada: `sortOrder` acompanha a posição. */
+  function setSections(next: Row[]) {
+    change("sections", next.map((entry, position) => ({ ...entry, sortOrder: position })));
+  }
+
   function updateSection(index: number, patch: Row) {
-    change(
-      "sections",
-      sections.map((entry, position) => (position === index ? { ...entry, ...patch } : entry)),
+    setSections(sections.map((entry, position) => (position === index ? { ...entry, ...patch } : entry)));
+  }
+
+  function moveSection(from: number, to: number) {
+    const next = [...sections];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    setSections(next);
+  }
+
+  /** Trocar o formato converte o conteúdo, para nada se perder no caminho. */
+  function setSectionMode(index: number, asList: boolean) {
+    const section = sections[index];
+    if (Boolean(section.listMode) === asList) return;
+    const items: string[] = section.items ?? [];
+    updateSection(
+      index,
+      asList
+        ? { listMode: true, body: "", items: [...items, ...parseListText(section.body ?? "")] }
+        : { listMode: false, body: [section.body, ...items].filter(Boolean).join("\n"), items: [] },
     );
   }
 
@@ -235,12 +283,25 @@ export function ProductVisualEditor({
               </dl>
 
               <div className="mt-6 rounded-2xl border border-content/12 bg-raised p-4">
-                <div className="flex flex-wrap items-end justify-between gap-3">
-                  <div>
-                    <p className="font-display text-2xl font-semibold">
-                      {cheapest === null ? "Sem preço" : BRL.format(cheapest)}
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-content/10 pb-3">
+                  <AdminSwitch checked={hasVariants} onChange={toggleVariants} label="Tem variações (cor, tom, tamanho)" />
+                  {hasVariants ? (
+                    <p className="font-display text-lg font-semibold">
+                      {cheapest === null ? "Sem preço" : `a partir de ${BRL.format(cheapest)}`}
                     </p>
-                    <p className="mt-1 text-xs text-content/55">
+                  ) : null}
+                </div>
+                <QuickPrice
+                  productId={form.id}
+                  slug={form.slug ?? ""}
+                  skus={skus}
+                  hasVariants={hasVariants}
+                  onSkus={onSkus}
+                  onMessage={onMessage}
+                />
+                {hasVariants ? (
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-content/10 pt-3">
+                    <p className="text-xs text-content/55">
                       {activeSkus.length === 0
                         ? "Cadastre um preço para poder publicar"
                         : units === null
@@ -249,15 +310,15 @@ export function ProductVisualEditor({
                             ? `${activeSkus.length} opção(ões) · ${units} em estoque`
                             : "Esgotado no site"}
                     </p>
+                    <button
+                      type="button"
+                      onClick={() => setDrawer("precos")}
+                      className="rounded-full bg-action px-4 py-2 text-xs font-semibold text-action-fg"
+                    >
+                      Gerenciar variações
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setDrawer("precos")}
-                    className="rounded-full bg-action px-4 py-2 text-xs font-semibold text-action-fg"
-                  >
-                    Editar variações e preços
-                  </button>
-                </div>
+                ) : null}
               </div>
             </section>
           </EditRegion>
@@ -291,9 +352,31 @@ export function ProductVisualEditor({
                         ))}
                       </div>
                     ) : null}
+                    <div className="mt-3 flex items-center gap-1">
+                      <button
+                        type="button"
+                        disabled={index === 0}
+                        onClick={() => moveSection(index, index - 1)}
+                        aria-label={`Subir bloco ${index + 1}`}
+                        title="Subir bloco"
+                        className="rounded-full border border-content/15 p-1.5 text-content/60 hover:border-accent hover:text-accent disabled:opacity-30"
+                      >
+                        <ArrowUp className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={index === sections.length - 1}
+                        onClick={() => moveSection(index, index + 1)}
+                        aria-label={`Descer bloco ${index + 1}`}
+                        title="Descer bloco"
+                        className="rounded-full border border-content/15 p-1.5 text-content/60 hover:border-accent hover:text-accent disabled:opacity-30"
+                      >
+                        <ArrowDown className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                     <button
                       type="button"
-                      onClick={() => change("sections", sections.filter((_, position) => position !== index))}
+                      onClick={() => setSections(sections.filter((_, position) => position !== index))}
                       className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-red-600"
                     >
                       <Trash2 className="h-3 w-3" />
@@ -301,21 +384,58 @@ export function ProductVisualEditor({
                     </button>
                   </div>
                   <div>
-                    <EditableText
-                      value={section.body ?? ""}
-                      onChange={(value) => updateSection(index, { body: value })}
-                      label={`Texto do bloco ${index + 1}`}
-                      placeholder="Texto corrido (opcional)"
-                      multiline
-                      className="text-[15px] leading-[1.7] text-content/75"
-                    />
-                    <div className="mt-3">
-                      <EditableLines
-                        values={section.items ?? []}
-                        onChange={(values) => updateSection(index, { items: values })}
-                        label={`Item do bloco ${index + 1}`}
-                      />
+                    <div
+                      role="radiogroup"
+                      aria-label={`Formato do bloco ${index + 1}`}
+                      className="mb-3 inline-flex rounded-full border border-content/12 bg-raised p-0.5 text-xs font-semibold"
+                    >
+                      {SECTION_FORMATS.map(([asList, text]) => (
+                        <button
+                          key={text}
+                          type="button"
+                          role="radio"
+                          aria-checked={Boolean(section.listMode) === asList}
+                          onClick={() => setSectionMode(index, asList)}
+                          className={`rounded-full px-3 py-1 transition ${
+                            Boolean(section.listMode) === asList
+                              ? "bg-card text-content shadow-sm"
+                              : "text-content/50 hover:text-content"
+                          }`}
+                        >
+                          {text}
+                        </button>
+                      ))}
                     </div>
+                    {section.listMode ? (
+                      <>
+                        {section.body ? (
+                          <div className="mb-2">
+                            <EditableText
+                              value={section.body}
+                              onChange={(value) => updateSection(index, { body: value })}
+                              label={`Introdução do bloco ${index + 1}`}
+                              placeholder="Introdução da lista (opcional)"
+                              multiline
+                              className="text-[15px] leading-[1.7] text-content/75"
+                            />
+                          </div>
+                        ) : null}
+                        <EditableLines
+                          values={section.items ?? []}
+                          onChange={(values) => updateSection(index, { items: values })}
+                          label={`Item do bloco ${index + 1}`}
+                        />
+                      </>
+                    ) : (
+                      <EditableText
+                        value={section.body ?? ""}
+                        onChange={(value) => updateSection(index, { body: value })}
+                        label={`Texto do bloco ${index + 1}`}
+                        placeholder="Texto corrido. Cada quebra de linha vira um parágrafo."
+                        multiline
+                        className="text-[15px] leading-[1.7] whitespace-pre-line text-content/75"
+                      />
+                    )}
                   </div>
                 </article>
               </EditRegion>
@@ -323,7 +443,7 @@ export function ProductVisualEditor({
 
             <button
               type="button"
-              onClick={() => change("sections", [...sections, { title: "", body: "", items: [], sortOrder: sections.length }])}
+              onClick={() => setSections([...sections, { title: "", body: "", items: [], listMode: false }])}
               className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-content/25 py-5 text-sm font-semibold text-content/55 hover:border-accent hover:text-accent"
             >
               <Plus className="h-4 w-4" />
@@ -500,6 +620,7 @@ export function ProductVisualEditor({
             lineId={form.lineId || undefined}
             variantName={form.variantName ?? ""}
             onVariantName={(value) => change("variantName", value)}
+            onRowsChange={onSkus}
           />
         </EditorDrawer>
       ) : null}

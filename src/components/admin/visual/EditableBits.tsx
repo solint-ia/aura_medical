@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { ClipboardList, Pencil, Plus, Trash2 } from "lucide-react";
+
+import { listToText, parseListText } from "@/lib/listText";
 
 /**
  * Peças do editor visual: o texto aparece com a mesma tipografia do site e vira
@@ -172,7 +174,11 @@ export function EditableTagList({
   );
 }
 
-/** Lista de linhas soltas, como os itens de um bloco de descrição. */
+/**
+ * Lista de linhas soltas, como os itens de um bloco de descrição. Cada item se
+ * edita sozinho, ou a lista inteira vira um texto único: o admin cola o
+ * conteúdo e `parseListText` decide onde cada item começa e termina.
+ */
 export function EditableLines({
   values,
   onChange,
@@ -182,6 +188,58 @@ export function EditableLines({
   onChange: (values: string[]) => void;
   label: string;
 }) {
+  const [bulk, setBulk] = useState<string | null>(null);
+  const textRef = useRef<HTMLTextAreaElement>(null);
+  const bulkOpen = bulk !== null;
+
+  useEffect(() => {
+    if (bulkOpen) textRef.current?.focus();
+  }, [bulkOpen]);
+
+  if (bulk !== null) {
+    const parsed = parseListText(bulk);
+    return (
+      <div className="rounded-xl border border-accent/40 bg-canvas p-3">
+        <textarea
+          ref={textRef}
+          aria-label={`${label}: lista em texto`}
+          value={bulk}
+          rows={Math.min(14, Math.max(4, bulk.split("\n").length + 1))}
+          placeholder={"Cole ou digite a lista, um item por linha.\nMarcadores como •, - ou 1. são removidos."}
+          onChange={(event) => setBulk(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") setBulk(null);
+          }}
+          className="w-full resize-y rounded-md bg-transparent text-[15px] leading-relaxed outline-none"
+        />
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-content/10 pt-2">
+          <p className="text-xs text-content/55">
+            {parsed.length === 1 ? "1 item identificado" : `${parsed.length} itens identificados`}
+          </p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setBulk(null)}
+              className="rounded-full px-3 py-1 text-xs font-semibold text-content/60 hover:text-content"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onChange(parsed);
+                setBulk(null);
+              }}
+              className="rounded-full bg-action px-3 py-1 text-xs font-semibold text-action-fg"
+            >
+              Aplicar lista
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <ul className="divide-y divide-content/10">
       {values.map((entry, index) => (
@@ -203,11 +261,19 @@ export function EditableLines({
           </button>
         </li>
       ))}
-      <li className="pt-2">
+      <li className="flex flex-wrap gap-x-4 gap-y-1 pt-2">
+        <button
+          type="button"
+          onClick={() => setBulk(listToText(values))}
+          className="inline-flex items-center gap-1 text-xs font-semibold text-accent"
+        >
+          <ClipboardList className="h-3 w-3" />
+          {values.length ? "Editar lista como texto" : "Colar lista"}
+        </button>
         <button
           type="button"
           onClick={() => onChange([...values, ""])}
-          className="inline-flex items-center gap-1 text-xs font-semibold text-accent"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-content/55 hover:text-accent"
         >
           <Plus className="h-3 w-3" />
           Adicionar item
