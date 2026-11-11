@@ -4,6 +4,8 @@ import type { ShippingPackage, VerifiedCheckoutItem } from "@/lib/checkoutPricin
 export const DEFAULT_PACKAGE: ShippingPackage = { width: 10, height: 15, length: 20, weight: 0.5 };
 
 const PRODUCTION_API_URL = "https://melhorenvio.com.br/api/v2";
+/** No Melhor Envio, a transportadora de id 1 é os Correios. */
+const CORREIOS_COMPANY_ID = "1";
 const REQUEST_TIMEOUT_MS = 12_000;
 
 export interface MelhorEnvioShippingOption {
@@ -138,6 +140,12 @@ export async function calculateMelhorEnvioShipping(
         raw.company && typeof raw.company === "object"
           ? (raw.company as Record<string, unknown>)
           : {};
+      // A loja envia só pelos Correios. O pagamento recalcula o frete por esta
+      // mesma função, então um id de outra transportadora é recusado no checkout.
+      const isCorreios =
+        String(company.id ?? "") === CORREIOS_COMPANY_ID ||
+        String(company.name ?? "").trim().toLowerCase() === "correios";
+      if (!isCorreios) return null;
       const price = money(raw.custom_price ?? raw.price);
       const deliveryTime = Number(raw.custom_delivery_time ?? raw.delivery_time);
 
@@ -166,7 +174,7 @@ export async function calculateMelhorEnvioShipping(
 
   if (options.length === 0) {
     throw new MelhorEnvioError(
-      "Nenhuma transportadora atende este CEP para os produtos selecionados.",
+      "Os Correios não atendem este CEP para os produtos selecionados.",
       422
     );
   }

@@ -24,21 +24,28 @@ describe("calculateMelhorEnvioShipping", () => {
     delete process.env.MELHOR_ENVIO_API_URL;
   });
 
-  it("solicita e devolve todas as opções válidas retornadas pela API", async () => {
+  it("devolve só as opções dos Correios, da mais barata para a mais cara", async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify([
-      { id: 1, name: "PAC", price: "30.00", delivery_time: 8, company: { name: "Correios" } },
-      { id: 3, name: "Expresso", price: "20.00", delivery_time: 4, company: { name: "Jadlog" } },
-      { id: 4, name: "Rodoviário", price: "25.00", delivery_time: 6, company: { name: "LATAM Cargo" } },
-      { id: 9, name: "Indisponível", error: "Serviço indisponível" },
+      { id: 2, name: "SEDEX", price: "45.00", delivery_time: 3, company: { id: 1, name: "Correios" } },
+      { id: 1, name: "PAC", price: "30.00", delivery_time: 8, company: { id: 1, name: "Correios" } },
+      { id: 3, name: "Expresso", price: "20.00", delivery_time: 4, company: { id: 2, name: "Jadlog" } },
+      { id: 4, name: "Rodoviário", price: "25.00", delivery_time: 6, company: { id: 6, name: "LATAM Cargo" } },
+      { id: 17, name: "Mini Envios", error: "Serviço indisponível", company: { id: 1, name: "Correios" } },
     ]), { status: 200, headers: { "Content-Type": "application/json" } }));
     vi.stubGlobal("fetch", fetchMock);
 
     const options = await calculateMelhorEnvioShipping("49000-001", [item]);
 
-    expect(options.map(({ id }) => id)).toEqual(["3", "4", "1"]);
-    expect(options.map(({ company }) => company)).toEqual(["Jadlog", "LATAM Cargo", "Correios"]);
-    const request = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
-    expect(request).not.toHaveProperty("services");
+    expect(options.map(({ id }) => id)).toEqual(["1", "2"]);
+    expect(options.every(({ company }) => company === "Correios")).toBe(true);
+  });
+
+  it("avisa quando os Correios não atendem, mesmo com outras transportadoras disponíveis", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify([
+      { id: 3, name: "Expresso", price: "20.00", delivery_time: 4, company: { id: 2, name: "Jadlog" } },
+    ]), { status: 200, headers: { "Content-Type": "application/json" } })));
+
+    await expect(calculateMelhorEnvioShipping("49000-001", [item])).rejects.toThrow("Os Correios não atendem");
   });
 
   it("envia medidas de uma unidade com a quantidade, sem somar nem multiplicar", async () => {
